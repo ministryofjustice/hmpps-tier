@@ -58,7 +58,7 @@ workflows:
 #      - hmpps/deploy_env:
 #          name: deploy_preprod
 #          env: "preprod"
-#          context: hmpps-template-kotlin-preprod
+#          context: hmpps-tier-preprod
 #          requires:
 #            - request-preprod-approval
 #      - request-prod-approval:
@@ -69,7 +69,7 @@ workflows:
 #          name: deploy_prod
 #          env: "prod"
 #          slack_notification: true
-#          context: hmpps-template-kotlin-prod
+#          context: hmpps-tier-prod
 #          requires:
 #            - request-prod-approval
 
