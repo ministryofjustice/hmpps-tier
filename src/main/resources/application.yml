@@ -13,6 +13,37 @@ spring:
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false
 
+  datasource:
+    hikari:
+      maximum-pool-size: 25
+
+  flyway:
+    locations: classpath:db/migration
+
+  cache:
+    cache-names: registration,assessment
+    caffeine.spec: maximumSize=500,expireAfterAccess=60s
+
+  security:
+    oauth2:
+      client:
+        registration:
+          community-api:
+            provider: hmpps-auth
+            client-id: ${oauth.client.id}
+            client-secret: ${oauth.client.secret}
+            authorization-grant-type: client_credentials
+            scope: read
+          assessment-api:
+            provider: hmpps-auth
+            client-id: ${oauth.client.id}
+            client-secret: ${oauth.client.secret}
+            authorization-grant-type: client_credentials
+            scope: read
+        provider:
+          hmpps-auth:
+            token-uri: ${oauth.endpoint.url}/oauth/token
+
 server:
   port: 8080
   servlet:
@@ -44,3 +75,4 @@ management:
     info:
       cache:
         time-to-live: 2000ms
+

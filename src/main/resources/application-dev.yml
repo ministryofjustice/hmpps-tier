@@ -1,0 +1,38 @@
+oauth:
+  endpoint:
+    url: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
+
+community-api:
+  endpoint:
+    url: https://community-api-secure.test.delius.probation.hmpps.dsd.io/secure
+
+assessment-api:
+  endpoint:
+    url: https://offender-dev.aks-dev-1.studio-hosting.service.justice.gov.uk
+
+spring:
+  jpa:
+    show-sql: true
+
+  datasource:
+    url: 'jdbc:h2:mem:probation-tiering;INIT=create domain if not exists jsonb as text;MODE=PostgreSQL;'
+    username: probation
+    password: tiering
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:local-public-key.pub
+
+logging:
+  level:
+    uk.gov: DEBUG
+
+server:
+  shutdown: immediate

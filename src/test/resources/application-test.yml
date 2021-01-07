@@ -2,9 +2,32 @@ spring:
   profiles:
     include: stdout
 
+  datasource:
+    url: 'jdbc:h2:mem:probation-tiering;INIT=create domain if not exists jsonb as text;MODE=PostgreSQL;'
+    username: probation
+    password: tiering
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:local-public-key.pub
+
+logging:
+  level:
+    uk.gov: DEBUG
+
 server:
   shutdown: immediate
 
 management.endpoint:
   health.cache.time-to-live: 0
   info.cache.time-to-live: 0
+
+community-api:
+  endpoint:
+    url: https://localhost:8081
+
+assessment-api:
+  endpoint:
+    url: https://localhost:8082
