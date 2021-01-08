@@ -4,12 +4,13 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityF
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
+import java.math.BigDecimal
 
 
 data class ProtectScores(
   val crn: String,
   val mappaLevel: Mappa?,
-  val rsrScore: Int?,
+  val rsrScore: BigDecimal?,
   val roshScore: Rosh?,
   val complexityFactors: List<ComplexityFactor>,
   val assessmentComplexityFactors: List<AssessmentComplexityFactor>

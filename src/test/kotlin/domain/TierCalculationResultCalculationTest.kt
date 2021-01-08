@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.*
+import java.math.BigDecimal
 
 internal class TierCalculationResultCalculationTest {
 
@@ -27,7 +28,7 @@ internal class TierCalculationResultCalculationTest {
       val protectScores = ProtectScores(
         crn = crn,
         mappaLevel = null,
-        rsrScore = RsrThresholds.TIER_B_RSR.num.plus(1),
+        rsrScore = RsrThresholds.TIER_B_RSR.num.plus(BigDecimal(1)),
         roshScore = Rosh.MEDIUM,
         complexityFactors = listOf(),
         assessmentComplexityFactors = listOf()
@@ -135,7 +136,7 @@ internal class TierCalculationResultCalculationTest {
       val protectScores = ProtectScores(
         crn = crn,
         mappaLevel = null,
-        rsrScore = RsrThresholds.TIER_B_RSR.num.plus(1),
+        rsrScore = RsrThresholds.TIER_B_RSR.num.plus(BigDecimal(1)),
         roshScore = null,
         complexityFactors = listOf(),
         assessmentComplexityFactors = listOf()
@@ -189,7 +190,7 @@ internal class TierCalculationResultCalculationTest {
       val protectScores = ProtectScores(
         crn = crn,
         mappaLevel = null,
-        rsrScore = RsrThresholds.TIER_C_RSR.num.plus(1),
+        rsrScore = RsrThresholds.TIER_C_RSR.num.plus(BigDecimal(1)),
         roshScore = null,
         complexityFactors = listOf(),
         assessmentComplexityFactors = listOf()
@@ -216,7 +217,7 @@ internal class TierCalculationResultCalculationTest {
       val protectScores = ProtectScores(
         crn = crn,
         mappaLevel = null,
-        rsrScore = RsrThresholds.TIER_C_RSR.num.minus(1),
+        rsrScore = RsrThresholds.TIER_C_RSR.num.minus(BigDecimal(1)),
         roshScore = null,
         complexityFactors = listOf(),
         assessmentComplexityFactors = listOf()

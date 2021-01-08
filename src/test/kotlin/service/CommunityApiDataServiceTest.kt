@@ -17,6 +17,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
+import java.math.BigDecimal
 import java.time.LocalDate
 
 
@@ -580,14 +581,14 @@ internal class CommunityApiDataServiceTest {
     fun `Should return RSR`() {
       val crn = "123"
       val assessment = DeliusAssessmentsDto(
-        rsr = 5,
+        rsr = BigDecimal(5),
         ogrs = null,
       )
 
       every { communityApiClient.getAssessments(crn) } returns assessment
       val returnValue = deliusDataService.getRSR(crn)
 
-      assertThat(returnValue).isEqualTo(5)
+      assertThat(returnValue).isEqualTo(BigDecimal(5))
     }
 
     @Test
@@ -628,7 +629,7 @@ internal class CommunityApiDataServiceTest {
     fun `Should return RSR null`() {
       val crn = "123"
       val assessment = DeliusAssessmentsDto(
-        rsr = 10,
+        rsr = BigDecimal(10),
         ogrs = null,
       )
 

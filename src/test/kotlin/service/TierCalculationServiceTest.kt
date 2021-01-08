@@ -13,6 +13,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
+import java.math.BigDecimal
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -75,7 +76,7 @@ internal class TierCalculationServiceTest {
       every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
       every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns listOf()
       every { assessmentApiDataService.getAssessmentNeeds(crn) } returns mapOf()
-      every { communityApiDataService.getRSR(crn) } returns 3
+      every { communityApiDataService.getRSR(crn) } returns BigDecimal(3)
       every { communityApiDataService.getOGRS(crn) } returns 55
 
       every { tierCalculationRepository.save(any()) } returns validTierCalculationEntity

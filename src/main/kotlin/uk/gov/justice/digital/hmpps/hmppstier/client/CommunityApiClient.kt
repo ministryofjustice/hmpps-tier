@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import java.math.BigDecimal
 import java.time.LocalDate
 
 @Component
@@ -34,7 +35,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
 
 data class DeliusAssessmentsDto @JsonCreator constructor(
   @JsonProperty("rsrScore")
-  val rsr: Int?,
+  val rsr: BigDecimal?,
   @JsonProperty("OGRSScore")
   val ogrs: Int?
 )
