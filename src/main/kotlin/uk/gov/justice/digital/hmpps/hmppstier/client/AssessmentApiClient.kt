@@ -33,7 +33,7 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
       .block() ?: emptyList()
   }
 
-  @Cacheable(value = ["assessment"], key = "{ #crn }")
+  @Cacheable(value = ["oasysAssessment"], key = "{ #crn }")
   fun getLatestAssessmentId(crn: String): String? {
     return webClient
       .get()

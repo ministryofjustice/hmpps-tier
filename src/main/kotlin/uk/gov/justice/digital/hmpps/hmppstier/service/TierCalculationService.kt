@@ -33,7 +33,7 @@ class TierCalculationService(
     val protectScores = ProtectScores(
       crn = crn,
       mappaLevel = communityApiDataService.getMappa(crn),
-      rsrScore = null,
+      rsrScore = communityApiDataService.getRSR(crn),
       roshScore = communityApiDataService.getRosh(crn),
       complexityFactors = communityApiDataService.getComplexityFactors(crn),
       assessmentComplexityFactors = assessmentApiDataService.getAssessmentComplexityAnswers(crn)
@@ -41,7 +41,7 @@ class TierCalculationService(
 
     val changeScores = ChangeScores(
       crn = crn,
-      ogrsScore = null,
+      ogrsScore = communityApiDataService.getOGRS(crn),
       need = assessmentApiDataService.getAssessmentNeeds(crn)
     )
 

@@ -75,6 +75,8 @@ internal class TierCalculationServiceTest {
       every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
       every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns listOf()
       every { assessmentApiDataService.getAssessmentNeeds(crn) } returns mapOf()
+      every { communityApiDataService.getRSR(crn) } returns 3
+      every { communityApiDataService.getOGRS(crn) } returns 55
 
       every { tierCalculationRepository.save(any()) } returns validTierCalculationEntity
 
@@ -85,6 +87,8 @@ internal class TierCalculationServiceTest {
       verify { communityApiDataService.getComplexityFactors(crn) }
       verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
       verify { assessmentApiDataService.getAssessmentNeeds(crn) }
+      verify { communityApiDataService.getRSR(crn) }
+      verify { communityApiDataService.getOGRS(crn) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
       verify { tierCalculationRepository.save(any()) }
 

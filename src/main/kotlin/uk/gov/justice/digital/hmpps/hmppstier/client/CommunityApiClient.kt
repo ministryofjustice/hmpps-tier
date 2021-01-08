@@ -20,7 +20,24 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .bodyToMono(CommunityApiRegistrationsDto::class.java)
       .block()?.registrations ?: listOf()
   }
+
+  @Cacheable(value = ["deliusAssessment"], key = "{ #crn }")
+  fun getAssessments(crn: String): DeliusAssessmentsDto? {
+    return webClient
+      .get()
+      .uri("/offenders/crn/${crn}/registrations")
+      .retrieve()
+      .bodyToMono(DeliusAssessmentsDto::class.java)
+      .block()
+  }
 }
+
+data class DeliusAssessmentsDto @JsonCreator constructor(
+  @JsonProperty("rsrScore")
+  val rsr: Int?,
+  @JsonProperty("OGRSScore")
+  val ogrs: Int?
+)
 
 data class KeyValue @JsonCreator constructor(
   @JsonProperty("code")

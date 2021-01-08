@@ -63,7 +63,7 @@ class ComplexityFactorTest {
 
     @Test
     fun `It should match TERRORISM`() {
-      assertThat(ComplexityFactor.from("TACT")).isEqualTo(ComplexityFactor.TERRORISM)
+      assertThat(ComplexityFactor.from("RTAO")).isEqualTo(ComplexityFactor.TERRORISM)
     }
 
   }
@@ -73,17 +73,17 @@ class ComplexityFactorTest {
   inner class CaseInsensitiveFrom {
     @Test
     fun `It should match case insensitive lower`() {
-      assertThat(ComplexityFactor.from("tact")).isEqualTo(ComplexityFactor.TERRORISM)
+      assertThat(ComplexityFactor.from("rtao")).isEqualTo(ComplexityFactor.TERRORISM)
     }
 
     @Test
     fun `It should match case insensitive upper`() {
-      assertThat(ComplexityFactor.from("TACT")).isEqualTo(ComplexityFactor.TERRORISM)
+      assertThat(ComplexityFactor.from("RTAO")).isEqualTo(ComplexityFactor.TERRORISM)
     }
 
     @Test
     fun `It should match case insensitive mixed`() {
-      assertThat(ComplexityFactor.from("TaCt")).isEqualTo(ComplexityFactor.TERRORISM)
+      assertThat(ComplexityFactor.from("RtAO")).isEqualTo(ComplexityFactor.TERRORISM)
     }
 
     @Test

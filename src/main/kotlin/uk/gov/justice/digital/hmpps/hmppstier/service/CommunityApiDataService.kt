@@ -31,4 +31,12 @@ class CommunityApiDataService(val communityApiClient: CommunityApiClient) {
       .mapNotNull { ComplexityFactor.from(it.type.code) }
   }
 
+  fun getRSR(crn: String): Int? {
+    return communityApiClient.getAssessments(crn)?.rsr
+  }
+
+  fun getOGRS(crn: String): Int? {
+    return communityApiClient.getAssessments(crn)?.ogrs
+  }
+
 }

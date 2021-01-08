@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
+import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessmentsDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
@@ -569,6 +570,74 @@ internal class CommunityApiDataServiceTest {
 
       assertThat(returnValue).isEmpty()
     }
+  }
+
+  @Nested
+  @DisplayName("Get RSR Tests")
+  inner class GetRSRTests {
+
+    @Test
+    fun `Should return RSR`() {
+      val crn = "123"
+      val assessment = DeliusAssessmentsDto(
+        rsr = 5,
+        ogrs = null,
+      )
+
+      every { communityApiClient.getAssessments(crn) } returns assessment
+      val returnValue = deliusDataService.getRSR(crn)
+
+      assertThat(returnValue).isEqualTo(5)
+    }
+
+    @Test
+    fun `Should return RSR null`() {
+      val crn = "123"
+      val assessment = DeliusAssessmentsDto(
+        rsr = null,
+        ogrs = 10,
+      )
+
+      every { communityApiClient.getAssessments(crn) } returns assessment
+      val returnValue = deliusDataService.getRSR(crn)
+
+      assertThat(returnValue).isNull()
+    }
+
+  }
+
+  @Nested
+  @DisplayName("Get OGRS Tests")
+  inner class GetOGRSTests {
+
+    @Test
+    fun `Should return RSR`() {
+      val crn = "123"
+      val assessment = DeliusAssessmentsDto(
+        rsr = null,
+        ogrs = 50,
+      )
+
+      every { communityApiClient.getAssessments(crn) } returns assessment
+      val returnValue = deliusDataService.getOGRS(crn)
+
+      assertThat(returnValue).isEqualTo(50)
+    }
+
+    @Test
+    fun `Should return RSR null`() {
+      val crn = "123"
+      val assessment = DeliusAssessmentsDto(
+        rsr = 10,
+        ogrs = null,
+      )
+
+      every { communityApiClient.getAssessments(crn) } returns assessment
+      val returnValue = deliusDataService.getOGRS(crn)
+
+      assertThat(returnValue).isNull()
+    }
+
   }
 }
 

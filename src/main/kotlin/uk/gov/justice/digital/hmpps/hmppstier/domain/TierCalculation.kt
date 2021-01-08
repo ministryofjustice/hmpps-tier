@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.domain
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.*
-import java.math.BigDecimal
 
 @Component
 class TierCalculation {
@@ -80,7 +79,7 @@ class TierCalculation {
       }
     }
 
-    private fun getRsrPoints(rsrScore: BigDecimal?): Int {
+    private fun getRsrPoints(rsrScore: Int?): Int {
       return when {
         rsrScore != null && rsrScore >= RsrThresholds.TIER_B_RSR.num -> {
           criteria.add(TierMatchCriteria.RSR_IN_TIER_B)
