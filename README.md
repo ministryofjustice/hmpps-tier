@@ -1,32 +1,58 @@
-# hmpps-template-kotlin
+# probation-tiering
 
-This is a skeleton project from which to create new kotlin projects from.
+## Continuous Integration  
+https://app.circleci.com/pipelines/github/ministryofjustice/probation-tiering
 
-# Instructions
+### Prerequisites  
+* Java JDK 11+  
+* An editor/IDE
+* Gradle  
+* Docker  
+* OAuth token
+  
+#### OAuth security  
+In order to run the service locally you need to add HMPPS auth token to your requests
 
-If this is a Digital Prison Services project then the project will be created as part of bootstrapping - 
-see https://github.com/ministryofjustice/dps-project-bootstrap.
+### Build service and run tests  
+This service is built using Gradle. In order to build the project from the command line and run the tests, use:
+```  
+./gradlew clean build  
+```  
+The created JAR file will be named "`probation-tiering<yyyy-mm-dd>.jar`", using the date that the build takes place in the format `yyyy-mm-dd`. 
 
-## Renaming from HMPPS Template Kotlin - github Actions
 
-Once the new repository is deployed. Navigate to the repository in github, and select the `Actions` tab.
-Click the link to `Enable Actions on this repository`.
-
-Find the Action workflow named: `rename-project-create-pr` and click `Run workflow`.  This workflow will will
-execute the `rename-project.bash` and create Pull Request for you to review.  Review the PR and merge.
-
-Note: ideally this workflow would run automatically however due to a recent change github Actions are not
-enabled by default on newly created repos. There is no way to enable Actions other then to click the button in the UI.
-If this situation changes we will update this project so that the workflow is triggered during the bootstrap project.
-Further reading: <https://github.community/t/workflow-isnt-enabled-in-repos-generated-from-template/136421>
-
-## Manually renaming from HMPPS Template Kotlin
-
-Run the `rename-project.bash` and create a PR.
-
-The `rename-project.bash` script takes a single argument - the name of the project and calculates from it:
-* The main class name (project name converted to pascal case) 
-* The project description (class name with spaces between the words)
-* The main package name (project name with hyphens removed)
-
-It then performs a search and replace and directory renames so the project is ready to be used.
+### Additional configuration  
+The application is configurable with conventional Spring parameters.  
+The Spring documentation can be found here: https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html  
+  
+#### Default port  
+By default the application starts on port '8080'. To override, set server.port (e.g. `SERVER_PORT=8099 java -jar build/libs/csr-api-<yyyy-mm-dd>.jar` )  
+  
+### Documentation  
+The generated documentation for the api can be viewed at http://localhost:8080/swagger-ui.html  
+  
+### Health  
+  
+- `/ping`: will respond `pong` to all requests.  This should be used by dependent systems to check connectivity to   
+csr-api, rather than calling the `/health` endpoint.  
+- `/health`: provides information about the application health and its dependencies.  This should only be used  
+by csr-api health monitoring (e.g. pager duty) and not other systems who wish to find out the   
+state of csr-api.  
+- `/info`: provides information about the version of deployed application.  
+  
+#### Health and info Endpoints (curl)  
+  
+##### Application info  
+```  
+curl -X GET http://localhost:8080/info  
+```  
+  
+##### Application health  
+```  
+curl -X GET http://localhost:8080/health  
+```  
+  
+##### Application ping  
+```  
+curl -X GET http://localhost:8080/ping  
+```  
