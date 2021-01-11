@@ -608,7 +608,7 @@ internal class CommunityApiDataServiceTest {
   inner class GetOGRSTests {
 
     @Test
-    fun `Should return RSR`() {
+    fun `Should return OGRS`() {
       val crn = "123"
       val assessment = DeliusAssessmentsDto(
         rsr = null,
@@ -622,7 +622,7 @@ internal class CommunityApiDataServiceTest {
     }
 
     @Test
-    fun `Should return RSR null`() {
+    fun `Should return OGRS null`() {
       val crn = "123"
       val assessment = DeliusAssessmentsDto(
         rsr = BigDecimal(10),
