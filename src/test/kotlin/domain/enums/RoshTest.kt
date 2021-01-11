@@ -25,7 +25,6 @@ class RoshTest {
     fun `It should match Medium`() {
       assertThat(Rosh.from("RMRH")).isEqualTo(Rosh.MEDIUM)
     }
-
   }
 
   @Nested

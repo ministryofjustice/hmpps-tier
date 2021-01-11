@@ -4,7 +4,16 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.*
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeScore
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectScore
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.TierMatchCriteria
 import java.math.BigDecimal
 
 internal class TierCalculationResultCalculationTest {
@@ -88,7 +97,6 @@ internal class TierCalculationResultCalculationTest {
 
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.RSR_ROSH_EQUAL)
     }
-
   }
 
   @Nested
@@ -603,7 +611,6 @@ internal class TierCalculationResultCalculationTest {
         ComplexityFactor.VULNERABILITY_ISSUE
       )
 
-
       val changeScores = ChangeScores(
         crn = crn,
         ogrsScore = null,
@@ -854,10 +861,10 @@ internal class TierCalculationResultCalculationTest {
 
       val needs: Map<Need, NeedSeverity> = mapOf(
         Need.ACCOMMODATION to NeedSeverity.SEVERE, // 2
-        Need.EDUCATION_TRAINING_AND_EMPLOYABILITY to NeedSeverity.SEVERE,     // 2
+        Need.EDUCATION_TRAINING_AND_EMPLOYABILITY to NeedSeverity.SEVERE, // 2
         Need.RELATIONSHIPS to NeedSeverity.SEVERE, // 2
-        Need.LIFESTYLE_AND_ASSOCIATES to NeedSeverity.SEVERE,     // 2
-        Need.DRUG_MISUSE to NeedSeverity.SEVERE,   // 2
+        Need.LIFESTYLE_AND_ASSOCIATES to NeedSeverity.SEVERE, // 2
+        Need.DRUG_MISUSE to NeedSeverity.SEVERE, // 2
       )
 
       val changeScores = ChangeScores(
@@ -888,14 +895,14 @@ internal class TierCalculationResultCalculationTest {
       val calculator = TierCalculation()
 
       val needs: Map<Need, NeedSeverity> = mapOf(
-        Need.ACCOMMODATION to NeedSeverity.SEVERE,        // 2
-        Need.EDUCATION_TRAINING_AND_EMPLOYABILITY to NeedSeverity.SEVERE,            // 2
-        Need.RELATIONSHIPS to NeedSeverity.SEVERE,        // 2
-        Need.LIFESTYLE_AND_ASSOCIATES to NeedSeverity.SEVERE,            // 2
-        Need.DRUG_MISUSE to NeedSeverity.SEVERE,          // 2
-        Need.ALCOHOL_MISUSE to NeedSeverity.SEVERE,       // 2
-        Need.THINKING_AND_BEHAVIOUR to NeedSeverity.SEVERE,   // 4
-        Need.ATTITUDES to NeedSeverity.SEVERE,            // 4
+        Need.ACCOMMODATION to NeedSeverity.SEVERE, // 2
+        Need.EDUCATION_TRAINING_AND_EMPLOYABILITY to NeedSeverity.SEVERE, // 2
+        Need.RELATIONSHIPS to NeedSeverity.SEVERE, // 2
+        Need.LIFESTYLE_AND_ASSOCIATES to NeedSeverity.SEVERE, // 2
+        Need.DRUG_MISUSE to NeedSeverity.SEVERE, // 2
+        Need.ALCOHOL_MISUSE to NeedSeverity.SEVERE, // 2
+        Need.THINKING_AND_BEHAVIOUR to NeedSeverity.SEVERE, // 4
+        Need.ATTITUDES to NeedSeverity.SEVERE, // 4
       )
 
       val changeScores = ChangeScores(
@@ -961,7 +968,6 @@ internal class TierCalculationResultCalculationTest {
 
       val calculator = TierCalculation()
 
-
       val needs: Map<Need, NeedSeverity> = mapOf(
         Need.ACCOMMODATION to NeedSeverity.STANDARD,
       )
@@ -1018,10 +1024,5 @@ internal class TierCalculationResultCalculationTest {
       assertThat(tier.changeScore.criteria).contains(TierMatchCriteria.INCLUDED_OASYS_NEEDS)
       assertThat(tier.changeScore.score).isEqualTo(2)
     }
-
   }
-
 }
-
-
-

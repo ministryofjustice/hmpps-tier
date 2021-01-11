@@ -15,7 +15,6 @@ class AssessmentComplexityFactorTest {
     fun `It should match PARENTING_RESPONSIBILITIES`() {
       assertThat(AssessmentComplexityFactor.from("13.3 - F")).isEqualTo(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
     }
-
   }
 
   @Nested
@@ -30,6 +29,5 @@ class AssessmentComplexityFactorTest {
     fun `It should match case insensitive upper`() {
       assertThat(AssessmentComplexityFactor.from("13.3 - F")).isEqualTo(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
     }
-
   }
 }

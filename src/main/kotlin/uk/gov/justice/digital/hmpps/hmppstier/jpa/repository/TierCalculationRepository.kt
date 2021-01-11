@@ -8,5 +8,4 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 interface TierCalculationRepository : CrudRepository<TierCalculationEntity, Long> {
 
   fun findFirstByCrnOrderByCreatedDesc(crn: String): TierCalculationEntity?
-
 }

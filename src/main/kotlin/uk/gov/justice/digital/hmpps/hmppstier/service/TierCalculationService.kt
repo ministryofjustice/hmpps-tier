@@ -62,7 +62,6 @@ class TierCalculationService(
 
     if (calculation == null) {
       log.info("No tier calculation found for $crn")
-
     } else {
       log.info("Found latest tier calculation for $crn")
     }

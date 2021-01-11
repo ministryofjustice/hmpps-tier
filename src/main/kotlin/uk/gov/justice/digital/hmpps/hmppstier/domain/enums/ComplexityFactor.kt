@@ -14,9 +14,6 @@ enum class ComplexityFactor(val registerCode: String) {
   STREET_GANGS("STRG"),
   TERRORISM("RTAO");
 
-  // TODO: This is more complicated
-  //BREACH_OR_RECALL
-
   companion object {
     fun from(value: String): ComplexityFactor? {
       return values()

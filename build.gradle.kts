@@ -2,6 +2,7 @@ plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "2.1.2"
   kotlin("plugin.spring") version "1.4.21"
   kotlin("plugin.jpa") version "1.4.21"
+  id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
 }
 
 configurations {
@@ -43,4 +44,8 @@ dependencies {
 
   testImplementation("com.ninja-squad:springmockk:2.0.1")
   testImplementation("org.assertj:assertj-core:3.18.0")
+}
+
+tasks.named("check") {
+  dependsOn(":ktlintCheck")
 }

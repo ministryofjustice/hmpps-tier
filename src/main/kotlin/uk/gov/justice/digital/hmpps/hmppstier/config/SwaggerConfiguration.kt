@@ -14,7 +14,15 @@ import springfox.documentation.builders.AuthorizationCodeGrantBuilder
 import springfox.documentation.builders.OAuthBuilder
 import springfox.documentation.builders.PathSelectors
 import springfox.documentation.builders.RequestHandlerSelectors
-import springfox.documentation.service.*
+import springfox.documentation.service.ApiInfo
+import springfox.documentation.service.AuthorizationScope
+import springfox.documentation.service.Contact
+import springfox.documentation.service.SecurityReference
+import springfox.documentation.service.SecurityScheme
+import springfox.documentation.service.StringVendorExtension
+import springfox.documentation.service.TokenEndpoint
+import springfox.documentation.service.TokenRequestEndpoint
+import springfox.documentation.service.VendorExtension
 import springfox.documentation.spi.DocumentationType
 import springfox.documentation.spi.service.contexts.SecurityContext
 import springfox.documentation.spring.web.plugins.Docket
@@ -22,7 +30,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
 import java.util.*
-
 
 @Configuration
 @EnableSwagger2
@@ -77,19 +84,16 @@ class SwaggerConfiguration(@Autowired val applicationContext: ApplicationContext
     AuthorizationScope("write", "for write operations")
   )
 
-
   private fun securityContext() = SecurityContext.builder()
     .securityReferences(listOf(SecurityReference("spring_oauth", scopes())))
     .forPaths(PathSelectors.regex("/.*"))
     .build()
-
 
   private fun contactInfo() = Contact(
     "HMPPS Digital Studio",
     "",
     "feedback@digital.justice.gov.uk"
   )
-
 
   private fun apiInfo(): ApiInfo {
     var buildProperties: BuildProperties
@@ -111,7 +115,9 @@ class SwaggerConfiguration(@Autowired val applicationContext: ApplicationContext
       buildProperties.version,
       "https://gateway.nomis-api.service.justice.gov.uk/auth/terms",
       contactInfo(),
-      "MIT", "https://opensource.org/licenses/MIT", vendorExtensions
+      "MIT",
+      "https://opensource.org/licenses/MIT",
+      vendorExtensions
     )
   }
 }

@@ -45,7 +45,6 @@ class TierCalculationRepositoryTest(
       assertThat(calculation?.crn).isEqualTo(firstTierCalculation.crn)
       assertThat(calculation?.created).isEqualToIgnoringNanos(firstTierCalculation.created)
       assertThat(calculation?.data).isEqualTo(firstTierCalculation.data)
-
     }
 
     @Test
@@ -69,7 +68,6 @@ class TierCalculationRepositoryTest(
       assertThat(calculation?.crn).isEqualTo(firstTierCalculation.crn)
       assertThat(calculation?.created).isEqualToIgnoringNanos(firstTierCalculation.created)
       assertThat(calculation?.data).isEqualTo(firstTierCalculation.data)
-
     }
   }
 

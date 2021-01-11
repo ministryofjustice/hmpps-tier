@@ -39,5 +39,4 @@ class CommunityApiDataService(val communityApiClient: CommunityApiClient) {
   fun getOGRS(crn: String): Int? {
     return communityApiClient.getAssessments(crn)?.ogrs
   }
-
 }

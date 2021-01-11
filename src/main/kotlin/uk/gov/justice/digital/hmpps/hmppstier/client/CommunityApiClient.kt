@@ -16,7 +16,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   fun getRegistrations(crn: String): Collection<Registration> {
     return webClient
       .get()
-      .uri("/offenders/crn/${crn}/registrations")
+      .uri("/offenders/crn/$crn/registrations")
       .retrieve()
       .bodyToMono(CommunityApiRegistrationsDto::class.java)
       .block()?.registrations ?: listOf()
@@ -26,7 +26,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   fun getAssessments(crn: String): DeliusAssessmentsDto? {
     return webClient
       .get()
-      .uri("/offenders/crn/${crn}/registrations")
+      .uri("/offenders/crn/$crn/registrations")
       .retrieve()
       .bodyToMono(DeliusAssessmentsDto::class.java)
       .block()

@@ -13,7 +13,8 @@ class AssessmentApiDataService(val assessmentApiClient: AssessmentApiClient) {
     assessmentApiClient.getLatestAssessmentId(crn)?.let { assessmentId ->
       val allAnswers = assessmentApiClient.getAssessmentAnswers(
         assessmentId,
-        AssessmentComplexityFactor.values().map { it.answerCode })
+        AssessmentComplexityFactor.values().map { it.answerCode }
+      )
       return allAnswers.filter { question -> question.answers.any { isYes(it.refAnswerCode) } }
         .mapNotNull { it.questionCode?.let { code -> AssessmentComplexityFactor.from(code) } }
     }
@@ -31,5 +32,4 @@ class AssessmentApiDataService(val assessmentApiClient: AssessmentApiClient) {
   private fun isYes(value: String?): Boolean {
     return "YES".equals(value, true) || "Y".equals(value, true)
   }
-
 }

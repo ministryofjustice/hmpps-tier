@@ -20,5 +20,4 @@ enum class TierMatchCriteria {
   NO_ORGS,
   INCLUDED_OASYS_NEEDS,
   NO_OASYS_NEEDS,
-
 }

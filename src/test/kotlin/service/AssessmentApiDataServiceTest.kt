@@ -18,7 +18,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityF
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 
-
 @ExtendWith(MockKExtension::class)
 @DisplayName("Detail Service tests")
 internal class AssessmentApiDataServiceTest {
@@ -129,7 +128,6 @@ internal class AssessmentApiDataServiceTest {
 
       assertThat(returnValue).containsOnly(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
     }
-
 
     @Test
     fun `Should return empty List if no Complexity Answers match`() {
@@ -254,7 +252,5 @@ internal class AssessmentApiDataServiceTest {
       assertThat(returnValue).hasSize(1)
       assertThat(returnValue).containsEntry(Need.ACCOMMODATION, NeedSeverity.NO_NEED)
     }
-
   }
 }
-

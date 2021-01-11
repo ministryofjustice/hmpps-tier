@@ -65,7 +65,6 @@ class ComplexityFactorTest {
     fun `It should match TERRORISM`() {
       assertThat(ComplexityFactor.from("RTAO")).isEqualTo(ComplexityFactor.TERRORISM)
     }
-
   }
 
   @Nested

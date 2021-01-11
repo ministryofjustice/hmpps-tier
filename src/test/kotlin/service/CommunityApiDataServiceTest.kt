@@ -20,7 +20,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import java.math.BigDecimal
 import java.time.LocalDate
 
-
 @ExtendWith(MockKExtension::class)
 @DisplayName("Community Api Service tests")
 internal class CommunityApiDataServiceTest {
@@ -98,7 +97,7 @@ internal class CommunityApiDataServiceTest {
             LocalDate.now()
           ),
 
-          )
+        )
 
       every { communityApiClient.getRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getRosh(crn)
@@ -400,7 +399,6 @@ internal class CommunityApiDataServiceTest {
       assertThat(returnValue).isNull()
     }
 
-
     @Test
     fun `Should return null if no Mappa if present`() {
       val crn = "123"
@@ -604,7 +602,6 @@ internal class CommunityApiDataServiceTest {
 
       assertThat(returnValue).isNull()
     }
-
   }
 
   @Nested
@@ -638,7 +635,5 @@ internal class CommunityApiDataServiceTest {
 
       assertThat(returnValue).isNull()
     }
-
   }
 }
-

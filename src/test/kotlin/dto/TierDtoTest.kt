@@ -7,7 +7,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeScore
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectScore
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 
-
 internal class TierDtoTest {
 
   @Test
@@ -30,7 +29,6 @@ internal class TierDtoTest {
     assertThat(tierDto.changeScore).isEqualTo(12)
   }
 
-
   @Test
   fun `Should construct TierDTO from`() {
 
@@ -50,5 +48,4 @@ internal class TierDtoTest {
     assertThat(tierDto.protectScore).isEqualTo(5)
     assertThat(tierDto.changeScore).isEqualTo(12)
   }
-
 }
