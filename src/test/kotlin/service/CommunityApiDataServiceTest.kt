@@ -516,7 +516,7 @@ internal class CommunityApiDataServiceTest {
             LocalDate.now()
           ),
 
-      )
+        )
 
       every { communityApiClient.getRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getComplexityFactors(crn)
