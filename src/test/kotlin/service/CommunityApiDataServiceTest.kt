@@ -96,8 +96,7 @@ internal class CommunityApiDataServiceTest {
             true,
             LocalDate.now()
           ),
-
-          )
+        )
 
       every { communityApiClient.getRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getRosh(crn)

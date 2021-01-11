@@ -26,8 +26,7 @@ data class TierDto @JsonCreator constructor(
   @ApiModelProperty(value = "Change Score", example = "12")
   @JsonProperty("changeScore")
   val changeScore: Int?,
-
-  ) {
+) {
   companion object {
     fun from(calculation: TierCalculationResultEntity): TierDto {
       return TierDto(
