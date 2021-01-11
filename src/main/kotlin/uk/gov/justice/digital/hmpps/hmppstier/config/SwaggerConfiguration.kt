@@ -29,7 +29,10 @@ import springfox.documentation.spring.web.plugins.Docket
 import springfox.documentation.swagger2.annotations.EnableSwagger2
 import java.time.LocalDateTime
 import java.time.ZonedDateTime
-import java.util.*
+import java.util.Date
+import java.util.Optional
+import java.util.Properties
+import kotlin.collections.ArrayList
 
 @Configuration
 @EnableSwagger2
