@@ -1,7 +1,7 @@
-# probation-tiering
+# hmpps-tier
 
 ## Continuous Integration  
-https://app.circleci.com/pipelines/github/ministryofjustice/probation-tiering
+https://app.circleci.com/pipelines/github/ministryofjustice/hmpps-tier
 
 ### Prerequisites  
 * Java JDK 11+  
