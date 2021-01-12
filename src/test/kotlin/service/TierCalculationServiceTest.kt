@@ -1,8 +1,16 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import io.mockk.*
+import io.mockk.clearMocks
+import io.mockk.confirmVerified
+import io.mockk.every
 import io.mockk.junit5.MockKExtension
-import org.junit.jupiter.api.*
+import io.mockk.mockk
+import io.mockk.verify
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierCalculation
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierResult
@@ -13,6 +21,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
+import java.math.BigDecimal
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -47,7 +56,6 @@ internal class TierCalculationServiceTest {
     TierCalculationResultEntity(tierLetterResult, tierNumberResult)
   )
 
-
   @BeforeEach
   fun resetAllMocks() {
     clearMocks(communityApiDataService)
@@ -75,6 +83,8 @@ internal class TierCalculationServiceTest {
       every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
       every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns listOf()
       every { assessmentApiDataService.getAssessmentNeeds(crn) } returns mapOf()
+      every { communityApiDataService.getRSR(crn) } returns BigDecimal(3)
+      every { communityApiDataService.getOGRS(crn) } returns 55
 
       every { tierCalculationRepository.save(any()) } returns validTierCalculationEntity
 
@@ -85,9 +95,10 @@ internal class TierCalculationServiceTest {
       verify { communityApiDataService.getComplexityFactors(crn) }
       verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
       verify { assessmentApiDataService.getAssessmentNeeds(crn) }
+      verify { communityApiDataService.getRSR(crn) }
+      verify { communityApiDataService.getOGRS(crn) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
       verify { tierCalculationRepository.save(any()) }
-
     }
 
     @Test

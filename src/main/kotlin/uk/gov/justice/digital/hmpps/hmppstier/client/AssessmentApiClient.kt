@@ -16,7 +16,7 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
   fun getAssessmentAnswers(assessmentId: String, answerCodes: Collection<String>): Collection<Question> {
     return webClient
       .post()
-      .uri("/assessments/oasysSetId/${assessmentId}/answers")
+      .uri("/assessments/oasysSetId/$assessmentId/answers")
       .bodyValue(answerCodes)
       .retrieve()
       .bodyToMono(Answers::class.java)
@@ -27,22 +27,21 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
     val responseType = object : ParameterizedTypeReference<Collection<AssessmentNeed>>() {}
     return webClient
       .get()
-      .uri("/assessments/oasysSetId/${assessmentId}/needs")
+      .uri("/assessments/oasysSetId/$assessmentId/needs")
       .retrieve()
       .bodyToMono(responseType)
       .block() ?: emptyList()
   }
 
-  @Cacheable(value = ["assessment"], key = "{ #crn }")
+  @Cacheable(value = ["oasysAssessment"], key = "{ #crn }")
   fun getLatestAssessmentId(crn: String): String? {
     return webClient
       .get()
-      .uri("/offenders/crn/${crn}/assessments/latest")
+      .uri("/offenders/crn/$crn/assessments/latest")
       .retrieve()
       .bodyToMono(Assessment::class.java)
       .block()?.assessmentId
   }
-
 }
 
 data class AssessmentNeed @JsonCreator constructor(

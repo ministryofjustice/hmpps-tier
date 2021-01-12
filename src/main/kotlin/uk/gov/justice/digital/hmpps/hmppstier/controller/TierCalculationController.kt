@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 
-
 @Api
 @RestController
 @RequestMapping(produces = [APPLICATION_JSON_VALUE])
@@ -30,4 +29,3 @@ class TierCalculationController(private val tierCalculationService: TierCalculat
     return ResponseEntity.ok(tierCalculationService.getTierByCrn(crn))
   }
 }
-

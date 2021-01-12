@@ -7,7 +7,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.TierResult
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeScore
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectScore
 
-
 internal class TierCalculationResultEntityTest {
 
   @Test
@@ -30,12 +29,10 @@ internal class TierCalculationResultEntityTest {
       changeScore = tierNumberResult
     )
 
-
     val tierCalculationResultEntity = TierCalculationResultEntity.from(tierCalculationResult)
 
     assertThat(tierCalculationResultEntity.protect).isEqualTo(tierLetterResult)
     assertThat(tierCalculationResultEntity.change).isEqualTo(tierNumberResult)
-
   }
 
   companion object {

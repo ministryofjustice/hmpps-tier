@@ -21,7 +21,7 @@ spring:
     locations: classpath:db/migration
 
   cache:
-    cache-names: registration,assessment
+    cache-names: registration,deliusAssessment,oasysAssessment
     caffeine.spec: maximumSize=500,expireAfterAccess=60s
 
   security:

@@ -2,7 +2,16 @@ package uk.gov.justice.digital.hmpps.hmppstier.domain
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.*
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeScore
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectScore
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.TierMatchCriteria
 import java.math.BigDecimal
 
 @Component

@@ -5,6 +5,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
+import java.math.BigDecimal
 
 @Service
 class CommunityApiDataService(val communityApiClient: CommunityApiClient) {
@@ -31,4 +32,11 @@ class CommunityApiDataService(val communityApiClient: CommunityApiClient) {
       .mapNotNull { ComplexityFactor.from(it.type.code) }
   }
 
+  fun getRSR(crn: String): BigDecimal? {
+    return communityApiClient.getAssessments(crn)?.rsr
+  }
+
+  fun getOGRS(crn: String): Int? {
+    return communityApiClient.getAssessments(crn)?.ogrs
+  }
 }

@@ -11,13 +11,14 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
+import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessmentsDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
+import java.math.BigDecimal
 import java.time.LocalDate
-
 
 @ExtendWith(MockKExtension::class)
 @DisplayName("Community Api Service tests")
@@ -95,8 +96,7 @@ internal class CommunityApiDataServiceTest {
             true,
             LocalDate.now()
           ),
-
-          )
+        )
 
       every { communityApiClient.getRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getRosh(crn)
@@ -128,7 +128,7 @@ internal class CommunityApiDataServiceTest {
             LocalDate.now()
           ),
 
-          )
+        )
 
       every { communityApiClient.getRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getRosh(crn)
@@ -274,7 +274,7 @@ internal class CommunityApiDataServiceTest {
             LocalDate.now()
           ),
 
-          )
+        )
 
       every { communityApiClient.getRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getMappa(crn)
@@ -306,7 +306,7 @@ internal class CommunityApiDataServiceTest {
             LocalDate.now()
           ),
 
-          )
+        )
 
       every { communityApiClient.getRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getMappa(crn)
@@ -398,7 +398,6 @@ internal class CommunityApiDataServiceTest {
       assertThat(returnValue).isNull()
     }
 
-
     @Test
     fun `Should return null if no Mappa if present`() {
       val crn = "123"
@@ -485,7 +484,7 @@ internal class CommunityApiDataServiceTest {
             LocalDate.now()
           ),
 
-          )
+        )
 
       every { communityApiClient.getRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getComplexityFactors(crn)
@@ -517,7 +516,7 @@ internal class CommunityApiDataServiceTest {
             LocalDate.now()
           ),
 
-          )
+        )
 
       every { communityApiClient.getRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getComplexityFactors(crn)
@@ -570,5 +569,70 @@ internal class CommunityApiDataServiceTest {
       assertThat(returnValue).isEmpty()
     }
   }
-}
 
+  @Nested
+  @DisplayName("Get RSR Tests")
+  inner class GetRSRTests {
+
+    @Test
+    fun `Should return RSR`() {
+      val crn = "123"
+      val assessment = DeliusAssessmentsDto(
+        rsr = BigDecimal(5),
+        ogrs = null,
+      )
+
+      every { communityApiClient.getAssessments(crn) } returns assessment
+      val returnValue = deliusDataService.getRSR(crn)
+
+      assertThat(returnValue).isEqualTo(BigDecimal(5))
+    }
+
+    @Test
+    fun `Should return RSR null`() {
+      val crn = "123"
+      val assessment = DeliusAssessmentsDto(
+        rsr = null,
+        ogrs = 10,
+      )
+
+      every { communityApiClient.getAssessments(crn) } returns assessment
+      val returnValue = deliusDataService.getRSR(crn)
+
+      assertThat(returnValue).isNull()
+    }
+  }
+
+  @Nested
+  @DisplayName("Get OGRS Tests")
+  inner class GetOGRSTests {
+
+    @Test
+    fun `Should return OGRS`() {
+      val crn = "123"
+      val assessment = DeliusAssessmentsDto(
+        rsr = null,
+        ogrs = 50,
+      )
+
+      every { communityApiClient.getAssessments(crn) } returns assessment
+      val returnValue = deliusDataService.getOGRS(crn)
+
+      assertThat(returnValue).isEqualTo(50)
+    }
+
+    @Test
+    fun `Should return OGRS null`() {
+      val crn = "123"
+      val assessment = DeliusAssessmentsDto(
+        rsr = BigDecimal(10),
+        ogrs = null,
+      )
+
+      every { communityApiClient.getAssessments(crn) } returns assessment
+      val returnValue = deliusDataService.getOGRS(crn)
+
+      assertThat(returnValue).isNull()
+    }
+  }
+}

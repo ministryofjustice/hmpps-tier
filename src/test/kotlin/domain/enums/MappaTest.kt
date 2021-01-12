@@ -24,7 +24,6 @@ class MappaTest {
     fun `It should find M3`() {
       assertThat(Mappa.from("M3")).isEqualTo(Mappa.M3)
     }
-
   }
 
   @Nested
@@ -45,6 +44,4 @@ class MappaTest {
       assertThat(Mappa.from("Invalid")).isNull()
     }
   }
-
-
 }

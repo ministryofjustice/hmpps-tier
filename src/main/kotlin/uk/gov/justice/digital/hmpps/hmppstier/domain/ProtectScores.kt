@@ -6,7 +6,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import java.math.BigDecimal
 
-
 data class ProtectScores(
   val crn: String,
   val mappaLevel: Mappa?,

@@ -7,7 +7,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeScore
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectScore
 import java.time.LocalDateTime
 
-
 internal class TierCalculationEntityTest {
 
   @Test
@@ -33,4 +32,3 @@ internal class TierCalculationEntityTest {
     )
   }
 }
-

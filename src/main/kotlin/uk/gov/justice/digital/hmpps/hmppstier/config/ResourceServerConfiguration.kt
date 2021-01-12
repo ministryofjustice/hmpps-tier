@@ -45,7 +45,6 @@ class ResourceServerConfiguration : WebSecurityConfigurerAdapter() {
       .oauth2ResourceServer().jwt().jwtAuthenticationConverter(AuthAwareTokenConverter())
   }
 
-
   class AuthAwareTokenConverter : Converter<Jwt, AbstractAuthenticationToken> {
     private val jwtGrantedAuthoritiesConverter: Converter<Jwt, Collection<GrantedAuthority>> =
       JwtGrantedAuthoritiesConverter()

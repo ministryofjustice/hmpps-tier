@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import java.math.BigDecimal
 import java.time.LocalDate
 
 @Component
@@ -15,12 +16,29 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   fun getRegistrations(crn: String): Collection<Registration> {
     return webClient
       .get()
-      .uri("/offenders/crn/${crn}/registrations")
+      .uri("/offenders/crn/$crn/registrations")
       .retrieve()
       .bodyToMono(CommunityApiRegistrationsDto::class.java)
       .block()?.registrations ?: listOf()
   }
+
+  @Cacheable(value = ["deliusAssessment"], key = "{ #crn }")
+  fun getAssessments(crn: String): DeliusAssessmentsDto? {
+    return webClient
+      .get()
+      .uri("/offenders/crn/$crn/assessments")
+      .retrieve()
+      .bodyToMono(DeliusAssessmentsDto::class.java)
+      .block()
+  }
 }
+
+data class DeliusAssessmentsDto @JsonCreator constructor(
+  @JsonProperty("rsrScore")
+  val rsr: BigDecimal?,
+  @JsonProperty("OGRSScore")
+  val ogrs: Int?
+)
 
 data class KeyValue @JsonCreator constructor(
   @JsonProperty("code")
