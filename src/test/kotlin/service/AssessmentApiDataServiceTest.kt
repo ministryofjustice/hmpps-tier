@@ -190,8 +190,8 @@ internal class AssessmentApiDataServiceTest {
           ),
           Question(
             "11.4",
-          setOf(Answer("Yes"))
-        )
+            setOf(Answer("Yes"))
+          )
         )
 
       every { assessmentApiClient.getLatestAssessmentId(crn) } returns assessmentId
