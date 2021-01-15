@@ -40,7 +40,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = RsrThresholds.TIER_B_RSR.num.plus(BigDecimal(1)),
         roshScore = Rosh.MEDIUM,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -65,7 +65,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = RsrThresholds.TIER_B_RSR.num,
         roshScore = Rosh.VERY_HIGH,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -90,7 +90,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = RsrThresholds.TIER_C_RSR.num,
         roshScore = Rosh.MEDIUM,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -120,7 +120,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = RsrThresholds.TIER_B_RSR.num,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -147,7 +147,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = RsrThresholds.TIER_B_RSR.num.plus(BigDecimal(1)),
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -174,7 +174,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = RsrThresholds.TIER_C_RSR.num,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -201,7 +201,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = RsrThresholds.TIER_C_RSR.num.plus(BigDecimal(1)),
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -228,7 +228,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = RsrThresholds.TIER_C_RSR.num.minus(BigDecimal(1)),
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -255,7 +255,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -287,7 +287,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = Rosh.VERY_HIGH,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -314,7 +314,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = Rosh.HIGH,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -341,7 +341,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = Rosh.MEDIUM,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -368,7 +368,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -400,7 +400,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -427,7 +427,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -454,7 +454,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -481,7 +481,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -513,7 +513,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -550,7 +550,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = dupeComplexityFactors,
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -565,13 +565,13 @@ internal class TierCalculationResultCalculationTest {
 
       val calculator = TierCalculation()
 
-      val assessmentComplexityFactors: List<AssessmentComplexityFactor> = listOf(
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES,
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES,
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES,
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES,
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES,
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES,
+      val assessmentComplexityFactors: Map<AssessmentComplexityFactor, String> = mapOf(
+        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
+        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
+        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
+        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
+        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
+        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
       )
 
       val changeScores = ChangeScores(
@@ -623,7 +623,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = complexityFactors,
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -664,7 +664,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = complexityFactors,
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -683,8 +683,8 @@ internal class TierCalculationResultCalculationTest {
         ComplexityFactor.TERRORISM
       )
 
-      val assessmentFactors: List<AssessmentComplexityFactor> = listOf(
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES
+      val assessmentFactors: Map<AssessmentComplexityFactor, String> = mapOf(
+        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES  to "Y",
       )
 
       val changeScores = ChangeScores(
@@ -731,7 +731,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -758,7 +758,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -785,7 +785,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -812,7 +812,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -844,7 +844,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -879,7 +879,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -917,7 +917,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -953,7 +953,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -984,7 +984,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)
@@ -1015,7 +1015,7 @@ internal class TierCalculationResultCalculationTest {
         rsrScore = null,
         roshScore = null,
         complexityFactors = listOf(),
-        assessmentComplexityFactors = listOf()
+        assessmentComplexityFactors = mapOf()
       )
 
       val tier = calculator.calculateTier(protectScores, changeScores)

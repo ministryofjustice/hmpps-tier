@@ -81,7 +81,7 @@ internal class TierCalculationServiceTest {
       every { communityApiDataService.getRosh(crn) } returns Rosh.MEDIUM
       every { communityApiDataService.getMappa(crn) } returns Mappa.M3
       every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
-      every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns listOf()
+      every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns mapOf()
       every { assessmentApiDataService.getAssessmentNeeds(crn) } returns mapOf()
       every { communityApiDataService.getRSR(crn) } returns BigDecimal(3)
       every { communityApiDataService.getOGRS(crn) } returns 55

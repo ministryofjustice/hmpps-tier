@@ -7,17 +7,18 @@ import org.springframework.cache.annotation.Cacheable
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 
 @Component
 class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val webClient: WebClient) {
 
-  fun getAssessmentAnswers(assessmentId: String, answerCodes: Collection<String>): Collection<Question> {
+  fun getAssessmentAnswers(assessmentId: String): Collection<Question> {
     return webClient
       .post()
       .uri("/assessments/oasysSetId/$assessmentId/answers")
-      .bodyValue(answerCodes)
+      .bodyValue(AssessmentComplexityFactor.values().map { it.answerCode })
       .retrieve()
       .bodyToMono(Answers::class.java)
       .block()?.questionAnswers ?: emptyList()
@@ -66,7 +67,7 @@ data class Answer @JsonCreator constructor(
 )
 
 private data class Answers @JsonCreator constructor(
-  @JsonProperty("assessmentId")
+  @JsonProperty("questionAnswers")
   val questionAnswers: List<Question>,
 )
 

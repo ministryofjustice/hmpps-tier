@@ -48,8 +48,7 @@ class TierCalculation {
 
       val riskPoints = getRiskPoints(riskScores)
       val mappaPoints = getMappaPoints(riskScores.mappaLevel)
-      val complexityPoints =
-        getComplexityPoints(riskScores.complexityFactors, riskScores.assessmentComplexityFactors)
+      val complexityPoints = getComplexityPoints(riskScores.complexityFactors, riskScores.assessmentComplexityFactors)
 
       val score = riskPoints + mappaPoints + complexityPoints
       val tier = when {
@@ -146,17 +145,37 @@ class TierCalculation {
 
     private fun getComplexityPoints(
       complexityFactors: List<ComplexityFactor>,
-      assessmentComplexityFactors: List<AssessmentComplexityFactor>
+      assessmentComplexityFactors: Map<AssessmentComplexityFactor, String?>
     ): Int {
+
       return if (complexityFactors.any() || assessmentComplexityFactors.any()) {
         criteria.add(TierMatchCriteria.INCLUDED_COMPLEXITY_FACTORS)
-        complexityFactors.distinct().count().plus(assessmentComplexityFactors.distinct().count()) * 2
+        (complexityFactors.distinct().count().plus(getAssessmentComplexityPoints(assessmentComplexityFactors))) * 2
       } else {
         criteria.add(TierMatchCriteria.NO_COMPLEXITY_FACTORS)
         0
       }
     }
+
+    private fun getAssessmentComplexityPoints(factors : Map<AssessmentComplexityFactor, String?>): Int {
+
+      val parentingAnswer = factors.getOrDefault(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES, "N")
+      val parenting = if (isYes(parentingAnswer)) 1 else 0
+
+      // We dont take the cumulative score, just '1' if at least one of these two is present
+      val impulsivityAnswer = factors[AssessmentComplexityFactor.IMPULSIVITY]?.toInt() ?: 0
+      val temperControlAnswer = factors.getOrDefault(AssessmentComplexityFactor.TEMPER_CONTROL, "0")?.toInt() ?: 0
+      val selfControl = if (impulsivityAnswer.plus(temperControlAnswer) > 1) 1 else 0
+
+      return parenting.plus(selfControl)
+    }
+
+    private fun isYes(value: String?): Boolean {
+      return "YES".equals(value, true) || "Y".equals(value, true)
+    }
+
   }
+
 
   internal class ChangeRules {
     private val criteria: MutableSet<TierMatchCriteria> = mutableSetOf()

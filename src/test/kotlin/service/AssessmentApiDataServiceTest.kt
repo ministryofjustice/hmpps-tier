@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.Answer
 import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentApiClient
@@ -17,6 +18,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Question
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
+import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundException
 
 @ExtendWith(MockKExtension::class)
 @DisplayName("Detail Service tests")
@@ -48,17 +50,17 @@ internal class AssessmentApiDataServiceTest {
       every { assessmentApiClient.getLatestAssessmentId(crn) } returns assessmentId
       every {
         assessmentApiClient.getAssessmentAnswers(
-          assessmentId,
-          listOf("13.3 - F")
+          assessmentId
         )
       } returns complexityAnswers
       val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
 
-      assertThat(returnValue).containsOnly(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+      assertThat(returnValue).hasSize(1)
+      assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
     }
 
     @Test
-    fun `Should note return Complexity Answer if present and negative`() {
+    fun `Should return Complexity Answer even if present and negative`() {
       val crn = "123"
       val assessmentId = "1234"
       val complexityAnswers =
@@ -72,13 +74,13 @@ internal class AssessmentApiDataServiceTest {
       every { assessmentApiClient.getLatestAssessmentId(crn) } returns assessmentId
       every {
         assessmentApiClient.getAssessmentAnswers(
-          assessmentId,
-          listOf("13.3 - F")
+          assessmentId
         )
       } returns complexityAnswers
       val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
 
-      assertThat(returnValue).isEmpty()
+      assertThat(returnValue).hasSize(1)
+      assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
     }
 
     @Test
@@ -96,13 +98,13 @@ internal class AssessmentApiDataServiceTest {
       every { assessmentApiClient.getLatestAssessmentId(crn) } returns assessmentId
       every {
         assessmentApiClient.getAssessmentAnswers(
-          assessmentId,
-          listOf("13.3 - F")
+          assessmentId
         )
       } returns complexityAnswers
       val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
 
-      assertThat(returnValue).containsOnly(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+      assertThat(returnValue).hasSize(1)
+      assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
     }
 
     @Test
@@ -120,13 +122,13 @@ internal class AssessmentApiDataServiceTest {
       every { assessmentApiClient.getLatestAssessmentId(crn) } returns assessmentId
       every {
         assessmentApiClient.getAssessmentAnswers(
-          assessmentId,
-          listOf("13.3 - F")
+          assessmentId
         )
       } returns complexityAnswers
       val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
 
-      assertThat(returnValue).containsOnly(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+      assertThat(returnValue).hasSize(1)
+      assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
     }
 
     @Test
@@ -144,8 +146,7 @@ internal class AssessmentApiDataServiceTest {
       every { assessmentApiClient.getLatestAssessmentId(crn) } returns assessmentId
       every {
         assessmentApiClient.getAssessmentAnswers(
-          assessmentId,
-          listOf("13.3 - F")
+          assessmentId
         )
       } returns complexityAnswers
       val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
@@ -168,8 +169,7 @@ internal class AssessmentApiDataServiceTest {
       every { assessmentApiClient.getLatestAssessmentId(crn) } returns assessmentId
       every {
         assessmentApiClient.getAssessmentAnswers(
-          assessmentId,
-          listOf("13.3 - F")
+          assessmentId
         )
       } returns complexityAnswers
       val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
@@ -187,8 +187,7 @@ internal class AssessmentApiDataServiceTest {
       every { assessmentApiClient.getLatestAssessmentId(crn) } returns assessmentId
       every {
         assessmentApiClient.getAssessmentAnswers(
-          assessmentId,
-          listOf("13.3 - F")
+          assessmentId
         )
       } returns complexityAnswers
       val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
@@ -197,13 +196,15 @@ internal class AssessmentApiDataServiceTest {
     }
 
     @Test
-    fun `Should return empty List if no Latest Assessment`() {
+    fun `Should throw if no Latest Assessment`() {
       val crn = "123"
 
       every { assessmentApiClient.getLatestAssessmentId(crn) } returns null
-      val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
 
-      assertThat(returnValue).isEmpty()
+      assertThrows<EntityNotFoundException> {
+        assessmentService.getAssessmentComplexityAnswers(crn)
+      }
+
     }
   }
 
@@ -212,13 +213,15 @@ internal class AssessmentApiDataServiceTest {
   inner class GetNeedsTests {
 
     @Test
-    fun `Should return empty List if no Latest Assessment`() {
+    fun `Should throw if no Latest Assessment`() {
       val crn = "123"
 
       every { assessmentApiClient.getLatestAssessmentId(crn) } returns null
-      val returnValue = assessmentService.getAssessmentNeeds(crn)
 
-      assertThat(returnValue).isEmpty()
+      assertThrows<EntityNotFoundException> {
+        assessmentService.getAssessmentNeeds(crn)
+      }
+
     }
 
     @Test

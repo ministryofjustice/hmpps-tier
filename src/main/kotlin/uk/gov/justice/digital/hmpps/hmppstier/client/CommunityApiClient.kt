@@ -36,7 +36,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
 data class DeliusAssessmentsDto @JsonCreator constructor(
   @JsonProperty("rsrScore")
   val rsr: BigDecimal?,
-  @JsonProperty("OGRSScore")
+  @JsonProperty("ogrsScore")
   val ogrs: Int?
 )
 
