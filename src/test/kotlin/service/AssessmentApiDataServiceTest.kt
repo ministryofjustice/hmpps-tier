@@ -155,13 +155,13 @@ internal class AssessmentApiDataServiceTest {
     }
 
     @Test
-    fun `Should return Complexity Answers any Match`() {
+    fun `Should return Complexity any Answers Match`() {
       val crn = "123"
       val assessmentId = "1234"
       val complexityAnswers =
         listOf(
           Question(
-            "15.3",
+            "13.3 - F",
             setOf(Answer("No"), Answer("No"), Answer("Yes"))
           )
         )
@@ -174,7 +174,37 @@ internal class AssessmentApiDataServiceTest {
       } returns complexityAnswers
       val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
 
-      assertThat(returnValue).isEmpty()
+      assertThat(returnValue).hasSize(1)
+      assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+    }
+
+    @Test
+    fun `Should return multiple Complexity Answers`() {
+      val crn = "123"
+      val assessmentId = "1234"
+      val complexityAnswers =
+        listOf(
+          Question(
+            "13.3 - F",
+            setOf(Answer("No"), Answer("No"), Answer("Yes"))
+          ),
+          Question(
+            "11.4",
+          setOf(Answer("Yes"))
+        )
+        )
+
+      every { assessmentApiClient.getLatestAssessmentId(crn) } returns assessmentId
+      every {
+        assessmentApiClient.getAssessmentAnswers(
+          assessmentId
+        )
+      } returns complexityAnswers
+      val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
+
+      assertThat(returnValue).hasSize(2)
+      assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+      assertThat(returnValue).containsKey(AssessmentComplexityFactor.TEMPER_CONTROL)
     }
 
     @Test
