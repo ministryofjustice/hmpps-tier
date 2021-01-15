@@ -24,6 +24,16 @@ class MappaTest {
     fun `It should find M3`() {
       assertThat(Mappa.from("M3")).isEqualTo(Mappa.M3)
     }
+
+    @Test
+    fun `null in null out`() {
+      assertThat(Mappa.from(null)).isEqualTo(null)
+    }
+
+    @Test
+    fun `invalid in null out`() {
+      assertThat(Mappa.from("FISH")).isEqualTo(null)
+    }
   }
 
   @Nested

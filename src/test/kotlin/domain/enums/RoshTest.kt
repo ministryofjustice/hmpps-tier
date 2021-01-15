@@ -25,6 +25,16 @@ class RoshTest {
     fun `It should match Medium`() {
       assertThat(Rosh.from("RMRH")).isEqualTo(Rosh.MEDIUM)
     }
+
+    @Test
+    fun `null in null out`() {
+      assertThat(Rosh.from(null)).isEqualTo(null)
+    }
+
+    @Test
+    fun `invalid in null out`() {
+      assertThat(Rosh.from("FISH")).isEqualTo(null)
+    }
   }
 
   @Nested

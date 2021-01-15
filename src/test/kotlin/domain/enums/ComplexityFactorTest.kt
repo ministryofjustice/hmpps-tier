@@ -65,6 +65,16 @@ class ComplexityFactorTest {
     fun `It should match TERRORISM`() {
       assertThat(ComplexityFactor.from("RTAO")).isEqualTo(ComplexityFactor.TERRORISM)
     }
+
+    @Test
+    fun `null in null out`() {
+      assertThat(ComplexityFactor.from(null)).isEqualTo(null)
+    }
+
+    @Test
+    fun `invalid in null out`() {
+      assertThat(ComplexityFactor.from("FISH")).isEqualTo(null)
+    }
   }
 
   @Nested
