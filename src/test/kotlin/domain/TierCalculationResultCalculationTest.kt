@@ -775,6 +775,38 @@ internal class TierCalculationResultCalculationTest {
     }
 
     @Test
+    fun `should count Temper without Impulsivity as max '1' if greater than 0`() {
+
+      val calculator = TierCalculation()
+
+      val assessmentFactors: Map<AssessmentComplexityFactor, String> = mapOf(
+        AssessmentComplexityFactor.TEMPER_CONTROL to "1",
+      )
+
+      val changeScores = ChangeScores(
+        crn = crn,
+        ogrsScore = null,
+        need = mapOf()
+      )
+
+      val protectScores = ProtectScores(
+        crn = crn,
+        mappaLevel = null,
+        rsrScore = null,
+        roshScore = null,
+        complexityFactors = listOf(),
+        assessmentComplexityFactors = assessmentFactors
+      )
+
+      val tier = calculator.calculateTier(protectScores, changeScores)
+
+      assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.D)
+      assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.INCLUDED_COMPLEXITY_FACTORS)
+      // 1 complexity factor * 2 is 2
+      assertThat(tier.protectScore.score).isEqualTo(2)
+    }
+
+    @Test
     fun `should count Impulsivity without Temper as max '1'`() {
 
       val calculator = TierCalculation()

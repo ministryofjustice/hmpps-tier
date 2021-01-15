@@ -165,7 +165,7 @@ class TierCalculation {
       // We dont take the cumulative score, just '1' if at least one of these two is present
       val impulsivityAnswer = factors[AssessmentComplexityFactor.IMPULSIVITY]?.toInt() ?: 0
       val temperControlAnswer = factors.getOrDefault(AssessmentComplexityFactor.TEMPER_CONTROL, "0")?.toInt() ?: 0
-      val selfControl = if (impulsivityAnswer.plus(temperControlAnswer) > 1) 1 else 0
+      val selfControl = if (impulsivityAnswer.plus(temperControlAnswer) > 0) 1 else 0
 
       return parenting.plus(selfControl)
     }
