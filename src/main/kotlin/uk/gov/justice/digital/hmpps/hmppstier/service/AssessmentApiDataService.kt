@@ -13,8 +13,8 @@ class AssessmentApiDataService(val assessmentApiClient: AssessmentApiClient) {
   fun getAssessmentComplexityAnswers(crn: String): Map<AssessmentComplexityFactor, String?> {
     assessmentApiClient.getLatestAssessmentId(crn)?.let { assessmentId ->
       return assessmentApiClient.getAssessmentAnswers(assessmentId)
-        .filter{ AssessmentComplexityFactor.from(it.questionCode) != null}
-        .associateBy({AssessmentComplexityFactor.from(it.questionCode)!!}, { it.answers.firstOrNull()?.refAnswerCode })
+        .filter { AssessmentComplexityFactor.from(it.questionCode) != null }
+        .associateBy({ AssessmentComplexityFactor.from(it.questionCode)!! }, { it.answers.firstOrNull()?.refAnswerCode })
     }
     throw EntityNotFoundException("No latest Assessment found, can't get assessment answers")
   }
@@ -22,8 +22,8 @@ class AssessmentApiDataService(val assessmentApiClient: AssessmentApiClient) {
   fun getAssessmentNeeds(crn: String): Map<Need, NeedSeverity?> {
     assessmentApiClient.getLatestAssessmentId(crn)?.let { assessmentId ->
       return assessmentApiClient.getAssessmentNeeds(assessmentId)
-      .filter { it.need != null }
-      .associateBy({ it.need!! }, { it.severity })
+        .filter { it.need != null }
+        .associateBy({ it.need!! }, { it.severity })
     }
     throw EntityNotFoundException("No latest Assessment found, can't get assessment needs")
   }

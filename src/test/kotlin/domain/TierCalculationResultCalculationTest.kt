@@ -684,7 +684,7 @@ internal class TierCalculationResultCalculationTest {
       )
 
       val assessmentFactors: Map<AssessmentComplexityFactor, String> = mapOf(
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES  to "Y",
+        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
       )
 
       val changeScores = ChangeScores(

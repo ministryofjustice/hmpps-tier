@@ -157,7 +157,7 @@ class TierCalculation {
       }
     }
 
-    private fun getAssessmentComplexityPoints(factors : Map<AssessmentComplexityFactor, String?>): Int {
+    private fun getAssessmentComplexityPoints(factors: Map<AssessmentComplexityFactor, String?>): Int {
 
       val parentingAnswer = factors.getOrDefault(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES, "N")
       val parenting = if (isYes(parentingAnswer)) 1 else 0
@@ -173,9 +173,7 @@ class TierCalculation {
     private fun isYes(value: String?): Boolean {
       return "YES".equals(value, true) || "Y".equals(value, true)
     }
-
   }
-
 
   internal class ChangeRules {
     private val criteria: MutableSet<TierMatchCriteria> = mutableSetOf()

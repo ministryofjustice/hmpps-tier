@@ -35,7 +35,6 @@ class AssessmentComplexityFactorTest {
     fun `invalid in null out`() {
       assertThat(ComplexityFactor.from("FISH")).isEqualTo(null)
     }
-
   }
 
   @Nested

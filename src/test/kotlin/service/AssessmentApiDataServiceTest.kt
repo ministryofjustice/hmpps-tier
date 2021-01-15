@@ -204,7 +204,6 @@ internal class AssessmentApiDataServiceTest {
       assertThrows<EntityNotFoundException> {
         assessmentService.getAssessmentComplexityAnswers(crn)
       }
-
     }
   }
 
@@ -221,7 +220,6 @@ internal class AssessmentApiDataServiceTest {
       assertThrows<EntityNotFoundException> {
         assessmentService.getAssessmentNeeds(crn)
       }
-
     }
 
     @Test
