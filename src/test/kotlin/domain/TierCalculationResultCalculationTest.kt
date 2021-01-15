@@ -43,7 +43,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.RSR_USED_OVER_ROSH)
     }
@@ -68,7 +68,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.ROSH_USED_OVER_RSR)
     }
@@ -93,7 +93,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.RSR_ROSH_EQUAL)
     }
@@ -123,7 +123,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.B)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.RSR_IN_TIER_B)
@@ -150,7 +150,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.B)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.RSR_IN_TIER_B)
@@ -177,7 +177,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.C)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.RSR_IN_TIER_C)
@@ -204,7 +204,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.C)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.RSR_IN_TIER_C)
@@ -231,7 +231,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.D)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.RSR_NO_MATCH)
@@ -258,7 +258,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.D)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.RSR_NO_MATCH)
@@ -290,7 +290,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.A)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.ROSH_VERY_HIGH)
@@ -317,7 +317,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.B)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.ROSH_HIGH)
@@ -344,7 +344,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.C)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.ROSH_MEDIUM)
@@ -371,7 +371,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.D)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.ROSH_NO_MATCH)
@@ -403,7 +403,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.A)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.MAPPA_LEVEL_2_OR_3)
@@ -430,7 +430,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.A)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.MAPPA_LEVEL_2_OR_3)
@@ -457,7 +457,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.D)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.MAPPA_LEVEL_1)
@@ -484,7 +484,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.D)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.MAPPA_NO_MATCH)
@@ -516,7 +516,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.D)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.NO_COMPLEXITY_FACTORS)
@@ -553,7 +553,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.D)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.INCLUDED_COMPLEXITY_FACTORS)
@@ -589,7 +589,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = assessmentComplexityFactors
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.D)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.INCLUDED_COMPLEXITY_FACTORS)
@@ -626,7 +626,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.C)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.INCLUDED_COMPLEXITY_FACTORS)
@@ -667,7 +667,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.B)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.INCLUDED_COMPLEXITY_FACTORS)
@@ -702,7 +702,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = assessmentFactors
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.D)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.INCLUDED_COMPLEXITY_FACTORS)
@@ -734,7 +734,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = assessmentFactors
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.D)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.INCLUDED_COMPLEXITY_FACTORS)
@@ -766,7 +766,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = assessmentFactors
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.D)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.INCLUDED_COMPLEXITY_FACTORS)
@@ -798,7 +798,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = assessmentFactors
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.D)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.INCLUDED_COMPLEXITY_FACTORS)
@@ -830,7 +830,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = assessmentFactors
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.protectScore.tier).isEqualTo(ProtectScore.D)
       assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.INCLUDED_COMPLEXITY_FACTORS)
@@ -863,7 +863,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.changeScore.tier).isEqualTo(ChangeScore.ONE)
       assertThat(tier.changeScore.criteria).contains(TierMatchCriteria.NO_ORGS)
@@ -890,7 +890,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.changeScore.tier).isEqualTo(ChangeScore.ONE)
       assertThat(tier.changeScore.criteria).contains(TierMatchCriteria.INCLUDED_ORGS)
@@ -917,7 +917,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.changeScore.tier).isEqualTo(ChangeScore.ONE)
       assertThat(tier.changeScore.criteria).contains(TierMatchCriteria.INCLUDED_ORGS)
@@ -944,7 +944,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.changeScore.tier).isEqualTo(ChangeScore.ONE)
       assertThat(tier.changeScore.criteria).contains(TierMatchCriteria.INCLUDED_ORGS)
@@ -976,7 +976,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.changeScore.tier).isEqualTo(ChangeScore.ONE)
       assertThat(tier.changeScore.criteria).contains(TierMatchCriteria.NO_OASYS_NEEDS)
@@ -1011,7 +1011,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.changeScore.tier).isEqualTo(ChangeScore.TWO)
       assertThat(tier.changeScore.criteria).contains(TierMatchCriteria.INCLUDED_OASYS_NEEDS)
@@ -1049,7 +1049,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.changeScore.tier).isEqualTo(ChangeScore.THREE)
       assertThat(tier.changeScore.criteria).contains(TierMatchCriteria.INCLUDED_OASYS_NEEDS)
@@ -1085,7 +1085,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.changeScore.tier).isEqualTo(ChangeScore.ONE)
       assertThat(tier.changeScore.criteria).contains(TierMatchCriteria.INCLUDED_OASYS_NEEDS)
@@ -1116,7 +1116,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.changeScore.tier).isEqualTo(ChangeScore.ONE)
       assertThat(tier.changeScore.criteria).contains(TierMatchCriteria.INCLUDED_OASYS_NEEDS)
@@ -1147,7 +1147,7 @@ internal class TierCalculationResultCalculationTest {
         assessmentComplexityFactors = mapOf()
       )
 
-      val tier = calculator.calculateTier(protectScores, changeScores)
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
 
       assertThat(tier.changeScore.tier).isEqualTo(ChangeScore.ONE)
       assertThat(tier.changeScore.criteria).contains(TierMatchCriteria.INCLUDED_OASYS_NEEDS)

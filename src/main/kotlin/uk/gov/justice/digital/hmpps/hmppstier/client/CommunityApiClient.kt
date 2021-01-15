@@ -31,7 +31,21 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .bodyToMono(DeliusAssessmentsDto::class.java)
       .block()
   }
+
+  fun getOffender(crn: String): Offender? {
+    return webClient
+      .get()
+      .uri("/offenders/crn/$crn")
+      .retrieve()
+      .bodyToMono(Offender::class.java)
+      .block()
+  }
 }
+
+data class Offender @JsonCreator constructor(
+  @JsonProperty("gender")
+  val gender: String?,
+)
 
 data class DeliusAssessmentsDto @JsonCreator constructor(
   @JsonProperty("rsrScore")

@@ -30,13 +30,15 @@ class TierCalculationService(
   fun calculateTierForCrn(crn: String): TierCalculationEntity {
     log.debug("Calculating tier for $crn using 'New' calculation")
 
+    val isFemale = communityApiDataService.isFemaleOffender(crn)
+
     val protectScores = ProtectScores(
       crn = crn,
       mappaLevel = communityApiDataService.getMappa(crn),
       rsrScore = communityApiDataService.getRSR(crn),
       roshScore = communityApiDataService.getRosh(crn),
       complexityFactors = communityApiDataService.getComplexityFactors(crn),
-      assessmentComplexityFactors = assessmentApiDataService.getAssessmentComplexityAnswers(crn)
+      assessmentComplexityFactors = if(isFemale) assessmentApiDataService.getAssessmentComplexityAnswers(crn) else emptyMap()
     )
 
     val changeScores = ChangeScores(
@@ -48,7 +50,7 @@ class TierCalculationService(
     val calculation = TierCalculationEntity(
       crn = crn,
       created = LocalDateTime.now(clock),
-      data = TierCalculationResultEntity.from(tierCalculation.calculateTier(protectScores, changeScores))
+      data = TierCalculationResultEntity.from(tierCalculation.calculateTier(protectScores, changeScores, isFemale))
     )
 
     log.info("Calculated tier for $crn using 'New' calculation")
