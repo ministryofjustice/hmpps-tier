@@ -15,7 +15,7 @@ enum class ComplexityFactor(val registerCode: String) {
   TERRORISM("RTAO");
 
   companion object {
-    fun from(value: String): ComplexityFactor? {
+    fun from(value: String?): ComplexityFactor? {
       return values()
         .firstOrNull { code -> code.registerCode.equals(value, true) }
     }

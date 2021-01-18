@@ -6,7 +6,7 @@ enum class Rosh(val registerCode: String) {
   MEDIUM("RMRH");
 
   companion object {
-    fun from(value: String): Rosh? {
+    fun from(value: String?): Rosh? {
       return values()
         .firstOrNull { code -> code.registerCode.equals(value, true) }
     }

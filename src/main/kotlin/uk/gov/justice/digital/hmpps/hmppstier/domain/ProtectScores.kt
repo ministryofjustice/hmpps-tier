@@ -12,5 +12,5 @@ data class ProtectScores(
   val rsrScore: BigDecimal?,
   val roshScore: Rosh?,
   val complexityFactors: List<ComplexityFactor>,
-  val assessmentComplexityFactors: List<AssessmentComplexityFactor>
+  val assessmentComplexityFactors: Map<AssessmentComplexityFactor, String?>
 )
