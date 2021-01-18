@@ -38,7 +38,7 @@ class TierCalculationService(
       rsrScore = communityApiDataService.getRSR(crn),
       roshScore = communityApiDataService.getRosh(crn),
       complexityFactors = communityApiDataService.getComplexityFactors(crn),
-      assessmentComplexityFactors = if(isFemale) assessmentApiDataService.getAssessmentComplexityAnswers(crn) else emptyMap()
+      assessmentComplexityFactors = if (isFemale) assessmentApiDataService.getAssessmentComplexityAnswers(crn) else emptyMap()
     )
 
     val changeScores = ChangeScores(

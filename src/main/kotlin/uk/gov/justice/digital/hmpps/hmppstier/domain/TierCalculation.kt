@@ -44,7 +44,7 @@ class TierCalculation {
   internal class ProtectRules {
     private val criteria: MutableSet<TierMatchCriteria> = mutableSetOf()
 
-    fun assessAgainstRiskScores(riskScores: ProtectScores,  isFemale: Boolean): TierResult<ProtectScore> {
+    fun assessAgainstRiskScores(riskScores: ProtectScores, isFemale: Boolean): TierResult<ProtectScore> {
 
       val riskPoints = getRiskPoints(riskScores)
       val mappaPoints = getMappaPoints(riskScores.mappaLevel)
@@ -155,20 +155,20 @@ class TierCalculation {
         val genericScore = complexityFactors.distinct().count() * weighting
 
         when (isFemale) {
-            true -> {
-              genericScore.plus(getAssessmentComplexityPoints(assessmentComplexityFactors) * weighting)
-            }
-            else -> {
-              when {
-                  // we don't count IOM_NOMINAL for men so subtract it
-                  complexityFactors.contains(ComplexityFactor.IOM_NOMINAL) -> {
-                  genericScore.minus(weighting)
-                }
-                else -> {
-                  genericScore
-                }
+          true -> {
+            genericScore.plus(getAssessmentComplexityPoints(assessmentComplexityFactors) * weighting)
+          }
+          else -> {
+            when {
+              // we don't count IOM_NOMINAL for men so subtract it
+              complexityFactors.contains(ComplexityFactor.IOM_NOMINAL) -> {
+                genericScore.minus(weighting)
+              }
+              else -> {
+                genericScore
               }
             }
+          }
         }
       } else {
         criteria.add(TierMatchCriteria.NO_COMPLEXITY_FACTORS)

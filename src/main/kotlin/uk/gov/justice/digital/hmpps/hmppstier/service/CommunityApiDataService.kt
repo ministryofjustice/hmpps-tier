@@ -5,8 +5,8 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
-import java.math.BigDecimal
 import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundException
+import java.math.BigDecimal
 
 @Service
 class CommunityApiDataService(val communityApiClient: CommunityApiClient) {
@@ -42,7 +42,7 @@ class CommunityApiDataService(val communityApiClient: CommunityApiClient) {
   }
 
   fun isFemaleOffender(crn: String): Boolean {
-    return getOffenderGender(crn).equals("Female",true)
+    return getOffenderGender(crn).equals("Female", true)
   }
 
   private fun getOffenderGender(crn: String): String {

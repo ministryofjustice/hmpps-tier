@@ -1005,7 +1005,6 @@ internal class TierCalculationResultCalculationTest {
 
       assertThat(tier.protectScore.score).isEqualTo(0)
     }
-
   }
 
   @Nested
