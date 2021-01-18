@@ -48,7 +48,7 @@ class TierCalculation {
 
       val riskPoints = getRiskPoints(riskScores)
       val mappaPoints = getMappaPoints(riskScores.mappaLevel)
-      val complexityPoints = getComplexityPoints(riskScores.complexityFactors, riskScores.assessmentComplexityFactors, isFemale)
+      val complexityPoints = getComplexityScore(riskScores.complexityFactors, riskScores.assessmentComplexityFactors, isFemale)
 
       val score = riskPoints + mappaPoints + complexityPoints
       val tier = when {
@@ -143,7 +143,7 @@ class TierCalculation {
       }
     }
 
-    private fun getComplexityPoints(
+    private fun getComplexityScore(
       complexityFactors: List<ComplexityFactor>,
       assessmentComplexityFactors: Map<AssessmentComplexityFactor, String?>,
       isFemale: Boolean
@@ -151,17 +151,18 @@ class TierCalculation {
 
       return if (complexityFactors.any() || assessmentComplexityFactors.any()) {
         criteria.add(TierMatchCriteria.INCLUDED_COMPLEXITY_FACTORS)
-        val multiplicationFactor = 2
-        val genericScore = complexityFactors.distinct().count() * multiplicationFactor
+        val weighting = 2
+        val genericScore = complexityFactors.distinct().count() * weighting
 
         when (isFemale) {
             true -> {
-                genericScore.plus(getAssessmentComplexityPoints(assessmentComplexityFactors) * 2)
+              genericScore.plus(getAssessmentComplexityPoints(assessmentComplexityFactors) * weighting)
             }
             else -> {
               when {
-                complexityFactors.contains(ComplexityFactor.IOM_NOMINAL) -> {
-                  genericScore - multiplicationFactor
+                  // we don't count IOM_NOMINAL for men so subtract it
+                  complexityFactors.contains(ComplexityFactor.IOM_NOMINAL) -> {
+                  genericScore.minus(weighting)
                 }
                 else -> {
                   genericScore
@@ -176,15 +177,15 @@ class TierCalculation {
     }
 
     private fun getAssessmentComplexityPoints(factors: Map<AssessmentComplexityFactor, String?>): Int {
-        val parentingAnswer = factors.getOrDefault(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES, "N")
-        val parenting = if (isYes(parentingAnswer)) 1 else 0
+      val parentingAnswer = factors.getOrDefault(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES, "N")
+      val parenting = if (isYes(parentingAnswer)) 1 else 0
 
-        // We dont take the cumulative score, just '1' if at least one of these two is present
-        val impulsivityAnswer = factors[AssessmentComplexityFactor.IMPULSIVITY]?.toInt() ?: 0
-        val temperControlAnswer = factors.getOrDefault(AssessmentComplexityFactor.TEMPER_CONTROL, "0")?.toInt() ?: 0
-        val selfControl = if (impulsivityAnswer.plus(temperControlAnswer) > 0) 1 else 0
+      // We dont take the cumulative score, just '1' if at least one of these two is present
+      val impulsivityAnswer = factors[AssessmentComplexityFactor.IMPULSIVITY]?.toInt() ?: 0
+      val temperControlAnswer = factors.getOrDefault(AssessmentComplexityFactor.TEMPER_CONTROL, "0")?.toInt() ?: 0
+      val selfControl = if (impulsivityAnswer.plus(temperControlAnswer) > 0) 1 else 0
 
-        return parenting.plus(selfControl)
+      return parenting.plus(selfControl)
     }
 
     private fun isYes(value: String?): Boolean {
