@@ -20,15 +20,15 @@ class TierCalculation {
   private val protectRules = ProtectRules()
   private val changeRules = ChangeRules()
 
-  fun calculateTier(protectScores: ProtectScores, changeScores: ChangeScores): TierCalculationResult {
+  fun calculateTier(protectScores: ProtectScores, changeScores: ChangeScores, isFemale: Boolean): TierCalculationResult {
     return TierCalculationResult(
-      protectScore = calculateProtectScore(protectScores),
+      protectScore = calculateProtectScore(protectScores, isFemale),
       changeScore = calculateChangeScore(changeScores)
     )
   }
 
-  private fun calculateProtectScore(protectScores: ProtectScores): TierResult<ProtectScore> {
-    protectRules.assessAgainstRiskScores(protectScores).let {
+  private fun calculateProtectScore(protectScores: ProtectScores, isFemale: Boolean): TierResult<ProtectScore> {
+    protectRules.assessAgainstRiskScores(protectScores, isFemale).let {
       log.debug("Matched rule for CRN: ${protectScores.crn}, Tier: ${it.tier}, Score: ${it.score}, Matching Criteria: ${it.criteria}")
       return it
     }
@@ -44,11 +44,11 @@ class TierCalculation {
   internal class ProtectRules {
     private val criteria: MutableSet<TierMatchCriteria> = mutableSetOf()
 
-    fun assessAgainstRiskScores(riskScores: ProtectScores): TierResult<ProtectScore> {
+    fun assessAgainstRiskScores(riskScores: ProtectScores, isFemale: Boolean): TierResult<ProtectScore> {
 
       val riskPoints = getRiskPoints(riskScores)
       val mappaPoints = getMappaPoints(riskScores.mappaLevel)
-      val complexityPoints = getComplexityPoints(riskScores.complexityFactors, riskScores.assessmentComplexityFactors)
+      val complexityPoints = getComplexityScore(riskScores.complexityFactors, riskScores.assessmentComplexityFactors, isFemale)
 
       val score = riskPoints + mappaPoints + complexityPoints
       val tier = when {
@@ -143,14 +143,33 @@ class TierCalculation {
       }
     }
 
-    private fun getComplexityPoints(
+    private fun getComplexityScore(
       complexityFactors: List<ComplexityFactor>,
-      assessmentComplexityFactors: Map<AssessmentComplexityFactor, String?>
+      assessmentComplexityFactors: Map<AssessmentComplexityFactor, String?>,
+      isFemale: Boolean
     ): Int {
 
       return if (complexityFactors.any() || assessmentComplexityFactors.any()) {
         criteria.add(TierMatchCriteria.INCLUDED_COMPLEXITY_FACTORS)
-        (complexityFactors.distinct().count().plus(getAssessmentComplexityPoints(assessmentComplexityFactors))) * 2
+        val weighting = 2
+        val genericScore = complexityFactors.distinct().count() * weighting
+
+        when (isFemale) {
+          true -> {
+            genericScore.plus(getAssessmentComplexityPoints(assessmentComplexityFactors) * weighting)
+          }
+          else -> {
+            when {
+              // we don't count IOM_NOMINAL for men so subtract it
+              complexityFactors.contains(ComplexityFactor.IOM_NOMINAL) -> {
+                genericScore.minus(weighting)
+              }
+              else -> {
+                genericScore
+              }
+            }
+          }
+        }
       } else {
         criteria.add(TierMatchCriteria.NO_COMPLEXITY_FACTORS)
         0
@@ -158,7 +177,6 @@ class TierCalculation {
     }
 
     private fun getAssessmentComplexityPoints(factors: Map<AssessmentComplexityFactor, String?>): Int {
-
       val parentingAnswer = factors.getOrDefault(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES, "N")
       val parenting = if (isYes(parentingAnswer)) 1 else 0
 

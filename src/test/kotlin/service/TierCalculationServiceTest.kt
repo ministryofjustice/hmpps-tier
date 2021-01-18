@@ -76,7 +76,8 @@ internal class TierCalculationServiceTest {
   inner class GetTierByCrnTests {
 
     @Test
-    fun `Should Call Collaborators Test - Existing not found`() {
+    fun `Should Call Collaborators Test - Female - Existing not found`() {
+      every { communityApiDataService.isFemaleOffender(crn) } returns true
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
       every { communityApiDataService.getRosh(crn) } returns Rosh.MEDIUM
       every { communityApiDataService.getMappa(crn) } returns Mappa.M3
@@ -90,10 +91,38 @@ internal class TierCalculationServiceTest {
 
       service.getTierByCrn(crn)
 
+      verify { communityApiDataService.isFemaleOffender(crn) }
       verify { communityApiDataService.getRosh(crn) }
       verify { communityApiDataService.getMappa(crn) }
       verify { communityApiDataService.getComplexityFactors(crn) }
       verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
+      verify { assessmentApiDataService.getAssessmentNeeds(crn) }
+      verify { communityApiDataService.getRSR(crn) }
+      verify { communityApiDataService.getOGRS(crn) }
+      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
+      verify { tierCalculationRepository.save(any()) }
+    }
+
+    @Test
+    fun `Should Call Collaborators Test - Male - Existing not found`() {
+      // no call to AssessmentComplexity
+      every { communityApiDataService.isFemaleOffender(crn) } returns false
+      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
+      every { communityApiDataService.getRosh(crn) } returns Rosh.MEDIUM
+      every { communityApiDataService.getMappa(crn) } returns Mappa.M3
+      every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
+      every { assessmentApiDataService.getAssessmentNeeds(crn) } returns mapOf()
+      every { communityApiDataService.getRSR(crn) } returns BigDecimal(3)
+      every { communityApiDataService.getOGRS(crn) } returns 55
+
+      every { tierCalculationRepository.save(any()) } returns validTierCalculationEntity
+
+      service.getTierByCrn(crn)
+
+      verify { communityApiDataService.isFemaleOffender(crn) }
+      verify { communityApiDataService.getRosh(crn) }
+      verify { communityApiDataService.getMappa(crn) }
+      verify { communityApiDataService.getComplexityFactors(crn) }
       verify { assessmentApiDataService.getAssessmentNeeds(crn) }
       verify { communityApiDataService.getRSR(crn) }
       verify { communityApiDataService.getOGRS(crn) }
