@@ -7,6 +7,7 @@ import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -14,10 +15,15 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
@@ -26,12 +32,6 @@ import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
-import org.assertj.core.api.Assertions.assertThat
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
 
 @ExtendWith(MockKExtension::class)
 @DisplayName("Tier Calculation Service tests")
@@ -140,7 +140,6 @@ internal class TierCalculationServiceTest {
       every { tierCalculationRepository.save(any()) } returns validTierCalculationEntity
       service.getTierByCrn(crn)
 
-
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
     }
   }
@@ -190,16 +189,16 @@ internal class TierCalculationServiceTest {
       assertThat(tier.data.protect.points).isEqualTo(30)
     }
 
-    private fun setUpValidResponses(rsr : BigDecimal, rosh: Rosh, isFemale : Boolean = true) {
+    private fun setUpValidResponses(rsr: BigDecimal, rosh: Rosh, isFemale: Boolean = true) {
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns rosh
       every { communityApiDataService.getMappa(crn) } returns null
       every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
       every { assessmentApiDataService.getAssessmentNeeds(crn) } returns mapOf()
-      every { communityApiDataService.getRSR(crn) } returns  rsr
+      every { communityApiDataService.getRSR(crn) } returns rsr
       every { communityApiDataService.getOGRS(crn) } returns null
 
-      if(isFemale) {
+      if (isFemale) {
         every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns mapOf()
       }
 
@@ -217,7 +216,7 @@ internal class TierCalculationServiceTest {
       verify { communityApiDataService.getOGRS(crn) }
       verify { tierCalculationRepository.save(any()) }
 
-      if(isFemale) {
+      if (isFemale) {
         verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
       }
     }
@@ -282,7 +281,7 @@ internal class TierCalculationServiceTest {
       assertThat(tier.data.protect.points).isEqualTo(0)
     }
 
-    private fun setUpValidResponses(rsr : BigDecimal?, isFemale : Boolean = true) {
+    private fun setUpValidResponses(rsr: BigDecimal?, isFemale: Boolean = true) {
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns null
       every { communityApiDataService.getMappa(crn) } returns null
@@ -291,7 +290,7 @@ internal class TierCalculationServiceTest {
       every { communityApiDataService.getRSR(crn) } returns rsr
       every { communityApiDataService.getOGRS(crn) } returns null
 
-      if(isFemale) {
+      if (isFemale) {
         every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns mapOf()
       }
 
@@ -309,7 +308,7 @@ internal class TierCalculationServiceTest {
       verify { communityApiDataService.getOGRS(crn) }
       verify { tierCalculationRepository.save(any()) }
 
-      if(isFemale) {
+      if (isFemale) {
         verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
       }
     }
@@ -355,16 +354,16 @@ internal class TierCalculationServiceTest {
       assertThat(tier.data.protect.points).isEqualTo(0)
     }
 
-    private fun setUpValidResponses(rosh: Rosh?, isFemale : Boolean = true) {
+    private fun setUpValidResponses(rosh: Rosh?, isFemale: Boolean = true) {
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns rosh
       every { communityApiDataService.getMappa(crn) } returns null
       every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
       every { assessmentApiDataService.getAssessmentNeeds(crn) } returns mapOf()
-      every { communityApiDataService.getRSR(crn) } returns  null
+      every { communityApiDataService.getRSR(crn) } returns null
       every { communityApiDataService.getOGRS(crn) } returns null
 
-      if(isFemale) {
+      if (isFemale) {
         every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns mapOf()
       }
 
@@ -382,7 +381,7 @@ internal class TierCalculationServiceTest {
       verify { communityApiDataService.getOGRS(crn) }
       verify { tierCalculationRepository.save(any()) }
 
-      if(isFemale) {
+      if (isFemale) {
         verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
       }
     }
@@ -438,22 +437,21 @@ internal class TierCalculationServiceTest {
       assertThat(tier.data.protect.points).isEqualTo(5)
     }
 
-    private fun setUpValidResponses(mappa: Mappa?, isFemale : Boolean = true) {
+    private fun setUpValidResponses(mappa: Mappa?, isFemale: Boolean = true) {
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns null
       every { communityApiDataService.getMappa(crn) } returns mappa
       every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
       every { assessmentApiDataService.getAssessmentNeeds(crn) } returns mapOf()
-      every { communityApiDataService.getRSR(crn) } returns  null
+      every { communityApiDataService.getRSR(crn) } returns null
       every { communityApiDataService.getOGRS(crn) } returns null
 
-      if(isFemale) {
+      if (isFemale) {
         every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns mapOf()
       }
 
       val slot = slot<TierCalculationEntity>()
       every { tierCalculationRepository.save(capture(slot)) } answers { slot.captured }
-
     }
 
     private fun standardVerify(isFemale: Boolean = true) {
@@ -466,7 +464,7 @@ internal class TierCalculationServiceTest {
       verify { communityApiDataService.getOGRS(crn) }
       verify { tierCalculationRepository.save(any()) }
 
-      if(isFemale) {
+      if (isFemale) {
         verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
       }
     }
@@ -487,14 +485,16 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should not count complexity factors duplicates`() {
-      setUpValidResponses(listOf(
-        ComplexityFactor.VULNERABILITY_ISSUE,
-        ComplexityFactor.VULNERABILITY_ISSUE,
-        ComplexityFactor.VULNERABILITY_ISSUE,
-        ComplexityFactor.VULNERABILITY_ISSUE,
-        ComplexityFactor.VULNERABILITY_ISSUE,
-        ComplexityFactor.VULNERABILITY_ISSUE
-      ))
+      setUpValidResponses(
+        listOf(
+          ComplexityFactor.VULNERABILITY_ISSUE,
+          ComplexityFactor.VULNERABILITY_ISSUE,
+          ComplexityFactor.VULNERABILITY_ISSUE,
+          ComplexityFactor.VULNERABILITY_ISSUE,
+          ComplexityFactor.VULNERABILITY_ISSUE,
+          ComplexityFactor.VULNERABILITY_ISSUE
+        )
+      )
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
@@ -503,14 +503,17 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should not count assessment complexity factors duplicates`() {
-      setUpValidResponses(listOf(), mapOf(
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-      ))
+      setUpValidResponses(
+        listOf(),
+        mapOf(
+          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
+          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
+          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
+          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
+          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
+          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
+        )
+      )
 
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
@@ -520,11 +523,14 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should combine complexity factors`() {
-      setUpValidResponses(listOf(
-        ComplexityFactor.VULNERABILITY_ISSUE,
-      ), mapOf(
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-      ))
+      setUpValidResponses(
+        listOf(
+          ComplexityFactor.VULNERABILITY_ISSUE,
+        ),
+        mapOf(
+          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
+        )
+      )
 
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
@@ -534,13 +540,16 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should add multiple complexity factors`() {
-      setUpValidResponses(listOf(
-        ComplexityFactor.VULNERABILITY_ISSUE,
-        ComplexityFactor.ADULT_AT_RISK
-      ), mapOf(
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-        AssessmentComplexityFactor.TEMPER_CONTROL to "1"
-      ))
+      setUpValidResponses(
+        listOf(
+          ComplexityFactor.VULNERABILITY_ISSUE,
+          ComplexityFactor.ADULT_AT_RISK
+        ),
+        mapOf(
+          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
+          AssessmentComplexityFactor.TEMPER_CONTROL to "1"
+        )
+      )
 
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
@@ -550,12 +559,16 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should not count IOM if Male`() {
-      setUpValidResponses(listOf(
-        ComplexityFactor.IOM_NOMINAL
-      ), mapOf(
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-        AssessmentComplexityFactor.TEMPER_CONTROL to "1"
-      ), false)
+      setUpValidResponses(
+        listOf(
+          ComplexityFactor.IOM_NOMINAL
+        ),
+        mapOf(
+          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
+          AssessmentComplexityFactor.TEMPER_CONTROL to "1"
+        ),
+        false
+      )
 
       val tier = service.calculateTierForCrn(crn)
       standardVerify(false)
@@ -565,10 +578,13 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should count both Temper and Impulsivity as max '1'`() {
-      setUpValidResponses(listOf(), mapOf(
-        AssessmentComplexityFactor.TEMPER_CONTROL to "1",
-        AssessmentComplexityFactor.IMPULSIVITY to "2",
-      ))
+      setUpValidResponses(
+        listOf(),
+        mapOf(
+          AssessmentComplexityFactor.TEMPER_CONTROL to "1",
+          AssessmentComplexityFactor.IMPULSIVITY to "2",
+        )
+      )
 
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
@@ -578,9 +594,12 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should count Temper without Impulsivity as max '1'`() {
-      setUpValidResponses(listOf(), mapOf(
-        AssessmentComplexityFactor.TEMPER_CONTROL to "1",
-      ))
+      setUpValidResponses(
+        listOf(),
+        mapOf(
+          AssessmentComplexityFactor.TEMPER_CONTROL to "1",
+        )
+      )
 
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
@@ -590,9 +609,12 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should count Impulsivity without Temper as max '1'`() {
-      setUpValidResponses(listOf(), mapOf(
-        AssessmentComplexityFactor.IMPULSIVITY to "2",
-      ))
+      setUpValidResponses(
+        listOf(),
+        mapOf(
+          AssessmentComplexityFactor.IMPULSIVITY to "2",
+        )
+      )
 
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
@@ -602,9 +624,12 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should ignore negative Parenting`() {
-      setUpValidResponses(listOf(), mapOf(
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "N",
-      ))
+      setUpValidResponses(
+        listOf(),
+        mapOf(
+          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "N",
+        )
+      )
 
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
@@ -614,9 +639,12 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should ignore negative Impulsivity`() {
-      setUpValidResponses(listOf(), mapOf(
-        AssessmentComplexityFactor.IMPULSIVITY to "0",
-      ))
+      setUpValidResponses(
+        listOf(),
+        mapOf(
+          AssessmentComplexityFactor.IMPULSIVITY to "0",
+        )
+      )
 
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
@@ -626,9 +654,12 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should ignore negative Temper`() {
-      setUpValidResponses(listOf(), mapOf(
-        AssessmentComplexityFactor.TEMPER_CONTROL to "0",
-      ))
+      setUpValidResponses(
+        listOf(),
+        mapOf(
+          AssessmentComplexityFactor.TEMPER_CONTROL to "0",
+        )
+      )
 
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
@@ -638,9 +669,13 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should not count Parenting if male`() {
-      setUpValidResponses(listOf(), mapOf(
-        AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-      ), false)
+      setUpValidResponses(
+        listOf(),
+        mapOf(
+          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
+        ),
+        false
+      )
 
       val tier = service.calculateTierForCrn(crn)
       standardVerify(false)
@@ -650,9 +685,13 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should not count Impulsivity if male`() {
-      setUpValidResponses(listOf(), mapOf(
-        AssessmentComplexityFactor.IMPULSIVITY to "2",
-      ), false)
+      setUpValidResponses(
+        listOf(),
+        mapOf(
+          AssessmentComplexityFactor.IMPULSIVITY to "2",
+        ),
+        false
+      )
 
       val tier = service.calculateTierForCrn(crn)
       standardVerify(false)
@@ -662,9 +701,13 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should not count Temper if male`() {
-      setUpValidResponses(listOf(), mapOf(
-        AssessmentComplexityFactor.TEMPER_CONTROL to "2",
-      ), false)
+      setUpValidResponses(
+        listOf(),
+        mapOf(
+          AssessmentComplexityFactor.TEMPER_CONTROL to "2",
+        ),
+        false
+      )
 
       val tier = service.calculateTierForCrn(crn)
       standardVerify(false)
@@ -672,16 +715,16 @@ internal class TierCalculationServiceTest {
       assertThat(tier.data.protect.points).isEqualTo(0)
     }
 
-    private fun setUpValidResponses(complexityFactors: List<ComplexityFactor>, assessmentComplexityFactors: Map<AssessmentComplexityFactor, String> = mapOf(), isFemale : Boolean = true) {
+    private fun setUpValidResponses(complexityFactors: List<ComplexityFactor>, assessmentComplexityFactors: Map<AssessmentComplexityFactor, String> = mapOf(), isFemale: Boolean = true) {
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns null
       every { communityApiDataService.getMappa(crn) } returns null
       every { communityApiDataService.getComplexityFactors(crn) } returns complexityFactors
       every { assessmentApiDataService.getAssessmentNeeds(crn) } returns mapOf()
-      every { communityApiDataService.getRSR(crn) } returns  null
+      every { communityApiDataService.getRSR(crn) } returns null
       every { communityApiDataService.getOGRS(crn) } returns null
 
-      if(isFemale) {
+      if (isFemale) {
         every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns assessmentComplexityFactors
       }
 
@@ -699,7 +742,7 @@ internal class TierCalculationServiceTest {
       verify { communityApiDataService.getOGRS(crn) }
       verify { tierCalculationRepository.save(any()) }
 
-      if(isFemale) {
+      if (isFemale) {
         verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
       }
     }
@@ -754,7 +797,7 @@ internal class TierCalculationServiceTest {
       assertThat(tier.data.change.points).isEqualTo(5)
     }
 
-    private fun setUpValidResponses(ogrs : Int?, isFemale : Boolean = true) {
+    private fun setUpValidResponses(ogrs: Int?, isFemale: Boolean = true) {
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns null
       every { communityApiDataService.getMappa(crn) } returns null
@@ -763,7 +806,7 @@ internal class TierCalculationServiceTest {
       every { communityApiDataService.getRSR(crn) } returns null
       every { communityApiDataService.getOGRS(crn) } returns ogrs
 
-      if(isFemale) {
+      if (isFemale) {
         every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns mapOf()
       }
 
@@ -781,7 +824,7 @@ internal class TierCalculationServiceTest {
       verify { communityApiDataService.getOGRS(crn) }
       verify { tierCalculationRepository.save(any()) }
 
-      if(isFemale) {
+      if (isFemale) {
         verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
       }
     }
@@ -802,9 +845,11 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should add Oasys Needs no need`() {
-      setUpValidResponses(mapOf(
-        Need.ACCOMMODATION to NeedSeverity.NO_NEED, // 0
-      ),)
+      setUpValidResponses(
+        mapOf(
+          Need.ACCOMMODATION to NeedSeverity.NO_NEED, // 0
+        ),
+      )
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
@@ -813,9 +858,11 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should add Oasys Needs standard need`() {
-      setUpValidResponses(mapOf(
-        Need.ACCOMMODATION to NeedSeverity.STANDARD, // 1
-      ),)
+      setUpValidResponses(
+        mapOf(
+          Need.ACCOMMODATION to NeedSeverity.STANDARD, // 1
+        ),
+      )
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
@@ -824,9 +871,11 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should add Oasys Needs severe need`() {
-      setUpValidResponses(mapOf(
-        Need.ACCOMMODATION to NeedSeverity.SEVERE, // 2
-      ),)
+      setUpValidResponses(
+        mapOf(
+          Need.ACCOMMODATION to NeedSeverity.SEVERE, // 2
+        ),
+      )
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
@@ -835,13 +884,15 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should add multiple Oasys Needs`() {
-      setUpValidResponses(mapOf(
-        Need.ACCOMMODATION to NeedSeverity.SEVERE, // 2
-        Need.EDUCATION_TRAINING_AND_EMPLOYABILITY to NeedSeverity.SEVERE, // 2
-        Need.RELATIONSHIPS to NeedSeverity.SEVERE, // 2
-        Need.LIFESTYLE_AND_ASSOCIATES to NeedSeverity.SEVERE, // 2
-        Need.DRUG_MISUSE to NeedSeverity.SEVERE, // 2
-      ),)
+      setUpValidResponses(
+        mapOf(
+          Need.ACCOMMODATION to NeedSeverity.SEVERE, // 2
+          Need.EDUCATION_TRAINING_AND_EMPLOYABILITY to NeedSeverity.SEVERE, // 2
+          Need.RELATIONSHIPS to NeedSeverity.SEVERE, // 2
+          Need.LIFESTYLE_AND_ASSOCIATES to NeedSeverity.SEVERE, // 2
+          Need.DRUG_MISUSE to NeedSeverity.SEVERE, // 2
+        ),
+      )
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
@@ -850,20 +901,23 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should add multiple Oasys Needs if Male`() {
-      setUpValidResponses(mapOf(
-        Need.ACCOMMODATION to NeedSeverity.SEVERE, // 2
-        Need.EDUCATION_TRAINING_AND_EMPLOYABILITY to NeedSeverity.SEVERE, // 2
-        Need.RELATIONSHIPS to NeedSeverity.SEVERE, // 2
-        Need.LIFESTYLE_AND_ASSOCIATES to NeedSeverity.SEVERE, // 2
-        Need.DRUG_MISUSE to NeedSeverity.SEVERE, // 2
-      ), false)
+      setUpValidResponses(
+        mapOf(
+          Need.ACCOMMODATION to NeedSeverity.SEVERE, // 2
+          Need.EDUCATION_TRAINING_AND_EMPLOYABILITY to NeedSeverity.SEVERE, // 2
+          Need.RELATIONSHIPS to NeedSeverity.SEVERE, // 2
+          Need.LIFESTYLE_AND_ASSOCIATES to NeedSeverity.SEVERE, // 2
+          Need.DRUG_MISUSE to NeedSeverity.SEVERE, // 2
+        ),
+        false
+      )
       val tier = service.calculateTierForCrn(crn)
       standardVerify(false)
 
       assertThat(tier.data.change.points).isEqualTo(10)
     }
 
-    private fun setUpValidResponses(needs : Map<Need, NeedSeverity?>, isFemale : Boolean = true) {
+    private fun setUpValidResponses(needs: Map<Need, NeedSeverity?>, isFemale: Boolean = true) {
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns null
       every { communityApiDataService.getMappa(crn) } returns null
@@ -872,7 +926,7 @@ internal class TierCalculationServiceTest {
       every { communityApiDataService.getRSR(crn) } returns null
       every { communityApiDataService.getOGRS(crn) } returns null
 
-      if(isFemale) {
+      if (isFemale) {
         every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns mapOf()
       }
 
@@ -890,7 +944,7 @@ internal class TierCalculationServiceTest {
       verify { communityApiDataService.getOGRS(crn) }
       verify { tierCalculationRepository.save(any()) }
 
-      if(isFemale) {
+      if (isFemale) {
         verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
       }
     }

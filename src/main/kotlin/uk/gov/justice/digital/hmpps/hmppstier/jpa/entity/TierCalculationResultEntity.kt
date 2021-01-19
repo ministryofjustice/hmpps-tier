@@ -6,4 +6,5 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 
 data class TierCalculationResultEntity(
   val protect: TierLevel<ProtectLevel>,
-  val change: TierLevel<ChangeLevel>)
+  val change: TierLevel<ChangeLevel>
+)
