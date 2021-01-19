@@ -78,14 +78,14 @@ class TierCalculationService(
   }
 
   fun calculateChangeLevel(crn : String): TierLevel<ChangeLevel> {
-    val score = getOasysNeedsPoints(crn).plus(getOgrsPoints(crn))
+    val points = getOasysNeedsPoints(crn).plus(getOgrsPoints(crn))
     val tier = when {
-      score >= 20 -> ChangeLevel.THREE
-      score in 10..19 -> ChangeLevel.TWO
+      points >= 20 -> ChangeLevel.THREE
+      points in 10..19 -> ChangeLevel.TWO
       else -> ChangeLevel.ONE
     }
 
-    return TierLevel(tier, score)
+    return TierLevel(tier, points)
   }
 
   private fun getRiskPoints(crn: String): Int {
@@ -124,8 +124,8 @@ class TierCalculationService(
   private fun getComplexityPoints(crn: String): Int {
     return communityApiDataService.getComplexityFactors(crn).let { factors ->
       factors.distinct().count().let{ points ->
-        when (communityApiDataService.isFemaleOffender(crn)) {
-          true -> points.plus(getAssessmentComplexityPoints(crn))
+        when {
+          communityApiDataService.isFemaleOffender(crn) -> points.plus(getAssessmentComplexityPoints(crn))
           else ->
             when {
               // we don't count IOM_NOMINAL for men so subtract it
@@ -139,16 +139,13 @@ class TierCalculationService(
 
   private fun getAssessmentComplexityPoints(crn: String): Int {
     return assessmentApiDataService.getAssessmentComplexityAnswers(crn).let {
-      val parentingAnswer = it[AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES]
       val parenting = when {
-        isYes(parentingAnswer) -> 1
+        isYes(it[AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES]) -> 1
         else -> 0
       }
       // We dont take the cumulative score, just '1' if at least one of these two is present
-      val impulsivityAnswer = it[AssessmentComplexityFactor.IMPULSIVITY]
-      val temperControlAnswer = it[AssessmentComplexityFactor.TEMPER_CONTROL]
       val selfControl = when {
-        isAnswered(impulsivityAnswer) || isAnswered(temperControlAnswer) -> 1
+        isAnswered(it[AssessmentComplexityFactor.IMPULSIVITY]) || isAnswered(it[AssessmentComplexityFactor.TEMPER_CONTROL]) -> 1
         else -> 0
       }
       parenting.plus(selfControl)
