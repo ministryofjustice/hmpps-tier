@@ -2,9 +2,9 @@ package uk.gov.justice.digital.hmpps.hmppstier.dto
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.hmppstier.domain.TierResult
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeScore
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectScore
+import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 
 internal class TierDtoTest {
@@ -12,8 +12,8 @@ internal class TierDtoTest {
   @Test
   fun `Should construct TierDTO`() {
 
-    val protectTier = ProtectScore.A
-    val changeTier = ChangeScore.TWO
+    val protectTier = ProtectLevel.A
+    val changeTier = ChangeLevel.TWO
 
     val tierDto = TierDto(
       protectTier,
@@ -32,12 +32,12 @@ internal class TierDtoTest {
   @Test
   fun `Should construct TierDTO from`() {
 
-    val protectTier = ProtectScore.A
-    val changeTier = ChangeScore.TWO
+    val protectTier = ProtectLevel.A
+    val changeTier = ChangeLevel.TWO
 
     val data = TierCalculationResultEntity(
-      protect = TierResult(protectTier, 5, setOf()),
-      change = TierResult(changeTier, 12, setOf())
+      protect = TierLevel(protectTier, 5),
+      change = TierLevel(changeTier, 12)
     )
 
     val tierDto = TierDto.from(data)

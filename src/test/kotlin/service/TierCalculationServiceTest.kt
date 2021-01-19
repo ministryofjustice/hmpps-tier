@@ -12,11 +12,10 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.gov.justice.digital.hmpps.hmppstier.domain.TierCalculation
-import uk.gov.justice.digital.hmpps.hmppstier.domain.TierResult
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeScore
+import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectScore
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
@@ -26,12 +25,12 @@ import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
 
 @ExtendWith(MockKExtension::class)
 @DisplayName("Tier Calculation Service tests")
 internal class TierCalculationServiceTest {
 
-  private val tierCalculation = TierCalculation()
   private val communityApiDataService: CommunityApiDataService = mockk(relaxUnitFun = true)
   private val assessmentApiDataService: AssessmentApiDataService = mockk(relaxUnitFun = true)
   private val tierCalculationRepository: TierCalculationRepository = mockk(relaxUnitFun = true)
@@ -39,7 +38,6 @@ internal class TierCalculationServiceTest {
     Clock.fixed(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault())
 
   private val service = TierCalculationService(
-    tierCalculation,
     communityApiDataService,
     assessmentApiDataService,
     tierCalculationRepository,
@@ -47,8 +45,8 @@ internal class TierCalculationServiceTest {
   )
 
   private val crn = "Any Crn"
-  private val tierLetterResult = TierResult(ProtectScore.B, 0, setOf())
-  private val tierNumberResult = TierResult(ChangeScore.TWO, 0, setOf())
+  private val tierLetterResult = TierLevel(ProtectLevel.B, 0)
+  private val tierNumberResult = TierLevel(ChangeLevel.TWO, 0)
   private val validTierCalculationEntity = TierCalculationEntity(
     0,
     crn,
@@ -137,6 +135,110 @@ internal class TierCalculationServiceTest {
       service.getTierByCrn(crn)
 
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
+    }
+  }
+
+  @Nested
+  @DisplayName("Simple Risk tests")
+  inner class SimpleRiskTests {
+    @Test
+    fun `should use RSR when higher than ROSH`() {
+
+      val calculator = TierCalculation()
+
+      val changeScores = ChangeScores(
+        crn = crn,
+        ogrsScore = null,
+        need = mapOf()
+      )
+
+      val protectScores = ProtectScores(
+        crn = crn,
+        mappaLevel = null,
+        rsrScore = RsrThresholds.TIER_B_RSR.num.plus(BigDecimal(1)),
+        roshScore = Rosh.MEDIUM,
+        complexityFactors = listOf(),
+        assessmentComplexityFactors = mapOf()
+      )
+
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
+
+      assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.RSR_USED_OVER_ROSH)
+    }
+
+    @Test
+    fun `should use ROSH when higher than RSR`() {
+
+      val calculator = TierCalculation()
+
+      val changeScores = ChangeScores(
+        crn = crn,
+        ogrsScore = null,
+        need = mapOf()
+      )
+
+      val protectScores = ProtectScores(
+        crn = crn,
+        mappaLevel = null,
+        rsrScore = RsrThresholds.TIER_B_RSR.num,
+        roshScore = Rosh.VERY_HIGH,
+        complexityFactors = listOf(),
+        assessmentComplexityFactors = mapOf()
+      )
+
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
+
+      assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.ROSH_USED_OVER_RSR)
+    }
+
+    @Test
+    fun `should use either when RSR is same as ROSH`() {
+
+      val calculator = TierCalculation()
+
+      val changeScores = ChangeScores(
+        crn = crn,
+        ogrsScore = null,
+        need = mapOf()
+      )
+
+      val protectScores = ProtectScores(
+        crn = crn,
+        mappaLevel = null,
+        rsrScore = RsrThresholds.TIER_C_RSR.num,
+        roshScore = Rosh.MEDIUM,
+        complexityFactors = listOf(),
+        assessmentComplexityFactors = mapOf()
+      )
+
+      val tier = calculator.calculateTier(protectScores, changeScores, true)
+
+      assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.RSR_ROSH_EQUAL)
+    }
+
+    @Test
+    fun `should include ROSH or RSR when male`() {
+
+      val calculator = TierCalculation()
+
+      val changeScores = ChangeScores(
+        crn = crn,
+        ogrsScore = null,
+        need = mapOf()
+      )
+
+      val protectScores = ProtectScores(
+        crn = crn,
+        mappaLevel = null,
+        rsrScore = RsrThresholds.TIER_B_RSR.num,
+        roshScore = Rosh.VERY_HIGH,
+        complexityFactors = listOf(),
+        assessmentComplexityFactors = mapOf()
+      )
+
+      val tier = calculator.calculateTier(protectScores, changeScores, false)
+
+      assertThat(tier.protectScore.criteria).contains(TierMatchCriteria.ROSH_USED_OVER_RSR)
     }
   }
 }
