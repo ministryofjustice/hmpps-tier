@@ -11,30 +11,30 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEn
 @ApiModel(description = "Tier")
 data class TierDto @JsonCreator constructor(
 
-  @ApiModelProperty(value = "Protect Tier", example = "D")
-  @JsonProperty("protectTier")
-  val protectTier: ProtectLevel,
+  @ApiModelProperty(value = "Protect Level", example = "D")
+  @JsonProperty("protectLevel")
+  val protectLevel: ProtectLevel,
 
-  @ApiModelProperty(value = "Protect Score", example = "17")
-  @JsonProperty("protectScore")
-  val protectScore: Int?,
+  @ApiModelProperty(value = "Protect Points", example = "17")
+  @JsonProperty("protectPoints")
+  val protectPoints: Int?,
 
-  @ApiModelProperty(value = "Change Tier", example = "2")
-  @JsonProperty("changeTier")
-  val changeTier: ChangeLevel,
+  @ApiModelProperty(value = "Change Level", example = "2")
+  @JsonProperty("changeLevel")
+  val changeLevel: ChangeLevel,
 
-  @ApiModelProperty(value = "Change Score", example = "12")
-  @JsonProperty("changeScore")
-  val changeScore: Int?,
+  @ApiModelProperty(value = "Change Points", example = "12")
+  @JsonProperty("changePoints")
+  val changePoints: Int?,
 
   ) {
   companion object {
     fun from(calculation: TierCalculationResultEntity): TierDto {
       return TierDto(
         calculation.protect.tier,
-        calculation.protect.score,
+        calculation.protect.points,
         calculation.change.tier,
-        calculation.change.score
+        calculation.change.points
       )
     }
   }

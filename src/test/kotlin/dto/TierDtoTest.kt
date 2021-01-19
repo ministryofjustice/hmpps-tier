@@ -12,40 +12,40 @@ internal class TierDtoTest {
   @Test
   fun `Should construct TierDTO`() {
 
-    val protectTier = ProtectLevel.A
-    val changeTier = ChangeLevel.TWO
+    val protectLevel = ProtectLevel.A
+    val changeLevel = ChangeLevel.TWO
 
     val tierDto = TierDto(
-      protectTier,
+      protectLevel,
       5,
-      changeTier,
+      changeLevel,
       12
     )
 
-    assertThat(tierDto.protectTier).isEqualTo(protectTier)
-    assertThat(tierDto.changeTier).isEqualTo(changeTier)
+    assertThat(tierDto.protectLevel).isEqualTo(protectLevel)
+    assertThat(tierDto.changeLevel).isEqualTo(changeLevel)
 
-    assertThat(tierDto.protectScore).isEqualTo(5)
-    assertThat(tierDto.changeScore).isEqualTo(12)
+    assertThat(tierDto.protectPoints).isEqualTo(5)
+    assertThat(tierDto.changePoints).isEqualTo(12)
   }
 
   @Test
   fun `Should construct TierDTO from`() {
 
-    val protectTier = ProtectLevel.A
-    val changeTier = ChangeLevel.TWO
+    val protectLevel = ProtectLevel.A
+    val changeLevel = ChangeLevel.TWO
 
     val data = TierCalculationResultEntity(
-      protect = TierLevel(protectTier, 5),
-      change = TierLevel(changeTier, 12)
+      protect = TierLevel(protectLevel, 5),
+      change = TierLevel(changeLevel, 12)
     )
 
     val tierDto = TierDto.from(data)
 
-    assertThat(tierDto.protectTier).isEqualTo(protectTier)
-    assertThat(tierDto.changeTier).isEqualTo(changeTier)
+    assertThat(tierDto.protectLevel).isEqualTo(protectLevel)
+    assertThat(tierDto.changeLevel).isEqualTo(changeLevel)
 
-    assertThat(tierDto.protectScore).isEqualTo(5)
-    assertThat(tierDto.changeScore).isEqualTo(12)
+    assertThat(tierDto.protectPoints).isEqualTo(5)
+    assertThat(tierDto.changePoints).isEqualTo(12)
   }
 }
