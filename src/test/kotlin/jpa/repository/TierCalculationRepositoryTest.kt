@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ActiveProfiles
-import uk.gov.justice.digital.hmpps.hmppstier.domain.TierResult
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeScore
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectScore
+import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import java.time.LocalDateTime
@@ -74,8 +74,8 @@ class TierCalculationRepositoryTest(
   companion object {
     private const val crn = "Any CRN"
     private val data = TierCalculationResultEntity(
-      protect = TierResult(ProtectScore.B, 0, setOf()),
-      change = TierResult(ChangeScore.TWO, 0, setOf())
+      protect = TierLevel(ProtectLevel.B, 0),
+      change = TierLevel(ChangeLevel.TWO, 0)
     )
   }
 }
