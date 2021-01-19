@@ -27,7 +27,7 @@ data class TierDto @JsonCreator constructor(
   @JsonProperty("changePoints")
   val changePoints: Int?,
 
-  ) {
+) {
   companion object {
     fun from(calculation: TierCalculationResultEntity): TierDto {
       return TierDto(

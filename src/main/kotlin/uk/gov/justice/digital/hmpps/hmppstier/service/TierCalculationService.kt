@@ -2,12 +2,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
-import java.time.Clock
-import java.time.LocalDateTime
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
@@ -16,6 +10,12 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
+import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
+import java.time.Clock
+import java.time.LocalDateTime
 
 @Service
 class TierCalculationService(
@@ -33,7 +33,6 @@ class TierCalculationService(
 
   fun calculateTierForCrn(crn: String): TierCalculationEntity {
     log.debug("Calculating tier for $crn using 'New' calculation")
-
 
     val protectLevel = calculateProtectLevel(crn)
     val changeLevel = calculateChangeLevel(crn)
@@ -77,7 +76,7 @@ class TierCalculationService(
     return TierLevel(tier, totalPoints)
   }
 
-  fun calculateChangeLevel(crn : String): TierLevel<ChangeLevel> {
+  fun calculateChangeLevel(crn: String): TierLevel<ChangeLevel> {
     val points = getOasysNeedsPoints(crn).plus(getOgrsPoints(crn))
     val tier = when {
       points >= 20 -> ChangeLevel.THREE
@@ -89,7 +88,7 @@ class TierCalculationService(
   }
 
   private fun getRiskPoints(crn: String): Int {
-    return maxOf(getRsrPoints(crn),getRoshPoints(crn))
+    return maxOf(getRsrPoints(crn), getRoshPoints(crn))
   }
 
   private fun getRsrPoints(crn: String): Int {
@@ -117,13 +116,13 @@ class TierCalculationService(
     return when (communityApiDataService.getMappa(crn)) {
       Mappa.M2, Mappa.M3 -> 30
       Mappa.M1 -> 5
-      else ->  0
+      else -> 0
     }
   }
 
   private fun getComplexityPoints(crn: String): Int {
     return communityApiDataService.getComplexityFactors(crn).let { factors ->
-      factors.distinct().count().let{ points ->
+      factors.distinct().count().let { points ->
         when {
           communityApiDataService.isFemaleOffender(crn) -> points.plus(getAssessmentComplexityPoints(crn))
           else ->
