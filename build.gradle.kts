@@ -35,6 +35,8 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("com.github.ben-manes.caffeine:caffeine")
 
+  implementation("org.springframework.cloud:spring-cloud-aws-messaging")
+
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test") {
@@ -44,6 +46,14 @@ dependencies {
 
   testImplementation("com.ninja-squad:springmockk:2.0.1")
   testImplementation("org.assertj:assertj-core:3.18.0")
+}
+
+extra["springCloudVersion"] = "Hoxton.SR8"
+
+dependencyManagement {
+  imports {
+    mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
+  }
 }
 
 tasks.named("check") {
