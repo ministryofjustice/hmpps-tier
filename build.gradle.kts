@@ -1,3 +1,4 @@
+
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "2.1.2"
   kotlin("plugin.spring") version "1.4.21"
@@ -59,3 +60,10 @@ dependencyManagement {
 tasks.named("check") {
   dependsOn(":ktlintCheck")
 }
+
+
+
+tasks.named<JavaExec>( "bootRun") {
+  systemProperty("spring.profiles.active", "dev")
+}
+

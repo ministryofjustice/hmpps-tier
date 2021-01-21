@@ -10,8 +10,17 @@ https://app.circleci.com/pipelines/github/ministryofjustice/hmpps-tier
 * Docker  
 * OAuth token
   
+### Running locally
+
 #### OAuth security  
 In order to run the service locally you need to add HMPPS auth token to your requests
+
+#### How to start locally 
+This uses SPRING_PROFILES_ACTIVE=dev which has an in-memory database
+
+
+```./gradlew bootRun```
+
 
 ### Build service and run tests  
 This service is built using Gradle. In order to build the project from the command line and run the tests, use:
