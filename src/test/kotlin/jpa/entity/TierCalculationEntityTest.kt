@@ -2,9 +2,9 @@ package uk.gov.justice.digital.hmpps.hmppstier.jpa.entity
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.hmppstier.domain.TierResult
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeScore
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectScore
+import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import java.time.LocalDateTime
 
 internal class TierCalculationEntityTest {
@@ -23,8 +23,8 @@ internal class TierCalculationEntityTest {
   }
 
   companion object {
-    private val tierLetterResult = TierResult(ProtectScore.B, 0, setOf())
-    private val tierNumberResult = TierResult(ChangeScore.TWO, 0, setOf())
+    private val tierLetterResult = TierLevel(ProtectLevel.B, 0)
+    private val tierNumberResult = TierLevel(ChangeLevel.TWO, 0)
 
     val data = TierCalculationResultEntity(
       protect = tierLetterResult,
