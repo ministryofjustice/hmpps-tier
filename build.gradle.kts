@@ -61,9 +61,6 @@ tasks.named("check") {
   dependsOn(":ktlintCheck")
 }
 
-
-
-tasks.named<JavaExec>( "bootRun") {
+tasks.named<JavaExec>("bootRun") {
   systemProperty("spring.profiles.active", "dev")
 }
-
