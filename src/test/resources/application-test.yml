@@ -31,3 +31,14 @@ community-api:
 assessment-api:
   endpoint:
     url: https://localhost:8082
+
+offender-events:
+  sqs-queue: Digital-Prison-Services-dev-hmpps_tier_offender_events_queue
+  sqs-queue-name: Digital-Prison-Services-dev-hmpps_tier_offender_events_queue
+  sqs-dlq-name: Digital-Prison-Services-dev-hmpps_tier_offender_events_queue_d
+  sqs-provider: localstack
+
+aws:
+  access-key-id: test-access-key-id
+  secret-key: test-secret-key
+  region: eu-west-2
