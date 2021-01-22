@@ -18,13 +18,16 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import java.math.BigDecimal
+import java.time.Clock
 import java.time.LocalDate
+import java.time.ZoneId
 
 @ExtendWith(MockKExtension::class)
 @DisplayName("Community Api Service tests")
 internal class CommunityApiDataServiceTest {
   private val communityApiClient: CommunityApiClient = mockk(relaxUnitFun = true)
-  private val deliusDataService = CommunityApiDataService(communityApiClient)
+  private val clock = Clock.fixed(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault())
+  private val deliusDataService = CommunityApiDataService(communityApiClient, clock)
 
   @BeforeEach
   fun resetAllMocks() {

@@ -7,29 +7,32 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundException
 import java.math.BigDecimal
+import java.time.Clock
+import java.time.LocalDate
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NsiStatus
 
 @Service
-class CommunityApiDataService(val communityApiClient: CommunityApiClient) {
+class CommunityApiDataService(private val communityApiClient: CommunityApiClient, private val clock : Clock) {
 
   fun getRosh(crn: String): Rosh? {
-    val allRegistration = communityApiClient.getRegistrations(crn)
-    return allRegistration.filter { it.active }
+    return communityApiClient.getRegistrations(crn)
+      .filter { it.active }
       .sortedByDescending { it.startDate }
       .mapNotNull { Rosh.from(it.type.code) }
       .firstOrNull()
   }
 
   fun getMappa(crn: String): Mappa? {
-    val allRegistration = communityApiClient.getRegistrations(crn)
-    return allRegistration.filter { it.active }
-      .sortedByDescending { it.startDate }
-      .mapNotNull { Mappa.from(it.registerLevel.code) }
+    return communityApiClient.getRegistrations(crn)
+      .filter { reg -> reg.active }
+      .sortedByDescending { reg -> reg.startDate }
+      .mapNotNull {reg -> Mappa.from(reg.registerLevel.code) }
       .firstOrNull()
   }
 
   fun getComplexityFactors(crn: String): List<ComplexityFactor> {
-    val allRegistration = communityApiClient.getRegistrations(crn)
-    return allRegistration.filter { it.active }
+    return communityApiClient.getRegistrations(crn)
+      .filter { it.active }
       .mapNotNull { ComplexityFactor.from(it.type.code) }
   }
 
@@ -43,6 +46,20 @@ class CommunityApiDataService(val communityApiClient: CommunityApiClient) {
 
   fun isFemaleOffender(crn: String): Boolean {
     return getOffenderGender(crn).equals("Female", true)
+  }
+
+  fun hasBreachedConvictions(crn : String) : Boolean {
+    val cutoff = LocalDate.now(clock).minusMonths(12)
+    val breachConvictionIds = communityApiClient.getConvictions(crn)
+      .filter { it.sentence.terminationDate == null || it.sentence.terminationDate!!.isBefore(cutoff) }
+      .map { it.convictionId }
+
+    for(convictionId in breachConvictionIds) {
+      return communityApiClient.getBreaches(crn, convictionId)
+        .any { NsiStatus.from(it.status.code) != null }
+    }
+
+    return false
   }
 
   private fun getOffenderGender(crn: String): String {
