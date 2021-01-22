@@ -49,9 +49,5 @@ class MappaTest {
       assertThat(Mappa.from("M1")).isEqualTo(Mappa.M1)
     }
 
-    @Test
-    fun `It should return null if code is wrong or misspelled`() {
-      assertThat(Mappa.from("Invalid")).isNull()
-    }
   }
 }

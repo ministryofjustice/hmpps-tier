@@ -33,8 +33,8 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()
   }
 
-  fun getConvictions(crn: String) : Collection<Conviction> {
-    val responseType = object : ParameterizedTypeReference<Collection<Conviction>>() {}
+  fun getConvictions(crn: String) : List<Conviction> {
+    val responseType = object : ParameterizedTypeReference<List<Conviction>>() {}
     return webClient
       .get()
       .uri("/offenders/crn/$crn/convictions")
@@ -43,7 +43,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block() ?: listOf()
   }
 
-  fun getBreaches(crn: String, convictionId: Long ) : List<Nsi> {
+  fun getBreachRecallNsis(crn: String, convictionId: Long ) : List<Nsi> {
     return webClient
       .get()
       .uri("/offenders/crn/$crn/convictions/$convictionId/nsis?nsiCodes=BRE,BRES,REC,RECS")

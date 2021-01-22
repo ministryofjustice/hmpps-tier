@@ -49,14 +49,17 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
   }
 
   fun hasBreachedConvictions(crn : String) : Boolean {
-    val cutoff = LocalDate.now(clock).minusMonths(12)
+    val cutoff = LocalDate.now(clock).minusYears(1).minusDays(1)
     val breachConvictionIds = communityApiClient.getConvictions(crn)
-      .filter { it.sentence.terminationDate == null || it.sentence.terminationDate!!.isBefore(cutoff) }
+      .filter { it.sentence.terminationDate == null || it.sentence.terminationDate!!.isAfter(cutoff) }
       .map { it.convictionId }
 
     for(convictionId in breachConvictionIds) {
-      return communityApiClient.getBreaches(crn, convictionId)
-        .any { NsiStatus.from(it.status.code) != null }
+      val rer = communityApiClient.getBreachRecallNsis(crn, convictionId)
+      val result: Boolean =  rer.any { NsiStatus.from(it.status.code) != null }
+      if(result) {
+         return true
+       }
     }
 
     return false

@@ -94,10 +94,5 @@ class ComplexityFactorTest {
     fun `It should match case insensitive mixed`() {
       assertThat(ComplexityFactor.from("RtAO")).isEqualTo(ComplexityFactor.TERRORISM)
     }
-
-    @Test
-    fun `It should return null if code is wrong or misspelled`() {
-      assertThat(ComplexityFactor.from("Invalid")).isNull()
-    }
   }
 }

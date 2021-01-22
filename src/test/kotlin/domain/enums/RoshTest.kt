@@ -55,9 +55,5 @@ class RoshTest {
       assertThat(Rosh.from("RvhR")).isEqualTo(Rosh.VERY_HIGH)
     }
 
-    @Test
-    fun `It should return null if code is wrong or misspelled`() {
-      assertThat(Rosh.from("Invalid")).isNull()
-    }
   }
 }

@@ -4,7 +4,7 @@ enum class NsiStatus(val value : String) {
   BRE08("BRE08"),
   BRE15("BRE15"),
   BRE16("BRE16"),
-  BRE09("BRE08"),
+  BRE09("BRE09"),
   BRE24("BRE24"),
   BRE25("BRE25");
 
