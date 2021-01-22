@@ -45,3 +45,4 @@ aws:
   access-key-id: key
   secret-key: secret
   region: eu-west-2
+
