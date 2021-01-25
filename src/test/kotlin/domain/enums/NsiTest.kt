@@ -63,7 +63,7 @@ class NsiTest {
 
     @Test
     fun `It should match REC05`() {
-      assertThat(NsiStatus.from("BRE08")).isEqualTo(NsiStatus.REC05)
+      assertThat(NsiStatus.from("BRE05")).isEqualTo(NsiStatus.REC05)
     }
 
     @Test
