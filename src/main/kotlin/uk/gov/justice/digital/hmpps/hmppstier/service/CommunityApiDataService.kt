@@ -55,9 +55,9 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
       .map { it.convictionId }
 
     for (convictionId in breachConvictionIds) {
-      val rer = communityApiClient.getBreachRecallNsis(crn, convictionId)
-      val result: Boolean = rer.any { NsiStatus.from(it.status.code) != null }
-      if (result) {
+      val hasBreachOrRecall = communityApiClient.getBreachRecallNsis(crn, convictionId)
+        .any { NsiStatus.from(it.status.code) != null }
+      if (hasBreachOrRecall) {
         return true
       }
     }
