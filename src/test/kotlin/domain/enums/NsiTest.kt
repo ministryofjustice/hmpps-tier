@@ -17,6 +17,11 @@ class NsiTest {
     }
 
     @Test
+    fun `It should match BRE09`() {
+      assertThat(NsiStatus.from("BRE09")).isEqualTo(NsiStatus.BRE09)
+    }
+
+    @Test
     fun `It should match BRE15`() {
       assertThat(NsiStatus.from("BRE15")).isEqualTo(NsiStatus.BRE15)
     }
@@ -27,11 +32,6 @@ class NsiTest {
     }
 
     @Test
-    fun `It should match BRE09`() {
-      assertThat(NsiStatus.from("BRE09")).isEqualTo(NsiStatus.BRE09)
-    }
-
-    @Test
     fun `It should match BRE24`() {
       assertThat(NsiStatus.from("BRE24")).isEqualTo(NsiStatus.BRE24)
     }
@@ -39,6 +39,46 @@ class NsiTest {
     @Test
     fun `It should match BRE25`() {
       assertThat(NsiStatus.from("BRE25")).isEqualTo(NsiStatus.BRE25)
+    }
+
+    @Test
+    fun `It should match REC01`() {
+      assertThat(NsiStatus.from("REC01")).isEqualTo(NsiStatus.REC01)
+    }
+
+    @Test
+    fun `It should match REC02`() {
+      assertThat(NsiStatus.from("REC02")).isEqualTo(NsiStatus.REC02)
+    }
+
+    @Test
+    fun `It should match REC03`() {
+      assertThat(NsiStatus.from("REC03")).isEqualTo(NsiStatus.REC03)
+    }
+
+    @Test
+    fun `It should match REC04`() {
+      assertThat(NsiStatus.from("REC04")).isEqualTo(NsiStatus.REC04)
+    }
+
+    @Test
+    fun `It should match REC05`() {
+      assertThat(NsiStatus.from("BRE08")).isEqualTo(NsiStatus.REC05)
+    }
+
+    @Test
+    fun `It should match REC07`() {
+      assertThat(NsiStatus.from("REC07")).isEqualTo(NsiStatus.REC07)
+    }
+
+    @Test
+    fun `It should match REC08`() {
+      assertThat(NsiStatus.from("REC08")).isEqualTo(NsiStatus.REC08)
+    }
+
+    @Test
+    fun `It should match REC09`() {
+      assertThat(NsiStatus.from("REC09")).isEqualTo(NsiStatus.REC09)
     }
 
     @Test
