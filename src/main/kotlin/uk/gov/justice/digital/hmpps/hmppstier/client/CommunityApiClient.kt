@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import java.math.BigDecimal
@@ -32,6 +33,25 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()
   }
 
+  fun getConvictions(crn: String): List<Conviction> {
+    val responseType = object : ParameterizedTypeReference<List<Conviction>>() {}
+    return webClient
+      .get()
+      .uri("/offenders/crn/$crn/convictions")
+      .retrieve()
+      .bodyToMono(responseType)
+      .block() ?: listOf()
+  }
+
+  fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
+    return webClient
+      .get()
+      .uri("/offenders/crn/$crn/convictions/$convictionId/nsis?nsiCodes=BRE,BRES,REC,RECS")
+      .retrieve()
+      .bodyToMono(NsiWrapper::class.java)
+      .block()?.nsis ?: listOf()
+  }
+
   fun getOffender(crn: String): Offender? {
     return webClient
       .get()
@@ -41,6 +61,29 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()
   }
 }
+
+data class NsiWrapper @JsonCreator constructor(
+  @JsonProperty("convictionId")
+  val nsis: List<Nsi>,
+)
+
+data class Nsi @JsonCreator constructor(
+  @JsonProperty("nsiStatus")
+  val status: KeyValue
+)
+
+data class Conviction @JsonCreator constructor(
+  @JsonProperty("convictionId")
+  val convictionId: Long,
+
+  @JsonProperty("sentence")
+  val sentence: Sentence,
+)
+
+data class Sentence @JsonCreator constructor(
+  @JsonProperty("terminationDate")
+  var terminationDate: LocalDate?
+)
 
 data class Offender @JsonCreator constructor(
   @JsonProperty("gender")

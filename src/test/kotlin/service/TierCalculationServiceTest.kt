@@ -40,8 +40,7 @@ internal class TierCalculationServiceTest {
   private val communityApiDataService: CommunityApiDataService = mockk(relaxUnitFun = true)
   private val assessmentApiDataService: AssessmentApiDataService = mockk(relaxUnitFun = true)
   private val tierCalculationRepository: TierCalculationRepository = mockk(relaxUnitFun = true)
-  private val clock =
-    Clock.fixed(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault())
+  private val clock = Clock.fixed(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault())
 
   private val service = TierCalculationService(
     communityApiDataService,
@@ -90,6 +89,7 @@ internal class TierCalculationServiceTest {
       every { assessmentApiDataService.getAssessmentNeeds(crn) } returns mapOf()
       every { communityApiDataService.getRSR(crn) } returns BigDecimal(3)
       every { communityApiDataService.getOGRS(crn) } returns 55
+      every { communityApiDataService.hasBreachedConvictions(crn) } returns false
 
       every { tierCalculationRepository.save(any()) } returns validTierCalculationEntity
 
@@ -103,6 +103,7 @@ internal class TierCalculationServiceTest {
       verify { assessmentApiDataService.getAssessmentNeeds(crn) }
       verify { communityApiDataService.getRSR(crn) }
       verify { communityApiDataService.getOGRS(crn) }
+      verify { communityApiDataService.hasBreachedConvictions(crn) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
       verify { tierCalculationRepository.save(any()) }
     }
@@ -118,7 +119,6 @@ internal class TierCalculationServiceTest {
       every { assessmentApiDataService.getAssessmentNeeds(crn) } returns mapOf()
       every { communityApiDataService.getRSR(crn) } returns BigDecimal(3)
       every { communityApiDataService.getOGRS(crn) } returns 55
-
       every { tierCalculationRepository.save(any()) } returns validTierCalculationEntity
 
       service.getTierByCrn(crn)
@@ -199,6 +199,7 @@ internal class TierCalculationServiceTest {
       every { communityApiDataService.getOGRS(crn) } returns null
 
       if (isFemale) {
+        every { communityApiDataService.hasBreachedConvictions(crn) } returns false
         every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns mapOf()
       }
 
@@ -217,6 +218,7 @@ internal class TierCalculationServiceTest {
       verify { tierCalculationRepository.save(any()) }
 
       if (isFemale) {
+        verify { communityApiDataService.hasBreachedConvictions(crn) }
         verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
       }
     }
@@ -291,6 +293,7 @@ internal class TierCalculationServiceTest {
       every { communityApiDataService.getOGRS(crn) } returns null
 
       if (isFemale) {
+        every { communityApiDataService.hasBreachedConvictions(crn) } returns false
         every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns mapOf()
       }
 
@@ -309,6 +312,7 @@ internal class TierCalculationServiceTest {
       verify { tierCalculationRepository.save(any()) }
 
       if (isFemale) {
+        verify { communityApiDataService.hasBreachedConvictions(crn) }
         verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
       }
     }
@@ -364,6 +368,7 @@ internal class TierCalculationServiceTest {
       every { communityApiDataService.getOGRS(crn) } returns null
 
       if (isFemale) {
+        every { communityApiDataService.hasBreachedConvictions(crn) } returns false
         every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns mapOf()
       }
 
@@ -379,9 +384,11 @@ internal class TierCalculationServiceTest {
       verify { assessmentApiDataService.getAssessmentNeeds(crn) }
       verify { communityApiDataService.getRSR(crn) }
       verify { communityApiDataService.getOGRS(crn) }
+      verify { communityApiDataService.hasBreachedConvictions(crn) }
       verify { tierCalculationRepository.save(any()) }
 
       if (isFemale) {
+        verify { communityApiDataService.hasBreachedConvictions(crn) }
         verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
       }
     }
@@ -447,6 +454,7 @@ internal class TierCalculationServiceTest {
       every { communityApiDataService.getOGRS(crn) } returns null
 
       if (isFemale) {
+        every { communityApiDataService.hasBreachedConvictions(crn) } returns false
         every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns mapOf()
       }
 
@@ -465,6 +473,7 @@ internal class TierCalculationServiceTest {
       verify { tierCalculationRepository.save(any()) }
 
       if (isFemale) {
+        verify { communityApiDataService.hasBreachedConvictions(crn) }
         verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
       }
     }
@@ -725,6 +734,7 @@ internal class TierCalculationServiceTest {
       every { communityApiDataService.getOGRS(crn) } returns null
 
       if (isFemale) {
+        every { communityApiDataService.hasBreachedConvictions(crn) } returns false
         every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns assessmentComplexityFactors
       }
 
@@ -743,6 +753,7 @@ internal class TierCalculationServiceTest {
       verify { tierCalculationRepository.save(any()) }
 
       if (isFemale) {
+        verify { communityApiDataService.hasBreachedConvictions(crn) }
         verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
       }
     }
@@ -807,6 +818,7 @@ internal class TierCalculationServiceTest {
       every { communityApiDataService.getOGRS(crn) } returns ogrs
 
       if (isFemale) {
+        every { communityApiDataService.hasBreachedConvictions(crn) } returns false
         every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns mapOf()
       }
 
@@ -825,6 +837,7 @@ internal class TierCalculationServiceTest {
       verify { tierCalculationRepository.save(any()) }
 
       if (isFemale) {
+        verify { communityApiDataService.hasBreachedConvictions(crn) }
         verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
       }
     }
@@ -927,6 +940,7 @@ internal class TierCalculationServiceTest {
       every { communityApiDataService.getOGRS(crn) } returns null
 
       if (isFemale) {
+        every { communityApiDataService.hasBreachedConvictions(crn) } returns false
         every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns mapOf()
       }
 
@@ -945,6 +959,7 @@ internal class TierCalculationServiceTest {
       verify { tierCalculationRepository.save(any()) }
 
       if (isFemale) {
+        verify { communityApiDataService.hasBreachedConvictions(crn) }
         verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
       }
     }

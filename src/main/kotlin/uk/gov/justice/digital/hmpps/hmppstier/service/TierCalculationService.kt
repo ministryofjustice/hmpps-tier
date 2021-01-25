@@ -124,7 +124,10 @@ class TierCalculationService(
     return communityApiDataService.getComplexityFactors(crn).let { factors ->
       factors.distinct().count().let { points ->
         when {
-          communityApiDataService.isFemaleOffender(crn) -> points.plus(getAssessmentComplexityPoints(crn))
+          communityApiDataService.isFemaleOffender(crn) -> {
+            val femaleOnlyPoints = getAssessmentComplexityPoints(crn).plus(getBreachRecallComplexityPoints(crn))
+            points.plus(femaleOnlyPoints)
+          }
           else ->
             when {
               // we don't count IOM_NOMINAL for men so subtract it
@@ -148,6 +151,13 @@ class TierCalculationService(
         else -> 0
       }
       parenting.plus(selfControl)
+    }
+  }
+
+  private fun getBreachRecallComplexityPoints(crn: String): Int {
+    return when {
+      communityApiDataService.hasBreachedConvictions(crn) -> 1
+      else -> 0
     }
   }
 
