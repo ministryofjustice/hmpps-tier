@@ -10,7 +10,7 @@ https://app.circleci.com/pipelines/github/ministryofjustice/hmpps-tier
 * Docker  
 * OAuth token
   
-### Running locally
+### How to run the app locally 
 
 #### OAuth security  
 In order to run the service locally you need to add HMPPS auth token to your requests
