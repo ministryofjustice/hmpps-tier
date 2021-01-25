@@ -4,11 +4,11 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.cache.annotation.Cacheable
+import org.springframework.core.ParameterizedTypeReference
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import java.math.BigDecimal
 import java.time.LocalDate
-import org.springframework.core.ParameterizedTypeReference
 
 @Component
 class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val webClient: WebClient) {
@@ -33,7 +33,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()
   }
 
-  fun getConvictions(crn: String) : List<Conviction> {
+  fun getConvictions(crn: String): List<Conviction> {
     val responseType = object : ParameterizedTypeReference<List<Conviction>>() {}
     return webClient
       .get()
@@ -43,7 +43,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block() ?: listOf()
   }
 
-  fun getBreachRecallNsis(crn: String, convictionId: Long ) : List<Nsi> {
+  fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
     return webClient
       .get()
       .uri("/offenders/crn/$crn/convictions/$convictionId/nsis?nsiCodes=BRE,BRES,REC,RECS")

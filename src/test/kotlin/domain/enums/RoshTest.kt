@@ -54,6 +54,5 @@ class RoshTest {
     fun `It should match case insensitive mixed`() {
       assertThat(Rosh.from("RvhR")).isEqualTo(Rosh.VERY_HIGH)
     }
-
   }
 }

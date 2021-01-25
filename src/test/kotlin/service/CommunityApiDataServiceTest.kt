@@ -11,9 +11,12 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
+import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessmentsDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
+import uk.gov.justice.digital.hmpps.hmppstier.client.Nsi
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
+import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
@@ -21,9 +24,6 @@ import java.math.BigDecimal
 import java.time.Clock
 import java.time.LocalDate
 import java.time.ZoneId
-import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.client.Nsi
-import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 
 @ExtendWith(MockKExtension::class)
 @DisplayName("Community Api Service tests")
@@ -729,7 +729,7 @@ internal class CommunityApiDataServiceTest {
 
       val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
 
-      every { communityApiClient.getConvictions(crn) } returns listOf(unrelatedConviction,conviction)
+      every { communityApiClient.getConvictions(crn) } returns listOf(unrelatedConviction, conviction)
       every { communityApiClient.getBreachRecallNsis(crn, convictionId.plus(1)) } returns unrelatedBreaches
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
 
@@ -828,6 +828,5 @@ internal class CommunityApiDataServiceTest {
 
       assertThat(returnValue).isFalse
     }
-
   }
 }

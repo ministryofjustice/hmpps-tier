@@ -154,7 +154,7 @@ class TierCalculationService(
     }
   }
 
-  private fun getBreachRecallComplexityPoints(crn: String) : Int {
+  private fun getBreachRecallComplexityPoints(crn: String): Int {
     return when {
       communityApiDataService.hasBreachedConvictions(crn) -> 1
       else -> 0

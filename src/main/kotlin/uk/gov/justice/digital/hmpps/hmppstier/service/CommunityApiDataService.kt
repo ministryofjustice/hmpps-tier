@@ -4,15 +4,15 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NsiStatus
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundException
 import java.math.BigDecimal
 import java.time.Clock
 import java.time.LocalDate
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NsiStatus
 
 @Service
-class CommunityApiDataService(private val communityApiClient: CommunityApiClient, private val clock : Clock) {
+class CommunityApiDataService(private val communityApiClient: CommunityApiClient, private val clock: Clock) {
 
   fun getRosh(crn: String): Rosh? {
     return communityApiClient.getRegistrations(crn)
@@ -26,7 +26,7 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
     return communityApiClient.getRegistrations(crn)
       .filter { reg -> reg.active }
       .sortedByDescending { reg -> reg.startDate }
-      .mapNotNull {reg -> Mappa.from(reg.registerLevel.code) }
+      .mapNotNull { reg -> Mappa.from(reg.registerLevel.code) }
       .firstOrNull()
   }
 
@@ -48,18 +48,18 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
     return getOffenderGender(crn).equals("Female", true)
   }
 
-  fun hasBreachedConvictions(crn : String) : Boolean {
+  fun hasBreachedConvictions(crn: String): Boolean {
     val cutoff = LocalDate.now(clock).minusYears(1).minusDays(1)
     val breachConvictionIds = communityApiClient.getConvictions(crn)
       .filter { it.sentence.terminationDate == null || it.sentence.terminationDate!!.isAfter(cutoff) }
       .map { it.convictionId }
 
-    for(convictionId in breachConvictionIds) {
+    for (convictionId in breachConvictionIds) {
       val rer = communityApiClient.getBreachRecallNsis(crn, convictionId)
-      val result: Boolean =  rer.any { NsiStatus.from(it.status.code) != null }
-      if(result) {
-         return true
-       }
+      val result: Boolean = rer.any { NsiStatus.from(it.status.code) != null }
+      if (result) {
+        return true
+      }
     }
 
     return false

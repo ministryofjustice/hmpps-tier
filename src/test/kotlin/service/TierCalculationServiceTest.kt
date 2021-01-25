@@ -472,7 +472,6 @@ internal class TierCalculationServiceTest {
       verify { communityApiDataService.getOGRS(crn) }
       verify { tierCalculationRepository.save(any()) }
 
-
       if (isFemale) {
         verify { communityApiDataService.hasBreachedConvictions(crn) }
         verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }

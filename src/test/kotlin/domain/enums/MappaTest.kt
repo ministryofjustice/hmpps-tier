@@ -48,6 +48,5 @@ class MappaTest {
     fun `It should match case insensitive upper`() {
       assertThat(Mappa.from("M1")).isEqualTo(Mappa.M1)
     }
-
   }
 }

@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.domain.enums
 
-enum class NsiStatus(val value : String) {
+enum class NsiStatus(val value: String) {
   BRE08("BRE08"),
   BRE15("BRE15"),
   BRE16("BRE16"),
