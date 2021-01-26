@@ -6,5 +6,5 @@ offender-events:
 
 aws:
   access-key-id: key
-  secret-key: secret
+  secret-access-key: secret
 

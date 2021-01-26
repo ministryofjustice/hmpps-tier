@@ -18,21 +18,20 @@ import org.springframework.context.annotation.Primary
 @ConditionalOnProperty(name = ["offender-events.sqs-provider"], havingValue = "aws")
 class AwsConfiguration(
   @Value("\${aws.access-key-id}") val accessKeyId: String,
-  @Value("\${aws.secret-key}") val secretKey: String,
+  @Value("\${aws.secret-access-key}") val secretKey: String,
   @Value("\${aws.region}") val region: String
-
 ) {
 
   @Primary
   @Bean
   fun amazonSQSAsync(): AmazonSQSAsync {
-
     val credentials: AWSCredentials = BasicAWSCredentials(accessKeyId, secretKey)
-    return AmazonSQSAsyncClientBuilder
+    val client = AmazonSQSAsyncClientBuilder
       .standard()
       .withRegion(region)
 
       .withCredentials(AWSStaticCredentialsProvider(credentials)).build()
+    return client
   }
 
   @Primary

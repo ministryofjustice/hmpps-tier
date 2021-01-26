@@ -40,6 +40,6 @@ offender-events:
 
 aws:
   access-key-id: test-access-key-id
-  secret-key: test-secret-key
+  secret-access-key: test-secret-key
   region: eu-west-2
 

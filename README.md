@@ -17,7 +17,11 @@ In order to run the service locally you need to add HMPPS auth token to your req
 
 #### How to start locally 
 ##### Against AWS
-Make sure you have the necessary Access key and secret set as environment variables
+Make sure you have the necessary Access key and secret set as environment variables. 
+You can do that by running this command before starting the app
+
+```eval $(cloud-platform decode-secret -n hmpps-tier-dev -s hmpps-tier-offender-events-sqs-instance-output --export-aws-credentials)```
+
 This uses SPRING_PROFILES_ACTIVE=dev which has an in-memory database.
 
 ```./gradlew bootRun```

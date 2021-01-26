@@ -43,6 +43,6 @@ offender-events:
 
 aws:
   access-key-id: key
-  secret-key: secret
+  secret-access-key: secret
   region: eu-west-2
 
