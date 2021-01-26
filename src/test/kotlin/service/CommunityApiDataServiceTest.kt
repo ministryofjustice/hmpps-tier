@@ -11,20 +11,26 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
+import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessmentsDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
+import uk.gov.justice.digital.hmpps.hmppstier.client.Nsi
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
+import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import java.math.BigDecimal
+import java.time.Clock
 import java.time.LocalDate
+import java.time.ZoneId
 
 @ExtendWith(MockKExtension::class)
 @DisplayName("Community Api Service tests")
 internal class CommunityApiDataServiceTest {
   private val communityApiClient: CommunityApiClient = mockk(relaxUnitFun = true)
-  private val deliusDataService = CommunityApiDataService(communityApiClient)
+  private val clock = Clock.fixed(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault())
+  private val deliusDataService = CommunityApiDataService(communityApiClient, clock)
 
   @BeforeEach
   fun resetAllMocks() {
@@ -633,6 +639,194 @@ internal class CommunityApiDataServiceTest {
       val returnValue = deliusDataService.getOGRS(crn)
 
       assertThat(returnValue).isNull()
+    }
+  }
+
+  @Nested
+  @DisplayName("Get Breach Recall Tests")
+  inner class GetBreachRecallTests {
+
+    @Test
+    fun `Should return Breach true if present and valid terminationDate`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val terminationDate = LocalDate.now(clock)
+      val sentence = Sentence(terminationDate)
+      val conviction = Conviction(convictionId, sentence)
+
+      val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
+
+      every { communityApiClient.getConvictions(crn) } returns listOf(conviction)
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+
+      val returnValue = deliusDataService.hasBreachedConvictions(crn)
+
+      assertThat(returnValue).isTrue
+    }
+
+    @Test
+    fun `Should return Breach true if present and valid terminationDate after cutoff`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val terminationDate = LocalDate.now(clock).minusYears(1)
+      val sentence = Sentence(terminationDate)
+      val conviction = Conviction(convictionId, sentence)
+
+      val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
+
+      every { communityApiClient.getConvictions(crn) } returns listOf(conviction)
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+
+      val returnValue = deliusDataService.hasBreachedConvictions(crn)
+
+      assertThat(returnValue).isTrue
+    }
+
+    @Test
+    fun `Should return Breach false if present and valid terminationDate on cutoff`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val terminationDate = LocalDate.now(clock).minusYears(12).minusDays(1)
+      val sentence = Sentence(terminationDate)
+      val conviction = Conviction(convictionId, sentence)
+
+      val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
+
+      every { communityApiClient.getConvictions(crn) } returns listOf(conviction)
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+
+      val returnValue = deliusDataService.hasBreachedConvictions(crn)
+
+      assertThat(returnValue).isFalse
+    }
+
+    @Test
+    fun `Should return Breach true if present and valid not terminated`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val sentence = Sentence(null)
+      val conviction = Conviction(convictionId, sentence)
+
+      val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
+
+      every { communityApiClient.getConvictions(crn) } returns listOf(conviction)
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+
+      val returnValue = deliusDataService.hasBreachedConvictions(crn)
+
+      assertThat(returnValue).isTrue
+    }
+
+    @Test
+    fun `Should return Breach true if multiple convictions, one valid`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val sentence = Sentence(null)
+      val conviction = Conviction(convictionId, sentence)
+
+      val unrelatedConviction = Conviction(convictionId.plus(1), sentence)
+      val unrelatedBreaches = listOf(Nsi(status = KeyValue("BRE99", "Unused")))
+
+      val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
+
+      every { communityApiClient.getConvictions(crn) } returns listOf(unrelatedConviction, conviction)
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId.plus(1)) } returns unrelatedBreaches
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+
+      val returnValue = deliusDataService.hasBreachedConvictions(crn)
+
+      assertThat(returnValue).isTrue
+    }
+
+    @Test
+    fun `Should return Breach false if no conviction`() {
+      val crn = "123"
+
+      every { communityApiClient.getConvictions(crn) } returns listOf()
+
+      val returnValue = deliusDataService.hasBreachedConvictions(crn)
+
+      assertThat(returnValue).isFalse
+    }
+
+    @Test
+    fun `Should return Breach true if one conviction, multiple breaches, one valid`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val sentence = Sentence(null)
+      val conviction = Conviction(convictionId, sentence)
+
+      val breaches = listOf(
+        Nsi(status = KeyValue("BRE54", "Unused")),
+        Nsi(status = KeyValue("BRE08", "Unused"))
+      )
+
+      every { communityApiClient.getConvictions(crn) } returns listOf(conviction)
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+
+      val returnValue = deliusDataService.hasBreachedConvictions(crn)
+
+      assertThat(returnValue).isTrue
+    }
+
+    @Test
+    fun `Should return Breach true if one conviction, multiple breaches, one valid case insensitive`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val sentence = Sentence(null)
+      val conviction = Conviction(convictionId, sentence)
+
+      val breaches = listOf(
+        Nsi(status = KeyValue("BRE54", "Unused")),
+        Nsi(status = KeyValue("bre08", "Unused"))
+      )
+
+      every { communityApiClient.getConvictions(crn) } returns listOf(conviction)
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+
+      val returnValue = deliusDataService.hasBreachedConvictions(crn)
+
+      assertThat(returnValue).isTrue
+    }
+
+    @Test
+    fun `Should return Breach true if one conviction, multiple breaches, multiple valid`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val sentence = Sentence(null)
+      val conviction = Conviction(convictionId, sentence)
+
+      val breaches = listOf(
+        Nsi(status = KeyValue("BRE09", "Unused")),
+        Nsi(status = KeyValue("BRE08", "Unused"))
+      )
+
+      every { communityApiClient.getConvictions(crn) } returns listOf(conviction)
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+
+      val returnValue = deliusDataService.hasBreachedConvictions(crn)
+
+      assertThat(returnValue).isTrue
+    }
+
+    @Test
+    fun `Should return Breach false if one conviction, multiple breaches, none valid`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val sentence = Sentence(null)
+      val conviction = Conviction(convictionId, sentence)
+
+      val breaches = listOf(
+        Nsi(status = KeyValue("BRE99", "Unused")),
+        Nsi(status = KeyValue("BRE99", "Unused"))
+      )
+
+      every { communityApiClient.getConvictions(crn) } returns listOf(conviction)
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+
+      val returnValue = deliusDataService.hasBreachedConvictions(crn)
+
+      assertThat(returnValue).isFalse
     }
   }
 }

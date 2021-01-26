@@ -8,7 +8,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundException
 
 @Service
-class AssessmentApiDataService(val assessmentApiClient: AssessmentApiClient) {
+class AssessmentApiDataService(private val assessmentApiClient: AssessmentApiClient) {
 
   fun getAssessmentComplexityAnswers(crn: String): Map<AssessmentComplexityFactor, String?> {
     assessmentApiClient.getLatestAssessmentId(crn)?.let { assessmentId ->
