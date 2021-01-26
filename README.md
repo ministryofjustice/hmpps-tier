@@ -30,6 +30,9 @@ This uses SPRING_PROFILES_ACTIVE=dev which has an in-memory database.
 
 ```docker-compose-up```
 
+Localstack has SQS and SNS. The queu and topic are set up and populated in `setup-sqs.sh` You can access them from the command line as per the following example
+
+```AWS_ACCESS_KEY_ID=key AWS_SECRET_ACCESS_KEY=secret aws sqs get-queue-attributes --queue-url http://localhost:4576/queue/Digital-Prison-Services-dev-hmpps_tier_offender_events_queue --attribute-names ApproximateNumberOfMessages --endpoint-url=http://localhost:4576```
 
 ### Build service and run tests  
 This service is built using Gradle. In order to build the project from the command line and run the tests, use:
