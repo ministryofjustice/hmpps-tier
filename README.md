@@ -16,10 +16,15 @@ https://app.circleci.com/pipelines/github/ministryofjustice/hmpps-tier
 In order to run the service locally you need to add HMPPS auth token to your requests
 
 #### How to start locally 
-This uses SPRING_PROFILES_ACTIVE=dev which has an in-memory database
-
+##### Against AWS
+Make sure you have the necessary Access key and secret set as environment variables
+This uses SPRING_PROFILES_ACTIVE=dev which has an in-memory database.
 
 ```./gradlew bootRun```
+
+##### Against localstack
+
+```docker-compose-up```
 
 
 ### Build service and run tests  
