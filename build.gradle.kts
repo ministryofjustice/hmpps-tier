@@ -47,9 +47,6 @@ dependencies {
 
   testImplementation("com.ninja-squad:springmockk:2.0.1")
   testImplementation("org.assertj:assertj-core:3.18.0")
-
-  testImplementation("org.testcontainers:localstack:1.15.1")
-  testImplementation("cloud.localstack:localstack-utils:0.2.6")
 }
 
 extra["springCloudVersion"] = "Hoxton.SR8"
