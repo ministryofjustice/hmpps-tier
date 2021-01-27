@@ -6,6 +6,7 @@ orbs:
 
 jobs:
   validate:
+    machine: true
     executor: hmpps/java
     steps:
       - checkout
