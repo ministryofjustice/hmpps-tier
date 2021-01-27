@@ -5,10 +5,8 @@ import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.localstack.LocalStackContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
-import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
 
 @Configuration
@@ -29,16 +27,8 @@ class AwsLocalStackContainerConfiguration {
           LocalStackContainer.Service.SQS,
           LocalStackContainer.Service.SNS
         )
-        .withClasspathResourceMapping(
-          "/localstack/setup-sqs.sh",
-          "/docker-entrypoint-initaws.d/setup-sqs.sh",
-          BindMode.READ_WRITE
-        )
         .withEnv("HOSTNAME_EXTERNAL", "localhost")
         .withEnv("DEFAULT_REGION", "eu-west-2")
-        .waitingFor(
-          Wait.forLogMessage(".*All Ready.*", 1)
-        )
 
     log.info("Started localstack.")
 
