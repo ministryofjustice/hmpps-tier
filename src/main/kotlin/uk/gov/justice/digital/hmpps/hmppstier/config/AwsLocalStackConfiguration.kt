@@ -27,11 +27,10 @@ class AwsLocalStackConfiguration(
   fun awsSqsClientLocalstack(
     @Value("\${offender-events.sqs-endpoint-url}") serviceEndpoint: String
   ): AmazonSQSAsync {
-    val client = AmazonSQSAsyncClientBuilder.standard()
+    return AmazonSQSAsyncClientBuilder.standard()
       .withEndpointConfiguration(AwsClientBuilder.EndpointConfiguration(serviceEndpoint, region))
       .withCredentials(AWSStaticCredentialsProvider(AnonymousAWSCredentials()))
       .build()
-    return client
   }
 
   @Primary

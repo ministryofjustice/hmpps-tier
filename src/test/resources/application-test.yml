@@ -34,8 +34,6 @@ assessment-api:
 
 offender-events:
   sqs-queue: http://localhost:4576
-  sqs-queue-name: Digital-Prison-Services-dev-hmpps_tier_offender_events_queue
-  sqs-dlq-name: Digital-Prison-Services-dev-hmpps_tier_offender_events_queue_d
   sqs-provider: localstack-embedded
 
 aws:
