@@ -5,9 +5,27 @@ orbs:
   owasp: entur/owasp@0.0.10
 
 machine: true
+executors:
+  validator-localstack:
+    docker:
+      - image: hmpps/java
+      - image: localstack/localstack:0.11.2
+        environment:
+          - SERVICES=sqs,sns
+          - DEBUG=${DEBUG- }
+          - DATA_DIR=/tmp/localstack/data
+          - DOCKER_HOST=unix:///var/run/docker.sock
+          - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR- }
+          - AWS_EXECUTION_ENV=True
+          - DEFAULT_REGION=eu-west-2
+          - TMPDIR=/private
+    environment:
+      _JAVA_OPTIONS: -Xmx256m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2 -Dorg.gradle.daemon=false
+    working_directory: ~/app
+
 jobs:
   validate:
-    executor: hmpps/java
+    executor: validator-localstack
     steps:
       - checkout
       - restore_cache:
