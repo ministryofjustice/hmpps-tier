@@ -34,7 +34,7 @@ assessment-api:
 
 offender-events:
   sqs-queue: http://localhost:4576
-  sqs-provider: localstack-embedded
+  sqs-provider: mocked
 
 aws:
   access-key-id: test-access-key-id
