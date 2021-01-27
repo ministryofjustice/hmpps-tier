@@ -12,8 +12,9 @@ import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
 
 @Configuration
-@ConditionalOnProperty(name = ["offender-events.sqs-provider"], havingValue = "localstack")
-class AwsLocalStackConfiguration {
+@ConditionalOnProperty(name = ["offender-events.sqs-provider"], havingValue = "localstack-embedded")
+class AwsLocalStackContainerConfiguration {
+
   companion object {
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
@@ -45,26 +46,4 @@ class AwsLocalStackConfiguration {
     localStackContainer.followOutput(logConsumer)
     return localStackContainer
   }
-
-//  @Bean
-//  @Suppress("SpringJavaInjectionPointsAutowiringInspection")
-//  fun queueUrl(
-//    @Autowired awsSqsClient: AmazonSQS,
-//    @Value("\${offender-events.sqs-queue-name}") queueName: String,
-//    @Value("\${offender-events.sqs-dlq-name}") dlqName: String
-//  ): String {
-//    println("---------------------------")
-//    println(awsSqsClient.getQueueUrl(queueName).queueUrl)
-//    val result = awsSqsClient.createQueue(CreateQueueRequest("http://localhost:4576/queue/" + dlqName))
-//    val dlqArn = awsSqsClient.getQueueAttributes(result.queueUrl, listOf(QueueAttributeName.QueueArn.toString()))
-//    awsSqsClient.createQueue(
-//      CreateQueueRequest(queueName).withAttributes(
-//        mapOf(
-//          QueueAttributeName.RedrivePolicy.toString() to
-//            """{"deadLetterTargetArn":"${dlqArn.attributes["QueueArn"]}","maxReceiveCount":"5"}"""
-//        )
-//      )
-//    )
-//    return awsSqsClient.getQueueUrl(queueName).queueUrl
-//  }
 }
