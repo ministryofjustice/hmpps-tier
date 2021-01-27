@@ -4,9 +4,9 @@ orbs:
   hmpps: ministryofjustice/hmpps@2.2
   owasp: entur/owasp@0.0.10
 
+machine: true
 jobs:
   validate:
-    machine: true
     executor: hmpps/java
     steps:
       - checkout
