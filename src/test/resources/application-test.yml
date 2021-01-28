@@ -24,10 +24,10 @@ management.endpoint:
   health.cache.time-to-live: 0
   info.cache.time-to-live: 0
 
-community-api:
+community:
   endpoint:
     url: https://localhost:8081
 
-assessment-api:
+assessment:
   endpoint:
     url: https://localhost:8082
