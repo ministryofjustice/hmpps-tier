@@ -1,5 +1,8 @@
 # hmpps-tier
 
+[![CircleCI](https://circleci.com/gh/ministryofjustice/hmpps-tier/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/hmpps-tier)
+[![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://hmpps-tier-dev.hmpps.service.justice.gov.uk/swagger-ui.html)
+
 ## Continuous Integration  
 https://app.circleci.com/pipelines/github/ministryofjustice/hmpps-tier
 
