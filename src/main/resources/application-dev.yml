@@ -11,6 +11,10 @@ assessment-api:
     url: https://offender-dev.aks-dev-1.studio-hosting.service.justice.gov.uk
 
 spring:
+
+  profiles:
+    include: localstack
+
   jpa:
     show-sql: true
 
