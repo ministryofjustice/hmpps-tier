@@ -14,6 +14,9 @@ spring:
       WRITE_DATES_AS_TIMESTAMPS: false
 
   datasource:
+    url: 'jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:hmpps-tier-db}'
+    username: '${database.username:root}'
+    password: '${database.password:dev}'
     hikari:
       maximum-pool-size: 25
 
