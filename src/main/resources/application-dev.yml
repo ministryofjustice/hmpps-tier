@@ -11,6 +11,10 @@ assessment-api:
     url: https://offender-dev.aks-dev-1.studio-hosting.service.justice.gov.uk
 
 spring:
+
+  profiles:
+    include: localstack
+
   jpa:
     show-sql: true
 
@@ -36,13 +40,3 @@ logging:
 
 server:
   shutdown: immediate
-
-offender-events:
-  sqs-queue: https://sqs.eu-west-2.amazonaws.com/754256621582/Digital-Prison-Services-dev-hmpps_tier_offender_events_queue
-  sqs-provider: aws
-
-aws:
-  access-key-id: key
-  secret-access-key: secret
-  region: eu-west-2
-

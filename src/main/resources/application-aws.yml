@@ -1,0 +1,8 @@
+offender-events:
+  sqs-queue: ${aws.offender.events.queue}
+  sqs-provider: aws
+
+aws:
+  access-key-id: ${aws.offender.events.access.key}
+  secret-access-key: ${aws.offender.events.secret.access.key}
+  region: eu-west-2
