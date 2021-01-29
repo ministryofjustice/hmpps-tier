@@ -1,5 +1,9 @@
 
 spring:
+
+  profiles:
+    include: localstack
+
   jpa:
     show-sql: true
 

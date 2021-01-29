@@ -31,3 +31,13 @@ community:
 assessment:
   endpoint:
     url: https://localhost:8082
+
+offender-events:
+  sqs-queue: http://localhost:4576
+  sqs-provider: mocked
+
+aws:
+  access-key-id: test-access-key-id
+  secret-access-key: test-secret-key
+  region: eu-west-2
+

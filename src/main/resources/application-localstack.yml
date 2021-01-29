@@ -1,0 +1,9 @@
+offender-events:
+  sqs-endpoint-url: http://localhost:4576
+  sqs-queue: http://localhost:4576/queue/Digital-Prison-Services-dev-hmpps_tier_offender_events_queue
+  sqs-provider: localstack
+
+aws:
+  access-key-id: key
+  secret-access-key: secret
+  region: eu-west-2
