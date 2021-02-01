@@ -1,16 +1,6 @@
-oauth:
-  endpoint:
-    url: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
-
-community-api:
-  endpoint:
-    url: https://community-api-secure.test.delius.probation.hmpps.dsd.io/secure
-
-assessment-api:
-  endpoint:
-    url: https://offender-dev.aks-dev-1.studio-hosting.service.justice.gov.uk
 
 spring:
+
   jpa:
     show-sql: true
 

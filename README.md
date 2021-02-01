@@ -1,5 +1,8 @@
 # hmpps-tier
 
+[![CircleCI](https://circleci.com/gh/ministryofjustice/hmpps-tier/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/hmpps-tier)
+[![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://hmpps-tier-dev.hmpps.service.justice.gov.uk/swagger-ui.html)
+
 ## Continuous Integration  
 https://app.circleci.com/pipelines/github/ministryofjustice/hmpps-tier
 
@@ -10,8 +13,29 @@ https://app.circleci.com/pipelines/github/ministryofjustice/hmpps-tier
 * Docker  
 * OAuth token
   
+### How to run the app locally 
+
 #### OAuth security  
 In order to run the service locally you need to add HMPPS auth token to your requests
+
+#### How to start locally 
+##### Against AWS
+Make sure you have the necessary Access key and secret set as environment variables. 
+You can do that by running this command before starting the app
+
+```eval $(cloud-platform decode-secret -n hmpps-tier-dev -s hmpps-tier-offender-events-sqs-instance-output --export-aws-credentials)```
+
+This uses SPRING_PROFILES_ACTIVE=dev which has an in-memory database.
+
+```./gradlew bootRun```
+
+##### Against localstack
+
+```docker-compose-up```
+
+Localstack has SQS and SNS. The queue and topic are set up and populated in `setup-sqs.sh` You can access them from the command line as per the following example
+
+```AWS_ACCESS_KEY_ID=key AWS_SECRET_ACCESS_KEY=secret aws sqs get-queue-attributes --queue-url http://localhost:4576/queue/Digital-Prison-Services-dev-hmpps_tier_offender_events_queue --attribute-names ApproximateNumberOfMessages --endpoint-url=http://localhost:4576```
 
 ### Build service and run tests  
 This service is built using Gradle. In order to build the project from the command line and run the tests, use:

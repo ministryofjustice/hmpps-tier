@@ -24,10 +24,20 @@ management.endpoint:
   health.cache.time-to-live: 0
   info.cache.time-to-live: 0
 
-community-api:
+community:
   endpoint:
     url: https://localhost:8081
 
-assessment-api:
+assessment:
   endpoint:
     url: https://localhost:8082
+
+offender-events:
+  sqs-queue: http://localhost:4576
+  sqs-provider: mocked
+
+aws:
+  access-key-id: test-access-key-id
+  secret-access-key: test-secret-key
+  region: eu-west-2
+

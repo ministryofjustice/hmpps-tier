@@ -14,8 +14,8 @@ import org.springframework.web.reactive.function.client.WebClient
 
 @Configuration
 class WebClientConfiguration(
-  @Value("\${community-api.endpoint.url}") private val communityApiRootUri: String,
-  @Value("\${assessment-api.endpoint.url}") private val assessmentApiRootUri: String
+  @Value("\${community.endpoint.url}") private val communityApiRootUri: String,
+  @Value("\${assessment.endpoint.url}") private val assessmentApiRootUri: String
 ) {
 
   @Bean

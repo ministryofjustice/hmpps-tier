@@ -1,3 +1,4 @@
+
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "2.1.2"
   kotlin("plugin.spring") version "1.4.21"
@@ -35,6 +36,8 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-cache")
   implementation("com.github.ben-manes.caffeine:caffeine")
 
+  implementation("org.springframework.cloud:spring-cloud-aws-messaging")
+
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test") {
@@ -46,6 +49,22 @@ dependencies {
   testImplementation("org.assertj:assertj-core:3.18.0")
 }
 
+extra["springCloudVersion"] = "Hoxton.SR8"
+
+dependencyManagement {
+  imports {
+    mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
+  }
+}
+
 tasks.named("check") {
   dependsOn(":ktlintCheck")
+}
+
+tasks.register("fix") {
+  dependsOn(":ktlintFormat")
+}
+
+tasks.named<JavaExec>("bootRun") {
+  systemProperty("spring.profiles.active", "dev,localstack")
 }
