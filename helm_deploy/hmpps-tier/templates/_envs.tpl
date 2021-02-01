@@ -23,9 +23,6 @@ env:
          key: OAUTH_CLIENT_SECRET
 
   - name: OAUTH_ENDPOINT_URL
-    value: "{{ .Values.env.OAUTH_ROOT_URL }}"
-
-  - name: OAUTH_ENDPOINT_URL
     value: "{{ .Values.env.OAUTH_ENDPOINT_URL }}"
 
   - name: COMMUNITY_ENDPOINT_URL
@@ -84,19 +81,4 @@ env:
       secretKeyRef:
         name: rds_instance_output
         key: rds_instance_endpoint
-
-  - name: OAUTH_CLIENT_ID
-    valueFrom:
-      secretKeyRef:
-         name: check-my-diary
-         key: API_CLIENT_ID
-
-  - name: OAUTH_CLIENT_SECRET
-    valueFrom:
-      secretKeyRef:
-         name: check-my-diary
-         key: API_CLIENT_SECRET
-
-  - name: OAUTH_ENDPOINT_URL
-    value: "{{ .Values.env.OAUTH_ROOT_URL }}"
 {{- end -}}
