@@ -22,6 +22,9 @@ env:
          name: {{ template "app.name" . }}
          key: OAUTH_CLIENT_SECRET
 
+  - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
+    value: "{{ .Values.env.SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI }}"
+
   - name: OAUTH_ENDPOINT_URL
     value: "{{ .Values.env.OAUTH_ROOT_URL }}"
 
