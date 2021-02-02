@@ -27,12 +27,8 @@ spring:
     cache-names: registration,deliusAssessment,oasysAssessment
     caffeine.spec: maximumSize=500,expireAfterAccess=60s
 
-  SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
   security:
     oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: ${oauth.jwt.jwk.set.uri}
       client:
         registration:
           community-api:
