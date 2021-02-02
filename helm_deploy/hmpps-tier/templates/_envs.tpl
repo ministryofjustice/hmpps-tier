@@ -23,7 +23,7 @@ env:
          key: OAUTH_CLIENT_SECRET
 
   - name: OAUTH_ENDPOINT_URL
-    value: "{{ .Values.env.OAUTH_ENDPOINT_URL }}"
+    value: "{{ .Values.env.OAUTH_ROOT_URL }}"
 
   - name: COMMUNITY_ENDPOINT_URL
     value: "{{ .Values.env.COMMUNITY_ENDPOINT_URL }}"

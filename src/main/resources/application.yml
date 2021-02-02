@@ -14,7 +14,7 @@ spring:
       WRITE_DATES_AS_TIMESTAMPS: false
 
   datasource:
-    url: 'jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:hmpps-tier-db}'
+    url: 'jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}'
     username: '${database.username:root}'
     password: '${database.password:dev}'
     hikari:
@@ -31,6 +31,8 @@ spring:
     oauth2:
       client:
         registration:
+          jwt:
+            jwk-set-uri: ${oauth.jwt.jwk.set.uri}
           community-api:
             provider: hmpps-auth
             client-id: ${oauth.client.id}
