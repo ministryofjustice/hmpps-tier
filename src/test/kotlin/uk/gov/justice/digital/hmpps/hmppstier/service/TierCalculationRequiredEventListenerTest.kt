@@ -1,4 +1,4 @@
-package service
+package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.mockk.clearMocks
@@ -17,8 +17,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
-import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationRequiredEventListener
-import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDateTime
