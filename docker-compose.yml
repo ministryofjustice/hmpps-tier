@@ -1,20 +1,48 @@
 version: "3"
 services:
-  hmpps-tier:
-    build:
-      context: .
-    network_mode: "host"
-    container_name: hmpps-tier
+
+  oauth:
+    image: quay.io/hmpps/hmpps-auth:latest
+    networks:
+      - hmpps
+    container_name: oauth
+    ports:
+      - "9090:9090"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9090/auth/health" ]
+    environment:
+      - SERVER_PORT=9090
+      - SPRING_PROFILES_ACTIVE=dev
+
+  community-api:
+    image: quay.io/hmpps/community-api:latest
+    networks:
+      - hmpps
+    container_name: community-api
+    ports:
+      - "8082:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - OAUTH_ENDPOINT_URL=http://oauth:9090/auth
+
+  offender-assessment-api:
+    image: quay.io/hmpps/offender-assessments-api-kotlin:latest
+    restart: always
+    networks:
+      - hmpps
+    container_name: offender-assessment-api
     ports:
       - "8081:8080"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ping"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
     environment:
-      - SERVER_PORT=8080
-      - SPRING_PROFILES_ACTIVE=dev, localstack
+      - SPRING_PROFILES_ACTIVE=dev
+      - OAUTH_ENDPOINT_URL=http://oauth:9090/auth
     depends_on:
-      - localstack
-      - postgres
+      - oauth
+
   postgres:
     image: postgres:11
     networks:
@@ -22,31 +50,24 @@ services:
     container_name: hmpps-tier-postgres
     restart: always
     ports:
-      - '5432:5432'
+      - 5432:5432
     environment:
       - POSTGRES_PASSWORD=dev
       - POSTGRES_USER=root
+
   localstack:
-    image: localstack/localstack:0.11.2
+    image: localstack/localstack:latest
     networks:
       - hmpps
     container_name: localstack
     ports:
-      - "4567-4597:4567-4597"
+      - 4576:4576
+      - 4575:4575
       - 8999:8080
     environment:
+      - HOSTNAME_EXTERNAL=localstack
       - SERVICES=sns,sqs
-      - DEBUG=${DEBUG- }
-      - DATA_DIR=${DATA_DIR- }
-      - PORT_WEB_UI=${PORT_WEB_UI- }
-      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR- }
-      - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
-      - DOCKER_HOST=unix:///var/run/docker.sock
-      - AWS_EXECUTION_ENV=True
       - DEFAULT_REGION=eu-west-2
-    volumes:
-      - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-      - $PWD/src/test/resources/localstack:/docker-entrypoint-initaws.d
+
 networks:
   hmpps:

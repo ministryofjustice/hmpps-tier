@@ -1,4 +1,3 @@
-
 spring:
 
   jpa:
@@ -19,6 +18,21 @@ spring:
       resourceserver:
         jwt:
           public-key-location: classpath:local-public-key.pub
+          jwk-set-uri: https://localhost/auth/.well-known/jwks.json
+
+oauth:
+  endpoint:
+    url: http://localhost:9090/auth
+  client:
+    id: my-diary
+    secret: clientsecret
+
+community:
+  endpoint:
+    url: http://localhost:8082
+assessment:
+  endpoint:
+    url: http://localhost:8081
 
 logging:
   level:
