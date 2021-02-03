@@ -22,8 +22,11 @@ env:
          name: {{ template "app.name" . }}
          key: OAUTH_CLIENT_SECRET
 
+  - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
+    value: "{{ .Values.env.SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI }}"
+
   - name: OAUTH_ENDPOINT_URL
-    value: "{{ .Values.env.OAUTH_ENDPOINT_URL }}"
+    value: "{{ .Values.env.OAUTH_ROOT_URL }}"
 
   - name: COMMUNITY_ENDPOINT_URL
     value: "{{ .Values.env.COMMUNITY_ENDPOINT_URL }}"
@@ -32,7 +35,7 @@ env:
     value: "{{ .Values.env.ASSESSMENT_ENDPOINT_URL }}"
 
   - name: SPRING_PROFILES_ACTIVE
-    value: "aws logstash"
+    value: "aws,logstash"
 
   - name: AWS_OFFENDER_EVENTS_ACCESS_KEY
     valueFrom:
@@ -61,24 +64,24 @@ env:
   - name: DATABASE_USERNAME
     valueFrom:
       secretKeyRef:
-        name: rds_instance_output
+        name: rds-instance-output
         key: database_username
 
   - name: DATABASE_PASSWORD
     valueFrom:
       secretKeyRef:
-        name: rds_instance_output
+        name: rds-instance-output
         key: database_password
 
   - name: DATABASE_NAME
     valueFrom:
       secretKeyRef:
-        name: rds_instance_output
+        name: rds-instance-output
         key: database_name
 
   - name: DATABASE_ENDPOINT
     valueFrom:
       secretKeyRef:
-        name: rds_instance_output
+        name: rds-instance-output
         key: rds_instance_endpoint
 {{- end -}}
