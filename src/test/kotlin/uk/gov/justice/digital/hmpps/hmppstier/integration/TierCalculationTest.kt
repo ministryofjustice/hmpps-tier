@@ -65,37 +65,8 @@ class TierCalculationTest : IntegrationTestBase() {
 
   @Test
   fun `calculate change and protect for custodial sentence`() {
-
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(custodialConvictionResponse)
-    )
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/assessments")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(communityApiAssessmentsResponse)
-    )
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/registrations")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(registrationsResponse)
-    )
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(offenderResponse)
-    )
-    mockAssessmentApiServer.`when`(request().withPath("/offenders/crn/123/assessments/latest"), Times.exactly(2)).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(assessmentsApiAssessmentsResponse)
-    )
-    mockAssessmentApiServer.`when`(request().withPath("/assessments/oasysSetId/1234/needs")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(assessmentsApiNeedsResponse)
-    )
+    givenACustodialSentence()
+    restOfSetup()
 
     val tier = service.calculateTierForCrn("123")
     Assertions.assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
@@ -104,41 +75,9 @@ class TierCalculationTest : IntegrationTestBase() {
 
   @Test
   fun `change is zero for a non-custodial sentence with no restrictive requirements or unpaid work`() {
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(nonCustodialConvictionResponse)
-    )
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions/2500409581/requirements")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(nonRestrictiveRequirementsResponse)
-    )
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/assessments")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(communityApiAssessmentsResponse)
-    )
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/registrations")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(registrationsResponse)
-    )
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(offenderResponse)
-    )
-    mockAssessmentApiServer.`when`(request().withPath("/offenders/crn/123/assessments/latest"), Times.exactly(2)).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(assessmentsApiAssessmentsResponse)
-    )
-    mockAssessmentApiServer.`when`(request().withPath("/assessments/oasysSetId/1234/needs")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(assessmentsApiNeedsResponse)
-    )
+    setupNonCustodialSentence()
+    givenNonRestrictiveRequirements()
+    restOfSetup()
 
     val tier = service.calculateTierForCrn("123")
     Assertions.assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
@@ -147,17 +86,16 @@ class TierCalculationTest : IntegrationTestBase() {
 
   @Test
   fun `Calculate change for non-custodial sentence with restrictive requirements`() {
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(nonCustodialConvictionResponse)
-    )
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions/2500409581/requirements")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(restrictiveRequirementsResponse)
-    )
+    setupNonCustodialSentence()
+    setupRestrictiveRequirements()
+    restOfSetup()
 
+    val tier = service.calculateTierForCrn("123")
+    Assertions.assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
+    Assertions.assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+  }
+
+  private fun restOfSetup() {
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/assessments")).respond(
       response().withContentType(
         APPLICATION_JSON
@@ -173,19 +111,48 @@ class TierCalculationTest : IntegrationTestBase() {
         APPLICATION_JSON
       ).withBody(offenderResponse)
     )
-    mockAssessmentApiServer.`when`(request().withPath("/offenders/crn/123/assessments/latest"), Times.exactly(2)).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(assessmentsApiAssessmentsResponse)
-    )
+    mockAssessmentApiServer.`when`(request().withPath("/offenders/crn/123/assessments/latest"), Times.exactly(2))
+      .respond(
+        response().withContentType(
+          APPLICATION_JSON
+        ).withBody(assessmentsApiAssessmentsResponse)
+      )
     mockAssessmentApiServer.`when`(request().withPath("/assessments/oasysSetId/1234/needs")).respond(
       response().withContentType(
         APPLICATION_JSON
       ).withBody(assessmentsApiNeedsResponse)
     )
+  }
 
-    val tier = service.calculateTierForCrn("123")
-    Assertions.assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
-    Assertions.assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+  private fun setupNonCustodialSentence() {
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(nonCustodialConvictionResponse)
+    )
+  }
+
+  private fun givenACustodialSentence() {
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(custodialConvictionResponse)
+    )
+  }
+
+  private fun setupRestrictiveRequirements() {
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions/2500409581/requirements")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(restrictiveRequirementsResponse)
+    )
+  }
+
+  private fun givenNonRestrictiveRequirements() {
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions/2500409581/requirements")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(nonRestrictiveRequirementsResponse)
+    )
   }
 }
