@@ -16,10 +16,10 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 import java.nio.file.Files
 import java.nio.file.Paths
 
-class ListenerTest : IntegrationTestBase() {
+class TierCalculationTest : IntegrationTestBase() {
 
   @Autowired
-  lateinit var listener: TierCalculationService
+  lateinit var service: TierCalculationService
 
   lateinit var mockCommunityApiServer: ClientAndServer
   lateinit var mockCAssessmentApiServer: ClientAndServer
@@ -75,7 +75,7 @@ class ListenerTest : IntegrationTestBase() {
       ).withBody(assessmentsApiNeedsResponse)
     )
 
-    val tier = listener.getTierByCrn("123")
+    val tier = service.getTierByCrn("123")
     Assertions.assertThat(tier.changeLevel).isEqualTo(ChangeLevel.ONE)
     Assertions.assertThat(tier.protectLevel).isEqualTo(ProtectLevel.A)
   }
