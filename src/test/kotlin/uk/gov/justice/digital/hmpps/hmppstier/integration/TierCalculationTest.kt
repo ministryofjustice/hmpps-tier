@@ -1,9 +1,11 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.assertj.core.api.Assertions
+import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest.request
@@ -15,7 +17,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 import java.nio.file.Files
 import java.nio.file.Paths
-
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TierCalculationTest : IntegrationTestBase() {
 
   @Autowired
@@ -24,16 +26,20 @@ class TierCalculationTest : IntegrationTestBase() {
   lateinit var mockCommunityApiServer: ClientAndServer
   lateinit var mockAssessmentApiServer: ClientAndServer
 
-  @BeforeEach
+  @BeforeAll
   fun setupMockServer() {
     mockCommunityApiServer = ClientAndServer.startClientAndServer(8081)
     mockAssessmentApiServer = ClientAndServer.startClientAndServer(8082)
-    mockCommunityApiServer.reset()
   }
 
   @AfterEach
-  fun tearDownServer() {
+  fun reset() {
     mockCommunityApiServer.reset()
+    mockAssessmentApiServer.reset()
+  }
+
+  @AfterAll
+  fun tearDownServer() {
     mockCommunityApiServer.stop()
     mockAssessmentApiServer.stop()
   }

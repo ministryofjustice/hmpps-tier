@@ -68,7 +68,8 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
   fun isCustodialSentence(crn: String): Boolean {
     return communityApiClient.getConvictions(crn).any {
       println(it.sentence.sentenceType)
-      return it.sentence.sentenceType.code in arrayOf("NC", "SC") }
+      return it.sentence.sentenceType.code in arrayOf("NC", "SC")
+    }
   }
 
   private fun getOffenderGender(crn: String): String {
