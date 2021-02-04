@@ -105,12 +105,19 @@ data class Sentence @JsonCreator constructor(
 
   @JsonProperty("sentenceType")
   val sentenceType: SentenceType,
+
+  @JsonProperty
+  val unpaidWork: UnpaidWork?
+)
+
+data class UnpaidWork @JsonCreator constructor(
+  @JsonProperty("minutesOrdered")
+  var minutesOrdered: String
 )
 
 data class SentenceType @JsonCreator constructor(
   @JsonProperty("code")
   var code: String
-
 )
 
 data class Offender @JsonCreator constructor(

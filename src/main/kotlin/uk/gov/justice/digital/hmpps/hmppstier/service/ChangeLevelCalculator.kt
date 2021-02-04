@@ -26,7 +26,7 @@ class ChangeLevelCalculator(
     if (isCustodial) {
       return true
     }
-    return communityApiDataService.hasRestrictiveRequirements(crn)
+    return communityApiDataService.hasRestrictiveRequirements(crn) || communityApiDataService.hasUnpaidWork(crn)
   }
 
   private fun calculateTier(points: Int) = when {

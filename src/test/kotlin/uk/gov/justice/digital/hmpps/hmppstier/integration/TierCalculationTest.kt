@@ -52,6 +52,8 @@ class TierCalculationTest : IntegrationTestBase() {
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-custodial.json"))
   private val nonCustodialConvictionResponse: String =
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-non-custodial.json"))
+  private val nonCustodialNoUnpaidWorkConvictionResponse: String =
+    Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-non-custodial-no-unpaid.json"))
   private val offenderResponse: String =
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/offender.json"))
   private val restrictiveRequirementsResponse: String =
@@ -75,7 +77,7 @@ class TierCalculationTest : IntegrationTestBase() {
 
   @Test
   fun `change is zero for a non-custodial sentence with no restrictive requirements or unpaid work`() {
-    setupNonCustodialSentence()
+    setupNonCustodialSentenceWithNoUnpaidWork()
     givenNonRestrictiveRequirements()
     restOfSetup()
 
@@ -85,8 +87,19 @@ class TierCalculationTest : IntegrationTestBase() {
   }
 
   @Test
+  fun `calculate change for a non-custodial sentence with unpaid work`() {
+    setupNonCustodialSentenceWithUnpaidWork()
+    givenNonRestrictiveRequirements()
+    restOfSetup()
+
+    val tier = service.calculateTierForCrn("123")
+    Assertions.assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
+    Assertions.assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+  }
+
+  @Test
   fun `Calculate change for non-custodial sentence with restrictive requirements`() {
-    setupNonCustodialSentence()
+    setupNonCustodialSentenceWithNoUnpaidWork()
     setupRestrictiveRequirements()
     restOfSetup()
 
@@ -124,7 +137,14 @@ class TierCalculationTest : IntegrationTestBase() {
     )
   }
 
-  private fun setupNonCustodialSentence() {
+  private fun setupNonCustodialSentenceWithNoUnpaidWork() {
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(nonCustodialNoUnpaidWorkConvictionResponse)
+    )
+  }
+  private fun setupNonCustodialSentenceWithUnpaidWork() {
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
       response().withContentType(
         APPLICATION_JSON
@@ -141,7 +161,7 @@ class TierCalculationTest : IntegrationTestBase() {
   }
 
   private fun setupRestrictiveRequirements() {
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions/2500409581/requirements")).respond(
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions/\\d+/requirements")).respond(
       response().withContentType(
         APPLICATION_JSON
       ).withBody(restrictiveRequirementsResponse)
@@ -149,7 +169,7 @@ class TierCalculationTest : IntegrationTestBase() {
   }
 
   private fun givenNonRestrictiveRequirements() {
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions/2500409581/requirements")).respond(
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions/\\d+/requirements")).respond(
       response().withContentType(
         APPLICATION_JSON
       ).withBody(nonRestrictiveRequirementsResponse)

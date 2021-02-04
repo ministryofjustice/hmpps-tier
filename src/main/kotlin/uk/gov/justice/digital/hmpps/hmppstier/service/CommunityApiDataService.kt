@@ -81,8 +81,16 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
   }
 
   fun isCustodialSentence(crn: String): Boolean {
+    // TODO restrict to current convictions only?
     return communityApiClient.getConvictions(crn).any {
       it.sentence.sentenceType.code in arrayOf("NC", "SC")
+    }
+  }
+
+  fun hasUnpaidWork(crn: String): Boolean {
+    // TODO restrict to current convictions only?
+    return communityApiClient.getConvictions(crn).any {
+      null != it.sentence.unpaidWork?.minutesOrdered
     }
   }
 
