@@ -60,7 +60,26 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .bodyToMono(Offender::class.java)
       .block()
   }
+
+  fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
+    return webClient
+      .get()
+      .uri("offenders/crn/$crn/convictions/$convictionId/requirements")
+      .retrieve()
+      .bodyToMono(Requirements::class.java)
+      .block()?.requirements ?: listOf()
+  }
 }
+
+data class Requirements @JsonCreator constructor(
+  @JsonProperty("requirements")
+  val requirements: List<Requirement>
+)
+
+data class Requirement @JsonCreator constructor(
+  @JsonProperty("restrictive")
+  val restrictive: Boolean?
+)
 
 data class NsiWrapper @JsonCreator constructor(
   @JsonProperty("convictionId")

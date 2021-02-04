@@ -54,6 +54,10 @@ class TierCalculationTest : IntegrationTestBase() {
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-non-custodial.json"))
   private val offenderResponse: String =
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/offender.json"))
+  private val restrictiveRequirementsResponse: String =
+    Files.readString(Paths.get("src/test/resources/fixtures/community-api/requirements-restrictive.json"))
+  private val nonRestrictiveRequirementsResponse: String =
+    Files.readString(Paths.get("src/test/resources/fixtures/community-api/requirements-non-restrictive.json"))
   private val assessmentsApiAssessmentsResponse: String =
     Files.readString(Paths.get("src/test/resources/fixtures/assessment-api/assessments.json"))
   private val assessmentsApiNeedsResponse: String =
@@ -105,6 +109,11 @@ class TierCalculationTest : IntegrationTestBase() {
         APPLICATION_JSON
       ).withBody(nonCustodialConvictionResponse)
     )
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions/2500409581/requirements")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(nonRestrictiveRequirementsResponse)
+    )
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/assessments")).respond(
       response().withContentType(
         APPLICATION_JSON
@@ -133,6 +142,50 @@ class TierCalculationTest : IntegrationTestBase() {
 
     val tier = service.calculateTierForCrn("123")
     Assertions.assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
+    Assertions.assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+  }
+
+  @Test
+  fun `Calculate change for non-custodial sentence with restrictive requirements`() {
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(nonCustodialConvictionResponse)
+    )
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions/2500409581/requirements")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(restrictiveRequirementsResponse)
+    )
+
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/assessments")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(communityApiAssessmentsResponse)
+    )
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/registrations")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(registrationsResponse)
+    )
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(offenderResponse)
+    )
+    mockAssessmentApiServer.`when`(request().withPath("/offenders/crn/123/assessments/latest"), Times.exactly(2)).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(assessmentsApiAssessmentsResponse)
+    )
+    mockAssessmentApiServer.`when`(request().withPath("/assessments/oasysSetId/1234/needs")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(assessmentsApiNeedsResponse)
+    )
+
+    val tier = service.calculateTierForCrn("123")
+    Assertions.assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
     Assertions.assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 }

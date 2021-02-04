@@ -11,8 +11,7 @@ class ChangeLevelCalculator(
 ) {
 
   fun calculateChangeLevel(crn: String): TierLevel<ChangeLevel> {
-    val custodialSentence = communityApiDataService.isCustodialSentence(crn)
-    if (custodialSentence) {
+    if (shouldCalculateChangeLevel(crn)) {
 
       val points = getOasysNeedsPoints(crn).plus(getOgrsPoints(crn))
       val tier = calculateTier(points)
@@ -20,6 +19,14 @@ class ChangeLevelCalculator(
       return TierLevel(tier, points)
     }
     return TierLevel(ChangeLevel.ZERO, 0)
+  }
+
+  private fun shouldCalculateChangeLevel(crn: String): Boolean {
+    val isCustodial = communityApiDataService.isCustodialSentence(crn)
+    if (isCustodial) {
+      return true
+    }
+    return communityApiDataService.hasRestrictiveRequirements(crn)
   }
 
   private fun calculateTier(points: Int) = when {

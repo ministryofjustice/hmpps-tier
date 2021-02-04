@@ -65,14 +65,29 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
     return false
   }
 
+  fun hasRestrictiveRequirements(crn: String): Boolean {
+    val currentConvictions = communityApiClient.getConvictions(crn)
+      .filter { it.sentence.terminationDate == null }
+      .map { it.convictionId }
+    for (convictionId in currentConvictions) {
+      if (communityApiClient.getRequirements(crn, convictionId).any {
+        true == it.restrictive
+      }
+      ) {
+        return true
+      }
+    }
+    return false
+  }
+
   fun isCustodialSentence(crn: String): Boolean {
     return communityApiClient.getConvictions(crn).any {
-      println(it.sentence.sentenceType)
-      return it.sentence.sentenceType.code in arrayOf("NC", "SC")
+      it.sentence.sentenceType.code in arrayOf("NC", "SC")
     }
   }
 
   private fun getOffenderGender(crn: String): String {
-    return communityApiClient.getOffender(crn)?.gender ?: throw EntityNotFoundException("Offender or Offender gender not found")
+    return communityApiClient.getOffender(crn)?.gender
+      ?: throw EntityNotFoundException("Offender or Offender gender not found")
   }
 }
