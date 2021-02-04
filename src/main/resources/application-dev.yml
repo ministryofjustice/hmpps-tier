@@ -18,21 +18,21 @@ spring:
       resourceserver:
         jwt:
           public-key-location: classpath:local-public-key.pub
-          jwk-set-uri: https://localhost/auth/.well-known/jwks.json
+          jwk-set-uri: https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json
 
 oauth:
   endpoint:
-    url: http://localhost:9090/auth
+    url: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
   client:
-    id: my-diary
-    secret: clientsecret
+    id: someid
+    secret: somesecret
 
 community:
   endpoint:
-    url: http://localhost:8082
+    url: https://community-api-secure.test.delius.probation.hmpps.dsd.io/secure
 assessment:
   endpoint:
-    url: http://localhost:8081
+    url: https://offender-dev.aks-dev-1.studio-hosting.service.justice.gov.uk
 
 logging:
   level:
