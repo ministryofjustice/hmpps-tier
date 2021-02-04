@@ -15,8 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
-import java.nio.file.Files
-import java.nio.file.Paths
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class TierCalculationTest : IntegrationTestBase() {
 
@@ -43,27 +41,6 @@ class TierCalculationTest : IntegrationTestBase() {
     mockCommunityApiServer.stop()
     mockAssessmentApiServer.stop()
   }
-
-  private val communityApiAssessmentsResponse: String =
-    Files.readString(Paths.get("src/test/resources/fixtures/community-api/assessments.json"))
-  private val registrationsResponse: String =
-    Files.readString(Paths.get("src/test/resources/fixtures/community-api/registrations.json"))
-  private val custodialConvictionResponse: String =
-    Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-custodial.json"))
-  private val nonCustodialConvictionResponse: String =
-    Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-non-custodial.json"))
-  private val nonCustodialNoUnpaidWorkConvictionResponse: String =
-    Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-non-custodial-no-unpaid.json"))
-  private val offenderResponse: String =
-    Files.readString(Paths.get("src/test/resources/fixtures/community-api/offender.json"))
-  private val restrictiveRequirementsResponse: String =
-    Files.readString(Paths.get("src/test/resources/fixtures/community-api/requirements-restrictive.json"))
-  private val nonRestrictiveRequirementsResponse: String =
-    Files.readString(Paths.get("src/test/resources/fixtures/community-api/requirements-non-restrictive.json"))
-  private val assessmentsApiAssessmentsResponse: String =
-    Files.readString(Paths.get("src/test/resources/fixtures/assessment-api/assessments.json"))
-  private val assessmentsApiNeedsResponse: String =
-    Files.readString(Paths.get("src/test/resources/fixtures/assessment-api/needs.json"))
 
   @Test
   fun `calculate change and protect for custodial sentence`() {
@@ -112,28 +89,28 @@ class TierCalculationTest : IntegrationTestBase() {
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/assessments")).respond(
       response().withContentType(
         APPLICATION_JSON
-      ).withBody(communityApiAssessmentsResponse)
+      ).withBody(ApiResponses.communityApiAssessmentsResponse())
     )
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/registrations")).respond(
       response().withContentType(
         APPLICATION_JSON
-      ).withBody(registrationsResponse)
+      ).withBody(ApiResponses.registrationsResponse())
     )
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123")).respond(
       response().withContentType(
         APPLICATION_JSON
-      ).withBody(offenderResponse)
+      ).withBody(ApiResponses.offenderResponse())
     )
     mockAssessmentApiServer.`when`(request().withPath("/offenders/crn/123/assessments/latest"), Times.exactly(2))
       .respond(
         response().withContentType(
           APPLICATION_JSON
-        ).withBody(assessmentsApiAssessmentsResponse)
+        ).withBody(ApiResponses.assessmentsApiAssessmentsResponse())
       )
     mockAssessmentApiServer.`when`(request().withPath("/assessments/oasysSetId/1234/needs")).respond(
       response().withContentType(
         APPLICATION_JSON
-      ).withBody(assessmentsApiNeedsResponse)
+      ).withBody(ApiResponses.assessmentsApiNeedsResponse())
     )
   }
 
@@ -141,14 +118,14 @@ class TierCalculationTest : IntegrationTestBase() {
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
       response().withContentType(
         APPLICATION_JSON
-      ).withBody(nonCustodialNoUnpaidWorkConvictionResponse)
+      ).withBody(ApiResponses.nonCustodialNoUnpaidWorkConvictionResponse())
     )
   }
   private fun setupNonCustodialSentenceWithUnpaidWork() {
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
       response().withContentType(
         APPLICATION_JSON
-      ).withBody(nonCustodialConvictionResponse)
+      ).withBody(ApiResponses.nonCustodialConvictionResponse())
     )
   }
 
@@ -156,7 +133,7 @@ class TierCalculationTest : IntegrationTestBase() {
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
       response().withContentType(
         APPLICATION_JSON
-      ).withBody(custodialConvictionResponse)
+      ).withBody(ApiResponses.custodialConvictionResponse())
     )
   }
 
@@ -164,7 +141,7 @@ class TierCalculationTest : IntegrationTestBase() {
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions/\\d+/requirements")).respond(
       response().withContentType(
         APPLICATION_JSON
-      ).withBody(restrictiveRequirementsResponse)
+      ).withBody(ApiResponses.restrictiveRequirementsResponse())
     )
   }
 
@@ -172,7 +149,7 @@ class TierCalculationTest : IntegrationTestBase() {
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions/\\d+/requirements")).respond(
       response().withContentType(
         APPLICATION_JSON
-      ).withBody(nonRestrictiveRequirementsResponse)
+      ).withBody(ApiResponses.nonRestrictiveRequirementsResponse())
     )
   }
 }
