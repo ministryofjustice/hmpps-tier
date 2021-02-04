@@ -43,7 +43,7 @@ class TierCalculationRequiredEventListenerTest {
 
   @Test
   fun `Should call calculateTierForCrn`() {
-    val validMessage: String = Files.readString(Paths.get("src/test/resources/tier-calculation-event.json"))
+    val validMessage: String = Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
     val crn: String = "X373878"
     val tierLetterResult = TierLevel(ProtectLevel.B, 0)
     val tierNumberResult = TierLevel(ChangeLevel.TWO, 0)

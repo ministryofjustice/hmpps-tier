@@ -4,7 +4,6 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
@@ -22,7 +21,8 @@ class TierCalculationService(
   private val communityApiDataService: CommunityApiDataService,
   private val assessmentApiDataService: AssessmentApiDataService,
   private val tierCalculationRepository: TierCalculationRepository,
-  private val clock: Clock
+  private val clock: Clock,
+  private val changeLevelCalculator: ChangeLevelCalculator
 ) {
 
   fun getTierByCrn(crn: String): TierDto {
@@ -35,7 +35,7 @@ class TierCalculationService(
     log.debug("Calculating tier for $crn using 'New' calculation")
 
     val protectLevel = calculateProtectLevel(crn)
-    val changeLevel = calculateChangeLevel(crn)
+    val changeLevel = changeLevelCalculator.calculateChangeLevel(crn)
 
     val calculation = TierCalculationEntity(
       crn = crn,
@@ -74,17 +74,6 @@ class TierCalculationService(
     }
 
     return TierLevel(tier, totalPoints)
-  }
-
-  fun calculateChangeLevel(crn: String): TierLevel<ChangeLevel> {
-    val points = getOasysNeedsPoints(crn).plus(getOgrsPoints(crn))
-    val tier = when {
-      points >= 20 -> ChangeLevel.THREE
-      points in 10..19 -> ChangeLevel.TWO
-      else -> ChangeLevel.ONE
-    }
-
-    return TierLevel(tier, points)
   }
 
   private fun getRiskPoints(crn: String): Int {
@@ -167,20 +156,6 @@ class TierCalculationService(
 
   private fun isAnswered(value: String?): Boolean {
     return value != null && value.toInt() > 0
-  }
-
-  private fun getOasysNeedsPoints(crn: String): Int {
-    return assessmentApiDataService.getAssessmentNeeds(crn).let {
-      it.entries.sumBy { ent ->
-        ent.key.weighting.times(ent.value?.score ?: 0)
-      }
-    }
-  }
-
-  private fun getOgrsPoints(crn: String): Int {
-    return communityApiDataService.getOGRS(crn).let {
-      it?.div(10) ?: 0
-    }
   }
 
   companion object {
