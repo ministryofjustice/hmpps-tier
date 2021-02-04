@@ -28,7 +28,7 @@ services:
       - OAUTH_ENDPOINT_URL=http://oauth:9090/auth
 
   offender-assessment-api:
-    image: quay.io/hmpps/offender-assessments-api-kotlin:latest
+    image: quay.io/hmpps/offender-assessments-api:latest
     restart: always
     networks:
       - hmpps
