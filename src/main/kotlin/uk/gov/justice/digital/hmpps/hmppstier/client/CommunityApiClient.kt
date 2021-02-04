@@ -82,7 +82,16 @@ data class Conviction @JsonCreator constructor(
 
 data class Sentence @JsonCreator constructor(
   @JsonProperty("terminationDate")
-  var terminationDate: LocalDate?
+  var terminationDate: LocalDate?,
+
+  @JsonProperty("sentenceType")
+  val sentenceType: SentenceType,
+)
+
+data class SentenceType @JsonCreator constructor(
+  @JsonProperty("code")
+  var code: String
+
 )
 
 data class Offender @JsonCreator constructor(

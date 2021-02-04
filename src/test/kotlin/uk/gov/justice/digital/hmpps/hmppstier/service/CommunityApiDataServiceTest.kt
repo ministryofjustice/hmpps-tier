@@ -17,6 +17,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
 import uk.gov.justice.digital.hmpps.hmppstier.client.Nsi
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
+import uk.gov.justice.digital.hmpps.hmppstier.client.SentenceType
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
@@ -651,7 +652,7 @@ internal class CommunityApiDataServiceTest {
       val crn = "123"
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock)
-      val sentence = Sentence(terminationDate)
+      val sentence = Sentence(terminationDate, SentenceType("SC"))
       val conviction = Conviction(convictionId, sentence)
 
       val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
@@ -669,7 +670,7 @@ internal class CommunityApiDataServiceTest {
       val crn = "123"
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock).minusYears(1)
-      val sentence = Sentence(terminationDate)
+      val sentence = Sentence(terminationDate, SentenceType("SC"))
       val conviction = Conviction(convictionId, sentence)
 
       val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
@@ -687,7 +688,7 @@ internal class CommunityApiDataServiceTest {
       val crn = "123"
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock).minusYears(12).minusDays(1)
-      val sentence = Sentence(terminationDate)
+      val sentence = Sentence(terminationDate, SentenceType("SC"))
       val conviction = Conviction(convictionId, sentence)
 
       val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
@@ -704,7 +705,7 @@ internal class CommunityApiDataServiceTest {
     fun `Should return Breach true if present and valid not terminated`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null)
+      val sentence = Sentence(null, SentenceType("SC"))
       val conviction = Conviction(convictionId, sentence)
 
       val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
@@ -721,7 +722,7 @@ internal class CommunityApiDataServiceTest {
     fun `Should return Breach true if multiple convictions, one valid`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null)
+      val sentence = Sentence(null, SentenceType("SC"))
       val conviction = Conviction(convictionId, sentence)
 
       val unrelatedConviction = Conviction(convictionId.plus(1), sentence)
@@ -753,7 +754,7 @@ internal class CommunityApiDataServiceTest {
     fun `Should return Breach true if one conviction, multiple breaches, one valid`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null)
+      val sentence = Sentence(null, SentenceType("SC"))
       val conviction = Conviction(convictionId, sentence)
 
       val breaches = listOf(
@@ -773,7 +774,7 @@ internal class CommunityApiDataServiceTest {
     fun `Should return Breach true if one conviction, multiple breaches, one valid case insensitive`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null)
+      val sentence = Sentence(null, SentenceType("SC"))
       val conviction = Conviction(convictionId, sentence)
 
       val breaches = listOf(
@@ -793,7 +794,7 @@ internal class CommunityApiDataServiceTest {
     fun `Should return Breach true if one conviction, multiple breaches, multiple valid`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null)
+      val sentence = Sentence(null, SentenceType("SC"))
       val conviction = Conviction(convictionId, sentence)
 
       val breaches = listOf(
@@ -813,7 +814,7 @@ internal class CommunityApiDataServiceTest {
     fun `Should return Breach false if one conviction, multiple breaches, none valid`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null)
+      val sentence = Sentence(null, SentenceType("SC"))
       val conviction = Conviction(convictionId, sentence)
 
       val breaches = listOf(

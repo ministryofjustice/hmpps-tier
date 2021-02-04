@@ -8,7 +8,7 @@ import org.mockserver.integration.ClientAndServer
 import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
-import org.mockserver.model.MediaType
+import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.springframework.beans.factory.annotation.Autowired
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
@@ -22,24 +22,30 @@ class TierCalculationTest : IntegrationTestBase() {
   lateinit var service: TierCalculationService
 
   lateinit var mockCommunityApiServer: ClientAndServer
-  lateinit var mockCAssessmentApiServer: ClientAndServer
+  lateinit var mockAssessmentApiServer: ClientAndServer
 
   @BeforeEach
   fun setupMockServer() {
     mockCommunityApiServer = ClientAndServer.startClientAndServer(8081)
-    mockCAssessmentApiServer = ClientAndServer.startClientAndServer(8082)
+    mockAssessmentApiServer = ClientAndServer.startClientAndServer(8082)
+    mockCommunityApiServer.reset()
   }
 
   @AfterEach
   fun tearDownServer() {
+    mockCommunityApiServer.reset()
     mockCommunityApiServer.stop()
-    mockCAssessmentApiServer.stop()
+    mockAssessmentApiServer.stop()
   }
 
   private val communityApiAssessmentsResponse: String =
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/assessments.json"))
   private val registrationsResponse: String =
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/registrations.json"))
+  private val custodialConvictionResponse: String =
+    Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-custodial.json"))
+  private val nonCustodialConvictionResponse: String =
+    Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-non-custodial.json"))
   private val offenderResponse: String =
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/offender.json"))
   private val assessmentsApiAssessmentsResponse: String =
@@ -48,35 +54,79 @@ class TierCalculationTest : IntegrationTestBase() {
     Files.readString(Paths.get("src/test/resources/fixtures/assessment-api/needs.json"))
 
   @Test
-  fun `calculate change and protect`() {
+  fun `calculate change and protect for custodial sentence`() {
+
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(custodialConvictionResponse)
+    )
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/assessments")).respond(
       response().withContentType(
-        MediaType.APPLICATION_JSON
+        APPLICATION_JSON
       ).withBody(communityApiAssessmentsResponse)
     )
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/registrations")).respond(
       response().withContentType(
-        MediaType.APPLICATION_JSON
+        APPLICATION_JSON
       ).withBody(registrationsResponse)
     )
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123")).respond(
       response().withContentType(
-        MediaType.APPLICATION_JSON
+        APPLICATION_JSON
       ).withBody(offenderResponse)
     )
-    mockCAssessmentApiServer.`when`(request().withPath("/offenders/crn/123/assessments/latest"), Times.exactly(2)).respond(
+    mockAssessmentApiServer.`when`(request().withPath("/offenders/crn/123/assessments/latest"), Times.exactly(2)).respond(
       response().withContentType(
-        MediaType.APPLICATION_JSON
+        APPLICATION_JSON
       ).withBody(assessmentsApiAssessmentsResponse)
     )
-    mockCAssessmentApiServer.`when`(request().withPath("/assessments/oasysSetId/1234/needs")).respond(
+    mockAssessmentApiServer.`when`(request().withPath("/assessments/oasysSetId/1234/needs")).respond(
       response().withContentType(
-        MediaType.APPLICATION_JSON
+        APPLICATION_JSON
       ).withBody(assessmentsApiNeedsResponse)
     )
 
-    val tier = service.getTierByCrn("123")
-    Assertions.assertThat(tier.changeLevel).isEqualTo(ChangeLevel.ONE)
-    Assertions.assertThat(tier.protectLevel).isEqualTo(ProtectLevel.A)
+    val tier = service.calculateTierForCrn("123")
+    Assertions.assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
+    Assertions.assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+  }
+
+  @Test
+  fun `change is zero for a non-custodial sentence with no restrictive requirements or unpaid work`() {
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(nonCustodialConvictionResponse)
+    )
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/assessments")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(communityApiAssessmentsResponse)
+    )
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/registrations")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(registrationsResponse)
+    )
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(offenderResponse)
+    )
+    mockAssessmentApiServer.`when`(request().withPath("/offenders/crn/123/assessments/latest"), Times.exactly(2)).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(assessmentsApiAssessmentsResponse)
+    )
+    mockAssessmentApiServer.`when`(request().withPath("/assessments/oasysSetId/1234/needs")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(assessmentsApiNeedsResponse)
+    )
+
+    val tier = service.calculateTierForCrn("123")
+    Assertions.assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
+    Assertions.assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 }

@@ -65,6 +65,12 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
     return false
   }
 
+  fun isCustodialSentence(crn: String): Boolean {
+    return communityApiClient.getConvictions(crn).any {
+      println(it.sentence.sentenceType)
+      return it.sentence.sentenceType.code in arrayOf("NC", "SC") }
+  }
+
   private fun getOffenderGender(crn: String): String {
     return communityApiClient.getOffender(crn)?.gender ?: throw EntityNotFoundException("Offender or Offender gender not found")
   }
