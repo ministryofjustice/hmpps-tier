@@ -4,6 +4,7 @@ plugins {
   kotlin("plugin.spring") version "1.4.21"
   kotlin("plugin.jpa") version "1.4.21"
   id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
+  jacoco
 }
 
 configurations {
@@ -58,8 +59,24 @@ dependencyManagement {
   }
 }
 
+jacoco {
+  toolVersion = "0.8.6"
+}
+
+tasks.jacocoTestReport {
+  reports {
+    xml.isEnabled = false
+    csv.isEnabled = false
+    html.destination = file("$buildDir/reports/coverage")
+  }
+}
+
 tasks.named("check") {
   dependsOn(":ktlintCheck")
+}
+
+tasks.named("jacocoTestReport") {
+  dependsOn("test")
 }
 
 tasks.register("fix") {
