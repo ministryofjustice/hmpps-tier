@@ -84,6 +84,17 @@ class TierCalculationTest : IntegrationTestBase() {
   }
 
   @Test
+  fun `do not calculate change for terminated non-custodial sentence with no restrictive requirements or unpaid work`() {
+    setupTerminatedNonCustodialSentenceWithNoUnpaidWork()
+    givenNonRestrictiveRequirements()
+    restOfSetup()
+
+    val tier = service.calculateTierForCrn("123")
+    assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
+    assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+  }
+
+  @Test
   fun `do not calculate change for a non-custodial sentence with unpaid work`() {
     setupNonCustodialSentenceWithUnpaidWork()
     givenNonRestrictiveRequirements()
@@ -189,6 +200,14 @@ class TierCalculationTest : IntegrationTestBase() {
       response().withContentType(
         APPLICATION_JSON
       ).withBody(ApiResponses.custodialTerminatedConvictionResponse())
+    )
+  }
+
+  private fun setupTerminatedNonCustodialSentenceWithNoUnpaidWork() {
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(ApiResponses.nonCustodialTerminatedConvictionResponse())
     )
   }
 

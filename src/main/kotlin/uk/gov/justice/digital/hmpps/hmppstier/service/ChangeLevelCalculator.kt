@@ -22,8 +22,8 @@ class ChangeLevelCalculator(
   }
 
   private fun shouldCalculateChangeLevel(crn: String): Boolean {
-    val isCustodial = communityApiDataService.isCurrentCustodialSentence(crn)
-    if (isCustodial) {
+    val isCurrentCustodial = communityApiDataService.isCurrentCustodialSentence(crn)
+    if (isCurrentCustodial) {
       return true
     }
     return nonCustodialWithNoRestrictiveRequirementsOrUnpaidWork(crn)
