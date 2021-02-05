@@ -26,11 +26,15 @@ class ChangeLevelCalculator(
     if (isCurrentCustodial) {
       return true
     }
-    return nonCustodialWithNoRestrictiveRequirementsOrUnpaidWork(crn)
+    val isCurrentNonCustodial = communityApiDataService.isCurrentNonCustodialSentence(crn)
+    if (isCurrentNonCustodial) {
+      return hasNoUnpaidWorkOrRestrictiveRequirements(crn)
+    }
+    return false
   }
 
-  private fun nonCustodialWithNoRestrictiveRequirementsOrUnpaidWork(crn: String) =
-    communityApiDataService.isCurrentNonCustodialSentence(crn) && !(communityApiDataService.hasRestrictiveRequirements(crn) || communityApiDataService.hasUnpaidWork(crn))
+  private fun hasNoUnpaidWorkOrRestrictiveRequirements(crn: String) =
+    !(communityApiDataService.hasRestrictiveRequirements(crn) || communityApiDataService.hasUnpaidWork(crn))
 
   private fun calculateTier(points: Int) = when {
     points >= 20 -> ChangeLevel.THREE
