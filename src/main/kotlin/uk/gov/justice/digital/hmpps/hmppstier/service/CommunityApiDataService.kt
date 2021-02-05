@@ -83,11 +83,11 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
 
   fun isCurrentCustodialSentence(crn: String): Boolean =
     currentConvictions(crn).any {
-      return it.sentence.sentenceType.code in custodialSentences
+      it.sentence.sentenceType.code in custodialSentences
     }
 
   fun isCurrentNonCustodialSentence(crn: String): Boolean = currentConvictions(crn).any {
-    return it.sentence.sentenceType.code !in custodialSentences
+    it.sentence.sentenceType.code !in custodialSentences
   }
 
   fun hasUnpaidWork(crn: String): Boolean = currentConvictions(crn).any {
