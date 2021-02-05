@@ -43,8 +43,18 @@ class TierCalculationTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `calculate change and protect for custodial sentence`() {
-    setupCustodialSentence()
+  fun `calculate change and protect for SC custodial sentence`() {
+    setupSCCustodialSentence()
+    restOfSetup()
+
+    val tier = service.calculateTierForCrn("123")
+    assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
+    assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+  }
+
+  @Test
+  fun `calculate change and protect for NC custodial sentence`() {
+    setupNCCustodialSentence()
     restOfSetup()
 
     val tier = service.calculateTierForCrn("123")
@@ -158,13 +168,22 @@ class TierCalculationTest : IntegrationTestBase() {
     )
   }
 
-  private fun setupCustodialSentence() {
+  private fun setupSCCustodialSentence() {
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
       response().withContentType(
         APPLICATION_JSON
-      ).withBody(ApiResponses.custodialConvictionResponse())
+      ).withBody(ApiResponses.custodialSCConvictionResponse())
     )
   }
+
+  private fun setupNCCustodialSentence() {
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(ApiResponses.custodialNCConvictionResponse())
+    )
+  }
+
   private fun setupTerminatedCustodialSentence() {
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
       response().withContentType(
