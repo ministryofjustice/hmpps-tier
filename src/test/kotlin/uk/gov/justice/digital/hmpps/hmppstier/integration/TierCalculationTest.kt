@@ -85,6 +85,17 @@ class TierCalculationTest : IntegrationTestBase() {
     assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 
+  @Test
+  fun `calculate change for concurrent custodial and non-custodial sentence with unpaid work`() {
+    setupConcurrentCustodialAndNonCustodialSentenceWithUnpaidWork()
+    setupRestrictiveRequirements()
+    restOfSetup()
+
+    val tier = service.calculateTierForCrn("123")
+    assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
+    assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+  }
+
   private fun restOfSetup() {
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/assessments")).respond(
       response().withContentType(
@@ -121,6 +132,14 @@ class TierCalculationTest : IntegrationTestBase() {
       ).withBody(ApiResponses.nonCustodialConvictionResponse())
     )
   }
+  private fun setupConcurrentCustodialAndNonCustodialSentenceWithUnpaidWork() {
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(ApiResponses.custodialAndNonCustodialUnpaid())
+    )
+  }
+
   private fun setupNonCustodialSentenceWithUnpaidWork() {
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
       response().withContentType(
