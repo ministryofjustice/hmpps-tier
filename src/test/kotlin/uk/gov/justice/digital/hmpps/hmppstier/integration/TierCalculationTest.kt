@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
@@ -48,8 +48,8 @@ class TierCalculationTest : IntegrationTestBase() {
     restOfSetup()
 
     val tier = service.calculateTierForCrn("123")
-    Assertions.assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
-    Assertions.assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+    assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
+    assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -59,8 +59,8 @@ class TierCalculationTest : IntegrationTestBase() {
     restOfSetup()
 
     val tier = service.calculateTierForCrn("123")
-    Assertions.assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
-    Assertions.assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+    assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
+    assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -70,8 +70,8 @@ class TierCalculationTest : IntegrationTestBase() {
     restOfSetup()
 
     val tier = service.calculateTierForCrn("123")
-    Assertions.assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
-    Assertions.assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+    assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
+    assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -81,8 +81,8 @@ class TierCalculationTest : IntegrationTestBase() {
     restOfSetup()
 
     val tier = service.calculateTierForCrn("123")
-    Assertions.assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
-    Assertions.assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+    assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
+    assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 
   private fun restOfSetup() {
@@ -118,14 +118,14 @@ class TierCalculationTest : IntegrationTestBase() {
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
       response().withContentType(
         APPLICATION_JSON
-      ).withBody(ApiResponses.nonCustodialNoUnpaidWorkConvictionResponse())
+      ).withBody(ApiResponses.nonCustodialConvictionResponse())
     )
   }
   private fun setupNonCustodialSentenceWithUnpaidWork() {
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
       response().withContentType(
         APPLICATION_JSON
-      ).withBody(ApiResponses.nonCustodialConvictionResponse())
+      ).withBody(ApiResponses.nonCustodialUnpaidWorkConvictionResponse())
     )
   }
 

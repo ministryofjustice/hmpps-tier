@@ -11,10 +11,10 @@ object ApiResponses {
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/registrations.json"))
   fun custodialConvictionResponse(): String =
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-custodial.json"))
+  fun nonCustodialUnpaidWorkConvictionResponse(): String =
+    Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-non-custodial-unpaid-work.json"))
   fun nonCustodialConvictionResponse(): String =
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-non-custodial.json"))
-  fun nonCustodialNoUnpaidWorkConvictionResponse(): String =
-    Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-non-custodial-no-unpaid.json"))
   fun offenderResponse(): String =
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/offender.json"))
   fun restrictiveRequirementsResponse(): String =
