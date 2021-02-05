@@ -22,12 +22,15 @@ class ChangeLevelCalculator(
   }
 
   private fun shouldCalculateChangeLevel(crn: String): Boolean {
-    val isCustodial = communityApiDataService.isCustodialSentence(crn)
+    val isCustodial = communityApiDataService.isCurrentCustodialSentence(crn)
     if (isCustodial) {
       return true
     }
-    return !(communityApiDataService.hasRestrictiveRequirements(crn) || communityApiDataService.hasUnpaidWork(crn))
+    return nonCustodialWithNoRestrictiveRequirementsOrUnpaidWork(crn)
   }
+
+  private fun nonCustodialWithNoRestrictiveRequirementsOrUnpaidWork(crn: String) =
+    communityApiDataService.isCurrentNonCustodialSentence(crn) && !(communityApiDataService.hasRestrictiveRequirements(crn) || communityApiDataService.hasUnpaidWork(crn))
 
   private fun calculateTier(points: Int) = when {
     points >= 20 -> ChangeLevel.THREE

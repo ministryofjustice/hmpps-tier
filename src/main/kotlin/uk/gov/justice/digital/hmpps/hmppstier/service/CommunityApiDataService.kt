@@ -66,8 +66,7 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
   }
 
   fun hasRestrictiveRequirements(crn: String): Boolean {
-    val currentConvictions = communityApiClient.getConvictions(crn)
-      .filter { it.sentence.terminationDate == null }
+    val currentConvictions = currentConvictions(crn)
       .map { it.convictionId }
     for (convictionId in currentConvictions) {
       if (communityApiClient.getRequirements(crn, convictionId).any {
@@ -80,11 +79,12 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
     return false
   }
 
-  fun isCustodialSentence(crn: String): Boolean {
-    // TODO restrict to current convictions only?
-    return communityApiClient.getConvictions(crn).any {
-      it.sentence.sentenceType.code in arrayOf("NC", "SC")
-    }
+  fun isCurrentCustodialSentence(crn: String): Boolean = currentConvictions(crn).any {
+    return it.sentence.sentenceType.code in arrayOf("NC", "SC")
+  }
+
+  fun isCurrentNonCustodialSentence(crn: String): Boolean = currentConvictions(crn).any {
+    return it.sentence.sentenceType.code !in arrayOf("NC", "SC")
   }
 
   fun hasUnpaidWork(crn: String): Boolean {
@@ -98,4 +98,7 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
     return communityApiClient.getOffender(crn)?.gender
       ?: throw EntityNotFoundException("Offender or Offender gender not found")
   }
+
+  private fun currentConvictions(crn: String) = communityApiClient.getConvictions(crn)
+    .filter { it.sentence.terminationDate == null }
 }
