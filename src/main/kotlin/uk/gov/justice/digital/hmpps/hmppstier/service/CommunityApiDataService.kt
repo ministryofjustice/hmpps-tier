@@ -79,18 +79,19 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
     return false
   }
 
-  fun isCurrentCustodialSentence(crn: String): Boolean = currentConvictions(crn).any {
-    return it.sentence.sentenceType.code in arrayOf("NC", "SC")
-  }
+  val custodialSentences = arrayOf("NC", "SC")
+
+  fun isCurrentCustodialSentence(crn: String): Boolean =
+    currentConvictions(crn).any {
+      return it.sentence.sentenceType.code in custodialSentences
+    }
 
   fun isCurrentNonCustodialSentence(crn: String): Boolean = currentConvictions(crn).any {
-    return it.sentence.sentenceType.code !in arrayOf("NC", "SC")
+    return it.sentence.sentenceType.code !in custodialSentences
   }
 
-  fun hasUnpaidWork(crn: String): Boolean {
-    return currentConvictions(crn).any {
-      null != it.sentence.unpaidWork?.minutesOrdered
-    }
+  fun hasUnpaidWork(crn: String): Boolean = currentConvictions(crn).any {
+    null != it.sentence.unpaidWork?.minutesOrdered
   }
 
   private fun getOffenderGender(crn: String): String {
