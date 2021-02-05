@@ -73,9 +73,20 @@ class TierCalculationTest : IntegrationTestBase() {
   }
 
   @Test
+  fun `calculate change for terminated non-custodial sentence with unpaid work and current non-custodial sentence`() {
+    setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentenceWithUnpaidWork()
+    setupNonRestrictiveRequirements()
+    restOfSetup()
+
+    val tier = service.calculateTierForCrn("123")
+    assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
+    assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+  }
+
+  @Test
   fun `calculate change and protect for non-custodial sentence with no restrictive requirements or unpaid work`() {
     setupNonCustodialSentenceWithNoUnpaidWork()
-    givenNonRestrictiveRequirements()
+    setupNonRestrictiveRequirements()
     restOfSetup()
 
     val tier = service.calculateTierForCrn("123")
@@ -86,7 +97,7 @@ class TierCalculationTest : IntegrationTestBase() {
   @Test
   fun `do not calculate change for terminated non-custodial sentence with no restrictive requirements or unpaid work`() {
     setupTerminatedNonCustodialSentenceWithNoUnpaidWork()
-    givenNonRestrictiveRequirements()
+    setupNonRestrictiveRequirements()
     restOfSetup()
 
     val tier = service.calculateTierForCrn("123")
@@ -97,7 +108,7 @@ class TierCalculationTest : IntegrationTestBase() {
   @Test
   fun `do not calculate change for a non-custodial sentence with unpaid work`() {
     setupNonCustodialSentenceWithUnpaidWork()
-    givenNonRestrictiveRequirements()
+    setupNonRestrictiveRequirements()
     restOfSetup()
 
     val tier = service.calculateTierForCrn("123")
@@ -163,6 +174,15 @@ class TierCalculationTest : IntegrationTestBase() {
       ).withBody(ApiResponses.nonCustodialConvictionResponse())
     )
   }
+
+  private fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentenceWithUnpaidWork() {
+    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
+      response().withContentType(
+        APPLICATION_JSON
+      ).withBody(ApiResponses.nonCustodialCurrentAndTerminatedConvictionWithUnpaidWorkResponse())
+    )
+  }
+
   private fun setupConcurrentCustodialAndNonCustodialSentenceWithUnpaidWork() {
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
       response().withContentType(
@@ -219,7 +239,7 @@ class TierCalculationTest : IntegrationTestBase() {
     )
   }
 
-  private fun givenNonRestrictiveRequirements() {
+  private fun setupNonRestrictiveRequirements() {
     mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions/\\d+/requirements")).respond(
       response().withContentType(
         APPLICATION_JSON

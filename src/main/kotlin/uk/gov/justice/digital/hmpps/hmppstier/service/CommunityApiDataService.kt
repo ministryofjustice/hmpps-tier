@@ -88,8 +88,7 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
   }
 
   fun hasUnpaidWork(crn: String): Boolean {
-    // TODO restrict to current convictions only?
-    return communityApiClient.getConvictions(crn).any {
+    return currentConvictions(crn).any {
       null != it.sentence.unpaidWork?.minutesOrdered
     }
   }

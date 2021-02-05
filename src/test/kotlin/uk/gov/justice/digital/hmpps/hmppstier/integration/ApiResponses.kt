@@ -29,7 +29,8 @@ object ApiResponses {
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/requirements-non-restrictive.json"))
   fun custodialAndNonCustodialUnpaid(): String =
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-custodial-and-non-custodial-unpaid.json"))
-
+  fun nonCustodialCurrentAndTerminatedConvictionWithUnpaidWorkResponse(): String =
+    Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-non-custodial-current-and-terminated-with-unpaid-work.json"))
   fun assessmentsApiAssessmentsResponse(): String =
     Files.readString(Paths.get("src/test/resources/fixtures/assessment-api/assessments.json"))
   fun assessmentsApiNeedsResponse(): String =
