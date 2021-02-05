@@ -53,8 +53,19 @@ class TierCalculationTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `change is zero for a non-custodial sentence with no restrictive requirements or unpaid work`() {
+  fun `calculate change and protect for non-custodial sentence with no restrictive requirements or unpaid work`() {
     setupNonCustodialSentenceWithNoUnpaidWork()
+    givenNonRestrictiveRequirements()
+    restOfSetup()
+
+    val tier = service.calculateTierForCrn("123")
+    Assertions.assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
+    Assertions.assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+  }
+
+  @Test
+  fun `do not calculate change for a non-custodial sentence with unpaid work`() {
+    setupNonCustodialSentenceWithUnpaidWork()
     givenNonRestrictiveRequirements()
     restOfSetup()
 
@@ -64,24 +75,13 @@ class TierCalculationTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `calculate change for a non-custodial sentence with unpaid work`() {
-    setupNonCustodialSentenceWithUnpaidWork()
-    givenNonRestrictiveRequirements()
-    restOfSetup()
-
-    val tier = service.calculateTierForCrn("123")
-    Assertions.assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
-    Assertions.assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
-  }
-
-  @Test
-  fun `Calculate change for non-custodial sentence with restrictive requirements`() {
+  fun `do not calculate change for non-custodial sentence with restrictive requirements`() {
     setupNonCustodialSentenceWithNoUnpaidWork()
     setupRestrictiveRequirements()
     restOfSetup()
 
     val tier = service.calculateTierForCrn("123")
-    Assertions.assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
+    Assertions.assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
     Assertions.assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 
