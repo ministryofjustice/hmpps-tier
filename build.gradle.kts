@@ -71,12 +71,26 @@ tasks.jacocoTestReport {
   }
 }
 
+tasks.jacocoTestCoverageVerification {
+  violationRules {
+    rule {
+      limit {
+        minimum = BigDecimal(0.79)
+      }
+    }
+  }
+}
+
 tasks.named("check") {
   dependsOn(":ktlintCheck")
 }
 
 tasks.named("jacocoTestReport") {
   dependsOn("test")
+}
+
+tasks.named("jacocoTestCoverageVerification") {
+  dependsOn("jacocoTestReport")
 }
 
 tasks.register("fix") {

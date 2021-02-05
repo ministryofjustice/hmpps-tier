@@ -50,6 +50,11 @@ Run lint and test
 Run tests and generate a coverage report in build/reports/coverage/index.html
 ```./gradlew jacocoTestReport```
 
+Run tests, generate reports and fail build if coverage is below the threshold
+```
+/gradlew jacocoTestCoverageVerification
+```
+
 This service is built using Gradle. In order to build the project from the command line and run the tests, use:
 ```  
 ./gradlew clean build  
