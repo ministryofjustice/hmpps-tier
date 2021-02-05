@@ -41,14 +41,14 @@ internal class TierCalculationServiceTest {
   private val assessmentApiDataService: AssessmentApiDataService = mockk(relaxUnitFun = true)
   private val tierCalculationRepository: TierCalculationRepository = mockk(relaxUnitFun = true)
   private val changeLevelCalculator: ChangeLevelCalculator = ChangeLevelCalculator(communityApiDataService, assessmentApiDataService)
+  private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator(communityApiDataService, assessmentApiDataService)
   private val clock = Clock.fixed(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault())
 
   private val service = TierCalculationService(
-    communityApiDataService,
-    assessmentApiDataService,
     tierCalculationRepository,
     clock,
-    changeLevelCalculator
+    changeLevelCalculator,
+    protectLevelCalculator
   )
 
   private val crn = "Any Crn"
