@@ -38,6 +38,23 @@ Localstack has SQS and SNS. The queue and topic are set up and populated in `set
 ```AWS_ACCESS_KEY_ID=key AWS_SECRET_ACCESS_KEY=secret aws sqs get-queue-attributes --queue-url http://localhost:4576/queue/Digital-Prison-Services-dev-hmpps_tier_offender_events_queue --attribute-names ApproximateNumberOfMessages --endpoint-url=http://localhost:4576```
 
 ### Build service and run tests  
+
+#### testing and code coverage
+
+Fix kotlin linting errors
+```./gradlew fix```
+
+Run lint and test
+```./gradlew check```
+
+Run tests and generate a coverage report in build/reports/coverage/index.html
+```./gradlew jacocoTestReport```
+
+Run tests, generate reports and fail build if coverage is below the threshold
+```
+/gradlew jacocoTestCoverageVerification
+```
+
 This service is built using Gradle. In order to build the project from the command line and run the tests, use:
 ```  
 ./gradlew clean build  
