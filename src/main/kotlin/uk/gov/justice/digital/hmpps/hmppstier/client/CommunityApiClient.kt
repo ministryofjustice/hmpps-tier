@@ -71,7 +71,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   }
 }
 
-data class Requirements @JsonCreator constructor(
+private data class Requirements @JsonCreator constructor(
   @JsonProperty("requirements")
   val requirements: List<Requirement>
 )
@@ -81,7 +81,7 @@ data class Requirement @JsonCreator constructor(
   val restrictive: Boolean?
 )
 
-data class NsiWrapper @JsonCreator constructor(
+private data class NsiWrapper @JsonCreator constructor(
   @JsonProperty("convictionId")
   val nsis: List<Nsi>,
 )
