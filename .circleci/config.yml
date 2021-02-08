@@ -23,6 +23,7 @@ jobs:
           path: build/test-results
       - store_artifacts:
           path: build/reports/tests/test
+      - store_coverage:
           path: build/reports/coverage
 
 workflows:

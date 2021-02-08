@@ -83,6 +83,7 @@ tasks.jacocoTestCoverageVerification {
 
 tasks.named("check") {
   dependsOn(":ktlintCheck")
+  finalizedBy("jacocoTestReport")
 }
 
 tasks.named("jacocoTestReport") {
