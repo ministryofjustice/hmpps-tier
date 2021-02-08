@@ -11,14 +11,30 @@ class ChangeLevelCalculator(
 ) {
 
   fun calculateChangeLevel(crn: String): TierLevel<ChangeLevel> {
-    val points = getOasysNeedsPoints(crn).plus(getOgrsPoints(crn))
-    val tier = when {
-      points >= 20 -> ChangeLevel.THREE
-      points in 10..19 -> ChangeLevel.TWO
-      else -> ChangeLevel.ONE
+    if (shouldCalculateChangeLevel(crn)) {
+
+      val points = getOasysNeedsPoints(crn).plus(getOgrsPoints(crn))
+      val tier = calculateTier(points)
+
+      return TierLevel(tier, points)
+    }
+    return TierLevel(ChangeLevel.ZERO, 0)
+  }
+
+  private fun shouldCalculateChangeLevel(crn: String): Boolean =
+    when {
+      communityApiDataService.isCurrentCustodialSentence(crn) -> true
+      communityApiDataService.isCurrentNonCustodialSentence(crn) -> hasNoUnpaidWorkOrRestrictiveRequirements(crn)
+      else -> false
     }
 
-    return TierLevel(tier, points)
+  private fun hasNoUnpaidWorkOrRestrictiveRequirements(crn: String) =
+    !(communityApiDataService.hasRestrictiveRequirements(crn) || communityApiDataService.hasUnpaidWork(crn))
+
+  private fun calculateTier(points: Int) = when {
+    points >= 20 -> ChangeLevel.THREE
+    points in 10..19 -> ChangeLevel.TWO
+    else -> ChangeLevel.ONE
   }
 
   private fun getOasysNeedsPoints(crn: String): Int {
