@@ -106,7 +106,7 @@ data class Sentence @JsonCreator constructor(
   @JsonProperty("sentenceType")
   val sentenceType: SentenceType,
 
-  @JsonProperty
+  @JsonProperty("unpaidWork")
   val unpaidWork: UnpaidWork?
 )
 
