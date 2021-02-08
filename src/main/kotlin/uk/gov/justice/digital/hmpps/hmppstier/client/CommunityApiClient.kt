@@ -60,9 +60,28 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .bodyToMono(Offender::class.java)
       .block()
   }
+
+  fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
+    return webClient
+      .get()
+      .uri("offenders/crn/$crn/convictions/$convictionId/requirements")
+      .retrieve()
+      .bodyToMono(Requirements::class.java)
+      .block()?.requirements ?: listOf()
+  }
 }
 
-data class NsiWrapper @JsonCreator constructor(
+private data class Requirements @JsonCreator constructor(
+  @JsonProperty("requirements")
+  val requirements: List<Requirement>
+)
+
+data class Requirement @JsonCreator constructor(
+  @JsonProperty("restrictive")
+  val restrictive: Boolean?
+)
+
+private data class NsiWrapper @JsonCreator constructor(
   @JsonProperty("convictionId")
   val nsis: List<Nsi>,
 )
@@ -82,7 +101,23 @@ data class Conviction @JsonCreator constructor(
 
 data class Sentence @JsonCreator constructor(
   @JsonProperty("terminationDate")
-  var terminationDate: LocalDate?
+  var terminationDate: LocalDate?,
+
+  @JsonProperty("sentenceType")
+  val sentenceType: SentenceType,
+
+  @JsonProperty("unpaidWork")
+  val unpaidWork: UnpaidWork?
+)
+
+data class UnpaidWork @JsonCreator constructor(
+  @JsonProperty("minutesOrdered")
+  var minutesOrdered: String
+)
+
+data class SentenceType @JsonCreator constructor(
+  @JsonProperty("code")
+  var code: String
 )
 
 data class Offender @JsonCreator constructor(
