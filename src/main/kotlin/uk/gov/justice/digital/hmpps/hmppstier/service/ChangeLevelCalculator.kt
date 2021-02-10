@@ -23,9 +23,8 @@ class ChangeLevelCalculator(
   }
 
   private fun getIomNominal(crn: String): Int {
-    return if(communityApiDataService.getComplexityFactors(crn).any { it == ComplexityFactor.IOM_NOMINAL }) 2 else 0
+    return if (communityApiDataService.getComplexityFactors(crn).any { it == ComplexityFactor.IOM_NOMINAL }) 2 else 0
   }
-
 
   private fun shouldCalculateChangeLevel(crn: String): Boolean =
     when {

@@ -196,7 +196,6 @@ internal class TierCalculationServiceTest {
       assertThat(tier.data.protect.points).isEqualTo(30)
     }
 
-
     private fun setUpValidResponses(rsr: BigDecimal, rosh: Rosh, isFemale: Boolean = true) {
       every { communityApiDataService.isCurrentCustodialSentence(crn) } returns true
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
