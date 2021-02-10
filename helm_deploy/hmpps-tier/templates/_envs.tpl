@@ -35,7 +35,7 @@ env:
     value: "{{ .Values.env.ASSESSMENT_ENDPOINT_URL }}"
 
   - name: SPRING_PROFILES_ACTIVE
-    value: "aws,logstash"
+    value: "aws,logstash,stdout"
 
   - name: AWS_OFFENDER_EVENTS_ACCESS_KEY
     valueFrom:
