@@ -12,11 +12,6 @@ class ComplexityFactorTest {
   inner class ValuesTest {
 
     @Test
-    fun `It should match IOM_NOMINAL`() {
-      assertThat(ComplexityFactor.from("IIOM")).isEqualTo(ComplexityFactor.IOM_NOMINAL)
-    }
-
-    @Test
     fun `It should match MENTAL_HEALTH`() {
       assertThat(ComplexityFactor.from("RMDO")).isEqualTo(ComplexityFactor.MENTAL_HEALTH)
     }

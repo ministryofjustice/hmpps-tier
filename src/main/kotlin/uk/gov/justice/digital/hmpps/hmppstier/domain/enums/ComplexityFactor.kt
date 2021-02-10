@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.domain.enums
 
 enum class ComplexityFactor(val registerCode: String) {
 
-  IOM_NOMINAL("IIOM"),
   MENTAL_HEALTH("RMDO"),
   ATTEMPTED_SUICIDE_OR_SELF_HARM("ALSH"),
   VULNERABILITY_ISSUE("RVLN"),
