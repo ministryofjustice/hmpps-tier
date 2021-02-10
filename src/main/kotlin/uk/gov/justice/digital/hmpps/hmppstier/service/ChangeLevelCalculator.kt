@@ -11,17 +11,19 @@ class ChangeLevelCalculator(
 ) {
 
   fun calculateChangeLevel(crn: String): TierLevel<ChangeLevel> {
-    if (shouldCalculateChangeLevel(crn)) {
-
-      val points = getOasysNeedsPoints(crn).plus(getOgrsPoints(crn))
-      val tier = calculateTier(points)
-
-      return TierLevel(tier, points)
-    }
-    return TierLevel(ChangeLevel.ZERO, 0)
+    return if (hasMandateForChange(crn)) {
+      when {
+          !assessmentApiDataService.isLatestAssessmentRecent(crn) -> {
+            TierLevel(ChangeLevel.TWO, 0)
+          }
+          else -> {
+            calculateTier(getAssessmentNeedsPoints(crn).plus(getOgrsPoints(crn)))
+          }
+      }
+    } else TierLevel(ChangeLevel.ZERO, 0)
   }
 
-  private fun shouldCalculateChangeLevel(crn: String): Boolean =
+  private fun hasMandateForChange(crn: String): Boolean =
     when {
       communityApiDataService.isCurrentCustodialSentence(crn) -> true
       communityApiDataService.isCurrentNonCustodialSentence(crn) -> hasNoUnpaidWorkOrRestrictiveRequirements(crn)
@@ -31,23 +33,22 @@ class ChangeLevelCalculator(
   private fun hasNoUnpaidWorkOrRestrictiveRequirements(crn: String) =
     !(communityApiDataService.hasRestrictiveRequirements(crn) || communityApiDataService.hasUnpaidWork(crn))
 
-  private fun calculateTier(points: Int) = when {
-    points >= 20 -> ChangeLevel.THREE
-    points in 10..19 -> ChangeLevel.TWO
-    else -> ChangeLevel.ONE
+  private fun calculateTier(points: Int): TierLevel<ChangeLevel> = when {
+    points >= 20 -> TierLevel(ChangeLevel.THREE, points)
+    points in 10..19 -> TierLevel(ChangeLevel.TWO, points)
+    else -> TierLevel(ChangeLevel.ONE, points)
   }
 
-  private fun getOasysNeedsPoints(crn: String): Int {
-    return assessmentApiDataService.getAssessmentNeeds(crn).let {
+  private fun getAssessmentNeedsPoints(crn: String): Int =
+    assessmentApiDataService.getAssessmentNeeds(crn).let {
       it.entries.sumBy { ent ->
         ent.key.weighting.times(ent.value?.score ?: 0)
       }
     }
-  }
 
-  private fun getOgrsPoints(crn: String): Int {
-    return communityApiDataService.getOGRS(crn).let {
+  private fun getOgrsPoints(crn: String): Int =
+    communityApiDataService.getOGRS(crn).let {
       it?.div(10) ?: 0
     }
-  }
+
 }

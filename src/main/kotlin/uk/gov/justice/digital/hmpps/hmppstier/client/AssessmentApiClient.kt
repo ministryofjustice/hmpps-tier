@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
+import java.time.LocalDate
 
 @Component
 class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val webClient: WebClient) {
@@ -35,13 +36,13 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
   }
 
   @Cacheable(value = ["oasysAssessment"], key = "{ #crn }")
-  fun getLatestAssessmentId(crn: String): String? {
+  fun getLatestAssessment(crn: String): Assessment? {
     return webClient
       .get()
       .uri("/offenders/crn/$crn/assessments/latest")
       .retrieve()
       .bodyToMono(Assessment::class.java)
-      .block()?.assessmentId
+      .block()
   }
 }
 
@@ -66,12 +67,15 @@ data class Answer @JsonCreator constructor(
   val refAnswerCode: String?
 )
 
+data class Assessment @JsonCreator constructor(
+  @JsonProperty("assessmentId")
+  val assessmentId: String,
+
+  @JsonProperty("completed")
+  val completed: LocalDate,
+)
+
 private data class Answers @JsonCreator constructor(
   @JsonProperty("questionAnswers")
   val questionAnswers: List<Question>,
-)
-
-private data class Assessment @JsonCreator constructor(
-  @JsonProperty("assessmentId")
-  val assessmentId: String?,
 )
