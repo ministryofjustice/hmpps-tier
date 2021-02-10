@@ -583,25 +583,6 @@ internal class TierCalculationServiceTest {
     }
 
     @Test
-    fun `should not count IOM if Male`() {
-      setUpValidResponses(
-        listOf(
-          ComplexityFactor.IOM_NOMINAL
-        ),
-        mapOf(
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-          AssessmentComplexityFactor.TEMPER_CONTROL to "1"
-        ),
-        false
-      )
-
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify(false)
-
-      assertThat(tier.data.protect.points).isEqualTo(0)
-    }
-
-    @Test
     fun `should count both Temper and Impulsivity as max '1'`() {
       setUpValidResponses(
         listOf(),
