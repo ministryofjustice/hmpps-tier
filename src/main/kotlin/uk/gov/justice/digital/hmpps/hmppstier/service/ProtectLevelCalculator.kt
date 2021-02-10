@@ -65,6 +65,7 @@ class ProtectLevelCalculator(
 
   private fun getComplexityPoints(crn: String): Int {
     val complexityFactors = communityApiDataService.getComplexityFactors(crn).distinct().filter {
+      // Filter out IOM it is not used in this calculation but is used in the change level calculation
       it != ComplexityFactor.IOM_NOMINAL
     }
 
