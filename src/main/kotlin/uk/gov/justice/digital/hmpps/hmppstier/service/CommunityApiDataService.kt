@@ -81,16 +81,18 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
 
   val custodialSentences = arrayOf("NC", "SC")
 
-  fun isCurrentCustodialSentence(crn: String): Boolean =
+  fun hasCurrentCustodialSentence(crn: String): Boolean =
     currentConvictions(crn).any {
       it.sentence.sentenceType.code in custodialSentences
     }
 
-  fun isCurrentNonCustodialSentence(crn: String): Boolean = currentConvictions(crn).any {
+  fun hasCurrentNonCustodialSentence(crn: String): Boolean =
+    currentConvictions(crn).any {
     it.sentence.sentenceType.code !in custodialSentences
   }
 
-  fun hasUnpaidWork(crn: String): Boolean = currentConvictions(crn).any {
+  fun hasUnpaidWork(crn: String): Boolean =
+    currentConvictions(crn).any {
     null != it.sentence.unpaidWork?.minutesOrdered
   }
 
