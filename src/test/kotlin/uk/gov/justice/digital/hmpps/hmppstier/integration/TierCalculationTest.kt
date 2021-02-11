@@ -16,31 +16,10 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class TierCalculationTest : IntegrationTestBase() {
+class TierCalculationTest : MockedEndpointsTestBase() {
 
   @Autowired
   lateinit var service: TierCalculationService
-
-  lateinit var mockCommunityApiServer: ClientAndServer
-  lateinit var mockAssessmentApiServer: ClientAndServer
-
-  @BeforeAll
-  fun setupMockServer() {
-    mockCommunityApiServer = ClientAndServer.startClientAndServer(8081)
-    mockAssessmentApiServer = ClientAndServer.startClientAndServer(8082)
-  }
-
-  @AfterEach
-  fun reset() {
-    mockCommunityApiServer.reset()
-    mockAssessmentApiServer.reset()
-  }
-
-  @AfterAll
-  fun tearDownServer() {
-    mockCommunityApiServer.stop()
-    mockAssessmentApiServer.stop()
-  }
 
   @Test
   fun `calculate change and protect for SC custodial sentence`() {
