@@ -64,33 +64,30 @@ class ProtectLevelCalculator(
   }
 
   private fun getComplexityPoints(crn: String): Int {
-    return communityApiDataService.getComplexityFactors(crn).let { factors ->
-      factors.distinct().count().let { points ->
-        when {
-          communityApiDataService.isFemaleOffender(crn) -> {
-            val femaleOnlyPoints = getAssessmentComplexityPoints(crn).plus(getBreachRecallComplexityPoints(crn))
-            points.plus(femaleOnlyPoints)
-          }
-          else ->
-            when {
-              // we don't count IOM_NOMINAL for men so subtract it
-              factors.contains(ComplexityFactor.IOM_NOMINAL) -> points.minus(1)
-              else -> points
-            }
+    val complexityFactors = communityApiDataService.getComplexityFactors(crn).distinct().filter {
+      // Filter out IOM it is not used in this calculation but is used in the change level calculation
+      it != ComplexityFactor.IOM_NOMINAL
+    }
+
+    return complexityFactors.count().times(2).let {
+      when {
+        communityApiDataService.isFemaleOffender(crn) -> {
+          it + getAssessmentComplexityPoints(crn) + getBreachRecallComplexityPoints(crn)
         }
+        else -> it
       }
-    }.times(2)
+    }
   }
 
   private fun getAssessmentComplexityPoints(crn: String): Int {
     return assessmentApiDataService.getAssessmentComplexityAnswers(crn).let {
       val parenting = when {
-        isYes(it[AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES]) -> 1
+        isYes(it[AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES]) -> 2
         else -> 0
       }
       // We dont take the cumulative score, just '1' if at least one of these two is present
       val selfControl = when {
-        isAnswered(it[AssessmentComplexityFactor.IMPULSIVITY]) || isAnswered(it[AssessmentComplexityFactor.TEMPER_CONTROL]) -> 1
+        isAnswered(it[AssessmentComplexityFactor.IMPULSIVITY]) || isAnswered(it[AssessmentComplexityFactor.TEMPER_CONTROL]) -> 2
         else -> 0
       }
       parenting.plus(selfControl)
@@ -99,7 +96,7 @@ class ProtectLevelCalculator(
 
   private fun getBreachRecallComplexityPoints(crn: String): Int {
     return when {
-      communityApiDataService.hasBreachedConvictions(crn) -> 1
+      communityApiDataService.hasBreachedConvictions(crn) -> 2
       else -> 0
     }
   }
