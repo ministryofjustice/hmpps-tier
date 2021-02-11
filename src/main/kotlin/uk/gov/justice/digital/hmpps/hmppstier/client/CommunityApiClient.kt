@@ -156,5 +156,5 @@ data class Registration @JsonCreator constructor(
 
 private data class CommunityApiRegistrationsDto @JsonCreator constructor(
   @JsonProperty("registrations")
-  val registrations: List<Registration>
+  val registrations: List<Registration>?
 )
