@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.api.fail
 import uk.gov.justice.digital.hmpps.hmppstier.config.ObjectMapperConfiguration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.TWO
@@ -84,5 +85,28 @@ class TierCalculationRequiredEventListenerTest {
 
     verify { tierCalculationService.calculateTierForCrn(crn) }
     verify { successUpdater.update(calculationResult) }
+  }
+
+  @Test
+  fun `should not call community-api update tier on failure`() {
+    val validMessage: String =
+      Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
+    val crn = "X373878"
+
+    val calculationResult = TierDto(
+      protect.tier,
+      protect.points,
+      change.tier,
+      change.points
+    )
+    every { tierCalculationService.calculateTierForCrn(crn) } throws IllegalArgumentException("Oops")
+
+    try {
+      listener.listen(validMessage)
+      fail("Should have thrown an exception")
+    } catch (e: IllegalArgumentException) {
+      verify { tierCalculationService.calculateTierForCrn(crn) }
+      verify(exactly = 0) { successUpdater.update(calculationResult) }
+    }
   }
 }
