@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
@@ -11,7 +12,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(PER_CLASS)
 class TierCalculationTest : MockedEndpointsTestBase() {
 
   @Autowired
@@ -24,8 +25,9 @@ class TierCalculationTest : MockedEndpointsTestBase() {
     setupRestWithRegistrations(crn)
 
     val tier = service.calculateTierForCrn(crn)
-    assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
-    assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+
+    assertThat(tier.changeLevel).isEqualTo(ChangeLevel.ONE)
+    assertThat(tier.protectLevel).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -34,8 +36,8 @@ class TierCalculationTest : MockedEndpointsTestBase() {
     setupNCCustodialSentence(crn)
     setupRestWithRegistrations(crn)
     val tier = service.calculateTierForCrn(crn)
-    assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
-    assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+    assertThat(tier.changeLevel).isEqualTo(ChangeLevel.ONE)
+    assertThat(tier.protectLevel).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -46,8 +48,8 @@ class TierCalculationTest : MockedEndpointsTestBase() {
     setupRestWithRegistrations(crn)
 
     val tier = service.calculateTierForCrn(crn)
-    assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
-    assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+    assertThat(tier.changeLevel).isEqualTo(ChangeLevel.ZERO)
+    assertThat(tier.protectLevel).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -59,8 +61,8 @@ class TierCalculationTest : MockedEndpointsTestBase() {
     setupRestWithRegistrations(crn)
 
     val tier = service.calculateTierForCrn(crn)
-    assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
-    assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+    assertThat(tier.changeLevel).isEqualTo(ChangeLevel.ONE)
+    assertThat(tier.protectLevel).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -72,8 +74,8 @@ class TierCalculationTest : MockedEndpointsTestBase() {
     setupRestWithRegistrations(crn)
 
     val tier = service.calculateTierForCrn(crn)
-    assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
-    assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+    assertThat(tier.changeLevel).isEqualTo(ChangeLevel.ONE)
+    assertThat(tier.protectLevel).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -85,8 +87,8 @@ class TierCalculationTest : MockedEndpointsTestBase() {
     setupRestWithRegistrations(crn)
 
     val tier = service.calculateTierForCrn(crn)
-    assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
-    assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+    assertThat(tier.changeLevel).isEqualTo(ChangeLevel.ZERO)
+    assertThat(tier.protectLevel).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -98,8 +100,8 @@ class TierCalculationTest : MockedEndpointsTestBase() {
     setupRestWithRegistrations(crn)
 
     val tier = service.calculateTierForCrn(crn)
-    assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
-    assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+    assertThat(tier.changeLevel).isEqualTo(ChangeLevel.ZERO)
+    assertThat(tier.protectLevel).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -111,8 +113,8 @@ class TierCalculationTest : MockedEndpointsTestBase() {
     setupRestWithRegistrations(crn)
 
     val tier = service.calculateTierForCrn(crn)
-    assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
-    assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+    assertThat(tier.changeLevel).isEqualTo(ChangeLevel.ZERO)
+    assertThat(tier.protectLevel).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -124,8 +126,8 @@ class TierCalculationTest : MockedEndpointsTestBase() {
     setupRestWithRegistrations(crn)
 
     val tier = service.calculateTierForCrn(crn)
-    assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
-    assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
+    assertThat(tier.changeLevel).isEqualTo(ChangeLevel.ONE)
+    assertThat(tier.protectLevel).isEqualTo(ProtectLevel.A)
   }
 
   private fun setupRestWithRegistrations(crn: String) {

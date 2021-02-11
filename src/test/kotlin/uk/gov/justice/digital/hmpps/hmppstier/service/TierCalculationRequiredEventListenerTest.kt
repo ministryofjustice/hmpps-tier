@@ -13,23 +13,25 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.config.ObjectMapperConfiguration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.TWO
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel.B
+import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.time.LocalDateTime
 
 @ExtendWith(MockKExtension::class)
 @DisplayName("Tier Calculation Event Listener tests")
 class TierCalculationRequiredEventListenerTest {
 
+  private val successUpdater: SuccessUpdater = mockk(relaxUnitFun = true)
   private val tierCalculationService: TierCalculationService = mockk(relaxUnitFun = true)
   private val objectMapper: ObjectMapper = ObjectMapperConfiguration().objectMapper()
 
   private val listener: TierCalculationRequiredEventListener =
-    TierCalculationRequiredEventListener(objectMapper, tierCalculationService)
+    TierCalculationRequiredEventListener(objectMapper, tierCalculationService, successUpdater)
+
+  private val protect = TierLevel(B, 0)
+  private val change = TierLevel(TWO, 0)
 
   @BeforeEach
   fun resetAllMocks() {
@@ -43,20 +45,44 @@ class TierCalculationRequiredEventListenerTest {
 
   @Test
   fun `Should call calculateTierForCrn`() {
-    val validMessage: String = Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
-    val crn: String = "X373878"
-    val tierLetterResult = TierLevel(ProtectLevel.B, 0)
-    val tierNumberResult = TierLevel(ChangeLevel.TWO, 0)
+    val validMessage: String =
+      Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
+    val crn = "X373878"
+
+    val calculationResult = TierDto(
+      protect.tier,
+      protect.points,
+      change.tier,
+      change.points
+    )
     every { tierCalculationService.calculateTierForCrn(crn) } returns
-      TierCalculationEntity(
-        1,
-        crn,
-        LocalDateTime.now(),
-        TierCalculationResultEntity(tierLetterResult, tierNumberResult)
-      )
+      calculationResult
+    every { successUpdater.update(calculationResult) } returns Unit
 
     listener.listen(validMessage)
 
     verify { tierCalculationService.calculateTierForCrn(crn) }
+  }
+
+  @Test
+  fun `should call community-api update tier on success`() {
+    val validMessage: String =
+      Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
+    val crn = "X373878"
+
+    val calculationResult = TierDto(
+      protect.tier,
+      protect.points,
+      change.tier,
+      change.points
+    )
+    every { tierCalculationService.calculateTierForCrn(crn) } returns
+      calculationResult
+    every { successUpdater.update(calculationResult) } returns Unit
+
+    listener.listen(validMessage)
+
+    verify { tierCalculationService.calculateTierForCrn(crn) }
+    verify { successUpdater.update(calculationResult) }
   }
 }
