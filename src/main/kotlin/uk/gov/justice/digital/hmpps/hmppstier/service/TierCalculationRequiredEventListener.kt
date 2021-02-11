@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.cloud.aws.messaging.listener.SqsMessageDeletionPolicy.ON_SUCCESS
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 
 @Service
 class TierCalculationRequiredEventListener(
@@ -19,8 +20,11 @@ class TierCalculationRequiredEventListener(
     val typeReference = object : TypeReference<TierCalculationMessage>() {}
 
     val calculationMessage: TierCalculationMessage = objectMapper.readValue(message, typeReference)
+    val existingCalculation = calculator.getTierCalculation(calculationMessage.crn)
     val tier = calculator.calculateTierForCrn(calculationMessage.crn)
-    successUpdater.update(tier)
+    if (null == existingCalculation || !tier.equals(TierDto.from(existingCalculation.data))) {
+      successUpdater.update(tier)
+    }
   }
 }
 

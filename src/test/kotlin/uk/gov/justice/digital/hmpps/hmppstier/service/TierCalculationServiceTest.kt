@@ -96,7 +96,7 @@ internal class TierCalculationServiceTest {
 
       every { tierCalculationRepository.save(any()) } returns validTierCalculationEntity
 
-      service.getTierByCrn(crn)
+      service.getOrCalculateTierByCrn(crn)
 
       verify { communityApiDataService.isCurrentCustodialSentence(crn) }
       verify { communityApiDataService.isFemaleOffender(crn) }
@@ -126,7 +126,7 @@ internal class TierCalculationServiceTest {
       every { communityApiDataService.getOGRS(crn) } returns 55
       every { tierCalculationRepository.save(any()) } returns validTierCalculationEntity
 
-      service.getTierByCrn(crn)
+      service.getOrCalculateTierByCrn(crn)
 
       verify { communityApiDataService.isCurrentCustodialSentence(crn) }
 
@@ -145,7 +145,7 @@ internal class TierCalculationServiceTest {
     fun `Should Call Collaborators Test - Existing found`() {
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns validTierCalculationEntity
       every { tierCalculationRepository.save(any()) } returns validTierCalculationEntity
-      service.getTierByCrn(crn)
+      service.getOrCalculateTierByCrn(crn)
 
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
     }
