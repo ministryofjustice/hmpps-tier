@@ -1,13 +1,8 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.mockserver.integration.ClientAndServer
-import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
@@ -15,156 +10,127 @@ import org.springframework.beans.factory.annotation.Autowired
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
+
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-class TierCalculationTest : IntegrationTestBase() {
+class TierCalculationTest : MockedEndpointsTestBase() {
 
   @Autowired
   lateinit var service: TierCalculationService
 
-  lateinit var mockCommunityApiServer: ClientAndServer
-  lateinit var mockAssessmentApiServer: ClientAndServer
-
-  @BeforeAll
-  fun setupMockServer() {
-    mockCommunityApiServer = ClientAndServer.startClientAndServer(8081)
-    mockAssessmentApiServer = ClientAndServer.startClientAndServer(8082)
-  }
-
-  @AfterEach
-  fun reset() {
-    mockCommunityApiServer.reset()
-    mockAssessmentApiServer.reset()
-  }
-
-  @AfterAll
-  fun tearDownServer() {
-    mockCommunityApiServer.stop()
-    mockAssessmentApiServer.stop()
-  }
-
   @Test
   fun `calculate change and protect for SC custodial sentence`() {
+    val crn = "123"
     setupSCCustodialSentence()
-    restOfSetup()
+    setupRestWithRegistrations(crn)
 
-    val tier = service.calculateTierForCrn("123")
+    val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
     assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
   fun `calculate change and protect for NC custodial sentence`() {
-    setupNCCustodialSentence()
-    restOfSetup()
-
-    val tier = service.calculateTierForCrn("123")
+    val crn = "123"
+    setupNCCustodialSentence(crn)
+    setupRestWithRegistrations(crn)
+    val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
     assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
   fun `do not calculate change for terminated custodial sentence`() {
-    setupTerminatedCustodialSentence()
-    restOfSetup()
+    val crn = "123"
 
-    val tier = service.calculateTierForCrn("123")
+    setupTerminatedCustodialSentence()
+    setupRestWithRegistrations(crn)
+
+    val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
     assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
   fun `calculate change for terminated non-custodial sentence with unpaid work and current non-custodial sentence`() {
+    val crn = "123"
+
     setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentenceWithUnpaidWork()
     setupNonRestrictiveRequirements()
-    restOfSetup()
+    setupRestWithRegistrations(crn)
 
-    val tier = service.calculateTierForCrn("123")
+    val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
     assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
   fun `calculate change and protect for non-custodial sentence with no restrictive requirements or unpaid work`() {
+    val crn = "123"
+
     setupNonCustodialSentenceWithNoUnpaidWork()
     setupNonRestrictiveRequirements()
-    restOfSetup()
+    setupRestWithRegistrations(crn)
 
-    val tier = service.calculateTierForCrn("123")
+    val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
     assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
   fun `do not calculate change for terminated non-custodial sentence with no restrictive requirements or unpaid work`() {
+    val crn = "123"
+
     setupTerminatedNonCustodialSentenceWithNoUnpaidWork()
     setupNonRestrictiveRequirements()
-    restOfSetup()
+    setupRestWithRegistrations(crn)
 
-    val tier = service.calculateTierForCrn("123")
+    val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
     assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
   fun `do not calculate change for a non-custodial sentence with unpaid work`() {
+    val crn = "123"
+
     setupNonCustodialSentenceWithUnpaidWork()
     setupNonRestrictiveRequirements()
-    restOfSetup()
+    setupRestWithRegistrations(crn)
 
-    val tier = service.calculateTierForCrn("123")
+    val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
     assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
   fun `do not calculate change for non-custodial sentence with restrictive requirements`() {
+    val crn = "123"
+
     setupNonCustodialSentenceWithNoUnpaidWork()
     setupRestrictiveRequirements()
-    restOfSetup()
+    setupRestWithRegistrations(crn)
 
-    val tier = service.calculateTierForCrn("123")
+    val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
     assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
   fun `calculate change for concurrent custodial and non-custodial sentence with unpaid work`() {
+    val crn = "123"
+
     setupConcurrentCustodialAndNonCustodialSentenceWithUnpaidWork()
     setupRestrictiveRequirements()
-    restOfSetup()
+    setupRestWithRegistrations(crn)
 
-    val tier = service.calculateTierForCrn("123")
+    val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
     assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 
-  private fun restOfSetup() {
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/assessments")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(ApiResponses.communityApiAssessmentsResponse())
-    )
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/registrations")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(ApiResponses.registrationsResponse())
-    )
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(ApiResponses.offenderResponse())
-    )
-    mockAssessmentApiServer.`when`(request().withPath("/offenders/crn/123/assessments/latest"), Times.exactly(2))
-      .respond(
-        response().withContentType(
-          APPLICATION_JSON
-        ).withBody(ApiResponses.assessmentsApiAssessmentsResponse())
-      )
-    mockAssessmentApiServer.`when`(request().withPath("/assessments/oasysSetId/1234/needs")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(ApiResponses.assessmentsApiNeedsResponse())
-    )
+  private fun setupRestWithRegistrations(crn: String) {
+    setupRegistrations(ApiResponses.registrationsResponse(), crn)
+    restOfSetup(crn)
   }
 
   private fun setupNonCustodialSentenceWithNoUnpaidWork() {
@@ -204,14 +170,6 @@ class TierCalculationTest : IntegrationTestBase() {
       response().withContentType(
         APPLICATION_JSON
       ).withBody(ApiResponses.custodialSCConvictionResponse())
-    )
-  }
-
-  private fun setupNCCustodialSentence() {
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/123/convictions")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(ApiResponses.custodialNCConvictionResponse())
     )
   }
 
