@@ -9,6 +9,7 @@ object ApiResponses {
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/assessments.json"))
   fun registrationsResponse(): String =
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/registrations.json"))
+  fun emptyRegistrationsResponse(): String = "{}"
   fun custodialSCConvictionResponse(): String =
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-custodial-sc.json"))
   fun custodialNCConvictionResponse(): String =
