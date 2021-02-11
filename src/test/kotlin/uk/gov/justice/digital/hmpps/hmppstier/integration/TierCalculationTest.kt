@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
@@ -22,7 +21,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
   fun `calculate change and protect for SC custodial sentence`() {
     val crn = "123"
     setupSCCustodialSentence()
-    restOfSetup(crn)
+    setupRestWithRegistrations(crn)
 
     val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
@@ -33,7 +32,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
   fun `calculate change and protect for NC custodial sentence`() {
     val crn = "123"
     setupNCCustodialSentence(crn)
-    restOfSetup(crn)
+    setupRestWithRegistrations(crn)
     val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
     assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
@@ -44,7 +43,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
     val crn = "123"
 
     setupTerminatedCustodialSentence()
-    restOfSetup(crn)
+    setupRestWithRegistrations(crn)
 
     val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
@@ -57,7 +56,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
 
     setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentenceWithUnpaidWork()
     setupNonRestrictiveRequirements()
-    restOfSetup(crn)
+    setupRestWithRegistrations(crn)
 
     val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
@@ -70,7 +69,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
 
     setupNonCustodialSentenceWithNoUnpaidWork()
     setupNonRestrictiveRequirements()
-    restOfSetup(crn)
+    setupRestWithRegistrations(crn)
 
     val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
@@ -83,7 +82,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
 
     setupTerminatedNonCustodialSentenceWithNoUnpaidWork()
     setupNonRestrictiveRequirements()
-    restOfSetup(crn)
+    setupRestWithRegistrations(crn)
 
     val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
@@ -96,7 +95,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
 
     setupNonCustodialSentenceWithUnpaidWork()
     setupNonRestrictiveRequirements()
-    restOfSetup(crn)
+    setupRestWithRegistrations(crn)
 
     val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
@@ -109,7 +108,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
 
     setupNonCustodialSentenceWithNoUnpaidWork()
     setupRestrictiveRequirements()
-    restOfSetup(crn)
+    setupRestWithRegistrations(crn)
 
     val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ZERO)
@@ -122,36 +121,16 @@ class TierCalculationTest : MockedEndpointsTestBase() {
 
     setupConcurrentCustodialAndNonCustodialSentenceWithUnpaidWork()
     setupRestrictiveRequirements()
-    restOfSetup(crn)
+    setupRestWithRegistrations(crn)
 
     val tier = service.calculateTierForCrn(crn)
     assertThat(tier.data.change.tier).isEqualTo(ChangeLevel.ONE)
     assertThat(tier.data.protect.tier).isEqualTo(ProtectLevel.A)
   }
 
-  private fun restOfSetup(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/$crn/assessments")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(ApiResponses.communityApiAssessmentsResponse())
-    )
+  private fun setupRestWithRegistrations(crn: String) {
     setupRegistrations(ApiResponses.registrationsResponse(), crn)
-    mockCommunityApiServer.`when`(request().withPath("/offenders/crn/$crn")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(ApiResponses.offenderResponse())
-    )
-    mockAssessmentApiServer.`when`(request().withPath("/offenders/crn/$crn/assessments/latest"), Times.exactly(2))
-      .respond(
-        response().withContentType(
-          APPLICATION_JSON
-        ).withBody(ApiResponses.assessmentsApiAssessmentsResponse())
-      )
-    mockAssessmentApiServer.`when`(request().withPath("/assessments/oasysSetId/1234/needs")).respond(
-      response().withContentType(
-        APPLICATION_JSON
-      ).withBody(ApiResponses.assessmentsApiNeedsResponse())
-    )
+    restOfSetup(crn)
   }
 
   private fun setupNonCustodialSentenceWithNoUnpaidWork() {
