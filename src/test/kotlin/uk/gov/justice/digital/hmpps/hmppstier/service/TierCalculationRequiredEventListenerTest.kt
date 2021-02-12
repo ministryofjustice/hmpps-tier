@@ -50,7 +50,7 @@ class TierCalculationRequiredEventListenerTest {
   }
 
   @Test
-  fun `should call community-api update tier on success`() {
+  fun `should call community-api update tier on success when previous caclulation was different`() {
     val validMessage: String =
       Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
 
@@ -65,6 +65,31 @@ class TierCalculationRequiredEventListenerTest {
     val previousCalculation = TierCalculationEntity(crn = crn, created = LocalDateTime.now(), data = result)
     every { tierCalculationService.getTierCalculation(crn) } returns
       previousCalculation
+
+    every { tierCalculationService.calculateTierForCrn(crn) } returns
+      calculationResult
+    every { successUpdater.update(calculationResult) } returns Unit
+
+    listener.listen(validMessage)
+    verify { tierCalculationService.getTierCalculation(crn) }
+    verify { tierCalculationService.calculateTierForCrn(crn) }
+    verify { successUpdater.update(calculationResult) }
+  }
+
+  @Test
+  fun `should call community-api update tier on success when there is no previous caclulation`() {
+    val validMessage: String =
+      Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
+
+    val calculationResult = TierDto(
+      protect.tier,
+      protect.points,
+      change.tier,
+      change.points
+    )
+
+    every { tierCalculationService.getTierCalculation(crn) } returns
+      null
 
     every { tierCalculationService.calculateTierForCrn(crn) } returns
       calculationResult
