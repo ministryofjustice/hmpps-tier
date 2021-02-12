@@ -33,6 +33,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()
   }
 
+  @Cacheable(value = ["conviction"], key = "{ #crn }")
   fun getConvictions(crn: String): List<Conviction> {
     val responseType = object : ParameterizedTypeReference<List<Conviction>>() {}
     return webClient
