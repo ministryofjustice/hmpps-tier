@@ -16,7 +16,7 @@ class ChangeLevelCalculator(
       !hasMandateForChange(crn) -> {
         TierLevel(ChangeLevel.ZERO, 0)
       }
-      !assessmentApiDataService.isLatestAssessmentRecent(crn) -> {
+      !assessmentApiDataService.isAssessmentRecent(crn) -> {
         TierLevel(ChangeLevel.TWO, 0)
       }
       else -> {

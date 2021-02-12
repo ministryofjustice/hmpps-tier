@@ -14,7 +14,8 @@ class AssessmentApiDataService(
   private val assessmentApiClient: AssessmentApiClient,
   private val clock: Clock
 ) {
-  fun isLatestAssessmentRecent(crn: String): Boolean {
+
+  fun isAssessmentRecent(crn: String): Boolean {
     assessmentApiClient.getLatestAssessment(crn)?.let {
       val cutOff = LocalDate.now(clock).minusWeeks(55).minusDays(1)
       return it.completed.toLocalDate().isAfter(cutOff)
