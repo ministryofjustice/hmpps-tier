@@ -7,8 +7,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 @Service
 class SuccessUpdater(val client: CommunityApiClient) {
   fun update(tierDto: TierDto, crn: String) {
-    println("Doing the update")
     client.updateTier(tierDto, crn)
-    println("Update completed")
   }
 }
