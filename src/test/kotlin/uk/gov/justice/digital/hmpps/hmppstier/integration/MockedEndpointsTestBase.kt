@@ -32,7 +32,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun setupNCCustodialSentence(crn: String) {
-    mockCommunityApiServer.`when`(HttpRequest.request().withPath("/offenders/crn/$crn/convictions")).respond(
+    mockCommunityApiServer.`when`(HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
       HttpResponse.response().withContentType(
         APPLICATION_JSON
       ).withBody(ApiResponses.custodialNCConvictionResponse())
@@ -40,7 +40,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun setupRegistrations(registrationsResponse: String, crn: String) {
-    mockCommunityApiServer.`when`(HttpRequest.request().withPath("/offenders/crn/$crn/registrations")).respond(
+    mockCommunityApiServer.`when`(HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations")).respond(
       HttpResponse.response().withContentType(
         APPLICATION_JSON
       ).withBody(registrationsResponse)
@@ -48,13 +48,13 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun restOfSetup(crn: String) {
-    mockCommunityApiServer.`when`(HttpRequest.request().withPath("/offenders/crn/$crn/assessments")).respond(
+    mockCommunityApiServer.`when`(HttpRequest.request().withPath("/secure/offenders/crn/$crn/assessments")).respond(
       HttpResponse.response().withContentType(
         APPLICATION_JSON
       ).withBody(ApiResponses.communityApiAssessmentsResponse())
     )
 
-    mockCommunityApiServer.`when`(HttpRequest.request().withPath("/offenders/crn/$crn")).respond(
+    mockCommunityApiServer.`when`(HttpRequest.request().withPath("/secure/offenders/crn/$crn")).respond(
       HttpResponse.response().withContentType(
         APPLICATION_JSON
       ).withBody(ApiResponses.offenderResponse())
