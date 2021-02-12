@@ -537,7 +537,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.data.protect.points).isEqualTo(2)
+      assertThat(tier.protectPoints).isEqualTo(2)
     }
 
     @Test
@@ -871,7 +871,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.data.change.points).isEqualTo(2)
+      assertThat(tier.changePoints).isEqualTo(2)
     }
 
     @Test
@@ -880,7 +880,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.data.change.points).isEqualTo(0)
+      assertThat(tier.changePoints).isEqualTo(0)
     }
 
     private fun setUpValidResponses(complexityFactors: List<ComplexityFactor>, isFemale: Boolean = true) {

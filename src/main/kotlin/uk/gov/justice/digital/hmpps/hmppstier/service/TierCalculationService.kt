@@ -23,7 +23,6 @@ class TierCalculationService(
     return TierDto.from(result.data).also {
       log.info("Returned tier for $crn")
     }
-
   }
 
   fun getTierCalculation(crn: String): CalculationResultDto {
