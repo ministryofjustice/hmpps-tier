@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.core.ParameterizedTypeReference
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -68,6 +70,13 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .retrieve()
       .bodyToMono(Requirements::class.java)
       .block()?.requirements ?: listOf()
+  }
+
+  fun updateTier(tierDto: TierDto, crn: String): ResponseEntity<Void> {
+    return webClient
+      .post()
+      .uri("offenders/crn/$crn/tier/${tierDto.protectLevel}${tierDto.changeLevel.ordinal}")
+      .retrieve().toBodilessEntity().block()
   }
 }
 

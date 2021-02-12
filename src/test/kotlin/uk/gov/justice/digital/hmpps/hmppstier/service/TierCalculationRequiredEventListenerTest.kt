@@ -67,12 +67,12 @@ class TierCalculationRequiredEventListenerTest {
 
     every { tierCalculationService.calculateTierForCrn(crn) } returns
       calculationResult
-    every { successUpdater.update(calculationResult) } returns Unit
+    every { successUpdater.update(calculationResult, crn) } returns Unit
 
     listener.listen(validMessage)
     verify { tierCalculationService.getTierCalculation(crn) }
     verify { tierCalculationService.calculateTierForCrn(crn) }
-    verify { successUpdater.update(calculationResult) }
+    verify { successUpdater.update(calculationResult, crn) }
   }
 
   @Test
@@ -92,12 +92,12 @@ class TierCalculationRequiredEventListenerTest {
 
     every { tierCalculationService.calculateTierForCrn(crn) } returns
       calculationResult
-    every { successUpdater.update(calculationResult) } returns Unit
+    every { successUpdater.update(calculationResult, crn) } returns Unit
 
     listener.listen(validMessage)
     verify { tierCalculationService.getTierCalculation(crn) }
     verify { tierCalculationService.calculateTierForCrn(crn) }
-    verify { successUpdater.update(calculationResult) }
+    verify { successUpdater.update(calculationResult, crn) }
   }
 
   @Test
@@ -117,7 +117,7 @@ class TierCalculationRequiredEventListenerTest {
       verify { tierCalculationService.getTierCalculation(crn) }
 
       verify { tierCalculationService.calculateTierForCrn(crn) }
-      verify(exactly = 0) { successUpdater.update(any()) }
+      verify(exactly = 0) { successUpdater.update(any(), any()) }
     }
   }
 
@@ -142,6 +142,6 @@ class TierCalculationRequiredEventListenerTest {
     listener.listen(validMessage)
     verify { tierCalculationService.getTierCalculation(crn) }
     verify { tierCalculationService.calculateTierForCrn(crn) }
-    verify(exactly = 0) { successUpdater.update(calculationResult) }
+    verify(exactly = 0) { successUpdater.update(calculationResult, crn) }
   }
 }

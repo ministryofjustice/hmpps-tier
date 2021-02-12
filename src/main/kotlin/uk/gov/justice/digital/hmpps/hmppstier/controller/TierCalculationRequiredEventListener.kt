@@ -23,8 +23,10 @@ class TierCalculationRequiredEventListener(
     val calculationMessage: TierCalculationMessage = objectMapper.readValue(message, typeReference)
     val existingCalculation = calculator.getTierCalculation(calculationMessage.crn)
     val tier = calculator.calculateTierForCrn(calculationMessage.crn)
+    println("new tier is $tier")
+
     if (tierHasChanged(tier, existingCalculation)) {
-      successUpdater.update(tier)
+      successUpdater.update(tier, calculationMessage.crn)
     }
   }
 
