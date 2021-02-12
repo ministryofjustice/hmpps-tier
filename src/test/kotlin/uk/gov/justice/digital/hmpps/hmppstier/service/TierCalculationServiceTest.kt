@@ -40,9 +40,12 @@ internal class TierCalculationServiceTest {
   private val communityApiDataService: CommunityApiDataService = mockk(relaxUnitFun = true)
   private val assessmentApiDataService: AssessmentApiDataService = mockk(relaxUnitFun = true)
   private val tierCalculationRepository: TierCalculationRepository = mockk(relaxUnitFun = true)
-  private val changeLevelCalculator: ChangeLevelCalculator = ChangeLevelCalculator(communityApiDataService, assessmentApiDataService)
-  private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator(communityApiDataService, assessmentApiDataService)
-  private val clock = Clock.fixed(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault())
+  private val changeLevelCalculator: ChangeLevelCalculator =
+    ChangeLevelCalculator(communityApiDataService, assessmentApiDataService)
+  private val protectLevelCalculator: ProtectLevelCalculator =
+    ProtectLevelCalculator(communityApiDataService, assessmentApiDataService)
+  private val clock =
+    Clock.fixed(LocalDate.now().atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault())
 
   private val service = TierCalculationService(
     tierCalculationRepository,
@@ -162,7 +165,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(20)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(20)
     }
 
     @Test
@@ -172,7 +175,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(30)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(30)
     }
 
     @Test
@@ -182,7 +185,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(10)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(10)
     }
 
     @Test
@@ -193,10 +196,11 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify(isFemale)
 
-      assertThat(tier.protectPoints).isEqualTo(30)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(30)
     }
 
     private fun setUpValidResponses(rsr: BigDecimal, rosh: Rosh, isFemale: Boolean = true) {
+      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns rosh
@@ -216,6 +220,7 @@ internal class TierCalculationServiceTest {
     }
 
     private fun standardVerify(isFemale: Boolean = true) {
+      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
       verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
 
       verify { communityApiDataService.isFemaleOffender(crn) }
@@ -244,7 +249,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(20)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(20)
     }
 
     @Test
@@ -253,7 +258,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(20)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(20)
     }
 
     @Test
@@ -263,7 +268,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(10)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(10)
     }
 
     @Test
@@ -272,7 +277,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(10)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(10)
     }
 
     @Test
@@ -281,7 +286,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(0)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
     }
 
     @Test
@@ -290,10 +295,12 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(0)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
     }
 
     private fun setUpValidResponses(rsr: BigDecimal?, isFemale: Boolean = true) {
+      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
+
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns null
@@ -313,6 +320,8 @@ internal class TierCalculationServiceTest {
     }
 
     private fun standardVerify(isFemale: Boolean = true) {
+      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
+
       verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
       verify { communityApiDataService.isFemaleOffender(crn) }
       verify { communityApiDataService.getRosh(crn) }
@@ -340,7 +349,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(30)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(30)
     }
 
     @Test
@@ -349,7 +358,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(20)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(20)
     }
 
     @Test
@@ -358,7 +367,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(10)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(10)
     }
 
     @Test
@@ -367,10 +376,12 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(0)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
     }
 
     private fun setUpValidResponses(rosh: Rosh?, isFemale: Boolean = true) {
+      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
+
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns rosh
@@ -390,6 +401,8 @@ internal class TierCalculationServiceTest {
     }
 
     private fun standardVerify(isFemale: Boolean = true) {
+      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
+
       verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
       verify { communityApiDataService.isFemaleOffender(crn) }
       verify { communityApiDataService.getRosh(crn) }
@@ -418,7 +431,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(30)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(30)
     }
 
     @Test
@@ -427,7 +440,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(30)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(30)
     }
 
     @Test
@@ -437,7 +450,7 @@ internal class TierCalculationServiceTest {
 
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(5)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(5)
     }
 
     @Test
@@ -446,7 +459,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(0)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
     }
 
     @Test
@@ -455,10 +468,12 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify(false)
 
-      assertThat(tier.protectPoints).isEqualTo(5)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(5)
     }
 
     private fun setUpValidResponses(mappa: Mappa?, isFemale: Boolean = true) {
+      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
+
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns null
@@ -478,6 +493,8 @@ internal class TierCalculationServiceTest {
     }
 
     private fun standardVerify(isFemale: Boolean = true) {
+      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
+
       verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
       verify { communityApiDataService.isFemaleOffender(crn) }
       verify { communityApiDataService.getRosh(crn) }
@@ -505,7 +522,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(0)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
     }
 
     @Test
@@ -523,7 +540,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(2)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(2)
     }
 
     @Test
@@ -537,7 +554,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(2)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(2)
     }
 
     @Test
@@ -557,7 +574,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(2)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(2)
     }
 
     @Test
@@ -574,7 +591,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(4)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(4)
     }
 
     @Test
@@ -593,7 +610,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(8)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(8)
     }
 
     @Test
@@ -609,7 +626,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(2) // 1 * 2 weighting for all complexity factors
+      assertThat(tier.tierDto.protectPoints).isEqualTo(2) // 1 * 2 weighting for all complexity factors
     }
 
     @Test
@@ -624,7 +641,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(2) // 1 * 2 weighting for all complexity factors
+      assertThat(tier.tierDto.protectPoints).isEqualTo(2) // 1 * 2 weighting for all complexity factors
     }
 
     @Test
@@ -639,7 +656,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(2) // 1 * 2 weighting for all complexity factors
+      assertThat(tier.tierDto.protectPoints).isEqualTo(2) // 1 * 2 weighting for all complexity factors
     }
 
     @Test
@@ -654,7 +671,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(0)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
     }
 
     @Test
@@ -669,7 +686,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(0)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
     }
 
     @Test
@@ -684,7 +701,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.protectPoints).isEqualTo(0)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
     }
 
     @Test
@@ -700,7 +717,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify(false)
 
-      assertThat(tier.protectPoints).isEqualTo(0)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
     }
 
     @Test
@@ -716,7 +733,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify(false)
 
-      assertThat(tier.protectPoints).isEqualTo(0)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
     }
 
     @Test
@@ -732,10 +749,16 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify(false)
 
-      assertThat(tier.protectPoints).isEqualTo(0)
+      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
     }
 
-    private fun setUpValidResponses(complexityFactors: List<ComplexityFactor>, assessmentComplexityFactors: Map<AssessmentComplexityFactor, String> = mapOf(), isFemale: Boolean = true) {
+    private fun setUpValidResponses(
+      complexityFactors: List<ComplexityFactor>,
+      assessmentComplexityFactors: Map<AssessmentComplexityFactor, String> = mapOf(),
+      isFemale: Boolean = true
+    ) {
+      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
+
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns null
@@ -755,6 +778,8 @@ internal class TierCalculationServiceTest {
     }
 
     private fun standardVerify(isFemale: Boolean = true) {
+      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
+
       verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
 
       verify { communityApiDataService.isFemaleOffender(crn) }
@@ -783,7 +808,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.changePoints).isEqualTo(0)
+      assertThat(tier.tierDto.changePoints).isEqualTo(0)
     }
 
     @Test
@@ -792,7 +817,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.changePoints).isEqualTo(5)
+      assertThat(tier.tierDto.changePoints).isEqualTo(5)
     }
 
     @Test
@@ -801,7 +826,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.changePoints).isEqualTo(5)
+      assertThat(tier.tierDto.changePoints).isEqualTo(5)
     }
 
     @Test
@@ -810,7 +835,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.changePoints).isEqualTo(5)
+      assertThat(tier.tierDto.changePoints).isEqualTo(5)
     }
 
     @Test
@@ -819,10 +844,12 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify(false)
 
-      assertThat(tier.changePoints).isEqualTo(5)
+      assertThat(tier.tierDto.changePoints).isEqualTo(5)
     }
 
     private fun setUpValidResponses(ogrs: Int?, isFemale: Boolean = true) {
+      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
+
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
 
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
@@ -843,6 +870,8 @@ internal class TierCalculationServiceTest {
     }
 
     private fun standardVerify(isFemale: Boolean = true) {
+      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
+
       verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
 
       verify { communityApiDataService.isFemaleOffender(crn) }
@@ -871,7 +900,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.changePoints).isEqualTo(2)
+      assertThat(tier.tierDto.changePoints).isEqualTo(2)
     }
 
     @Test
@@ -880,10 +909,12 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.changePoints).isEqualTo(0)
+      assertThat(tier.tierDto.changePoints).isEqualTo(0)
     }
 
     private fun setUpValidResponses(complexityFactors: List<ComplexityFactor>, isFemale: Boolean = true) {
+      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
+
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
 
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
@@ -904,6 +935,8 @@ internal class TierCalculationServiceTest {
     }
 
     private fun standardVerify(isFemale: Boolean = true) {
+      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
+
       verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
 
       verify { communityApiDataService.isFemaleOffender(crn) }
@@ -932,7 +965,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.changePoints).isEqualTo(0)
+      assertThat(tier.tierDto.changePoints).isEqualTo(0)
     }
 
     @Test
@@ -945,7 +978,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.changePoints).isEqualTo(0)
+      assertThat(tier.tierDto.changePoints).isEqualTo(0)
     }
 
     @Test
@@ -958,7 +991,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.changePoints).isEqualTo(1)
+      assertThat(tier.tierDto.changePoints).isEqualTo(1)
     }
 
     @Test
@@ -971,7 +1004,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.changePoints).isEqualTo(2)
+      assertThat(tier.tierDto.changePoints).isEqualTo(2)
     }
 
     @Test
@@ -988,7 +1021,7 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify()
 
-      assertThat(tier.changePoints).isEqualTo(10)
+      assertThat(tier.tierDto.changePoints).isEqualTo(10)
     }
 
     @Test
@@ -1006,10 +1039,12 @@ internal class TierCalculationServiceTest {
       val tier = service.calculateTierForCrn(crn)
       standardVerify(false)
 
-      assertThat(tier.changePoints).isEqualTo(10)
+      assertThat(tier.tierDto.changePoints).isEqualTo(10)
     }
 
     private fun setUpValidResponses(needs: Map<Need, NeedSeverity?>, isFemale: Boolean = true) {
+      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
+
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
 
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
@@ -1030,6 +1065,8 @@ internal class TierCalculationServiceTest {
     }
 
     private fun standardVerify(isFemale: Boolean = true) {
+      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
+
       verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
 
       verify { communityApiDataService.isFemaleOffender(crn) }

@@ -25,12 +25,18 @@ class TierCalculationService(
     }
   }
 
-  fun getTierCalculation(crn: String): CalculationResultDto {
-    val latestTierCalculation = getLatestTierCalculation(crn) ?: return CalculationResultDto(null)
-    return CalculationResultDto(TierDto.from(latestTierCalculation.data))
-  }
+  fun calculateTierForCrn(crn: String): CalculationResultDto {
+    val existingCalculation = getLatestTierCalculation(crn)
+    val newTier = calculateTier(crn)
+    val isUpdated: Boolean
+    if (existingCalculation == null) {
+      isUpdated = true
+    } else {
+      isUpdated = existingCalculation != newTier
+    }
 
-  fun calculateTierForCrn(crn: String): TierDto = TierDto.from(calculateTier(crn).data)
+    return CalculationResultDto(TierDto.from(newTier.data), isUpdated)
+  }
 
   private fun calculateTier(crn: String): TierCalculationEntity {
     log.debug("Calculating tier for $crn using 'New' calculation")
