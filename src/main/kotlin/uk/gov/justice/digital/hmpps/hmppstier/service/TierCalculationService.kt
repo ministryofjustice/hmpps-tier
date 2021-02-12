@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.hmppstier.dto.CalculationResultDto
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
@@ -23,7 +24,10 @@ class TierCalculationService(
     return TierDto.from(result.data)
   }
 
-  fun getTierCalculation(crn: String): TierCalculationEntity? = getLatestTierCalculation(crn)
+  fun getTierCalculation(crn: String): CalculationResultDto {
+    val latestTierCalculation = getLatestTierCalculation(crn) ?: return CalculationResultDto(null)
+    return CalculationResultDto(TierDto.from(latestTierCalculation.data))
+  }
 
   fun calculateTierForCrn(crn: String): TierDto = TierDto.from(calculateTier(crn).data)
 

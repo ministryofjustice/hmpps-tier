@@ -17,12 +17,11 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.TWO
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel.B
+import uk.gov.justice.digital.hmpps.hmppstier.dto.CalculationResultDto
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import java.nio.file.Files
 import java.nio.file.Paths
-import java.time.LocalDateTime
 
 @ExtendWith(MockKExtension::class)
 @DisplayName("Tier Calculation Event Listener tests")
@@ -62,7 +61,7 @@ class TierCalculationRequiredEventListenerTest {
     )
 
     val result = TierCalculationResultEntity(TierLevel(protect.tier, 99), TierLevel(ChangeLevel.ONE, 88))
-    val previousCalculation = TierCalculationEntity(crn = crn, created = LocalDateTime.now(), data = result)
+    val previousCalculation = CalculationResultDto(TierDto.from(result))
     every { tierCalculationService.getTierCalculation(crn) } returns
       previousCalculation
 
@@ -89,7 +88,7 @@ class TierCalculationRequiredEventListenerTest {
     )
 
     every { tierCalculationService.getTierCalculation(crn) } returns
-      null
+      CalculationResultDto(null)
 
     every { tierCalculationService.calculateTierForCrn(crn) } returns
       calculationResult
@@ -106,7 +105,7 @@ class TierCalculationRequiredEventListenerTest {
     val validMessage: String =
       Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
     val result = TierCalculationResultEntity(TierLevel(protect.tier, 99), TierLevel(ChangeLevel.ONE, 88))
-    val previousCalculation = TierCalculationEntity(crn = crn, created = LocalDateTime.now(), data = result)
+    val previousCalculation = CalculationResultDto(TierDto.from(result))
     every { tierCalculationService.getTierCalculation(crn) } returns
       previousCalculation
     every { tierCalculationService.calculateTierForCrn(crn) } throws IllegalArgumentException("Oops")
@@ -136,8 +135,9 @@ class TierCalculationRequiredEventListenerTest {
     every { tierCalculationService.calculateTierForCrn(crn) } returns
       calculationResult
 
-    val result = TierCalculationResultEntity(TierLevel(protect.tier, protect.points), TierLevel(change.tier, change.points))
-    val previousCalculation = TierCalculationEntity(crn = crn, created = LocalDateTime.now(), data = result)
+    val result =
+      TierCalculationResultEntity(TierLevel(protect.tier, protect.points), TierLevel(change.tier, change.points))
+    val previousCalculation = CalculationResultDto(TierDto.from(result))
     every { tierCalculationService.getTierCalculation(crn) } returns previousCalculation
     listener.listen(validMessage)
     verify { tierCalculationService.getTierCalculation(crn) }
