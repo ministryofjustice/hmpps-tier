@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.fail
 import uk.gov.justice.digital.hmpps.hmppstier.config.ObjectMapperConfiguration
+import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationRequiredEventListener
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.TWO

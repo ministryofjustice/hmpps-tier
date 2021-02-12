@@ -72,7 +72,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()?.requirements ?: listOf()
   }
 
-  fun updateTier(tierDto: TierDto, crn: String): ResponseEntity<Void> {
+  fun updateTier(tierDto: TierDto, crn: String): ResponseEntity<Void>? {
     return webClient
       .post()
       .uri("offenders/crn/$crn/tier/${tierDto.protectLevel}${tierDto.changeLevel.ordinal}")

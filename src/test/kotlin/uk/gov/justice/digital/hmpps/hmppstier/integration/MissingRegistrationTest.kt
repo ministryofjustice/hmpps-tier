@@ -5,11 +5,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.springframework.beans.factory.annotation.Autowired
+import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationRequiredEventListener
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ONE
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel.B
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.emptyRegistrationsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
-import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationRequiredEventListener
 
 @TestInstance(PER_CLASS)
 class MissingRegistrationTest : MockedEndpointsTestBase() {

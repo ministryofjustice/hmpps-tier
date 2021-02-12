@@ -7,7 +7,7 @@ import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.springframework.beans.factory.annotation.Autowired
-import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationRequiredEventListener
+import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationRequiredEventListener
 
 @TestInstance(PER_CLASS)
 class TierCalculationTest : MockedEndpointsTestBase() {

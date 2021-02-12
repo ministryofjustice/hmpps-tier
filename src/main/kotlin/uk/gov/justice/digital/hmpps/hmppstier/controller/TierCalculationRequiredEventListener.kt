@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppstier.service
+package uk.gov.justice.digital.hmpps.hmppstier.controller
 
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
@@ -7,6 +7,8 @@ import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.dto.CalculationResultDto
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
+import uk.gov.justice.digital.hmpps.hmppstier.service.SuccessUpdater
+import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 
 @Service
 class TierCalculationRequiredEventListener(
@@ -20,8 +22,7 @@ class TierCalculationRequiredEventListener(
     val message: String = objectMapper.readTree(msg)["Message"].asText()
     val typeReference = object : TypeReference<TierCalculationMessage>() {}
 
-    val calculationMessage: TierCalculationMessage = objectMapper.readValue(message, typeReference)
-    val crn = calculationMessage.crn
+    val crn = objectMapper.readValue(message, typeReference).crn
     val existingCalculation = calculator.getTierCalculation(crn)
     val tier = calculator.calculateTierForCrn(crn)
 
