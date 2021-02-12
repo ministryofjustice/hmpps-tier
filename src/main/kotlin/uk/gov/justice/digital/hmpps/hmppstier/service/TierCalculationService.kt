@@ -19,8 +19,10 @@ class TierCalculationService(
 
   fun getTierByCrn(crn: String): TierDto {
     val result = getLatestTierCalculation(crn) ?: calculateTierForCrn(crn)
-    log.info("Returned tier for $crn")
-    return TierDto.from(result.data)
+
+    return TierDto.from(result.data).also {
+      log.info("Returned tier for $crn")
+    }
   }
 
   fun calculateTierForCrn(crn: String): TierCalculationEntity {
@@ -35,21 +37,24 @@ class TierCalculationService(
       data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel)
     )
 
-    log.info("Calculated tier for $crn using 'New' calculation")
-    return tierCalculationRepository.save(calculation)
+    return tierCalculationRepository.save(calculation).also {
+      log.info("Calculated tier for $crn using 'New' calculation")
+    }
   }
 
   private fun getLatestTierCalculation(crn: String): TierCalculationEntity? {
     log.debug("Finding latest tier calculation for $crn")
 
-    val calculation = tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
-
-    if (calculation == null) {
-      log.info("No tier calculation found for $crn")
-    } else {
-      log.info("Found latest tier calculation for $crn")
+    return tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn).also {
+      when (it) {
+        null -> {
+          log.info("No tier calculation found for $crn")
+        }
+        else -> {
+          log.info("Found latest tier calculation for $crn")
+        }
+      }
     }
-    return calculation
   }
 
   companion object {
