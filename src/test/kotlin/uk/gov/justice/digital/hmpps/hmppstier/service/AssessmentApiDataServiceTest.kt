@@ -11,7 +11,11 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.gov.justice.digital.hmpps.hmppstier.client.*
+import uk.gov.justice.digital.hmpps.hmppstier.client.Answer
+import uk.gov.justice.digital.hmpps.hmppstier.client.Assessment
+import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentApiClient
+import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentNeed
+import uk.gov.justice.digital.hmpps.hmppstier.client.Question
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
@@ -25,7 +29,7 @@ import java.time.ZoneId
 @DisplayName("Detail Service tests")
 internal class AssessmentApiDataServiceTest {
   private val assessmentApiClient: AssessmentApiClient = mockk(relaxUnitFun = true)
-  private val clock = Clock.fixed(LocalDate.of(2020,2,1).atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault())
+  private val clock = Clock.fixed(LocalDate.of(2020, 2, 1).atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault())
   private val assessmentService = AssessmentApiDataService(assessmentApiClient, clock)
 
   @BeforeEach

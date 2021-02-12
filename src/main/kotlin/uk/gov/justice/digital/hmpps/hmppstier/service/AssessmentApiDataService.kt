@@ -12,9 +12,9 @@ import java.time.LocalDate
 @Service
 class AssessmentApiDataService(
   private val assessmentApiClient: AssessmentApiClient,
-  private val clock : Clock) {
-
-  fun isLatestAssessmentRecent(crn : String) : Boolean {
+  private val clock: Clock
+) {
+  fun isLatestAssessmentRecent(crn: String): Boolean {
     assessmentApiClient.getLatestAssessment(crn)?.let {
       val cutOff = LocalDate.now(clock).minusWeeks(55).minusDays(1)
       return it.completed.toLocalDate().isAfter(cutOff)

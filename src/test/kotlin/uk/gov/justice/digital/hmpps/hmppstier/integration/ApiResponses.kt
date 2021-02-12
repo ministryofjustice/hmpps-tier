@@ -7,7 +7,7 @@ import java.time.LocalDate
 object ApiResponses {
 
   fun communityApiAssessmentsResponse(): String =
-    Files.readString(Paths.get("src/test/resources/fixtures/community-api/assessments.json")).replace("completedDate","${LocalDate.now().year}-01-01T16:00:00")
+    Files.readString(Paths.get("src/test/resources/fixtures/community-api/assessments.json")).replace("completedDate", "${LocalDate.now().year}-01-01T16:00:00")
   fun registrationsResponse(): String =
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/registrations.json"))
   fun emptyRegistrationsResponse(): String = "{}"
@@ -34,7 +34,7 @@ object ApiResponses {
   fun nonCustodialCurrentAndTerminatedConvictionWithUnpaidWorkResponse(): String =
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-non-custodial-current-and-terminated-with-unpaid-work.json"))
   fun assessmentsApiAssessmentsResponse(): String =
-    Files.readString(Paths.get("src/test/resources/fixtures/assessment-api/assessments.json")).replace("completedDate","${LocalDate.now().year}-01-01T16:00:00")
+    Files.readString(Paths.get("src/test/resources/fixtures/assessment-api/assessments.json")).replace("completedDate", "${LocalDate.now().year}-01-01T16:00:00")
   fun assessmentsApiNeedsResponse(): String =
     Files.readString(Paths.get("src/test/resources/fixtures/assessment-api/needs.json"))
 }

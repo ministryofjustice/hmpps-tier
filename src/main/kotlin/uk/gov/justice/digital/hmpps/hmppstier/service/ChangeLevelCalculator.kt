@@ -13,21 +13,21 @@ class ChangeLevelCalculator(
 
   fun calculateChangeLevel(crn: String): TierLevel<ChangeLevel> {
     return when {
-        !hasMandateForChange(crn) -> {
-          TierLevel(ChangeLevel.ZERO, 0)
+      !hasMandateForChange(crn) -> {
+        TierLevel(ChangeLevel.ZERO, 0)
+      }
+      !assessmentApiDataService.isLatestAssessmentRecent(crn) -> {
+        TierLevel(ChangeLevel.TWO, 0)
+      }
+      else -> {
+        val totalPoints = getAssessmentNeedsPoints(crn) + getOgrsPoints(crn) + getIomNominalPoints(crn)
+        val tier = when {
+          totalPoints >= 20 -> ChangeLevel.THREE
+          totalPoints in 10..19 -> ChangeLevel.TWO
+          else -> ChangeLevel.ONE
         }
-        !assessmentApiDataService.isLatestAssessmentRecent(crn) -> {
-          TierLevel(ChangeLevel.TWO, 0)
-        }
-        else -> {
-          val totalPoints = getAssessmentNeedsPoints(crn) + getOgrsPoints(crn) + getIomNominalPoints(crn)
-          val tier = when {
-            totalPoints >= 20 -> ChangeLevel.THREE
-            totalPoints in 10..19 -> ChangeLevel.TWO
-            else -> ChangeLevel.ONE
-          }
-          TierLevel(tier, totalPoints)
-        }
+        TierLevel(tier, totalPoints)
+      }
     }
   }
 

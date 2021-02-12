@@ -10,7 +10,6 @@ import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Component
