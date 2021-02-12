@@ -30,7 +30,7 @@ management.endpoint:
 
 community:
   endpoint:
-    url: http://localhost:8081
+    url: http://localhost:8081/secure
 
 assessment:
   endpoint:
