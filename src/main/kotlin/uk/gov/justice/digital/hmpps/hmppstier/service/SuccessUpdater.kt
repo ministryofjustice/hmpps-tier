@@ -7,6 +7,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 @Service
 class SuccessUpdater(val client: CommunityApiClient) {
   fun update(tierDto: TierDto, crn: String) {
-    client.updateTier(tierDto, crn)
+    client.updateTier("${tierDto.protectLevel}${tierDto.changeLevel.ordinal}", crn)
   }
 }
