@@ -39,7 +39,6 @@ class TierCalculationService(
 
     return tierCalculationRepository.save(calculation).also {
       log.info("Calculated tier for $crn using 'New' calculation")
-
     }
   }
 
@@ -48,15 +47,14 @@ class TierCalculationService(
 
     return tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn).also {
       when (it) {
-          null -> {
-            log.info("No tier calculation found for $crn")
-          }
-          else -> {
-            log.info("Found latest tier calculation for $crn")
-          }
+        null -> {
+          log.info("No tier calculation found for $crn")
+        }
+        else -> {
+          log.info("Found latest tier calculation for $crn")
+        }
       }
     }
-
   }
 
   companion object {

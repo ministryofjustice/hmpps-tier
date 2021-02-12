@@ -42,10 +42,10 @@ class ProtectLevelCalculator(
 
   private fun getRoshPoints(crn: String): Int =
     when (communityApiDataService.getRosh(crn)) {
-        Rosh.VERY_HIGH -> 30
-        Rosh.HIGH -> 20
-        Rosh.MEDIUM -> 10
-        else -> 0
+      Rosh.VERY_HIGH -> 30
+      Rosh.HIGH -> 20
+      Rosh.MEDIUM -> 10
+      else -> 0
     }
 
   private fun getMappaPoints(crn: String): Int =

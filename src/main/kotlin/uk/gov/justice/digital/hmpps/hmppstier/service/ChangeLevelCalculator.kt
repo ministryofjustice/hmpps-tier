@@ -48,4 +48,4 @@ class ChangeLevelCalculator(
   private fun getIomNominalPoints(crn: String): Int =
     // We don't care about the full list, only if there is IOM Nominal
     if (communityApiDataService.getComplexityFactors(crn).any { it == ComplexityFactor.IOM_NOMINAL }) 2 else 0
-  }
+}
