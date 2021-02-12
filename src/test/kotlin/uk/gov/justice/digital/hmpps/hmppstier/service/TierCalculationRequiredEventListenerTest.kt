@@ -9,6 +9,7 @@ import io.mockk.verify
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.api.fail
@@ -30,9 +31,6 @@ class TierCalculationRequiredEventListenerTest {
   private val tierCalculationService: TierCalculationService = mockk(relaxUnitFun = true)
   private val objectMapper: ObjectMapper = ObjectMapperConfiguration().objectMapper()
 
-  private val listener: TierCalculationRequiredEventListener =
-    TierCalculationRequiredEventListener(objectMapper, tierCalculationService, successUpdater)
-
   private val protect = TierLevel(B, 0)
   private val change = TierLevel(TWO, 0)
   private val crn = "X373878"
@@ -47,65 +45,101 @@ class TierCalculationRequiredEventListenerTest {
     io.mockk.confirmVerified(tierCalculationService)
   }
 
-  @Test
-  fun `should not call community-api update tier on failure`() {
-    val validMessage: String =
-      Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
+  @Nested
+  @DisplayName("updater is enabled")
+  inner class UpdaterEnabled {
+    private val updaterEnabledListener: TierCalculationRequiredEventListener =
+      TierCalculationRequiredEventListener(objectMapper, tierCalculationService, successUpdater, true)
 
-    every { tierCalculationService.calculateTierForCrn(crn) } throws IllegalArgumentException("Oops")
+    @Test
+    fun `should not call community-api update tier on failure`() {
+      val validMessage: String =
+        Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
 
-    try {
-      listener.listen(validMessage)
-      fail("Should have thrown an exception")
-    } catch (e: IllegalArgumentException) {
+      every { tierCalculationService.calculateTierForCrn(crn) } throws IllegalArgumentException("Oops")
+
+      try {
+        updaterEnabledListener.listen(validMessage)
+        fail("Should have thrown an exception")
+      } catch (e: IllegalArgumentException) {
+        verify { tierCalculationService.calculateTierForCrn(crn) }
+        verify(exactly = 0) { successUpdater.update(any(), any()) }
+      }
+    }
+
+    @Test
+    fun `should not call community-api update tier if tier has been calculated before and is unchanged`() {
+      val validMessage: String =
+        Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
+
+      val calculationResult = CalculationResultDto(
+        TierDto(
+          protect.tier,
+          protect.points,
+          change.tier,
+          change.points
+        ),
+        false
+      )
+      every { tierCalculationService.calculateTierForCrn(crn) } returns
+        calculationResult
+
+      updaterEnabledListener.listen(validMessage)
+
       verify { tierCalculationService.calculateTierForCrn(crn) }
-      verify(exactly = 0) { successUpdater.update(any(), any()) }
+      verify(exactly = 0) { successUpdater.update(calculationResult.tierDto, crn) }
+    }
+
+    @Test
+    fun `should call community-api update tier if tier has changed`() {
+      val validMessage: String =
+        Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
+
+      val calculationResult = CalculationResultDto(
+        TierDto(
+          protect.tier,
+          protect.points,
+          change.tier,
+          change.points
+        ),
+        true
+      )
+      every { tierCalculationService.calculateTierForCrn(crn) } returns
+        calculationResult
+
+      updaterEnabledListener.listen(validMessage)
+
+      verify { tierCalculationService.calculateTierForCrn(crn) }
+      verify { successUpdater.update(calculationResult.tierDto, crn) }
     }
   }
 
-  @Test
-  fun `should not call community-api update tier if tier has been calculated before and is unchanged`() {
-    val validMessage: String =
-      Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
+  @Nested
+  @DisplayName("updater is disabled")
+  inner class UpdaterDisabled {
+    private val noUpdateListener: TierCalculationRequiredEventListener =
+      TierCalculationRequiredEventListener(objectMapper, tierCalculationService, successUpdater, false)
+    @Test
+    fun `should not call updater if tier has changed`() {
+      val validMessage: String =
+        Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json")) // TODO use a helper
 
-    val calculationResult = CalculationResultDto(
-      TierDto(
-        protect.tier,
-        protect.points,
-        change.tier,
-        change.points
-      ),
-      false
-    )
-    every { tierCalculationService.calculateTierForCrn(crn) } returns
-      calculationResult
+      val calculationResult = CalculationResultDto(
+        TierDto(
+          protect.tier,
+          protect.points,
+          change.tier,
+          change.points
+        ),
+        true
+      )
+      every { tierCalculationService.calculateTierForCrn(crn) } returns
+        calculationResult
 
-    listener.listen(validMessage)
+      noUpdateListener.listen(validMessage)
 
-    verify { tierCalculationService.calculateTierForCrn(crn) }
-    verify(exactly = 0) { successUpdater.update(calculationResult.tierDto, crn) }
-  }
-
-  @Test
-  fun `should call community-api update tier if tier has changed`() {
-    val validMessage: String =
-      Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
-
-    val calculationResult = CalculationResultDto(
-      TierDto(
-        protect.tier,
-        protect.points,
-        change.tier,
-        change.points
-      ),
-      true
-    )
-    every { tierCalculationService.calculateTierForCrn(crn) } returns
-      calculationResult
-
-    listener.listen(validMessage)
-
-    verify { tierCalculationService.calculateTierForCrn(crn) }
-    verify { successUpdater.update(calculationResult.tierDto, crn) }
+      verify { tierCalculationService.calculateTierForCrn(crn) }
+      verify(exactly = 0) { successUpdater.update(calculationResult.tierDto, crn) }
+    }
   }
 }

@@ -43,3 +43,5 @@ aws:
   secret-access-key: test-secret-key
   region: eu-west-2
 
+flags:
+  enableDeliusTierUpdates: true
