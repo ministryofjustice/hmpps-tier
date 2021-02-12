@@ -29,8 +29,8 @@ class TierCalculationRequiredEventListener(
   }
 
   private fun tierHasChanged(
-      tier: TierDto,
-      existingCalculation: CalculationResultDto
+    tier: TierDto,
+    existingCalculation: CalculationResultDto
   ) = tier != existingCalculation.tierDto
 }
 
