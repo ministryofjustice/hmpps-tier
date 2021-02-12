@@ -19,16 +19,21 @@ class TierCalculationRequiredEventListener(
 
   @SqsListener(value = ["\${offender-events.sqs-queue}"], deletionPolicy = ON_SUCCESS)
   fun listen(msg: String) {
-    val message: String = objectMapper.readTree(msg)["Message"].asText()
-    val typeReference = object : TypeReference<TierCalculationMessage>() {}
-
-    val crn = objectMapper.readValue(message, typeReference).crn
+    val crn = getCrn(msg)
     val existingCalculation = calculator.getTierCalculation(crn)
     val tier = calculator.calculateTierForCrn(crn)
 
     if (tierHasChanged(tier, existingCalculation)) {
       successUpdater.update(tier, crn)
     }
+  }
+
+  private fun getCrn(msg: String): String {
+    val message: String = objectMapper.readTree(msg)["Message"].asText()
+    val typeReference = object : TypeReference<TierCalculationMessage>() {}
+
+    val crn = objectMapper.readValue(message, typeReference).crn
+    return crn
   }
 
   private fun tierHasChanged(
