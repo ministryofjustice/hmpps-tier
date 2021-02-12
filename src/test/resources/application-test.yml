@@ -3,6 +3,8 @@ spring:
     use-legacy-processing: true
   profiles:
     include: stdout
+  cache:
+    type: NONE
 
   datasource:
     url: 'jdbc:h2:mem:probation-tiering;INIT=create domain if not exists jsonb as text;MODE=PostgreSQL;'
