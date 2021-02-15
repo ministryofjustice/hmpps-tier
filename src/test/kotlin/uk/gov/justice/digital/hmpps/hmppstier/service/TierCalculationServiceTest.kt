@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.gov.justice.digital.hmpps.hmppstier.client.UnpaidWork
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
@@ -85,6 +86,7 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `Should Call Collaborators Test - Female - Existing not found`() {
+      every { assessmentApiDataService.isAssessmentRecent(crn) } returns true
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
       every { communityApiDataService.isFemaleOffender(crn) } returns true
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
@@ -101,6 +103,7 @@ internal class TierCalculationServiceTest {
 
       service.getOrCalculateTierByCrn(crn)
 
+      verify { assessmentApiDataService.isAssessmentRecent(crn) }
       verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
       verify { communityApiDataService.isFemaleOffender(crn) }
       verify { communityApiDataService.getRosh(crn) }
@@ -118,6 +121,7 @@ internal class TierCalculationServiceTest {
     @Test
     fun `Should Call Collaborators Test - Male - Existing not found`() {
       // no call to AssessmentComplexity
+      every { assessmentApiDataService.isAssessmentRecent(crn) } returns true
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
       every { communityApiDataService.isFemaleOffender(crn) } returns false
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
@@ -131,8 +135,8 @@ internal class TierCalculationServiceTest {
 
       service.getOrCalculateTierByCrn(crn)
 
+      verify { assessmentApiDataService.isAssessmentRecent(crn) }
       verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
-
       verify { communityApiDataService.isFemaleOffender(crn) }
       verify { communityApiDataService.getRosh(crn) }
       verify { communityApiDataService.getMappa(crn) }
@@ -200,6 +204,7 @@ internal class TierCalculationServiceTest {
     }
 
     private fun setUpValidResponses(rsr: BigDecimal, rosh: Rosh, isFemale: Boolean = true) {
+      every { assessmentApiDataService.isAssessmentRecent(crn) } returns true
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
@@ -220,9 +225,9 @@ internal class TierCalculationServiceTest {
     }
 
     private fun standardVerify(isFemale: Boolean = true) {
+      verify { assessmentApiDataService.isAssessmentRecent(crn) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
       verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
-
       verify { communityApiDataService.isFemaleOffender(crn) }
       verify { communityApiDataService.getRosh(crn) }
       verify { communityApiDataService.getMappa(crn) }
@@ -299,8 +304,8 @@ internal class TierCalculationServiceTest {
     }
 
     private fun setUpValidResponses(rsr: BigDecimal?, isFemale: Boolean = true) {
+      every { assessmentApiDataService.isAssessmentRecent(crn) } returns true
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
-
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns null
@@ -320,8 +325,8 @@ internal class TierCalculationServiceTest {
     }
 
     private fun standardVerify(isFemale: Boolean = true) {
+      verify { assessmentApiDataService.isAssessmentRecent(crn) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
-
       verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
       verify { communityApiDataService.isFemaleOffender(crn) }
       verify { communityApiDataService.getRosh(crn) }
@@ -380,8 +385,8 @@ internal class TierCalculationServiceTest {
     }
 
     private fun setUpValidResponses(rosh: Rosh?, isFemale: Boolean = true) {
+      every { assessmentApiDataService.isAssessmentRecent(crn) } returns true
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
-
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns rosh
@@ -401,8 +406,8 @@ internal class TierCalculationServiceTest {
     }
 
     private fun standardVerify(isFemale: Boolean = true) {
+      verify { assessmentApiDataService.isAssessmentRecent(crn) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
-
       verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
       verify { communityApiDataService.isFemaleOffender(crn) }
       verify { communityApiDataService.getRosh(crn) }
@@ -472,8 +477,8 @@ internal class TierCalculationServiceTest {
     }
 
     private fun setUpValidResponses(mappa: Mappa?, isFemale: Boolean = true) {
+      every { assessmentApiDataService.isAssessmentRecent(crn) } returns true
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
-
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns null
@@ -493,8 +498,8 @@ internal class TierCalculationServiceTest {
     }
 
     private fun standardVerify(isFemale: Boolean = true) {
+      verify { assessmentApiDataService.isAssessmentRecent(crn) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
-
       verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
       verify { communityApiDataService.isFemaleOffender(crn) }
       verify { communityApiDataService.getRosh(crn) }
@@ -535,20 +540,6 @@ internal class TierCalculationServiceTest {
           ComplexityFactor.VULNERABILITY_ISSUE,
           ComplexityFactor.VULNERABILITY_ISSUE,
           ComplexityFactor.VULNERABILITY_ISSUE
-        )
-      )
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
-
-      assertThat(tier.tierDto.protectPoints).isEqualTo(2)
-    }
-
-    @Test
-    fun `should exclude IOM complexity factor`() {
-      setUpValidResponses(
-        listOf(
-          ComplexityFactor.VULNERABILITY_ISSUE,
-          ComplexityFactor.IOM_NOMINAL,
         )
       )
       val tier = service.calculateTierForCrn(crn)
@@ -757,8 +748,8 @@ internal class TierCalculationServiceTest {
       assessmentComplexityFactors: Map<AssessmentComplexityFactor, String> = mapOf(),
       isFemale: Boolean = true
     ) {
+      every { assessmentApiDataService.isAssessmentRecent(crn) } returns true
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
-
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns null
@@ -778,10 +769,9 @@ internal class TierCalculationServiceTest {
     }
 
     private fun standardVerify(isFemale: Boolean = true) {
+      verify { assessmentApiDataService.isAssessmentRecent(crn) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
-
       verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
-
       verify { communityApiDataService.isFemaleOffender(crn) }
       verify { communityApiDataService.getRosh(crn) }
       verify { communityApiDataService.getMappa(crn) }
@@ -848,10 +838,9 @@ internal class TierCalculationServiceTest {
     }
 
     private fun setUpValidResponses(ogrs: Int?, isFemale: Boolean = true) {
+      every { assessmentApiDataService.isAssessmentRecent(crn) } returns true
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
-
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
-
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns null
       every { communityApiDataService.getMappa(crn) } returns null
@@ -870,75 +859,9 @@ internal class TierCalculationServiceTest {
     }
 
     private fun standardVerify(isFemale: Boolean = true) {
+      verify { assessmentApiDataService.isAssessmentRecent(crn) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
-
       verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
-
-      verify { communityApiDataService.isFemaleOffender(crn) }
-      verify { communityApiDataService.getRosh(crn) }
-      verify { communityApiDataService.getMappa(crn) }
-      verify { communityApiDataService.getComplexityFactors(crn) }
-      verify { assessmentApiDataService.getAssessmentNeeds(crn) }
-      verify { communityApiDataService.getRSR(crn) }
-      verify { communityApiDataService.getOGRS(crn) }
-      verify { tierCalculationRepository.save(any()) }
-
-      if (isFemale) {
-        verify { communityApiDataService.hasBreachedConvictions(crn) }
-        verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
-      }
-    }
-  }
-
-  @Nested
-  @DisplayName("Simple IOM Changes tests")
-  inner class SimpleIOMTests {
-
-    @Test
-    fun `should Include IOM`() {
-      setUpValidResponses(listOf(ComplexityFactor.IOM_NOMINAL))
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
-
-      assertThat(tier.tierDto.changePoints).isEqualTo(2)
-    }
-
-    @Test
-    fun `should Exclude Non-IOM`() {
-      setUpValidResponses(listOf(ComplexityFactor.ADULT_AT_RISK))
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
-
-      assertThat(tier.tierDto.changePoints).isEqualTo(0)
-    }
-
-    private fun setUpValidResponses(complexityFactors: List<ComplexityFactor>, isFemale: Boolean = true) {
-      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
-
-      every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
-
-      every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
-      every { communityApiDataService.getRosh(crn) } returns null
-      every { communityApiDataService.getMappa(crn) } returns null
-      every { communityApiDataService.getComplexityFactors(crn) } returns complexityFactors
-      every { assessmentApiDataService.getAssessmentNeeds(crn) } returns mapOf()
-      every { communityApiDataService.getRSR(crn) } returns null
-      every { communityApiDataService.getOGRS(crn) } returns null
-
-      if (isFemale) {
-        every { communityApiDataService.hasBreachedConvictions(crn) } returns false
-        every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns mapOf()
-      }
-
-      val slot = slot<TierCalculationEntity>()
-      every { tierCalculationRepository.save(capture(slot)) } answers { slot.captured }
-    }
-
-    private fun standardVerify(isFemale: Boolean = true) {
-      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
-
-      verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
-
       verify { communityApiDataService.isFemaleOffender(crn) }
       verify { communityApiDataService.getRosh(crn) }
       verify { communityApiDataService.getMappa(crn) }
@@ -1043,10 +966,9 @@ internal class TierCalculationServiceTest {
     }
 
     private fun setUpValidResponses(needs: Map<Need, NeedSeverity?>, isFemale: Boolean = true) {
+      every { assessmentApiDataService.isAssessmentRecent(crn) } returns true
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
-
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
-
       every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
       every { communityApiDataService.getRosh(crn) } returns null
       every { communityApiDataService.getMappa(crn) } returns null
@@ -1065,10 +987,173 @@ internal class TierCalculationServiceTest {
     }
 
     private fun standardVerify(isFemale: Boolean = true) {
+      verify { assessmentApiDataService.isAssessmentRecent(crn) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
-
       verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
+      verify { communityApiDataService.isFemaleOffender(crn) }
+      verify { communityApiDataService.getRosh(crn) }
+      verify { communityApiDataService.getMappa(crn) }
+      verify { communityApiDataService.getComplexityFactors(crn) }
+      verify { assessmentApiDataService.getAssessmentNeeds(crn) }
+      verify { communityApiDataService.getRSR(crn) }
+      verify { communityApiDataService.getOGRS(crn) }
+      verify { tierCalculationRepository.save(any()) }
 
+      if (isFemale) {
+        verify { communityApiDataService.hasBreachedConvictions(crn) }
+        verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
+      }
+    }
+  }
+
+  @Nested
+  @DisplayName("Simple Recent Assessment tests")
+  inner class SimpleRecentAssessmentTests {
+
+    @Test
+    fun `should not calculate change tier if not recent`() {
+      setUpValidResponses(false)
+      val tier = service.calculateTierForCrn(crn)
+      standardVerify()
+
+      assertThat(tier.tierDto.changeLevel).isEqualTo(ChangeLevel.TWO)
+      assertThat(tier.tierDto.changePoints).isEqualTo(0)
+    }
+
+
+    private fun setUpValidResponses(recent : Boolean) {
+      every { assessmentApiDataService.isAssessmentRecent(crn) } returns recent
+      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
+      every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
+      every { communityApiDataService.isFemaleOffender(crn) } returns false
+      every { communityApiDataService.getRosh(crn) } returns null
+      every { communityApiDataService.getMappa(crn) } returns null
+      every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
+      every { communityApiDataService.getRSR(crn) } returns null
+
+      val slot = slot<TierCalculationEntity>()
+      every { tierCalculationRepository.save(capture(slot)) } answers { slot.captured }
+    }
+
+    private fun standardVerify() {
+      verify { assessmentApiDataService.isAssessmentRecent(crn) }
+      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
+      verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
+      verify { communityApiDataService.isFemaleOffender(crn) }
+      verify { communityApiDataService.getRosh(crn) }
+      verify { communityApiDataService.getMappa(crn) }
+      verify { communityApiDataService.getComplexityFactors(crn) }
+      verify { communityApiDataService.getRSR(crn) }
+      verify { tierCalculationRepository.save(any()) }
+
+    }
+  }
+
+  @Nested
+  @DisplayName("Simple Mandate for change tests")
+  inner class SimpleMandateForChangeTests {
+
+    @Test
+    fun `should not calculate change tier if current noncustodial, no restrictive requirements and some unpaid work`() {
+      setUpValidNonCustodialResponses(currentCustodial = false, currentNonCustodial = true , restrictiveRequirements = false, unpaidWork = true)
+      val tier = service.calculateTierForCrn(crn)
+      nonCustodialVerify()
+      verify { communityApiDataService.hasUnpaidWork(crn) }
+
+      assertThat(tier.tierDto.changeLevel).isEqualTo(ChangeLevel.ZERO)
+      assertThat(tier.tierDto.changePoints).isEqualTo(0)
+    }
+
+    @Test
+    fun `should not calculate change tier if current noncustodial, with restrictive requirements`() {
+      setUpValidNonCustodialResponses(currentCustodial = false, currentNonCustodial = true, restrictiveRequirements = true, unpaidWork = false)
+      val tier = service.calculateTierForCrn(crn)
+      nonCustodialVerify()
+
+      assertThat(tier.tierDto.changeLevel).isEqualTo(ChangeLevel.ZERO)
+      assertThat(tier.tierDto.changePoints).isEqualTo(0)
+    }
+
+    @Test
+    fun `should calculate change tier if current noncustodial, with no restrictive requirements or unpaidworkd`() {
+      setUpValidResponses(currentCustodial = false)
+      every { communityApiDataService.hasCurrentNonCustodialSentence(crn) } returns true
+      every { communityApiDataService.hasRestrictiveRequirements(crn) } returns false
+      every { communityApiDataService.hasUnpaidWork(crn) } returns false
+      val tier = service.calculateTierForCrn(crn)
+      standardVerify()
+      verify { communityApiDataService.hasCurrentNonCustodialSentence(crn) }
+      verify { communityApiDataService.hasRestrictiveRequirements(crn) }
+      verify { communityApiDataService.hasUnpaidWork(crn) }
+
+      assertThat(tier.tierDto.changeLevel).isEqualTo(ChangeLevel.ONE)
+      assertThat(tier.tierDto.changePoints).isEqualTo(0)
+    }
+
+    @Test
+    fun `should calculate change tier if current custodial`() {
+      setUpValidResponses(currentCustodial = true)
+      val tier = service.calculateTierForCrn(crn)
+      standardVerify()
+
+      assertThat(tier.tierDto.changeLevel).isEqualTo(ChangeLevel.ONE)
+      assertThat(tier.tierDto.changePoints).isEqualTo(0)
+    }
+
+    private fun setUpValidNonCustodialResponses(currentCustodial : Boolean, currentNonCustodial: Boolean, restrictiveRequirements : Boolean, unpaidWork: Boolean) {
+      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
+      every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns currentCustodial
+      every { communityApiDataService.hasCurrentNonCustodialSentence(crn) } returns currentNonCustodial
+      every { communityApiDataService.hasRestrictiveRequirements(crn) } returns restrictiveRequirements
+      every { communityApiDataService.hasUnpaidWork(crn) } returns unpaidWork
+      every { communityApiDataService.isFemaleOffender(crn) } returns false
+      every { communityApiDataService.getRosh(crn) } returns null
+      every { communityApiDataService.getMappa(crn) } returns null
+      every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
+      every { communityApiDataService.getRSR(crn) } returns null
+
+      val slot = slot<TierCalculationEntity>()
+      every { tierCalculationRepository.save(capture(slot)) } answers { slot.captured }
+    }
+
+    private fun nonCustodialVerify() {
+      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
+      verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
+      verify { communityApiDataService.hasCurrentNonCustodialSentence(crn) }
+      verify { communityApiDataService.hasRestrictiveRequirements(crn) }
+      verify { communityApiDataService.isFemaleOffender(crn) }
+      verify { communityApiDataService.getRosh(crn) }
+      verify { communityApiDataService.getMappa(crn) }
+      verify { communityApiDataService.getComplexityFactors(crn) }
+      verify { communityApiDataService.getRSR(crn) }
+      verify { tierCalculationRepository.save(any()) }
+    }
+
+    private fun setUpValidResponses(currentCustodial : Boolean, isFemale: Boolean = true) {
+      every { assessmentApiDataService.isAssessmentRecent(crn) } returns true
+      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
+      every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns currentCustodial
+      every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
+      every { communityApiDataService.getRosh(crn) } returns null
+      every { communityApiDataService.getMappa(crn) } returns null
+      every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
+      every { assessmentApiDataService.getAssessmentNeeds(crn) } returns mapOf()
+      every { communityApiDataService.getRSR(crn) } returns null
+      every { communityApiDataService.getOGRS(crn) } returns null
+
+      if (isFemale) {
+        every { communityApiDataService.hasBreachedConvictions(crn) } returns false
+        every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns mapOf()
+      }
+
+      val slot = slot<TierCalculationEntity>()
+      every { tierCalculationRepository.save(capture(slot)) } answers { slot.captured }
+    }
+
+    private fun standardVerify(isFemale: Boolean = true) {
+      verify { assessmentApiDataService.isAssessmentRecent(crn) }
+      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
+      verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
       verify { communityApiDataService.isFemaleOffender(crn) }
       verify { communityApiDataService.getRosh(crn) }
       verify { communityApiDataService.getMappa(crn) }

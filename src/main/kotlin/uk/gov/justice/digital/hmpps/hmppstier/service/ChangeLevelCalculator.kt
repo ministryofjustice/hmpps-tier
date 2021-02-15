@@ -12,15 +12,23 @@ class ChangeLevelCalculator(
 ) {
 
   fun calculateChangeLevel(crn: String): TierLevel<ChangeLevel> {
-    return if (hasMandateForChange(crn)) {
-      val totalPoints = getOasysNeedsPoints(crn) + getOgrsPoints(crn) + getIomNominalPoints(crn)
-      val tier = when {
-        totalPoints >= 20 -> ChangeLevel.THREE
-        totalPoints in 10..19 -> ChangeLevel.TWO
-        else -> ChangeLevel.ONE
+    return when {
+      !hasMandateForChange(crn) -> {
+        TierLevel(ChangeLevel.ZERO, 0)
       }
-      TierLevel(tier, totalPoints)
-    } else TierLevel(ChangeLevel.ZERO, 0)
+      !assessmentApiDataService.isAssessmentRecent(crn) -> {
+        TierLevel(ChangeLevel.TWO, 0)
+      }
+      else -> {
+        val totalPoints = getAssessmentNeedsPoints(crn) + getOgrsPoints(crn) + getIomNominalPoints(crn)
+        val tier = when {
+          totalPoints >= 20 -> ChangeLevel.THREE
+          totalPoints in 10..19 -> ChangeLevel.TWO
+          else -> ChangeLevel.ONE
+        }
+        TierLevel(tier, totalPoints)
+      }
+    }
   }
 
   private fun hasMandateForChange(crn: String): Boolean =
@@ -33,7 +41,7 @@ class ChangeLevelCalculator(
   private fun hasNoUnpaidWorkOrRestrictiveRequirements(crn: String) =
     !(communityApiDataService.hasRestrictiveRequirements(crn) || communityApiDataService.hasUnpaidWork(crn))
 
-  private fun getOasysNeedsPoints(crn: String): Int =
+  private fun getAssessmentNeedsPoints(crn: String): Int =
     assessmentApiDataService.getAssessmentNeeds(crn).let {
       it.entries.sumBy { ent ->
         ent.key.weighting.times(ent.value?.score ?: 0)
