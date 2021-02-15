@@ -8,6 +8,9 @@ import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.MediaType.APPLICATION_JSON
+import org.mockserver.model.RequestDefinition
+import java.nio.file.Files
+import java.nio.file.Paths
 
 abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   lateinit var mockCommunityApiServer: ClientAndServer
@@ -29,6 +32,13 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun tearDownServer() {
     mockCommunityApiServer.stop()
     mockAssessmentApiServer.stop()
+  }
+
+  fun calculationMessage(crn: String): String {
+    val validMessage: String =
+      Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json")).replace("X373878", crn)
+
+    return validMessage
   }
 
   fun setupNCCustodialSentence(crn: String) {
@@ -73,5 +83,15 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
         APPLICATION_JSON
       ).withBody(ApiResponses.assessmentsApiNeedsResponse())
     )
+  }
+  fun setupUpdateTierSuccess(crn: String, score: String): RequestDefinition {
+    val expectedTierUpdate = HttpRequest.request().withPath("/secure/offenders/crn/$crn/tier/$score").withMethod("POST")
+
+    mockCommunityApiServer.`when`(expectedTierUpdate).respond(
+      HttpResponse.response().withContentType(
+        APPLICATION_JSON
+      ).withBody("{}")
+    )
+    return expectedTierUpdate
   }
 }

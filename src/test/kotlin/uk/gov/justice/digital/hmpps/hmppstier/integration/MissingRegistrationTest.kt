@@ -5,13 +5,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.springframework.beans.factory.annotation.Autowired
+import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationRequiredEventListener
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ONE
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel.B
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.emptyRegistrationsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
-import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationRequiredEventListener
-import java.nio.file.Files
-import java.nio.file.Paths
 
 @TestInstance(PER_CLASS)
 class MissingRegistrationTest : MockedEndpointsTestBase() {
@@ -28,9 +26,9 @@ class MissingRegistrationTest : MockedEndpointsTestBase() {
     setupNCCustodialSentence(crn)
     setupRegistrations(emptyRegistrationsResponse(), crn)
     restOfSetup(crn)
-    val validMessage: String =
-      Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
-    listener.listen(validMessage)
+    setupUpdateTierSuccess(crn, "B1")
+
+    listener.listen(calculationMessage(crn))
     val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)
 
     assertThat(tier?.data?.change?.tier).isEqualTo(ONE)
