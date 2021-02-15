@@ -3,6 +3,8 @@ spring:
     use-legacy-processing: true
   profiles:
     include: stdout
+  cache:
+    type: NONE
 
   datasource:
     url: 'jdbc:h2:mem:probation-tiering;INIT=create domain if not exists jsonb as text;MODE=PostgreSQL;'
@@ -28,7 +30,7 @@ management.endpoint:
 
 community:
   endpoint:
-    url: http://localhost:8081
+    url: http://localhost:8081/secure
 
 assessment:
   endpoint:

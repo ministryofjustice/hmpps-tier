@@ -34,6 +34,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()
   }
 
+  @Cacheable(value = ["conviction"], key = "{ #crn }")
   fun getConvictions(crn: String): List<Conviction> {
     val responseType = object : ParameterizedTypeReference<List<Conviction>>() {}
     return webClient
@@ -65,7 +66,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
     return webClient
       .get()
-      .uri("offenders/crn/$crn/convictions/$convictionId/requirements")
+      .uri("/offenders/crn/$crn/convictions/$convictionId/requirements")
       .retrieve()
       .bodyToMono(Requirements::class.java)
       .block()?.requirements ?: listOf()
