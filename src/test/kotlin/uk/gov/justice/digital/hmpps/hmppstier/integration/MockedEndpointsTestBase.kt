@@ -58,7 +58,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     )
   }
 
-  fun restOfSetup(crn: String, includeAssessmentApi : Boolean = true) {
+  fun restOfSetup(crn: String, includeAssessmentApi: Boolean = true) {
     mockCommunityApiServer.`when`(HttpRequest.request().withPath("/secure/offenders/crn/$crn/assessments")).respond(
       HttpResponse.response().withContentType(
         APPLICATION_JSON
@@ -70,7 +70,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
         APPLICATION_JSON
       ).withBody(ApiResponses.offenderResponse())
     )
-    if(includeAssessmentApi) {
+    if (includeAssessmentApi) {
       setupLatestAssessment(crn, LocalDate.now().year)
     }
     mockAssessmentApiServer.`when`(HttpRequest.request().withPath("/assessments/oasysSetId/1234/needs")).respond(

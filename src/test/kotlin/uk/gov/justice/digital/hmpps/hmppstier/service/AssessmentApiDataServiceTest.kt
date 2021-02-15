@@ -327,6 +327,5 @@ internal class AssessmentApiDataServiceTest {
 
       assertThat(returnValue).isFalse
     }
-
   }
 }

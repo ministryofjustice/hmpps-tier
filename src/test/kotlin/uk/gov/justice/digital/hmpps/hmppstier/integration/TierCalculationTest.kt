@@ -150,7 +150,6 @@ class TierCalculationTest : MockedEndpointsTestBase() {
     setupRestWithRegistrations(crn, includeAssessmentApi = false)
     setupLatestAssessment(crn, 2018, times = 1)
 
-
     val expectedTierUpdate = setupUpdateTierSuccess(crn, "A2")
 
     listener.listen(calculationMessage(crn))
@@ -158,7 +157,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
     mockCommunityApiServer.verify(expectedTierUpdate)
   }
 
-  private fun setupRestWithRegistrations(crn: String, includeAssessmentApi : Boolean = true) {
+  private fun setupRestWithRegistrations(crn: String, includeAssessmentApi: Boolean = true) {
     setupRegistrations(ApiResponses.registrationsResponse(), crn)
     restOfSetup(crn, includeAssessmentApi)
   }

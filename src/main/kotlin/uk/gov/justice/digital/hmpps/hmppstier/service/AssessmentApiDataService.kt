@@ -10,8 +10,9 @@ import java.time.Clock
 import java.time.LocalDate
 
 @Service
-class AssessmentApiDataService(  private val assessmentApiClient: AssessmentApiClient,
-                                 private val clock: Clock
+class AssessmentApiDataService(
+  private val assessmentApiClient: AssessmentApiClient,
+  private val clock: Clock
 ) {
 
   fun isAssessmentRecent(crn: String): Boolean {

@@ -14,7 +14,6 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.gov.justice.digital.hmpps.hmppstier.client.UnpaidWork
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
@@ -1020,8 +1019,7 @@ internal class TierCalculationServiceTest {
       assertThat(tier.tierDto.changePoints).isEqualTo(0)
     }
 
-
-    private fun setUpValidResponses(recent : Boolean) {
+    private fun setUpValidResponses(recent: Boolean) {
       every { assessmentApiDataService.isAssessmentRecent(crn) } returns recent
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
@@ -1045,7 +1043,6 @@ internal class TierCalculationServiceTest {
       verify { communityApiDataService.getComplexityFactors(crn) }
       verify { communityApiDataService.getRSR(crn) }
       verify { tierCalculationRepository.save(any()) }
-
     }
   }
 
@@ -1055,7 +1052,7 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `should not calculate change tier if current noncustodial, no restrictive requirements and some unpaid work`() {
-      setUpValidNonCustodialResponses(currentCustodial = false, currentNonCustodial = true , restrictiveRequirements = false, unpaidWork = true)
+      setUpValidNonCustodialResponses(currentCustodial = false, currentNonCustodial = true, restrictiveRequirements = false, unpaidWork = true)
       val tier = service.calculateTierForCrn(crn)
       nonCustodialVerify()
       verify { communityApiDataService.hasUnpaidWork(crn) }
@@ -1100,7 +1097,7 @@ internal class TierCalculationServiceTest {
       assertThat(tier.tierDto.changePoints).isEqualTo(0)
     }
 
-    private fun setUpValidNonCustodialResponses(currentCustodial : Boolean, currentNonCustodial: Boolean, restrictiveRequirements : Boolean, unpaidWork: Boolean) {
+    private fun setUpValidNonCustodialResponses(currentCustodial: Boolean, currentNonCustodial: Boolean, restrictiveRequirements: Boolean, unpaidWork: Boolean) {
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns currentCustodial
       every { communityApiDataService.hasCurrentNonCustodialSentence(crn) } returns currentNonCustodial
@@ -1129,7 +1126,7 @@ internal class TierCalculationServiceTest {
       verify { tierCalculationRepository.save(any()) }
     }
 
-    private fun setUpValidResponses(currentCustodial : Boolean, isFemale: Boolean = true) {
+    private fun setUpValidResponses(currentCustodial: Boolean, isFemale: Boolean = true) {
       every { assessmentApiDataService.isAssessmentRecent(crn) } returns true
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
       every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns currentCustodial
