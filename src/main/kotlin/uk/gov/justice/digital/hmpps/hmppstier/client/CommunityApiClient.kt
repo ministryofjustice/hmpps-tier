@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.core.ParameterizedTypeReference
+import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import java.math.BigDecimal
@@ -33,6 +34,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()
   }
 
+  @Cacheable(value = ["conviction"], key = "{ #crn }")
   fun getConvictions(crn: String): List<Conviction> {
     val responseType = object : ParameterizedTypeReference<List<Conviction>>() {}
     return webClient
@@ -60,9 +62,35 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .bodyToMono(Offender::class.java)
       .block()
   }
+
+  fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
+    return webClient
+      .get()
+      .uri("/offenders/crn/$crn/convictions/$convictionId/requirements")
+      .retrieve()
+      .bodyToMono(Requirements::class.java)
+      .block()?.requirements ?: listOf()
+  }
+
+  fun updateTier(tier: String, crn: String): ResponseEntity<Void>? {
+    return webClient
+      .post()
+      .uri("/offenders/crn/$crn/tier/$tier")
+      .retrieve().toBodilessEntity().block()
+  }
 }
 
-data class NsiWrapper @JsonCreator constructor(
+private data class Requirements @JsonCreator constructor(
+  @JsonProperty("requirements")
+  val requirements: List<Requirement>
+)
+
+data class Requirement @JsonCreator constructor(
+  @JsonProperty("restrictive")
+  val restrictive: Boolean?
+)
+
+private data class NsiWrapper @JsonCreator constructor(
   @JsonProperty("convictionId")
   val nsis: List<Nsi>,
 )
@@ -82,7 +110,23 @@ data class Conviction @JsonCreator constructor(
 
 data class Sentence @JsonCreator constructor(
   @JsonProperty("terminationDate")
-  var terminationDate: LocalDate?
+  var terminationDate: LocalDate?,
+
+  @JsonProperty("sentenceType")
+  val sentenceType: SentenceType,
+
+  @JsonProperty("unpaidWork")
+  val unpaidWork: UnpaidWork?
+)
+
+data class UnpaidWork @JsonCreator constructor(
+  @JsonProperty("minutesOrdered")
+  var minutesOrdered: String
+)
+
+data class SentenceType @JsonCreator constructor(
+  @JsonProperty("code")
+  var code: String
 )
 
 data class Offender @JsonCreator constructor(
@@ -121,5 +165,5 @@ data class Registration @JsonCreator constructor(
 
 private data class CommunityApiRegistrationsDto @JsonCreator constructor(
   @JsonProperty("registrations")
-  val registrations: List<Registration>
+  val registrations: List<Registration>?
 )

@@ -1,0 +1,20 @@
+{
+  "requirements": [
+    {
+      "requirementId": 2500159138,
+      "startDate": "2021-01-19",
+      "active": true,
+      "requirementTypeSubCategory": {
+        "code": "X01",
+        "description": "Named Football Stadium"
+      },
+      "requirementTypeMainCategory": {
+        "code": "X",
+        "description": "Exclusion"
+      },
+      "length": 18,
+      "lengthUnit": "Months",
+      "restrictive": true
+    }
+  ]
+}

@@ -1,9 +1,10 @@
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "2.1.2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.1.0"
   kotlin("plugin.spring") version "1.4.21"
   kotlin("plugin.jpa") version "1.4.21"
   id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
+  jacoco
 }
 
 configurations {
@@ -44,6 +45,7 @@ dependencies {
     exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     exclude(module = "mockito-core")
   }
+  testImplementation("org.mock-server:mockserver-netty:5.11.1")
 
   testImplementation("com.ninja-squad:springmockk:2.0.1")
   testImplementation("org.assertj:assertj-core:3.18.0")
@@ -57,8 +59,39 @@ dependencyManagement {
   }
 }
 
+jacoco {
+  toolVersion = "0.8.6"
+}
+
+tasks.jacocoTestReport {
+  reports {
+    xml.isEnabled = false
+    csv.isEnabled = false
+    html.destination = file("$buildDir/reports/coverage")
+  }
+}
+
+tasks.jacocoTestCoverageVerification {
+  violationRules {
+    rule {
+      limit {
+        minimum = BigDecimal(0.79)
+      }
+    }
+  }
+}
+
 tasks.named("check") {
   dependsOn(":ktlintCheck")
+  finalizedBy("jacocoTestReport")
+}
+
+tasks.named("jacocoTestReport") {
+  dependsOn("test")
+}
+
+tasks.named("jacocoTestCoverageVerification") {
+  dependsOn("jacocoTestReport")
 }
 
 tasks.register("fix") {

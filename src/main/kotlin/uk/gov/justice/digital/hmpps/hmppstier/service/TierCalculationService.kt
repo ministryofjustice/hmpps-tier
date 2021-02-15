@@ -2,14 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
+import uk.gov.justice.digital.hmpps.hmppstier.dto.CalculationResultDto
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
@@ -19,23 +12,37 @@ import java.time.LocalDateTime
 
 @Service
 class TierCalculationService(
-  private val communityApiDataService: CommunityApiDataService,
-  private val assessmentApiDataService: AssessmentApiDataService,
   private val tierCalculationRepository: TierCalculationRepository,
-  private val clock: Clock
+  private val clock: Clock,
+  private val changeLevelCalculator: ChangeLevelCalculator,
+  private val protectLevelCalculator: ProtectLevelCalculator
 ) {
 
-  fun getTierByCrn(crn: String): TierDto {
-    val result = getLatestTierCalculation(crn) ?: calculateTierForCrn(crn)
-    log.info("Returned tier for $crn")
-    return TierDto.from(result.data)
+  fun getOrCalculateTierByCrn(crn: String): TierDto {
+    val result = getLatestTierCalculation(crn) ?: calculateTier(crn)
+    return TierDto.from(result.data).also {
+      log.info("Returned tier for $crn")
+    }
   }
 
-  fun calculateTierForCrn(crn: String): TierCalculationEntity {
+  fun calculateTierForCrn(crn: String): CalculationResultDto {
+    val existingCalculation = getLatestTierCalculation(crn)
+    val newTier = calculateTier(crn)
+    val isUpdated: Boolean
+    if (existingCalculation == null) {
+      isUpdated = true
+    } else {
+      isUpdated = existingCalculation != newTier
+    }
+
+    return CalculationResultDto(TierDto.from(newTier.data), isUpdated)
+  }
+
+  private fun calculateTier(crn: String): TierCalculationEntity {
     log.debug("Calculating tier for $crn using 'New' calculation")
 
-    val protectLevel = calculateProtectLevel(crn)
-    val changeLevel = calculateChangeLevel(crn)
+    val protectLevel = protectLevelCalculator.calculateProtectLevel(crn)
+    val changeLevel = changeLevelCalculator.calculateChangeLevel(crn)
 
     val calculation = TierCalculationEntity(
       crn = crn,
@@ -43,143 +50,23 @@ class TierCalculationService(
       data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel)
     )
 
-    log.info("Calculated tier for $crn using 'New' calculation")
-    return tierCalculationRepository.save(calculation)
+    return tierCalculationRepository.save(calculation).also {
+      log.info("Calculated tier for $crn using 'New' calculation")
+    }
   }
 
   private fun getLatestTierCalculation(crn: String): TierCalculationEntity? {
     log.debug("Finding latest tier calculation for $crn")
 
-    val calculation = tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
-
-    if (calculation == null) {
-      log.info("No tier calculation found for $crn")
-    } else {
-      log.info("Found latest tier calculation for $crn")
-    }
-    return calculation
-  }
-
-  fun calculateProtectLevel(crn: String): TierLevel<ProtectLevel> {
-    val riskPoints = getRiskPoints(crn)
-    val mappaPoints = getMappaPoints(crn)
-    val complexityPoints = getComplexityPoints(crn)
-
-    val totalPoints = riskPoints + mappaPoints + complexityPoints
-    val tier = when {
-      totalPoints >= 30 -> ProtectLevel.A
-      totalPoints in 20..29 -> ProtectLevel.B
-      totalPoints in 10..19 -> ProtectLevel.C
-      else -> ProtectLevel.D
-    }
-
-    return TierLevel(tier, totalPoints)
-  }
-
-  fun calculateChangeLevel(crn: String): TierLevel<ChangeLevel> {
-    val points = getOasysNeedsPoints(crn).plus(getOgrsPoints(crn))
-    val tier = when {
-      points >= 20 -> ChangeLevel.THREE
-      points in 10..19 -> ChangeLevel.TWO
-      else -> ChangeLevel.ONE
-    }
-
-    return TierLevel(tier, points)
-  }
-
-  private fun getRiskPoints(crn: String): Int {
-    return maxOf(getRsrPoints(crn), getRoshPoints(crn))
-  }
-
-  private fun getRsrPoints(crn: String): Int {
-    return communityApiDataService.getRSR(crn).let {
-      when {
-        it != null && it >= RsrThresholds.TIER_B_RSR.num -> 20
-        it != null && it >= RsrThresholds.TIER_C_RSR.num -> 10
-        else -> 0
-      }
-    }
-  }
-
-  private fun getRoshPoints(crn: String): Int {
-    return communityApiDataService.getRosh(crn).let {
+    return tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn).also {
       when (it) {
-        Rosh.VERY_HIGH -> 30
-        Rosh.HIGH -> 20
-        Rosh.MEDIUM -> 10
-        else -> 0
-      }
-    }
-  }
-
-  private fun getMappaPoints(crn: String): Int {
-    return when (communityApiDataService.getMappa(crn)) {
-      Mappa.M2, Mappa.M3 -> 30
-      Mappa.M1 -> 5
-      else -> 0
-    }
-  }
-
-  private fun getComplexityPoints(crn: String): Int {
-    return communityApiDataService.getComplexityFactors(crn).let { factors ->
-      factors.distinct().count().let { points ->
-        when {
-          communityApiDataService.isFemaleOffender(crn) -> {
-            val femaleOnlyPoints = getAssessmentComplexityPoints(crn).plus(getBreachRecallComplexityPoints(crn))
-            points.plus(femaleOnlyPoints)
-          }
-          else ->
-            when {
-              // we don't count IOM_NOMINAL for men so subtract it
-              factors.contains(ComplexityFactor.IOM_NOMINAL) -> points.minus(1)
-              else -> points
-            }
+        null -> {
+          log.info("No tier calculation found for $crn")
+        }
+        else -> {
+          log.info("Found latest tier calculation for $crn")
         }
       }
-    }.times(2)
-  }
-
-  private fun getAssessmentComplexityPoints(crn: String): Int {
-    return assessmentApiDataService.getAssessmentComplexityAnswers(crn).let {
-      val parenting = when {
-        isYes(it[AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES]) -> 1
-        else -> 0
-      }
-      // We dont take the cumulative score, just '1' if at least one of these two is present
-      val selfControl = when {
-        isAnswered(it[AssessmentComplexityFactor.IMPULSIVITY]) || isAnswered(it[AssessmentComplexityFactor.TEMPER_CONTROL]) -> 1
-        else -> 0
-      }
-      parenting.plus(selfControl)
-    }
-  }
-
-  private fun getBreachRecallComplexityPoints(crn: String): Int {
-    return when {
-      communityApiDataService.hasBreachedConvictions(crn) -> 1
-      else -> 0
-    }
-  }
-
-  private fun isYes(value: String?): Boolean {
-    return value != null && (value.equals("YES", true) || value.equals("Y", true))
-  }
-
-  private fun isAnswered(value: String?): Boolean {
-    return value != null && value.toInt() > 0
-  }
-
-  private fun getOasysNeedsPoints(crn: String): Int {
-    return assessmentApiDataService.getAssessmentNeeds(crn).let {
-      it.entries.sumBy { ent ->
-        ent.key.weighting.times(ent.value?.score ?: 0)
-      }
-    }
-  }
-
-  private fun getOgrsPoints(crn: String): Int {
-    return communityApiDataService.getOGRS(crn).let {
-      it?.div(10) ?: 0
     }
   }
 
