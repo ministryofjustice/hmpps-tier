@@ -85,7 +85,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     )
   }
   fun setupUpdateTierSuccess(crn: String, score: String): RequestDefinition {
-    val expectedTierUpdate = HttpRequest.request().withPath("/offenders/crn/$crn/tier/$score").withMethod("POST")
+    val expectedTierUpdate = HttpRequest.request().withPath("/secure/offenders/crn/$crn/tier/$score").withMethod("POST")
 
     mockCommunityApiServer.`when`(expectedTierUpdate).respond(
       HttpResponse.response().withContentType(

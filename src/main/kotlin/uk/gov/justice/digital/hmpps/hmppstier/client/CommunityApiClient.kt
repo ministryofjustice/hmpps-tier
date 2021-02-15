@@ -75,7 +75,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   fun updateTier(tier: String, crn: String): ResponseEntity<Void>? {
     return webClient
       .post()
-      .uri("offenders/crn/$crn/tier/$tier")
+      .uri("/offenders/crn/$crn/tier/$tier")
       .retrieve().toBodilessEntity().block()
   }
 }
