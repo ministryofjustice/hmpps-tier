@@ -11,6 +11,7 @@ import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.mockserver.model.RequestDefinition
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.LocalDate
 
 abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   lateinit var mockCommunityApiServer: ClientAndServer
@@ -57,7 +58,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     )
   }
 
-  fun restOfSetup(crn: String) {
+  fun restOfSetup(crn: String, includeAssessmentApi: Boolean = true) {
     mockCommunityApiServer.`when`(HttpRequest.request().withPath("/secure/offenders/crn/$crn/assessments")).respond(
       HttpResponse.response().withContentType(
         APPLICATION_JSON
@@ -69,21 +70,28 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
         APPLICATION_JSON
       ).withBody(ApiResponses.offenderResponse())
     )
-    mockAssessmentApiServer.`when`(
-      HttpRequest.request().withPath("/offenders/crn/$crn/assessments/latest"),
-      Times.exactly(2)
-    )
-      .respond(
-        HttpResponse.response().withContentType(
-          APPLICATION_JSON
-        ).withBody(ApiResponses.assessmentsApiAssessmentsResponse())
-      )
+    if (includeAssessmentApi) {
+      setupLatestAssessment(crn, LocalDate.now().year)
+    }
     mockAssessmentApiServer.`when`(HttpRequest.request().withPath("/assessments/oasysSetId/1234/needs")).respond(
       HttpResponse.response().withContentType(
         APPLICATION_JSON
       ).withBody(ApiResponses.assessmentsApiNeedsResponse())
     )
   }
+
+  fun setupLatestAssessment(crn: String, year: Int, times: Int = 2) {
+    mockAssessmentApiServer.`when`(
+      HttpRequest.request().withPath("/offenders/crn/$crn/assessments/latest"),
+      Times.exactly(times)
+    )
+      .respond(
+        HttpResponse.response().withContentType(
+          APPLICATION_JSON
+        ).withBody(ApiResponses.assessmentsApiAssessmentsResponse(year))
+      )
+  }
+
   fun setupUpdateTierSuccess(crn: String, score: String): RequestDefinition {
     val expectedTierUpdate = HttpRequest.request().withPath("/secure/offenders/crn/$crn/tier/$score").withMethod("POST")
 

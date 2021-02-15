@@ -32,8 +32,8 @@ object ApiResponses {
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-custodial-and-non-custodial-unpaid.json"))
   fun nonCustodialCurrentAndTerminatedConvictionWithUnpaidWorkResponse(): String =
     Files.readString(Paths.get("src/test/resources/fixtures/community-api/convictions-non-custodial-current-and-terminated-with-unpaid-work.json"))
-  fun assessmentsApiAssessmentsResponse(): String =
-    Files.readString(Paths.get("src/test/resources/fixtures/assessment-api/assessments.json"))
+  fun assessmentsApiAssessmentsResponse(year: Int): String =
+    Files.readString(Paths.get("src/test/resources/fixtures/assessment-api/assessments.json")).replace("completedDate", "$year-01-01T00:00:00")
   fun assessmentsApiNeedsResponse(): String =
     Files.readString(Paths.get("src/test/resources/fixtures/assessment-api/needs.json"))
 }
