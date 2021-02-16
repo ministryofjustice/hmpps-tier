@@ -18,7 +18,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundEx
 @Api
 @RestController
 @RequestMapping(produces = [APPLICATION_JSON_VALUE])
-@PreAuthorize("hasRole('ROLE_WONT_HAVE')")
+@PreAuthorize("hasRole('ROLE_COMMUNITY')")
 class TierCalculationController(private val tierCalculationService: TierCalculationService) {
 
   @ApiOperation(value = "Retrieve tiering score by crn")
