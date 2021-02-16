@@ -18,9 +18,10 @@ class TierCalculationService(
   private val protectLevelCalculator: ProtectLevelCalculator
 ) {
 
-  fun getOrCalculateTierByCrn(crn: String): TierDto {
-    val result = getLatestTierCalculation(crn) ?: calculateTier(crn)
-    return TierDto.from(result.data).also {
+  fun getTierByCrn(crn: String): TierDto? {
+    return getLatestTierCalculation(crn)?.let {
+      TierDto.from(it.data)
+    }.also {
       log.info("Returned tier for $crn")
     }
   }

@@ -84,74 +84,10 @@ internal class TierCalculationServiceTest {
   inner class GetTierByCrnTests {
 
     @Test
-    fun `Should Call Collaborators Test - Female - Existing not found`() {
-      every { assessmentApiDataService.isAssessmentRecent(crn) } returns true
-      every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
-      every { communityApiDataService.isFemaleOffender(crn) } returns true
-      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
-      every { communityApiDataService.getRosh(crn) } returns Rosh.MEDIUM
-      every { communityApiDataService.getMappa(crn) } returns Mappa.M3
-      every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
-      every { assessmentApiDataService.getAssessmentComplexityAnswers(crn) } returns mapOf()
-      every { assessmentApiDataService.getAssessmentNeeds(crn) } returns mapOf()
-      every { communityApiDataService.getRSR(crn) } returns BigDecimal(3)
-      every { communityApiDataService.getOGRS(crn) } returns 55
-      every { communityApiDataService.hasBreachedConvictions(crn) } returns false
-
-      every { tierCalculationRepository.save(any()) } returns validTierCalculationEntity
-
-      service.getOrCalculateTierByCrn(crn)
-
-      verify { assessmentApiDataService.isAssessmentRecent(crn) }
-      verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
-      verify { communityApiDataService.isFemaleOffender(crn) }
-      verify { communityApiDataService.getRosh(crn) }
-      verify { communityApiDataService.getMappa(crn) }
-      verify { communityApiDataService.getComplexityFactors(crn) }
-      verify { assessmentApiDataService.getAssessmentComplexityAnswers(crn) }
-      verify { assessmentApiDataService.getAssessmentNeeds(crn) }
-      verify { communityApiDataService.getRSR(crn) }
-      verify { communityApiDataService.getOGRS(crn) }
-      verify { communityApiDataService.hasBreachedConvictions(crn) }
-      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
-      verify { tierCalculationRepository.save(any()) }
-    }
-
-    @Test
-    fun `Should Call Collaborators Test - Male - Existing not found`() {
-      // no call to AssessmentComplexity
-      every { assessmentApiDataService.isAssessmentRecent(crn) } returns true
-      every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
-      every { communityApiDataService.isFemaleOffender(crn) } returns false
-      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
-      every { communityApiDataService.getRosh(crn) } returns Rosh.MEDIUM
-      every { communityApiDataService.getMappa(crn) } returns Mappa.M3
-      every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
-      every { assessmentApiDataService.getAssessmentNeeds(crn) } returns mapOf()
-      every { communityApiDataService.getRSR(crn) } returns BigDecimal(3)
-      every { communityApiDataService.getOGRS(crn) } returns 55
-      every { tierCalculationRepository.save(any()) } returns validTierCalculationEntity
-
-      service.getOrCalculateTierByCrn(crn)
-
-      verify { assessmentApiDataService.isAssessmentRecent(crn) }
-      verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
-      verify { communityApiDataService.isFemaleOffender(crn) }
-      verify { communityApiDataService.getRosh(crn) }
-      verify { communityApiDataService.getMappa(crn) }
-      verify { communityApiDataService.getComplexityFactors(crn) }
-      verify { assessmentApiDataService.getAssessmentNeeds(crn) }
-      verify { communityApiDataService.getRSR(crn) }
-      verify { communityApiDataService.getOGRS(crn) }
-      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
-      verify { tierCalculationRepository.save(any()) }
-    }
-
-    @Test
     fun `Should Call Collaborators Test - Existing found`() {
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns validTierCalculationEntity
       every { tierCalculationRepository.save(any()) } returns validTierCalculationEntity
-      service.getOrCalculateTierByCrn(crn)
+      service.getTierByCrn(crn)
 
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
     }
