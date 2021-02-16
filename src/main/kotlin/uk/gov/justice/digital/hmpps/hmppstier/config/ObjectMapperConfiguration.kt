@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Primary
 @Configuration
 class ObjectMapperConfiguration {
 
-  @Bean
+  @Bean(name = ["globalObjectMapper"])
   @Primary
   fun objectMapper(): ObjectMapper {
     return ObjectMapper()
