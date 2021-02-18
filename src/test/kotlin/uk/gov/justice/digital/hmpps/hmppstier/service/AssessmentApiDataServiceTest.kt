@@ -29,7 +29,7 @@ import java.time.ZoneId
 @DisplayName("Detail Service tests")
 internal class AssessmentApiDataServiceTest {
   private val assessmentApiClient: AssessmentApiClient = mockk(relaxUnitFun = true)
-  private val clock = Clock.fixed(LocalDate.of(2020, 2, 1).atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault())
+  private val clock = Clock.fixed(LocalDate.of(2021, 1, 20).atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault())
   private val assessmentService = AssessmentApiDataService(assessmentApiClient, clock)
 
   @BeforeEach
@@ -309,7 +309,7 @@ internal class AssessmentApiDataServiceTest {
     @Test
     fun `Should return true if inside Threshold`() {
       val crn = "123"
-      val assessment = Assessment("1234", LocalDateTime.now(clock))
+      val assessment = Assessment("1234", LocalDateTime.now(clock).minusWeeks(55))
 
       every { assessmentApiClient.getLatestAssessment(crn) } returns assessment
       val returnValue = assessmentService.isAssessmentRecent(crn)
@@ -318,7 +318,7 @@ internal class AssessmentApiDataServiceTest {
     }
 
     @Test
-    fun `Should return true if before Threshold`() {
+    fun `Should return false if outside Threshold`() {
       val crn = "123"
       val assessment = Assessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1))
 
