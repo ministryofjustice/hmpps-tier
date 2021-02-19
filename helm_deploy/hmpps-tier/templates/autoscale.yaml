@@ -10,5 +10,5 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: cmd-api
-  targetCPUUtilizationPercentage: 80
+    name: hmpps-tier
+  targetCPUUtilizationPercentage: 90
