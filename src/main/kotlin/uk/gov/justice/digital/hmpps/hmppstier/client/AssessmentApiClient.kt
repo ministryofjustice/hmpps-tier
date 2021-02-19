@@ -17,7 +17,7 @@ import java.time.LocalDateTime
 @Component
 class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val webClient: WebClient) {
 
-  fun getAssessmentAnswers(assessmentId: String) : Collection<Question> {
+  fun getAssessmentAnswers(assessmentId: String): Collection<Question> {
     return getAssessmentAnswersCall(assessmentId).also {
       log.info("Fetched ${it.size} Questions for $assessmentId")
       log.debug(it.toString())

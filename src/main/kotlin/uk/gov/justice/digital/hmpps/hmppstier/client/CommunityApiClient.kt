@@ -64,7 +64,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   fun updateTier(tier: String, crn: String): ResponseEntity<Void>? {
     return updateTierCall(tier, crn).also {
       log.info("Updated Tier for $crn")
-      log.debug("Posting $tier for $crn")
+      log.debug("Body: $tier for $crn")
     }
   }
 

@@ -48,16 +48,16 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
 
   fun getRSR(crn: String): BigDecimal? {
     return communityApiClient.getAssessments(crn)?.rsr
-    .also {
-      log.debug("RSR for $crn: $it")
-    }
+      .also {
+        log.debug("RSR for $crn: $it")
+      }
   }
 
   fun getOGRS(crn: String): Int? {
     return communityApiClient.getAssessments(crn)?.ogrs
-    .also {
-      log.debug("OGRS for $crn: $it")
-    }
+      .also {
+        log.debug("OGRS for $crn: $it")
+      }
   }
 
   fun isFemaleOffender(crn: String): Boolean {
@@ -107,14 +107,13 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
 
   fun hasCurrentNonCustodialSentence(crn: String): Boolean =
     currentConvictions(crn).any {
-    it.sentence.sentenceType.code !in custodialSentences
-  }.also { log.debug("Has Current Non Custodial sentence for $crn: $it") }
+      it.sentence.sentenceType.code !in custodialSentences
+    }.also { log.debug("Has Current Non Custodial sentence for $crn: $it") }
 
   fun hasUnpaidWork(crn: String): Boolean =
     currentConvictions(crn).any {
-    null != it.sentence.unpaidWork?.minutesOrdered
-  }.also { log.debug("Unpaid work for $crn: $it") }
-
+      null != it.sentence.unpaidWork?.minutesOrdered
+    }.also { log.debug("Unpaid work for $crn: $it") }
 
   private fun getOffenderGender(crn: String): String {
     return communityApiClient.getOffender(crn).gender
