@@ -30,7 +30,7 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
     return communityApiClient.getRegistrations(crn)
       .filter { reg -> reg.active }
       .sortedByDescending { reg -> reg.startDate }
-      .mapNotNull { reg -> Mappa.from(reg.registerLevel.code) }
+      .mapNotNull { reg -> Mappa.from(reg.registerLevel?.code) }
       .firstOrNull()
       .also {
         log.debug("Mappa for $crn: $it")
