@@ -2,20 +2,73 @@ package uk.gov.justice.digital.hmpps.hmppstier.client
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundException
 import java.math.BigDecimal
 import java.time.LocalDate
 
 @Component
 class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val webClient: WebClient) {
 
-  @Cacheable(value = ["registration"], unless = "#result.size() == 0", key = "{ #crn }")
+  @Cacheable(value = ["registration"], key = "{ #crn }")
   fun getRegistrations(crn: String): Collection<Registration> {
+    return getRegistrationsCall(crn).also {
+      log.info("Fetched ${it.size} Registrations for $crn")
+      log.debug(it.toString())
+    }
+  }
+
+  @Cacheable(value = ["deliusAssessment"], key = "{ #crn }")
+  fun getAssessments(crn: String): DeliusAssessmentsDto? {
+    return getAssessmentsCall(crn).also {
+      log.info("Fetched Delius Assessment scores for $crn")
+      log.debug(it.toString())
+    }
+  }
+
+  @Cacheable(value = ["conviction"], key = "{ #crn }")
+  fun getConvictions(crn: String): List<Conviction> {
+    return getConvictionsCall(crn).also {
+      log.info("Fetched ${it.size} Convictions for $crn")
+      log.debug(it.toString())
+    }
+  }
+
+  fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
+    return getBreachRecallNsisCall(crn, convictionId).also {
+      log.info("Fetched ${it.size} Convictions for $crn convictionId: $convictionId")
+      log.debug(it.toString())
+    }
+  }
+
+  fun getOffender(crn: String): Offender {
+    return getOffenderCall(crn).also {
+      log.info("Fetched Offender record for $crn")
+      log.debug(it.toString())
+    }
+  }
+
+  fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
+    return getRequirementsCall(crn, convictionId).also {
+      log.info("Fetched Requirements for $crn convictionId: $convictionId")
+      log.debug(it.toString())
+    }
+  }
+
+  fun updateTier(tier: String, crn: String): ResponseEntity<Void>? {
+    return updateTierCall(tier, crn).also {
+      log.info("Updated Tier for $crn")
+      log.debug("Posting $tier for $crn")
+    }
+  }
+
+  private fun getRegistrationsCall(crn: String): Collection<Registration> {
     return webClient
       .get()
       .uri("/offenders/crn/$crn/registrations")
@@ -24,8 +77,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()?.registrations ?: listOf()
   }
 
-  @Cacheable(value = ["deliusAssessment"], key = "{ #crn }")
-  fun getAssessments(crn: String): DeliusAssessmentsDto? {
+  private fun getAssessmentsCall(crn: String): DeliusAssessmentsDto? {
     return webClient
       .get()
       .uri("/offenders/crn/$crn/assessments")
@@ -34,8 +86,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()
   }
 
-  @Cacheable(value = ["conviction"], key = "{ #crn }")
-  fun getConvictions(crn: String): List<Conviction> {
+  private fun getConvictionsCall(crn: String): List<Conviction> {
     val responseType = object : ParameterizedTypeReference<List<Conviction>>() {}
     return webClient
       .get()
@@ -45,7 +96,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block() ?: listOf()
   }
 
-  fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
+  private fun getBreachRecallNsisCall(crn: String, convictionId: Long): List<Nsi> {
     return webClient
       .get()
       .uri("/offenders/crn/$crn/convictions/$convictionId/nsis?nsiCodes=BRE,BRES,REC,RECS")
@@ -54,16 +105,16 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()?.nsis ?: listOf()
   }
 
-  fun getOffender(crn: String): Offender? {
+  private fun getOffenderCall(crn: String): Offender {
     return webClient
       .get()
       .uri("/offenders/crn/$crn")
       .retrieve()
       .bodyToMono(Offender::class.java)
-      .block()
+      .block() ?: throw EntityNotFoundException("No Offender record found for $crn")
   }
 
-  fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
+  private fun getRequirementsCall(crn: String, convictionId: Long): List<Requirement> {
     return webClient
       .get()
       .uri("/offenders/crn/$crn/convictions/$convictionId/requirements")
@@ -72,11 +123,15 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()?.requirements ?: listOf()
   }
 
-  fun updateTier(tier: String, crn: String): ResponseEntity<Void>? {
+  private fun updateTierCall(tier: String, crn: String): ResponseEntity<Void>? {
     return webClient
       .post()
       .uri("/offenders/crn/$crn/tier/$tier")
       .retrieve().toBodilessEntity().block()
+  }
+
+  companion object {
+    private val log = LoggerFactory.getLogger(AssessmentApiClient::class.java)
   }
 }
 
