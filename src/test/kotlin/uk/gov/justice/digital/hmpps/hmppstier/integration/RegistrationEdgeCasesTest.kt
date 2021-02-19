@@ -9,10 +9,11 @@ import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationRequired
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ONE
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel.B
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.emptyRegistrationsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.registrationsResponseWithNoLevel
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 
 @TestInstance(PER_CLASS)
-class MissingRegistrationTest : MockedEndpointsTestBase() {
+class RegistrationEdgeCasesTest : MockedEndpointsTestBase() {
 
   @Autowired
   lateinit var listener: TierCalculationRequiredEventListener
@@ -25,6 +26,21 @@ class MissingRegistrationTest : MockedEndpointsTestBase() {
     val crn = "X373878"
     setupNCCustodialSentence(crn)
     setupRegistrations(emptyRegistrationsResponse(), crn)
+    restOfSetup(crn)
+    setupUpdateTierSuccess(crn, "B1")
+
+    listener.listen(calculationMessage(crn))
+    val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)
+
+    assertThat(tier?.data?.change?.tier).isEqualTo(ONE)
+    assertThat(tier?.data?.protect?.tier).isEqualTo(B)
+  }
+
+  @Test
+  fun `calculate change and protect when registration level is missing`() {
+    val crn = "X445599"
+    setupNCCustodialSentence(crn)
+    setupRegistrations(registrationsResponseWithNoLevel(), crn)
     restOfSetup(crn)
     setupUpdateTierSuccess(crn, "B1")
 
