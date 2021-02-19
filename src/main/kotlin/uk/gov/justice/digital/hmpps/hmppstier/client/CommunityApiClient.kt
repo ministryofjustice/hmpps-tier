@@ -154,7 +154,7 @@ data class Registration @JsonCreator constructor(
   val type: KeyValue,
 
   @JsonProperty("registerLevel")
-  val registerLevel: KeyValue,
+  val registerLevel: KeyValue?,
 
   @JsonProperty("active")
   val active: Boolean,
