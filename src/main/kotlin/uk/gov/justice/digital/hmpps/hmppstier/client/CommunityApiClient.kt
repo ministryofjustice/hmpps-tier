@@ -131,7 +131,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   }
 
   companion object {
-    private val log = LoggerFactory.getLogger(AssessmentApiClient::class.java)
+    private val log = LoggerFactory.getLogger(CommunityApiClient::class.java)
   }
 }
 
