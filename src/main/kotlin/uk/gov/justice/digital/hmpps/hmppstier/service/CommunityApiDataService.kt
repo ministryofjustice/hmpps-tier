@@ -62,9 +62,6 @@ class CommunityApiDataService(private val communityApiClient: CommunityApiClient
 
   fun isFemaleOffender(crn: String): Boolean {
     return getOffenderGender(crn).equals("Female", true)
-      .also {
-        log.debug("Gender for $crn: $it")
-      }
   }
 
   fun hasBreachedConvictions(crn: String): Boolean {

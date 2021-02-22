@@ -23,7 +23,7 @@ class AssessmentApiDataService(
       // Will be not null because it is completed
       it.completed!!.toLocalDate().isAfter(cutOff)
     }.also {
-      log.debug("Assessment is recent for $crn: $it ")
+      log.debug("Found a valid Assessment $crn: $it ")
     }
   }
 
@@ -50,7 +50,9 @@ class AssessmentApiDataService(
   private fun getLatestCompletedAssessment(crn: String): AssessmentSummary =
     assessmentApiClient.getAssessmentSummaries(crn)
       .filter { it.voided == null && it.completed != null }
-      .maxByOrNull { it.completed!! } ?: throw EntityNotFoundException("No Assessment found for $crn")
+      .maxByOrNull { it.completed!! }
+      ?.also { log.info("Found valid Assessment ${it.assessmentId} for $crn") }
+      ?: throw EntityNotFoundException("No Assessment found for $crn")
 
   companion object {
     private val log = LoggerFactory.getLogger(AssessmentApiDataService::class.java)
