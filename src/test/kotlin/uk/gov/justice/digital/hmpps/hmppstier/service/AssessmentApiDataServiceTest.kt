@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.Answer
 import uk.gov.justice.digital.hmpps.hmppstier.client.Assessment
@@ -19,7 +18,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Question
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
-import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundException
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -230,33 +228,11 @@ internal class AssessmentApiDataServiceTest {
 
       assertThat(returnValue).isEmpty()
     }
-
-    @Test
-    fun `Should throw if no Latest Assessment`() {
-      val crn = "123"
-
-      every { assessmentApiClient.getLatestAssessment(crn) } returns null
-
-      assertThrows<EntityNotFoundException> {
-        assessmentService.getAssessmentComplexityAnswers(crn)
-      }
-    }
   }
 
   @Nested
   @DisplayName("Get Needs Tests")
   inner class GetNeedsTests {
-
-    @Test
-    fun `Should throw if no Latest Assessment`() {
-      val crn = "123"
-
-      every { assessmentApiClient.getLatestAssessment(crn) } returns null
-
-      assertThrows<EntityNotFoundException> {
-        assessmentService.getAssessmentNeeds(crn)
-      }
-    }
 
     @Test
     fun `Should return empty Map if no Needs`() {
@@ -294,17 +270,6 @@ internal class AssessmentApiDataServiceTest {
   @Nested
   @DisplayName("Get recent Assessment Tests")
   inner class GetRecentAssessmentTests {
-
-    @Test
-    fun `Should return false if no Latest Assessment`() {
-      val crn = "123"
-
-      every { assessmentApiClient.getLatestAssessment(crn) } returns null
-
-      val returnValue = assessmentService.isAssessmentRecent(crn)
-
-      assertThat(returnValue).isFalse
-    }
 
     @Test
     fun `Should return true if inside Threshold`() {
