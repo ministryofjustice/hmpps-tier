@@ -13,10 +13,10 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 
 @Service
 class TierCalculationRequiredEventListener(
-  val objectMapper: ObjectMapper,
-  val calculator: TierCalculationService,
-  val successUpdater: SuccessUpdater,
-  @Value("\${flags.enableDeliusTierUpdates}") val enableUpdates: Boolean
+  private val objectMapper: ObjectMapper,
+  private val calculator: TierCalculationService,
+  private val successUpdater: SuccessUpdater,
+  @Value("\${flags.enableDeliusTierUpdates}") private val enableUpdates: Boolean
 ) {
 
   @SqsListener(value = ["\${offender-events.sqs-queue}"], deletionPolicy = ON_SUCCESS)
@@ -35,8 +35,8 @@ class TierCalculationRequiredEventListener(
   private fun getCrn(msg: String): String {
     val message: String = objectMapper.readTree(msg)["Message"].asText()
     val typeReference = object : TypeReference<TierCalculationMessage>() {}
-
     return objectMapper.readValue(message, typeReference).crn
+      .also { log.info("Tier calculation message decoded for $it") }
   }
 
   companion object {
