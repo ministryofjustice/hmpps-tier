@@ -27,7 +27,7 @@ class TierCalculationRequiredEventListener(
   fun handle404s(e: WebClientResponseException) {
     if (e.statusCode == HttpStatus.NOT_FOUND) {
       log.error("Unable to find data for offender: {}", e.message)
-      throw RuntimeException("Unable to find data for offender: {}".format(e.message))
+      throw RuntimeException("Unable to find data for offender")
     }
     throw e
   }
