@@ -6,10 +6,14 @@ import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.cloud.aws.messaging.listener.SqsMessageDeletionPolicy.ON_SUCCESS
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener
+import org.springframework.http.HttpStatus
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler
 import org.springframework.stereotype.Service
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import uk.gov.justice.digital.hmpps.hmppstier.dto.CalculationResultDto
 import uk.gov.justice.digital.hmpps.hmppstier.service.SuccessUpdater
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
+import java.lang.RuntimeException
 
 @Service
 class TierCalculationRequiredEventListener(
@@ -18,6 +22,15 @@ class TierCalculationRequiredEventListener(
   val successUpdater: SuccessUpdater,
   @Value("\${flags.enableDeliusTierUpdates}") val enableUpdates: Boolean
 ) {
+
+  @MessageExceptionHandler
+  fun handle404s(e: WebClientResponseException) {
+    if (e.statusCode == HttpStatus.NOT_FOUND) {
+      log.error("Unable to find data for offender: {}", e.message)
+      throw RuntimeException("Unable to find data for offender: {}".format(e.message))
+    }
+    throw e
+  }
 
   @SqsListener(value = ["\${offender-events.sqs-queue}"], deletionPolicy = ON_SUCCESS)
   fun listen(msg: String) {
