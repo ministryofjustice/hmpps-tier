@@ -9,7 +9,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.Answer
 import uk.gov.justice.digital.hmpps.hmppstier.client.Assessment
@@ -19,7 +18,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Question
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
-import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundException
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -230,7 +228,6 @@ internal class AssessmentApiDataServiceTest {
 
       assertThat(returnValue).isEmpty()
     }
-
   }
 
   @Nested
