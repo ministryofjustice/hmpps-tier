@@ -1,4 +1,4 @@
-{
+[{
   "assessmentId": 1234,
   "assessmentStatus": "OPEN",
   "assessmentType": "LAYER_3",
@@ -87,5 +87,5 @@
       "sentenceLengthCustodyDays": 0
     }
   ],
-  "voided": "2020-01-02T16:00:00"
-}
+  "voided": "voidedDate"
+}]

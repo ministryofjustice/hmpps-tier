@@ -8,6 +8,26 @@ import org.junit.jupiter.api.Test
 class AssessmentComplexityFactorTest {
 
   @Nested
+  @DisplayName("Sections test")
+  inner class SectionsTest {
+
+    @Test
+    fun `PARENTING_RESPONSIBILITIES should be in section 13`() {
+      assertThat(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES.section).isEqualTo("13")
+    }
+
+    @Test
+    fun `IMPULSIVITY should be in section 11`() {
+      assertThat(AssessmentComplexityFactor.IMPULSIVITY.section).isEqualTo("11")
+    }
+
+    @Test
+    fun `TEMPER_CONTROL should be in section 11`() {
+      assertThat(AssessmentComplexityFactor.TEMPER_CONTROL.section).isEqualTo("11")
+    }
+  }
+
+  @Nested
   @DisplayName("Values test")
   inner class ValuesTest {
 
