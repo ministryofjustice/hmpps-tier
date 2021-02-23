@@ -82,7 +82,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
 
   fun setupLatestAssessment(crn: String, year: Int, times: Int = 2) {
     mockAssessmentApiServer.`when`(
-      HttpRequest.request().withPath("/offenders/crn/$crn/assessments/latest"),
+      HttpRequest.request().withPath("/offenders/crn/$crn/assessments/summary"),
       Times.exactly(times)
     )
       .respond(

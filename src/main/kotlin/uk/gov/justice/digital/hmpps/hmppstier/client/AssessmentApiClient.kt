@@ -11,7 +11,6 @@ import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
-import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundException
 import java.time.LocalDateTime
 
 @Component
@@ -32,9 +31,9 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
   }
 
   @Cacheable(value = ["oasysAssessment"], key = "{ #crn }")
-  fun getLatestAssessment(crn: String): Assessment {
+  fun getAssessmentSummaries(crn: String): Collection<AssessmentSummary> {
     return getLatestAssessmentCall(crn).also {
-      log.info("Fetched Assessment ${it.assessmentId} for $crn")
+      log.info("Fetched ${it.size} Assessments for $crn")
     }
   }
 
@@ -42,7 +41,7 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
     return webClient
       .post()
       .uri("/assessments/oasysSetId/$assessmentId/answers")
-      .bodyValue(AssessmentComplexityFactor.values().map { it.answerCode })
+      .bodyValue(AssessmentComplexityFactor.values().groupBy { it.section }.mapValues { it.value.map { q -> q.answerCode } })
       .retrieve()
       .bodyToMono(Answers::class.java)
       .block()?.questionAnswers ?: emptyList()
@@ -58,13 +57,14 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
       .block() ?: emptyList()
   }
 
-  private fun getLatestAssessmentCall(crn: String): Assessment {
+  private fun getLatestAssessmentCall(crn: String): Collection<AssessmentSummary> {
+    val responseType = object : ParameterizedTypeReference<Collection<AssessmentSummary>>() {}
     return webClient
       .get()
-      .uri("/offenders/crn/$crn/assessments/latest")
+      .uri("/offenders/crn/$crn/assessments/summary?assessmentType=LAYER_3")
       .retrieve()
-      .bodyToMono(Assessment::class.java)
-      .block() ?: throw EntityNotFoundException("No Assessment found for $crn")
+      .bodyToMono(responseType)
+      .block() ?: emptyList()
   }
 
   companion object {
@@ -72,12 +72,15 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
   }
 }
 
-data class Assessment @JsonCreator constructor(
+data class AssessmentSummary @JsonCreator constructor(
   @JsonProperty("assessmentId")
   val assessmentId: String,
 
   @JsonProperty("completed")
-  val completed: LocalDateTime,
+  val completed: LocalDateTime?,
+
+  @JsonProperty("voided")
+  val voided: LocalDateTime?,
 )
 
 data class AssessmentNeed @JsonCreator constructor(
