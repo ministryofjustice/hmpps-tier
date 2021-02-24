@@ -58,7 +58,7 @@ env:
         name: hmpps-tier-offender-events-sqs-instance-output
         key: sqs_ptpu_url
 
-  - name: APPLICATION_INSIGHTS_IKEY
+  - name: APPINSIGHTS_INSTRUMENTATIONKEY
     valueFrom:
       secretKeyRef:
         name: {{ template "app.name" . }}
