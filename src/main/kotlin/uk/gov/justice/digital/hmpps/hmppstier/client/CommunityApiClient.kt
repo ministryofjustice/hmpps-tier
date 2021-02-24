@@ -17,15 +17,18 @@ import java.time.LocalDate
 class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val webClient: WebClient) {
 
   @Cacheable(value = ["registration"], key = "{ #crn }")
-  fun getRegistrations(crn: String): Collection<Registration> {
-    return getRegistrationsCall(crn).also {
-      log.info("Fetched ${it.size} Registrations for $crn")
-      log.debug(it.toString())
-    }
+  fun getActiveRegistrations(crn: String): Collection<Registration> {
+    return getRegistrationsCall(crn)
+      .filter { it.active }
+      .sortedByDescending { it.startDate }
+      .also {
+        log.info("Fetched ${it.size} Registrations for $crn")
+        log.debug(it.toString())
+      }
   }
 
   @Cacheable(value = ["deliusAssessment"], key = "{ #crn }")
-  fun getAssessments(crn: String): DeliusAssessmentsDto? {
+  fun getDeliusAssessments(crn: String): DeliusAssessments? {
     return getAssessmentsCall(crn).also {
       log.info("Fetched Delius Assessment scores for $crn")
       log.debug(it.toString())
@@ -34,10 +37,11 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
 
   @Cacheable(value = ["conviction"], key = "{ #crn }")
   fun getConvictions(crn: String): List<Conviction> {
-    return getConvictionsCall(crn).also {
-      log.info("Fetched ${it.size} Convictions for $crn")
-      log.debug(it.toString())
-    }
+    return getConvictionsCall(crn)
+      .also {
+        log.info("Fetched ${it.size} Convictions for $crn")
+        log.debug(it.toString())
+      }
   }
 
   fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
@@ -77,12 +81,12 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()?.registrations ?: listOf()
   }
 
-  private fun getAssessmentsCall(crn: String): DeliusAssessmentsDto? {
+  private fun getAssessmentsCall(crn: String): DeliusAssessments? {
     return webClient
       .get()
       .uri("/offenders/crn/$crn/assessments")
       .retrieve()
-      .bodyToMono(DeliusAssessmentsDto::class.java)
+      .bodyToMono(DeliusAssessments::class.java)
       .block()
   }
 
@@ -189,7 +193,7 @@ data class Offender @JsonCreator constructor(
   val gender: String?,
 )
 
-data class DeliusAssessmentsDto @JsonCreator constructor(
+data class DeliusAssessments @JsonCreator constructor(
   @JsonProperty("rsrScore")
   val rsr: BigDecimal?,
   @JsonProperty("ogrsScore")

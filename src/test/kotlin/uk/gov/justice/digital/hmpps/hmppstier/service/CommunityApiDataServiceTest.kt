@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessmentsDto
+import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
 import uk.gov.justice.digital.hmpps.hmppstier.client.Nsi
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
@@ -56,7 +56,7 @@ internal class CommunityApiDataServiceTest {
           )
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getRosh(crn)
 
       assertThat(returnValue).isEqualTo(Rosh.MEDIUM)
@@ -75,7 +75,7 @@ internal class CommunityApiDataServiceTest {
           )
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getRosh(crn)
 
       assertThat(returnValue).isEqualTo(Rosh.MEDIUM)
@@ -106,7 +106,7 @@ internal class CommunityApiDataServiceTest {
           ),
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getRosh(crn)
 
       assertThat(returnValue).isEqualTo(Rosh.MEDIUM)
@@ -138,7 +138,7 @@ internal class CommunityApiDataServiceTest {
 
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getRosh(crn)
 
       assertThat(returnValue).isEqualTo(Rosh.MEDIUM)
@@ -164,7 +164,7 @@ internal class CommunityApiDataServiceTest {
           ),
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getRosh(crn)
 
       assertThat(returnValue).isEqualTo(Rosh.HIGH)
@@ -190,7 +190,7 @@ internal class CommunityApiDataServiceTest {
           ),
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getRosh(crn)
 
       assertThat(returnValue).isEqualTo(Rosh.MEDIUM)
@@ -209,7 +209,7 @@ internal class CommunityApiDataServiceTest {
           )
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getRosh(crn)
 
       assertThat(returnValue).isNull()
@@ -233,7 +233,7 @@ internal class CommunityApiDataServiceTest {
           )
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getMappa(crn)
 
       assertThat(returnValue).isEqualTo(Mappa.M3)
@@ -252,7 +252,7 @@ internal class CommunityApiDataServiceTest {
           )
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getMappa(crn)
 
       assertThat(returnValue).isEqualTo(Mappa.M3)
@@ -284,7 +284,7 @@ internal class CommunityApiDataServiceTest {
 
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getMappa(crn)
 
       assertThat(returnValue).isEqualTo(Mappa.M3)
@@ -316,7 +316,7 @@ internal class CommunityApiDataServiceTest {
 
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getMappa(crn)
 
       assertThat(returnValue).isEqualTo(Mappa.M3)
@@ -342,7 +342,7 @@ internal class CommunityApiDataServiceTest {
           ),
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getMappa(crn)
 
       assertThat(returnValue).isEqualTo(Mappa.M2)
@@ -368,7 +368,7 @@ internal class CommunityApiDataServiceTest {
           ),
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getMappa(crn)
 
       assertThat(returnValue).isEqualTo(Mappa.M3)
@@ -399,7 +399,7 @@ internal class CommunityApiDataServiceTest {
           ),
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
 
       val returnValue = deliusDataService.getMappa(crn)
 
@@ -419,7 +419,7 @@ internal class CommunityApiDataServiceTest {
           )
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getMappa(crn)
 
       assertThat(returnValue).isNull()
@@ -443,7 +443,7 @@ internal class CommunityApiDataServiceTest {
           )
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getComplexityFactors(crn)
 
       assertThat(returnValue).containsOnly(ComplexityFactor.MENTAL_HEALTH)
@@ -462,7 +462,7 @@ internal class CommunityApiDataServiceTest {
           )
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getComplexityFactors(crn)
 
       assertThat(returnValue).containsOnly(ComplexityFactor.MENTAL_HEALTH)
@@ -494,7 +494,7 @@ internal class CommunityApiDataServiceTest {
 
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getComplexityFactors(crn)
 
       assertThat(returnValue).containsOnly(ComplexityFactor.MENTAL_HEALTH)
@@ -526,7 +526,7 @@ internal class CommunityApiDataServiceTest {
 
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getComplexityFactors(crn)
 
       assertThat(returnValue).containsOnly(ComplexityFactor.MENTAL_HEALTH)
@@ -552,7 +552,7 @@ internal class CommunityApiDataServiceTest {
           ),
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getComplexityFactors(crn)
 
       assertThat(returnValue).containsOnly(ComplexityFactor.MENTAL_HEALTH)
@@ -571,7 +571,7 @@ internal class CommunityApiDataServiceTest {
           )
         )
 
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      every { communityApiClient.getActiveRegistrations(crn) } returns registrations
       val returnValue = deliusDataService.getComplexityFactors(crn)
 
       assertThat(returnValue).isEmpty()
@@ -585,12 +585,12 @@ internal class CommunityApiDataServiceTest {
     @Test
     fun `Should return RSR`() {
       val crn = "123"
-      val assessment = DeliusAssessmentsDto(
+      val assessment = DeliusAssessments(
         rsr = BigDecimal(5),
         ogrs = null,
       )
 
-      every { communityApiClient.getAssessments(crn) } returns assessment
+      every { communityApiClient.getDeliusAssessments(crn) } returns assessment
       val returnValue = deliusDataService.getRSR(crn)
 
       assertThat(returnValue).isEqualTo(BigDecimal(5))
@@ -599,12 +599,12 @@ internal class CommunityApiDataServiceTest {
     @Test
     fun `Should return RSR null`() {
       val crn = "123"
-      val assessment = DeliusAssessmentsDto(
+      val assessment = DeliusAssessments(
         rsr = null,
         ogrs = 10,
       )
 
-      every { communityApiClient.getAssessments(crn) } returns assessment
+      every { communityApiClient.getDeliusAssessments(crn) } returns assessment
       val returnValue = deliusDataService.getRSR(crn)
 
       assertThat(returnValue).isNull()
@@ -618,12 +618,12 @@ internal class CommunityApiDataServiceTest {
     @Test
     fun `Should return OGRS`() {
       val crn = "123"
-      val assessment = DeliusAssessmentsDto(
+      val assessment = DeliusAssessments(
         rsr = null,
         ogrs = 50,
       )
 
-      every { communityApiClient.getAssessments(crn) } returns assessment
+      every { communityApiClient.getDeliusAssessments(crn) } returns assessment
       val returnValue = deliusDataService.getOGRS(crn)
 
       assertThat(returnValue).isEqualTo(50)
@@ -632,12 +632,12 @@ internal class CommunityApiDataServiceTest {
     @Test
     fun `Should return OGRS null`() {
       val crn = "123"
-      val assessment = DeliusAssessmentsDto(
+      val assessment = DeliusAssessments(
         rsr = BigDecimal(10),
         ogrs = null,
       )
 
-      every { communityApiClient.getAssessments(crn) } returns assessment
+      every { communityApiClient.getDeliusAssessments(crn) } returns assessment
       val returnValue = deliusDataService.getOGRS(crn)
 
       assertThat(returnValue).isNull()
