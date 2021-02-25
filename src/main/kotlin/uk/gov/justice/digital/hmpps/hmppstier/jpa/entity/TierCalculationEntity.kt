@@ -35,4 +35,10 @@ data class TierCalculationEntity(
   @Type(type = "json")
   @Column(columnDefinition = "jsonb")
   val data: TierCalculationResultEntity
-)
+) {
+
+  fun tierEquals(other: TierCalculationEntity?): Boolean =
+    other != null &&
+      data.change.tier == other.data.change.tier &&
+      data.protect.tier == other.data.protect.tier
+}

@@ -1,28 +1,14 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import io.mockk.clearMocks
-import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.gov.justice.digital.hmpps.hmppstier.client.Answer
 import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentApiClient
-import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentNeed
-import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
-import uk.gov.justice.digital.hmpps.hmppstier.client.Question
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
-import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundException
 import java.time.Clock
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.ZoneId
 
 @ExtendWith(MockKExtension::class)
@@ -37,7 +23,7 @@ internal class AssessmentApiServiceTest {
     clearMocks(assessmentApiClient)
   }
 
-  @Nested
+  /*@Nested
   @DisplayName("Get Complexity Answer Tests")
   inner class GetComplexityAnswerTests {
 
@@ -319,5 +305,5 @@ internal class AssessmentApiServiceTest {
         assessmentService.isAssessmentRecent(crn)
       }
     }
-  }
+  }*/
 }

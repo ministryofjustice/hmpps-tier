@@ -2,27 +2,31 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import java.time.Clock
 import java.time.LocalDate
 
 @Service
-class AssessmentApiService(private val clock: Clock) {
+class AssessmentApiService(
+  private val assessmentApiClient: AssessmentApiClient,
+  private val clock: Clock
+) {
 
-  fun isAssessmentRecent(crn: String, offenderAssessment: OffenderAssessment?): Boolean {
-    return offenderAssessment?.let {
-      val cutOff = LocalDate.now(clock).minusWeeks(55).minusDays(1)
-      it.completed?.toLocalDate()?.isAfter(cutOff)
-    }.also {
-      log.debug("Assessment $it is recent for $crn")
-    } ?: false
-  }
-
-  fun getLatestCompletedAssessment(crn: String, offenderAssessments: Collection<OffenderAssessment>): OffenderAssessment? =
-    offenderAssessments
-      .filter { it.voided == null && it.completed != null }
+  fun getRecentAssessment(crn: String): OffenderAssessment? =
+    assessmentApiClient.getAssessmentSummaries(crn)
+      .filter {
+        it.voided == null &&
+          it.completed != null &&
+          it.completed.toLocalDate().isAfter(LocalDate.now(clock).minusWeeks(55).minusDays(1))
+      }
       .maxByOrNull { it.completed!! }
-      ?.also { log.info("Found valid Assessment ${it.assessmentId} for $crn") }
+      .also {
+        when (it) {
+          null -> log.warn("No valid Assessment found for $crn")
+          else -> log.info("Found valid Assessment ${it.assessmentId} for $crn")
+        }
+      }
 
   companion object {
     private val log = LoggerFactory.getLogger(AssessmentApiService::class.java)

@@ -15,13 +15,19 @@ import java.time.LocalDateTime
 @Component
 class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val webClient: WebClient) {
 
-  fun getAssessmentAnswers(assessmentId: String?): Collection<Question> {
+  fun getAssessmentAnswers(assessmentId: String?): Map<AssessmentComplexityFactor?, String?> {
     return assessmentId?.let {
-      getAssessmentAnswersCall(assessmentId).also {
-        log.info("Fetched ${it.size} Questions for $assessmentId")
-        log.debug(it.toString())
-      }
-    } ?: listOf()
+      getAssessmentAnswersCall(assessmentId)
+        .associateBy(
+          { AssessmentComplexityFactor.from(it.questionCode) },
+          { it.answers.firstOrNull()?.refAnswerCode }
+        )
+        .filterKeys { it != null }
+        .also {
+          log.info("Fetched ${it.size} Questions for $assessmentId")
+          log.debug(it.toString())
+        }
+    } ?: mapOf()
   }
 
   fun getAssessmentNeeds(assessmentId: String): Collection<AssessmentNeed> {
@@ -47,7 +53,10 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
     return webClient
       .post()
       .uri("/assessments/oasysSetId/$assessmentId/answers")
-      .bodyValue(AssessmentComplexityFactor.values().groupBy { it.section }.mapValues { it.value.map { q -> q.answerCode } })
+      .bodyValue(
+        AssessmentComplexityFactor.values().groupBy { it.section }
+          .mapValues { it.value.map { q -> q.answerCode } }
+      )
       .retrieve()
       .bodyToMono(Answers::class.java)
       .block()?.questionAnswers ?: emptyList()
@@ -87,7 +96,7 @@ data class AssessmentNeed @JsonCreator constructor(
   val severity: NeedSeverity?
 )
 
-data class Question @JsonCreator constructor(
+private data class Question @JsonCreator constructor(
   @JsonProperty("refQuestionCode")
   val questionCode: String?,
 
@@ -95,7 +104,7 @@ data class Question @JsonCreator constructor(
   val answers: Set<Answer>
 )
 
-data class Answer @JsonCreator constructor(
+private data class Answer @JsonCreator constructor(
   @JsonProperty("refAnswerCode")
   val refAnswerCode: String?
 )
