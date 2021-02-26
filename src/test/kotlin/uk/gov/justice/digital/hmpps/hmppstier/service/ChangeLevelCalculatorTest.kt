@@ -1,11 +1,10 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
-/*
+
 import io.mockk.clearMocks
 import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -14,22 +13,14 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
-import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
+import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
+import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
+import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
+import uk.gov.justice.digital.hmpps.hmppstier.client.SentenceType
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
-import java.math.BigDecimal
 import java.time.Clock
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -38,321 +29,108 @@ import java.time.ZoneOffset
 @ExtendWith(MockKExtension::class)
 @DisplayName("Tier Calculation Service tests")
 internal class ChangeLevelCalculatorTest {
-
-  private val clock = Clock.fixed(LocalDateTime.of(2020,1,1,0,0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault())
+  private val clock = Clock.fixed(LocalDateTime.of(2020, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault())
   private val communityApiClient: CommunityApiClient = mockk(relaxUnitFun = true)
-  private val assessmentApiClient: AssessmentApiClient = mockk(relaxUnitFun = true)
   private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
 
-  private val tierCalculationRepository: TierCalculationRepository = mockk(relaxUnitFun = true)
-  private val changeLevelCalculator: ChangeLevelCalculator = ChangeLevelCalculator(communityApiClient, assessmentApiClient)
-  private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator(clock, assessmentApiClient, communityApiClient)
-
-  private val service = TierCalculationService(
-    clock,
-    tierCalculationRepository,
-    changeLevelCalculator,
-    protectLevelCalculator,
-    assessmentApiService,
-    communityApiClient
+  private val service = ChangeLevelCalculator(
+    communityApiClient,
+    assessmentApiService
   )
 
   private val crn = "Any Crn"
-  private val tierLetterResult = TierLevel(ProtectLevel.B, 0)
-  private val tierNumberResult = TierLevel(ChangeLevel.TWO, 0)
-  private val validTierCalculationEntity = TierCalculationEntity(
-    0,
-    crn,
-    LocalDateTime.now(clock),
-    TierCalculationResultEntity(tierLetterResult, tierNumberResult)
-  )
 
   @BeforeEach
   fun resetAllMocks() {
     clearMocks(communityApiClient)
-    clearMocks(assessmentApiClient)
     clearMocks(assessmentApiService)
-    clearMocks(tierCalculationRepository)
   }
 
   @AfterEach
   fun confirmVerified() {
     // Check we don't add any more calls without updating the tests
     confirmVerified(communityApiClient)
-    confirmVerified(assessmentApiClient)
     confirmVerified(assessmentApiService)
-    confirmVerified(tierCalculationRepository)
   }
 
-
   @Nested
-  @DisplayName("Simple Complexity tests")
-  inner class SimpleComplexityTests {
+  @DisplayName("Simple Oasys Needs tests")
+  inner class SimpleNeedsTests {
 
     @Test
-    fun `should not count complexity factors none`() {
-      setUpValidResponses(listOf())
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
+    fun `should calculate Oasys Needs none`() {
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
 
-      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
+      every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf()
+
+      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction())
+      assertThat(result.points).isEqualTo(0)
+
+      verify { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) }
     }
 
     @Test
-    fun `should not count complexity factors duplicates`() {
-      setUpValidResponses(
-        listOf(
-          ComplexityFactor.VULNERABILITY_ISSUE,
-          ComplexityFactor.VULNERABILITY_ISSUE,
-          ComplexityFactor.VULNERABILITY_ISSUE,
-          ComplexityFactor.VULNERABILITY_ISSUE,
-          ComplexityFactor.VULNERABILITY_ISSUE,
-          ComplexityFactor.VULNERABILITY_ISSUE
-        )
-      )
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
+    fun `should add Oasys Needs no need`() {
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
 
-      assertThat(tier.tierDto.protectPoints).isEqualTo(2)
-    }
-
-    @Test
-    fun `should not count assessment complexity factors duplicates`() {
-      setUpValidResponses(
-        listOf(),
-        mapOf(
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-        )
+      every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf(
+        Need.ACCOMMODATION to NeedSeverity.NO_NEED, // 0
       )
 
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
+      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction())
+      assertThat(result.points).isEqualTo(0)
 
-      assertThat(tier.tierDto.protectPoints).isEqualTo(2)
+      verify { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) }
     }
 
     @Test
-    fun `should combine complexity factors`() {
-      setUpValidResponses(
-        listOf(
-          ComplexityFactor.VULNERABILITY_ISSUE,
-        ),
-        mapOf(
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-        )
+    fun `should add Oasys Needs standard need`() {
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
+
+      every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf(
+        Need.ACCOMMODATION to NeedSeverity.STANDARD, // 1
       )
 
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
+      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction())
+      assertThat(result.points).isEqualTo(1)
 
-      assertThat(tier.tierDto.protectPoints).isEqualTo(4)
+      verify { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) }
     }
 
     @Test
-    fun `should add multiple complexity factors`() {
-      setUpValidResponses(
-        listOf(
-          ComplexityFactor.VULNERABILITY_ISSUE,
-          ComplexityFactor.ADULT_AT_RISK
-        ),
-        mapOf(
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-          AssessmentComplexityFactor.TEMPER_CONTROL to "1"
-        )
+    fun `should add Oasys Needs severe need`() {
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
+
+      every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf(
+        Need.ACCOMMODATION to NeedSeverity.SEVERE, // 2
       )
 
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
+      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction())
+      assertThat(result.points).isEqualTo(2)
 
-      assertThat(tier.tierDto.protectPoints).isEqualTo(8)
+      verify { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) }
     }
 
     @Test
-    fun `should count both Temper and Impulsivity as max '1'`() {
-      setUpValidResponses(
-        listOf(),
-        mapOf(
-          AssessmentComplexityFactor.TEMPER_CONTROL to "1",
-          AssessmentComplexityFactor.IMPULSIVITY to "2",
-        )
+    fun `should add multiple Oasys Needs`() {
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
+
+      every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf(
+        Need.ACCOMMODATION to NeedSeverity.SEVERE, // 2
+        Need.EDUCATION_TRAINING_AND_EMPLOYABILITY to NeedSeverity.SEVERE, // 2
+        Need.RELATIONSHIPS to NeedSeverity.SEVERE, // 2
+        Need.LIFESTYLE_AND_ASSOCIATES to NeedSeverity.SEVERE, // 2
+        Need.DRUG_MISUSE to NeedSeverity.SEVERE, // 2
       )
 
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
+      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction())
+      assertThat(result.points).isEqualTo(10)
 
-      assertThat(tier.tierDto.protectPoints).isEqualTo(2) // 1 * 2 weighting for all complexity factors
+      verify { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) }
     }
 
-    @Test
-    fun `should count Temper without Impulsivity as max '1'`() {
-      setUpValidResponses(
-        listOf(),
-        mapOf(
-          AssessmentComplexityFactor.TEMPER_CONTROL to "1",
-        )
-      )
-
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
-
-      assertThat(tier.tierDto.protectPoints).isEqualTo(2) // 1 * 2 weighting for all complexity factors
-    }
-
-    @Test
-    fun `should count Impulsivity without Temper as max '1'`() {
-      setUpValidResponses(
-        listOf(),
-        mapOf(
-          AssessmentComplexityFactor.IMPULSIVITY to "2",
-        )
-      )
-
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
-
-      assertThat(tier.tierDto.protectPoints).isEqualTo(2) // 1 * 2 weighting for all complexity factors
-    }
-
-    @Test
-    fun `should ignore negative Parenting`() {
-      setUpValidResponses(
-        listOf(),
-        mapOf(
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "N",
-        )
-      )
-
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
-
-      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
-    }
-
-    @Test
-    fun `should ignore negative Impulsivity`() {
-      setUpValidResponses(
-        listOf(),
-        mapOf(
-          AssessmentComplexityFactor.IMPULSIVITY to "0",
-        )
-      )
-
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
-
-      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
-    }
-
-    @Test
-    fun `should ignore negative Temper`() {
-      setUpValidResponses(
-        listOf(),
-        mapOf(
-          AssessmentComplexityFactor.TEMPER_CONTROL to "0",
-        )
-      )
-
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
-
-      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
-    }
-
-    @Test
-    fun `should not count Parenting if male`() {
-      setUpValidResponses(
-        listOf(),
-        mapOf(
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-        ),
-        false
-      )
-
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify(false)
-
-      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
-    }
-
-    @Test
-    fun `should not count Impulsivity if male`() {
-      setUpValidResponses(
-        listOf(),
-        mapOf(
-          AssessmentComplexityFactor.IMPULSIVITY to "2",
-        ),
-        false
-      )
-
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify(false)
-
-      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
-    }
-
-    @Test
-    fun `should not count Temper if male`() {
-      setUpValidResponses(
-        listOf(),
-        mapOf(
-          AssessmentComplexityFactor.TEMPER_CONTROL to "2",
-        ),
-        false
-      )
-
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify(false)
-
-      assertThat(tier.tierDto.protectPoints).isEqualTo(0)
-    }
-
-    private fun setUpValidResponses(
-      complexityFactors: List<ComplexityFactor>,
-      assessmentComplexityFactors: Map<AssessmentComplexityFactor, String> = mapOf(),
-      isFemale: Boolean = true
-    ) {
-      every { assessmentApiService.isAssessmentRecent(crn) } returns true
-      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
-      every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
-      every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
-      every { communityApiDataService.getRosh(crn) } returns null
-      every { communityApiDataService.getMappa(crn) } returns null
-      every { communityApiDataService.getComplexityFactors(crn) } returns complexityFactors
-      every { assessmentApiService.getAssessmentNeeds(crn) } returns mapOf()
-      every { communityApiDataService.getRSR(crn) } returns null
-      every { communityApiDataService.getOGRS(crn) } returns null
-
-      if (isFemale) {
-        every { communityApiDataService.hasBreachedConvictions(crn) } returns false
-        every { assessmentApiService.getAssessmentComplexityAnswers(crn) } returns assessmentComplexityFactors
-      }
-
-      val slot = slot<TierCalculationEntity>()
-      every { tierCalculationRepository.save(capture(slot)) } answers { slot.captured }
-    }
-
-    private fun standardVerify(isFemale: Boolean = true) {
-      verify { assessmentApiService.isAssessmentRecent(crn) }
-      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
-      verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
-      verify { communityApiDataService.isFemaleOffender(crn) }
-      verify { communityApiDataService.getRosh(crn) }
-      verify { communityApiDataService.getMappa(crn) }
-      verify { communityApiDataService.getComplexityFactors(crn) }
-      verify { assessmentApiService.getAssessmentNeeds(crn) }
-      verify { communityApiDataService.getRSR(crn) }
-      verify { communityApiDataService.getOGRS(crn) }
-      verify { tierCalculationRepository.save(any()) }
-
-      if (isFemale) {
-        verify { communityApiDataService.hasBreachedConvictions(crn) }
-        verify { assessmentApiService.getAssessmentComplexityAnswers(crn) }
-      }
+    private fun getValidConviction(): List<Conviction> {
+      return listOf(Conviction(54321L, Sentence(null, SentenceType("SC"), null)))
     }
   }
 
@@ -362,218 +140,70 @@ internal class ChangeLevelCalculatorTest {
 
     @Test
     fun `should calculate Ogrs null`() {
-      setUpValidResponses(null)
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
+      setup()
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
+      val result = service.calculateChangeLevel(crn, assessment, getValidAssessments(null), listOf(), getValidConviction())
+      assertThat(result.points).isEqualTo(0)
+      validate()
+    }
 
-      assertThat(tier.tierDto.changePoints).isEqualTo(0)
+    @Test
+    fun `should calculate Ogrs null - no deliusAssessment`() {
+      setup()
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
+      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction())
+      assertThat(result.points).isEqualTo(0)
+      validate()
     }
 
     @Test
     fun `should calculate Ogrs take 10s 50`() {
-      setUpValidResponses(50)
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
-
-      assertThat(tier.tierDto.changePoints).isEqualTo(5)
+      setup()
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
+      val result = service.calculateChangeLevel(crn, assessment, getValidAssessments(50), listOf(), getValidConviction())
+      assertThat(result.points).isEqualTo(5)
+      validate()
     }
 
     @Test
     fun `should calculate Ogrs take 10s 51`() {
-      setUpValidResponses(51)
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
-
-      assertThat(tier.tierDto.changePoints).isEqualTo(5)
+      setup()
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
+      val result = service.calculateChangeLevel(crn, assessment, getValidAssessments(51), listOf(), getValidConviction())
+      assertThat(result.points).isEqualTo(5)
+      validate()
     }
 
     @Test
     fun `should calculate Ogrs take 10s 59`() {
-      setUpValidResponses(59)
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
-
-      assertThat(tier.tierDto.changePoints).isEqualTo(5)
+      setup()
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
+      val result = service.calculateChangeLevel(crn, assessment, getValidAssessments(59), listOf(), getValidConviction())
+      assertThat(result.points).isEqualTo(5)
+      validate()
     }
 
-    @Test
-    fun `should calculate Ogrs take 10s 50 if male`() {
-      setUpValidResponses(50, false)
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify(false)
-
-      assertThat(tier.tierDto.changePoints).isEqualTo(5)
+    private fun getValidAssessments(ogrs: Int?): DeliusAssessments {
+      return DeliusAssessments(
+        rsr = null,
+        ogrs = ogrs
+      )
     }
 
-    private fun setUpValidResponses(ogrs: Int?, isFemale: Boolean = true) {
-      every { assessmentApiService.isAssessmentRecent(crn) } returns true
-      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
-      every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
-      every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
-      every { communityApiDataService.getRosh(crn) } returns null
-      every { communityApiDataService.getMappa(crn) } returns null
-      every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
-      every { assessmentApiService.getAssessmentNeeds(crn) } returns mapOf()
-      every { communityApiDataService.getRSR(crn) } returns null
-      every { communityApiDataService.getOGRS(crn) } returns ogrs
-
-      if (isFemale) {
-        every { communityApiDataService.hasBreachedConvictions(crn) } returns false
-        every { assessmentApiService.getAssessmentComplexityAnswers(crn) } returns mapOf()
-      }
-
-      val slot = slot<TierCalculationEntity>()
-      every { tierCalculationRepository.save(capture(slot)) } answers { slot.captured }
+    private fun getValidConviction(): List<Conviction> {
+      return listOf(Conviction(54321L, Sentence(null, SentenceType("SC"), null)))
     }
 
-    private fun standardVerify(isFemale: Boolean = true) {
-      verify { assessmentApiService.isAssessmentRecent(crn) }
-      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
-      verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
-      verify { communityApiDataService.isFemaleOffender(crn) }
-      verify { communityApiDataService.getRosh(crn) }
-      verify { communityApiDataService.getMappa(crn) }
-      verify { communityApiDataService.getComplexityFactors(crn) }
-      verify { assessmentApiService.getAssessmentNeeds(crn) }
-      verify { communityApiDataService.getRSR(crn) }
-      verify { communityApiDataService.getOGRS(crn) }
-      verify { tierCalculationRepository.save(any()) }
+    private fun setup() {
+      every { assessmentApiService.getAssessmentNeeds(any()) } returns mapOf()
+    }
 
-      if (isFemale) {
-        verify { communityApiDataService.hasBreachedConvictions(crn) }
-        verify { assessmentApiService.getAssessmentComplexityAnswers(crn) }
-      }
+    private fun validate() {
+      verify { assessmentApiService.getAssessmentNeeds(any()) }
     }
   }
 
-  @Nested
-  @DisplayName("Simple Oasys Needs tests")
-  inner class SimpleNeedsTests {
-
-    @Test
-    fun `should calculate Oasys Needs none`() {
-      setUpValidResponses(mapOf())
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
-
-      assertThat(tier.tierDto.changePoints).isEqualTo(0)
-    }
-
-    @Test
-    fun `should add Oasys Needs no need`() {
-      setUpValidResponses(
-        mapOf(
-          Need.ACCOMMODATION to NeedSeverity.NO_NEED, // 0
-        ),
-      )
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
-
-      assertThat(tier.tierDto.changePoints).isEqualTo(0)
-    }
-
-    @Test
-    fun `should add Oasys Needs standard need`() {
-      setUpValidResponses(
-        mapOf(
-          Need.ACCOMMODATION to NeedSeverity.STANDARD, // 1
-        ),
-      )
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
-
-      assertThat(tier.tierDto.changePoints).isEqualTo(1)
-    }
-
-    @Test
-    fun `should add Oasys Needs severe need`() {
-      setUpValidResponses(
-        mapOf(
-          Need.ACCOMMODATION to NeedSeverity.SEVERE, // 2
-        ),
-      )
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
-
-      assertThat(tier.tierDto.changePoints).isEqualTo(2)
-    }
-
-    @Test
-    fun `should add multiple Oasys Needs`() {
-      setUpValidResponses(
-        mapOf(
-          Need.ACCOMMODATION to NeedSeverity.SEVERE, // 2
-          Need.EDUCATION_TRAINING_AND_EMPLOYABILITY to NeedSeverity.SEVERE, // 2
-          Need.RELATIONSHIPS to NeedSeverity.SEVERE, // 2
-          Need.LIFESTYLE_AND_ASSOCIATES to NeedSeverity.SEVERE, // 2
-          Need.DRUG_MISUSE to NeedSeverity.SEVERE, // 2
-        ),
-      )
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
-
-      assertThat(tier.tierDto.changePoints).isEqualTo(10)
-    }
-
-    @Test
-    fun `should add multiple Oasys Needs if Male`() {
-      setUpValidResponses(
-        mapOf(
-          Need.ACCOMMODATION to NeedSeverity.SEVERE, // 2
-          Need.EDUCATION_TRAINING_AND_EMPLOYABILITY to NeedSeverity.SEVERE, // 2
-          Need.RELATIONSHIPS to NeedSeverity.SEVERE, // 2
-          Need.LIFESTYLE_AND_ASSOCIATES to NeedSeverity.SEVERE, // 2
-          Need.DRUG_MISUSE to NeedSeverity.SEVERE, // 2
-        ),
-        false
-      )
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify(false)
-
-      assertThat(tier.tierDto.changePoints).isEqualTo(10)
-    }
-
-    private fun setUpValidResponses(needs: Map<Need, NeedSeverity?>, isFemale: Boolean = true) {
-      every { assessmentApiService.isAssessmentRecent(crn) } returns true
-      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
-      every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
-      every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
-      every { communityApiDataService.getRosh(crn) } returns null
-      every { communityApiDataService.getMappa(crn) } returns null
-      every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
-      every { assessmentApiService.getAssessmentNeeds(crn) } returns needs
-      every { communityApiDataService.getRSR(crn) } returns null
-      every { communityApiDataService.getOGRS(crn) } returns null
-
-      if (isFemale) {
-        every { communityApiDataService.hasBreachedConvictions(crn) } returns false
-        every { assessmentApiService.getAssessmentComplexityAnswers(crn) } returns mapOf()
-      }
-
-      val slot = slot<TierCalculationEntity>()
-      every { tierCalculationRepository.save(capture(slot)) } answers { slot.captured }
-    }
-
-    private fun standardVerify(isFemale: Boolean = true) {
-      verify { assessmentApiService.isAssessmentRecent(crn) }
-      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
-      verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
-      verify { communityApiDataService.isFemaleOffender(crn) }
-      verify { communityApiDataService.getRosh(crn) }
-      verify { communityApiDataService.getMappa(crn) }
-      verify { communityApiDataService.getComplexityFactors(crn) }
-      verify { assessmentApiService.getAssessmentNeeds(crn) }
-      verify { communityApiDataService.getRSR(crn) }
-      verify { communityApiDataService.getOGRS(crn) }
-      verify { tierCalculationRepository.save(any()) }
-
-      if (isFemale) {
-        verify { communityApiDataService.hasBreachedConvictions(crn) }
-        verify { assessmentApiService.getAssessmentComplexityAnswers(crn) }
-      }
-    }
-  }
-
+/*
   @Nested
   @DisplayName("Simple Recent Assessment tests")
   inner class SimpleRecentAssessmentTests {
@@ -823,6 +453,5 @@ internal class ChangeLevelCalculatorTest {
         assessmentService.isAssessmentRecent(crn)
       }
     }
-  }
+  }*/
 }
-*/

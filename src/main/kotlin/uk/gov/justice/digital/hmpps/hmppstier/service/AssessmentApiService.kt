@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import java.time.Clock
 import java.time.LocalDate
 
@@ -33,8 +35,12 @@ class AssessmentApiService(
     assessmentApiClient.getAssessmentAnswers(assessmentId).associateBy(
       { AssessmentComplexityFactor.from(it.questionCode) },
       { it.answers.firstOrNull()?.refAnswerCode }
-    )
-      .filterKeys { it != null }
+    ).filterKeys { it != null }
+
+  fun getAssessmentNeeds(assessmentId: String): Map<Need, NeedSeverity?> =
+    assessmentApiClient.getAssessmentNeeds(assessmentId)
+      .filter { it.need != null }
+      .associateBy({ it.need!! }, { it.severity })
 
   companion object {
     private val log = LoggerFactory.getLogger(AssessmentApiService::class.java)
