@@ -17,8 +17,11 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
+import uk.gov.justice.digital.hmpps.hmppstier.client.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.client.SentenceType
+import uk.gov.justice.digital.hmpps.hmppstier.client.UnpaidWork
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import java.time.Clock
@@ -203,45 +206,21 @@ internal class ChangeLevelCalculatorTest {
     }
   }
 
-/*
   @Nested
   @DisplayName("Simple Recent Assessment tests")
   inner class SimpleRecentAssessmentTests {
 
     @Test
     fun `should not calculate change tier if not recent`() {
-      setUpValidResponses(false)
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
 
-      assertThat(tier.tierDto.changeLevel).isEqualTo(ChangeLevel.TWO)
-      assertThat(tier.tierDto.changePoints).isEqualTo(0)
+      val result = service.calculateChangeLevel(crn, null, null, listOf(), getValidConviction())
+
+      assertThat(result.tier).isEqualTo(ChangeLevel.TWO)
+      assertThat(result.points).isEqualTo(0)
     }
 
-    private fun setUpValidResponses(recent: Boolean) {
-      every { assessmentApiService.isAssessmentRecent(crn) } returns recent
-      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
-      every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns true
-      every { communityApiDataService.isFemaleOffender(crn) } returns false
-      every { communityApiDataService.getRosh(crn) } returns null
-      every { communityApiDataService.getMappa(crn) } returns null
-      every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
-      every { communityApiDataService.getRSR(crn) } returns null
-
-      val slot = slot<TierCalculationEntity>()
-      every { tierCalculationRepository.save(capture(slot)) } answers { slot.captured }
-    }
-
-    private fun standardVerify() {
-      verify { assessmentApiService.isAssessmentRecent(crn) }
-      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
-      verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
-      verify { communityApiDataService.isFemaleOffender(crn) }
-      verify { communityApiDataService.getRosh(crn) }
-      verify { communityApiDataService.getMappa(crn) }
-      verify { communityApiDataService.getComplexityFactors(crn) }
-      verify { communityApiDataService.getRSR(crn) }
-      verify { tierCalculationRepository.save(any()) }
+    private fun getValidConviction(): List<Conviction> {
+      return listOf(Conviction(54321L, Sentence(null, SentenceType("SC"), null)))
     }
   }
 
@@ -251,207 +230,84 @@ internal class ChangeLevelCalculatorTest {
 
     @Test
     fun `should not calculate change tier if current noncustodial, no restrictive requirements and some unpaid work`() {
-      setUpValidNonCustodialResponses(currentCustodial = false, currentNonCustodial = true, restrictiveRequirements = false, unpaidWork = true)
-      val tier = service.calculateTierForCrn(crn)
-      nonCustodialVerify()
-      verify { communityApiDataService.hasUnpaidWork(crn) }
+      val crn = "123"
+      val conviction = Conviction(54321L, Sentence(null, SentenceType("Not a custodial type"), UnpaidWork("Some UPW")))
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
 
-      assertThat(tier.tierDto.changeLevel).isEqualTo(ChangeLevel.ZERO)
-      assertThat(tier.tierDto.changePoints).isEqualTo(0)
+      every { communityApiClient.getRequirements(crn, conviction.convictionId) } returns listOf()
+
+      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), listOf(conviction))
+
+      assertThat(result.tier).isEqualTo(ChangeLevel.ZERO)
+      assertThat(result.points).isEqualTo(0)
+
+      verify { communityApiClient.getRequirements(crn, conviction.convictionId) }
     }
 
     @Test
     fun `should not calculate change tier if current noncustodial, with restrictive requirements`() {
-      setUpValidNonCustodialResponses(currentCustodial = false, currentNonCustodial = true, restrictiveRequirements = true, unpaidWork = false)
-      val tier = service.calculateTierForCrn(crn)
-      nonCustodialVerify()
+      val crn = "123"
+      val conviction = Conviction(54321L, Sentence(null, SentenceType("Not a custodial type"), null))
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
 
-      assertThat(tier.tierDto.changeLevel).isEqualTo(ChangeLevel.ZERO)
-      assertThat(tier.tierDto.changePoints).isEqualTo(0)
+      every { communityApiClient.getRequirements(crn, conviction.convictionId) } returns listOf(Requirement(true))
+
+      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), listOf(conviction))
+
+      assertThat(result.tier).isEqualTo(ChangeLevel.ZERO)
+      assertThat(result.points).isEqualTo(0)
+
+      verify { communityApiClient.getRequirements(crn, conviction.convictionId) }
     }
 
     @Test
-    fun `should calculate change tier if current noncustodial, with no restrictive requirements or unpaidworkd`() {
-      setUpValidResponses(currentCustodial = false)
-      every { communityApiDataService.hasCurrentNonCustodialSentence(crn) } returns true
-      every { communityApiDataService.hasRestrictiveRequirements(crn) } returns false
-      every { communityApiDataService.hasUnpaidWork(crn) } returns false
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
-      verify { communityApiDataService.hasCurrentNonCustodialSentence(crn) }
-      verify { communityApiDataService.hasRestrictiveRequirements(crn) }
-      verify { communityApiDataService.hasUnpaidWork(crn) }
+    fun `should calculate change tier if current noncustodial, with no restrictive requirements or unpaid work`() {
+      val crn = "123"
+      val conviction = Conviction(54321L, Sentence(null, SentenceType("Not a custodial type"), null))
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
 
-      assertThat(tier.tierDto.changeLevel).isEqualTo(ChangeLevel.ONE)
-      assertThat(tier.tierDto.changePoints).isEqualTo(0)
+      every { communityApiClient.getRequirements(crn, conviction.convictionId) } returns listOf()
+      every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf()
+
+      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), listOf(conviction))
+
+      assertThat(result.tier).isEqualTo(ChangeLevel.ONE)
+      assertThat(result.points).isEqualTo(0)
+
+      verify { communityApiClient.getRequirements(crn, conviction.convictionId) }
+      verify { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) }
     }
 
     @Test
-    fun `should calculate change tier if current custodial`() {
-      setUpValidResponses(currentCustodial = true)
-      val tier = service.calculateTierForCrn(crn)
-      standardVerify()
+    fun `should calculate change tier if current custodial SC`() {
+      val crn = "123"
+      val conviction = Conviction(54321L, Sentence(null, SentenceType("SC"), null))
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
 
-      assertThat(tier.tierDto.changeLevel).isEqualTo(ChangeLevel.ONE)
-      assertThat(tier.tierDto.changePoints).isEqualTo(0)
+      every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf()
+
+      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), listOf(conviction))
+
+      assertThat(result.tier).isEqualTo(ChangeLevel.ONE)
+      assertThat(result.points).isEqualTo(0)
+
+      verify { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) }
     }
 
-    private fun setUpValidNonCustodialResponses(currentCustodial: Boolean, currentNonCustodial: Boolean, restrictiveRequirements: Boolean, unpaidWork: Boolean) {
-      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
-      every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns currentCustodial
-      every { communityApiDataService.hasCurrentNonCustodialSentence(crn) } returns currentNonCustodial
-      every { communityApiDataService.hasRestrictiveRequirements(crn) } returns restrictiveRequirements
-      every { communityApiDataService.hasUnpaidWork(crn) } returns unpaidWork
-      every { communityApiDataService.isFemaleOffender(crn) } returns false
-      every { communityApiDataService.getRosh(crn) } returns null
-      every { communityApiDataService.getMappa(crn) } returns null
-      every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
-      every { communityApiDataService.getRSR(crn) } returns null
+    @Test
+    fun `should calculate change tier if current custodial NC`() {
+      val crn = "123"
+      val conviction = Conviction(54321L, Sentence(null, SentenceType("NC"), null))
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
 
-      val slot = slot<TierCalculationEntity>()
-      every { tierCalculationRepository.save(capture(slot)) } answers { slot.captured }
-    }
+      every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf()
 
-    private fun nonCustodialVerify() {
-      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
-      verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
-      verify { communityApiDataService.hasCurrentNonCustodialSentence(crn) }
-      verify { communityApiDataService.hasRestrictiveRequirements(crn) }
-      verify { communityApiDataService.isFemaleOffender(crn) }
-      verify { communityApiDataService.getRosh(crn) }
-      verify { communityApiDataService.getMappa(crn) }
-      verify { communityApiDataService.getComplexityFactors(crn) }
-      verify { communityApiDataService.getRSR(crn) }
-      verify { tierCalculationRepository.save(any()) }
-    }
+      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), listOf(conviction))
 
-    private fun setUpValidResponses(currentCustodial: Boolean, isFemale: Boolean = true) {
-      every { assessmentApiService.isAssessmentRecent(crn) } returns true
-      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
-      every { communityApiDataService.hasCurrentCustodialSentence(crn) } returns currentCustodial
-      every { communityApiDataService.isFemaleOffender(crn) } returns isFemale
-      every { communityApiDataService.getRosh(crn) } returns null
-      every { communityApiDataService.getMappa(crn) } returns null
-      every { communityApiDataService.getComplexityFactors(crn) } returns listOf()
-      every { assessmentApiService.getAssessmentNeeds(crn) } returns mapOf()
-      every { communityApiDataService.getRSR(crn) } returns null
-      every { communityApiDataService.getOGRS(crn) } returns null
+      assertThat(result.tier).isEqualTo(ChangeLevel.ONE)
+      assertThat(result.points).isEqualTo(0)
 
-      if (isFemale) {
-        every { communityApiDataService.hasBreachedConvictions(crn) } returns false
-        every { assessmentApiService.getAssessmentComplexityAnswers(crn) } returns mapOf()
-      }
-
-      val slot = slot<TierCalculationEntity>()
-      every { tierCalculationRepository.save(capture(slot)) } answers { slot.captured }
-    }
-
-    private fun standardVerify(isFemale: Boolean = true) {
-      verify { assessmentApiService.isAssessmentRecent(crn) }
-      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
-      verify { communityApiDataService.hasCurrentCustodialSentence(crn) }
-      verify { communityApiDataService.isFemaleOffender(crn) }
-      verify { communityApiDataService.getRosh(crn) }
-      verify { communityApiDataService.getMappa(crn) }
-      verify { communityApiDataService.getComplexityFactors(crn) }
-      verify { assessmentApiService.getAssessmentNeeds(crn) }
-      verify { communityApiDataService.getRSR(crn) }
-      verify { communityApiDataService.getOGRS(crn) }
-      verify { tierCalculationRepository.save(any()) }
-
-      if (isFemale) {
-        verify { communityApiDataService.hasBreachedConvictions(crn) }
-        verify { assessmentApiService.getAssessmentComplexityAnswers(crn) }
-      }
+      verify { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) }
     }
   }
-
-  @Nested
-  @DisplayName("Get Needs Tests")
-  inner class GetNeedsTests {
-
-    @Test
-    fun `Should return empty Map if no Needs`() {
-      val crn = "123"
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
-      val needs = listOf<AssessmentNeed>()
-
-      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
-      every { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) } returns needs
-      val returnValue = assessmentService.getAssessmentNeeds(crn)
-
-      assertThat(returnValue).isEmpty()
-    }
-
-    @Test
-    fun `Should return Needs`() {
-      val crn = "123"
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
-      val needs = listOf(
-        AssessmentNeed(
-          Need.ACCOMMODATION,
-          NeedSeverity.NO_NEED
-        )
-      )
-
-      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
-      every { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) } returns needs
-      val returnValue = assessmentService.getAssessmentNeeds(crn)
-
-      assertThat(returnValue).hasSize(1)
-      assertThat(returnValue).containsEntry(Need.ACCOMMODATION, NeedSeverity.NO_NEED)
-    }
-  }
-
-  @Nested
-  @DisplayName("Get recent Assessment Tests")
-  inner class GetRecentAssessmentTests {
-
-    @Test
-    fun `Should return true if inside Threshold`() {
-      val crn = "123"
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55), null)
-
-      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
-      val returnValue = assessmentService.isAssessmentRecent(crn)
-
-      assertThat(returnValue).isTrue
-    }
-
-    @Test
-    fun `Should return false if outside Threshold`() {
-      val crn = "123"
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), null)
-      // more recent, but voided
-      val voidedAssessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(40), LocalDateTime.now(clock))
-
-      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment, voidedAssessment)
-      val returnValue = assessmentService.isAssessmentRecent(crn)
-
-      assertThat(returnValue).isFalse
-    }
-
-    @Test
-    fun `Should throw if none valid`() {
-      val crn = "123"
-
-      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf()
-
-      assertThrows(EntityNotFoundException::class.java) {
-        assessmentService.isAssessmentRecent(crn)
-      }
-    }
-
-    @Test
-    fun `Should throw if none valid with entries`() {
-      val crn = "123"
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), LocalDateTime.now(clock))
-
-      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
-
-      assertThrows(EntityNotFoundException::class.java) {
-        assessmentService.isAssessmentRecent(crn)
-      }
-    }
-  }*/
 }
