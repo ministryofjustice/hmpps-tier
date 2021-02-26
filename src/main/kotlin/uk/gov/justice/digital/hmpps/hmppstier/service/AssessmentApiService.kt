@@ -4,6 +4,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
 import java.time.Clock
 import java.time.LocalDate
 
@@ -27,6 +28,13 @@ class AssessmentApiService(
           else -> log.info("Found valid Assessment ${it.assessmentId} for $crn")
         }
       }
+
+  fun getAssessmentAnswers(assessmentId: String): Map<AssessmentComplexityFactor?, String?> =
+    assessmentApiClient.getAssessmentAnswers(assessmentId).associateBy(
+      { AssessmentComplexityFactor.from(it.questionCode) },
+      { it.answers.firstOrNull()?.refAnswerCode }
+    )
+      .filterKeys { it != null }
 
   companion object {
     private val log = LoggerFactory.getLogger(AssessmentApiService::class.java)

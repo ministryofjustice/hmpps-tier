@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
@@ -23,7 +22,7 @@ import java.time.LocalDate
 class ProtectLevelCalculator(
   private val clock: Clock,
   private val communityApiClient: CommunityApiClient,
-  private val assessmentApiClient: AssessmentApiClient
+  private val assessmentApiService: AssessmentApiService
 ) {
 
   fun calculateProtectLevel(
@@ -109,7 +108,7 @@ class ProtectLevelCalculator(
     when (offenderAssessment) {
       null -> 0
       else -> {
-        assessmentApiClient.getAssessmentAnswers(offenderAssessment.assessmentId)
+        assessmentApiService.getAssessmentAnswers(offenderAssessment.assessmentId)
           .also { log.debug("Assessment Complexity answers $it ") }
           .let { answers ->
             val parenting = when {

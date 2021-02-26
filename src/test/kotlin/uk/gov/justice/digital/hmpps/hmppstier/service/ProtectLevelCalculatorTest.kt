@@ -13,7 +13,6 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
@@ -38,12 +37,12 @@ internal class ProtectLevelCalculatorTest {
 
   private val clock = Clock.fixed(LocalDateTime.of(2020, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault())
   private val communityApiClient: CommunityApiClient = mockk(relaxUnitFun = true)
-  private val assessmentApiClient: AssessmentApiClient = mockk(relaxUnitFun = true)
+  private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
 
   private val service = ProtectLevelCalculator(
     clock,
     communityApiClient,
-    assessmentApiClient
+    assessmentApiService
   )
 
   private val crn = "Any Crn"
@@ -51,14 +50,14 @@ internal class ProtectLevelCalculatorTest {
   @BeforeEach
   fun resetAllMocks() {
     clearMocks(communityApiClient)
-    clearMocks(assessmentApiClient)
+    clearMocks(assessmentApiService)
   }
 
   @AfterEach
   fun confirmVerified() {
     // Check we don't add any more calls without updating the tests
     confirmVerified(communityApiClient)
-    confirmVerified(assessmentApiClient)
+    confirmVerified(assessmentApiService)
   }
 
   @Nested
@@ -160,6 +159,15 @@ internal class ProtectLevelCalculatorTest {
     fun `should return 0 for RSR null`() {
       setup()
       val result = service.calculateProtectLevel(crn, null, getValidAssessments(null), listOf(), listOf())
+      assertThat(result.points).isEqualTo(0)
+      validate()
+    }
+
+    @Test
+    fun `should return 0 for RSR null no assessment object`() {
+      setup()
+      val nulLDeliusAssessments: DeliusAssessments? = null
+      val result = service.calculateProtectLevel(crn, null, nulLDeliusAssessments, listOf(), listOf())
       assertThat(result.points).isEqualTo(0)
       validate()
     }
@@ -365,7 +373,7 @@ internal class ProtectLevelCalculatorTest {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
-      every { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) } returns
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
           AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
@@ -379,7 +387,7 @@ internal class ProtectLevelCalculatorTest {
       assertThat(result.points).isEqualTo(2)
 
       verify { communityApiClient.getOffender(crn) }
-      verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
@@ -387,7 +395,7 @@ internal class ProtectLevelCalculatorTest {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
-      every { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) } returns
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
           AssessmentComplexityFactor.TEMPER_CONTROL to "1",
@@ -397,7 +405,7 @@ internal class ProtectLevelCalculatorTest {
       assertThat(result.points).isEqualTo(4)
 
       verify { communityApiClient.getOffender(crn) }
-      verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
@@ -417,7 +425,7 @@ internal class ProtectLevelCalculatorTest {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
-      every { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) } returns
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AssessmentComplexityFactor.IMPULSIVITY to "2",
           AssessmentComplexityFactor.TEMPER_CONTROL to "1",
@@ -427,7 +435,7 @@ internal class ProtectLevelCalculatorTest {
       assertThat(result.points).isEqualTo(2) // 1 * 2 weighting for all complexity factors
 
       verify { communityApiClient.getOffender(crn) }
-      verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
@@ -435,7 +443,7 @@ internal class ProtectLevelCalculatorTest {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
-      every { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) } returns
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AssessmentComplexityFactor.TEMPER_CONTROL to "1",
         )
@@ -444,7 +452,7 @@ internal class ProtectLevelCalculatorTest {
       assertThat(result.points).isEqualTo(2) // 1 * 2 weighting for all complexity factors
 
       verify { communityApiClient.getOffender(crn) }
-      verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
@@ -452,7 +460,7 @@ internal class ProtectLevelCalculatorTest {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
-      every { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) } returns
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AssessmentComplexityFactor.IMPULSIVITY to "2",
         )
@@ -461,7 +469,7 @@ internal class ProtectLevelCalculatorTest {
       assertThat(result.points).isEqualTo(2) // 1 * 2 weighting for all complexity factors
 
       verify { communityApiClient.getOffender(crn) }
-      verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
@@ -469,7 +477,7 @@ internal class ProtectLevelCalculatorTest {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
-      every { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) } returns
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "N",
         )
@@ -478,7 +486,7 @@ internal class ProtectLevelCalculatorTest {
       assertThat(result.points).isEqualTo(0)
 
       verify { communityApiClient.getOffender(crn) }
-      verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
@@ -486,7 +494,7 @@ internal class ProtectLevelCalculatorTest {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
-      every { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) } returns
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AssessmentComplexityFactor.IMPULSIVITY to "0",
         )
@@ -495,7 +503,7 @@ internal class ProtectLevelCalculatorTest {
       assertThat(result.points).isEqualTo(0)
 
       verify { communityApiClient.getOffender(crn) }
-      verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
@@ -503,7 +511,7 @@ internal class ProtectLevelCalculatorTest {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
-      every { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) } returns
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AssessmentComplexityFactor.TEMPER_CONTROL to "0",
         )
@@ -512,7 +520,7 @@ internal class ProtectLevelCalculatorTest {
       assertThat(result.points).isEqualTo(0)
 
       verify { communityApiClient.getOffender(crn) }
-      verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test

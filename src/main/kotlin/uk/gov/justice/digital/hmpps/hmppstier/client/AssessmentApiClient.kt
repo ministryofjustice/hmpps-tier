@@ -15,19 +15,14 @@ import java.time.LocalDateTime
 @Component
 class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val webClient: WebClient) {
 
-  fun getAssessmentAnswers(assessmentId: String?): Map<AssessmentComplexityFactor?, String?> {
+  fun getAssessmentAnswers(assessmentId: String?): Collection<Question> {
     return assessmentId?.let {
       getAssessmentAnswersCall(assessmentId)
-        .associateBy(
-          { AssessmentComplexityFactor.from(it.questionCode) },
-          { it.answers.firstOrNull()?.refAnswerCode }
-        )
-        .filterKeys { it != null }
         .also {
           log.info("Fetched ${it.size} Questions for $assessmentId")
           log.debug(it.toString())
         }
-    } ?: mapOf()
+    } ?: listOf()
   }
 
   fun getAssessmentNeeds(assessmentId: String): Collection<AssessmentNeed> {
@@ -96,7 +91,7 @@ data class AssessmentNeed @JsonCreator constructor(
   val severity: NeedSeverity?
 )
 
-private data class Question @JsonCreator constructor(
+data class Question @JsonCreator constructor(
   @JsonProperty("refQuestionCode")
   val questionCode: String?,
 
@@ -104,7 +99,7 @@ private data class Question @JsonCreator constructor(
   val answers: Set<Answer>
 )
 
-private data class Answer @JsonCreator constructor(
+data class Answer @JsonCreator constructor(
   @JsonProperty("refAnswerCode")
   val refAnswerCode: String?
 )

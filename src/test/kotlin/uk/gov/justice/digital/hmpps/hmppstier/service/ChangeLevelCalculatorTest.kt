@@ -735,5 +735,94 @@ internal class ChangeLevelCalculatorTest {
       }
     }
   }
+
+  @Nested
+  @DisplayName("Get Needs Tests")
+  inner class GetNeedsTests {
+
+    @Test
+    fun `Should return empty Map if no Needs`() {
+      val crn = "123"
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
+      val needs = listOf<AssessmentNeed>()
+
+      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
+      every { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) } returns needs
+      val returnValue = assessmentService.getAssessmentNeeds(crn)
+
+      assertThat(returnValue).isEmpty()
+    }
+
+    @Test
+    fun `Should return Needs`() {
+      val crn = "123"
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
+      val needs = listOf(
+        AssessmentNeed(
+          Need.ACCOMMODATION,
+          NeedSeverity.NO_NEED
+        )
+      )
+
+      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
+      every { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) } returns needs
+      val returnValue = assessmentService.getAssessmentNeeds(crn)
+
+      assertThat(returnValue).hasSize(1)
+      assertThat(returnValue).containsEntry(Need.ACCOMMODATION, NeedSeverity.NO_NEED)
+    }
+  }
+
+  @Nested
+  @DisplayName("Get recent Assessment Tests")
+  inner class GetRecentAssessmentTests {
+
+    @Test
+    fun `Should return true if inside Threshold`() {
+      val crn = "123"
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55), null)
+
+      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
+      val returnValue = assessmentService.isAssessmentRecent(crn)
+
+      assertThat(returnValue).isTrue
+    }
+
+    @Test
+    fun `Should return false if outside Threshold`() {
+      val crn = "123"
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), null)
+      // more recent, but voided
+      val voidedAssessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(40), LocalDateTime.now(clock))
+
+      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment, voidedAssessment)
+      val returnValue = assessmentService.isAssessmentRecent(crn)
+
+      assertThat(returnValue).isFalse
+    }
+
+    @Test
+    fun `Should throw if none valid`() {
+      val crn = "123"
+
+      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf()
+
+      assertThrows(EntityNotFoundException::class.java) {
+        assessmentService.isAssessmentRecent(crn)
+      }
+    }
+
+    @Test
+    fun `Should throw if none valid with entries`() {
+      val crn = "123"
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), LocalDateTime.now(clock))
+
+      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
+
+      assertThrows(EntityNotFoundException::class.java) {
+        assessmentService.isAssessmentRecent(crn)
+      }
+    }
+  }
 }
 */
