@@ -15,9 +15,8 @@ import java.time.LocalDate
 @Component
 class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val webClient: WebClient) {
 
-  fun getActiveRegistrations(crn: String): Collection<Registration> {
+  fun getRegistrations(crn: String): Collection<Registration> {
     return getRegistrationsCall(crn)
-      .filter { it.active }
       .also {
         log.info("Fetched ${it.size} Registrations for $crn")
         log.debug(it.toString())

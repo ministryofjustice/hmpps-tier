@@ -21,10 +21,15 @@ class ChangeLevelCalculator(
     crn: String,
     offenderAssessment: OffenderAssessment?,
     deliusAssessments: DeliusAssessments?,
-    registrations: Collection<Registration>,
+    deliusRegistrations: Collection<Registration>,
     convictions: Collection<Conviction>
   ): TierLevel<ChangeLevel> {
     log.info("Calculating Change Level for $crn")
+
+    val orderedRegistrations = deliusRegistrations
+      .filter { it.active }
+      .sortedByDescending { it.startDate }
+
     return when {
       !hasMandateForChange(crn, convictions) -> {
         log.info("No Mandate for Change for $crn")
@@ -37,7 +42,7 @@ class ChangeLevelCalculator(
       else -> {
         val needsPoints = getAssessmentNeedsPoints(offenderAssessment)
         val ogrsPoints = getOgrsPoints(deliusAssessments)
-        val iomPoints = getIomNominalPoints(registrations)
+        val iomPoints = getIomNominalPoints(orderedRegistrations)
 
         val totalPoints = needsPoints + ogrsPoints + iomPoints
 

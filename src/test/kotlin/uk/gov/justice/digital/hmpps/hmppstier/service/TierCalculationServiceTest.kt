@@ -112,7 +112,7 @@ internal class TierCalculationServiceTest {
     fun `Should Call Collaborators Test value not changed`() {
       every { assessmentApiService.getRecentAssessment(crn) } returns null // anything
       every { communityApiClient.getDeliusAssessments(crn) } returns null // anything
-      every { communityApiClient.getActiveRegistrations(crn) } returns listOf() // anything
+      every { communityApiClient.getRegistrations(crn) } returns listOf() // anything
       every { communityApiClient.getConvictions(crn) } returns listOf() // anything
 
       every { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) } returns protectLevelResult
@@ -134,7 +134,7 @@ internal class TierCalculationServiceTest {
 
       verify { assessmentApiService.getRecentAssessment(crn) }
       verify { communityApiClient.getDeliusAssessments(crn) }
-      verify { communityApiClient.getActiveRegistrations(crn) }
+      verify { communityApiClient.getRegistrations(crn) }
       verify { communityApiClient.getConvictions(crn) }
       verify { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) }
       verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) }
@@ -146,7 +146,7 @@ internal class TierCalculationServiceTest {
     fun `Should Call Collaborators Test value changed`() {
       every { assessmentApiService.getRecentAssessment(crn) } returns null // anything
       every { communityApiClient.getDeliusAssessments(crn) } returns null // anything
-      every { communityApiClient.getActiveRegistrations(crn) } returns listOf() // anything
+      every { communityApiClient.getRegistrations(crn) } returns listOf() // anything
       every { communityApiClient.getConvictions(crn) } returns listOf() // anything
 
       every { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) } returns protectLevelResult
@@ -168,7 +168,7 @@ internal class TierCalculationServiceTest {
 
       verify { assessmentApiService.getRecentAssessment(crn) }
       verify { communityApiClient.getDeliusAssessments(crn) }
-      verify { communityApiClient.getActiveRegistrations(crn) }
+      verify { communityApiClient.getRegistrations(crn) }
       verify { communityApiClient.getConvictions(crn) }
       verify { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) }
       verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) }

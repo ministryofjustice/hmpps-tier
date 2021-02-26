@@ -37,7 +37,9 @@ class TierCalculationService(
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
 
     val deliusAssessments = communityApiClient.getDeliusAssessments(crn)
-    val deliusRegistrations = communityApiClient.getActiveRegistrations(crn)
+
+    val deliusRegistrations = communityApiClient.getRegistrations(crn)
+
     val deliusConvictions = communityApiClient.getConvictions(crn)
 
     val protectLevel = protectLevelCalculator.calculateProtectLevel(

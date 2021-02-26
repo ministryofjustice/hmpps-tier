@@ -30,6 +30,7 @@ class TierCalculationController(private val tierCalculationService: TierCalculat
   )
   @GetMapping("crn/{crn}/tier")
   fun getNotifications(@PathVariable(required = true) crn: String): ResponseEntity<TierDto> {
-    return ResponseEntity.ok(tierCalculationService.getTierByCrn(crn)) ?: throw EntityNotFoundException("Tier Result Not Found for $crn")
+    return ResponseEntity.ok(tierCalculationService.getTierByCrn(crn))
+      ?: throw EntityNotFoundException("Tier Result Not Found for $crn")
   }
 }

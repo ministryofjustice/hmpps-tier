@@ -33,10 +33,14 @@ class ProtectLevelCalculator(
     convictions: Collection<Conviction>
   ): TierLevel<ProtectLevel> {
 
+    val orderedRegistrations = deliusRegistrations
+      .filter { it.active }
+      .sortedByDescending { it.startDate }
+
     val rsrPoints = getRsrPoints(deliusAssessments)
-    val roshPoints = getRoshPoints(deliusRegistrations)
-    val mappaPoints = getMappaPoints(deliusRegistrations)
-    val complexityPoints = getComplexityPoints(deliusRegistrations)
+    val roshPoints = getRoshPoints(orderedRegistrations)
+    val mappaPoints = getMappaPoints(orderedRegistrations)
+    val complexityPoints = getComplexityPoints(orderedRegistrations)
     val femaleComplexityPoints = getFemaleOnlyComplexityPoints(crn, convictions, offenderAssessment)
 
     val totalPoints = maxOf(rsrPoints, roshPoints) + mappaPoints + (complexityPoints + femaleComplexityPoints).times(2)
@@ -147,7 +151,7 @@ class ProtectLevelCalculator(
 
   private fun qualifyingConvictions(conviction: Conviction): Boolean =
     conviction.sentence.terminationDate == null ||
-      conviction.sentence.terminationDate!!.isAfter(LocalDate.now(clock).minusWeeks(52).minusDays(1))
+      conviction.sentence.terminationDate!!.isAfter(LocalDate.now(clock).minusYears(1).minusDays(1))
 
   companion object {
     private val log = LoggerFactory.getLogger(ProtectLevelCalculator::class.java)

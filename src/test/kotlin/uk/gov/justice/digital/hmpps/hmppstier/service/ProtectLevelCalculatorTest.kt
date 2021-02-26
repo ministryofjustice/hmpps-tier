@@ -14,11 +14,16 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
+import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
+import uk.gov.justice.digital.hmpps.hmppstier.client.Nsi
 import uk.gov.justice.digital.hmpps.hmppstier.client.Offender
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
+import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
+import uk.gov.justice.digital.hmpps.hmppstier.client.SentenceType
+import uk.gov.justice.digital.hmpps.hmppstier.client.UnpaidWork
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
@@ -172,6 +177,19 @@ internal class ProtectLevelCalculatorTest {
       validate()
     }
 
+    @Test
+    fun `Should return RSR`() {
+      val assessment = DeliusAssessments(
+        rsr = BigDecimal(5),
+        ogrs = null,
+      )
+
+      setup()
+      val result = service.calculateProtectLevel(crn, null, assessment, listOf(), listOf())
+      assertThat(result.points).isEqualTo(10)
+      validate()
+    }
+
     private fun getValidAssessments(rsr: BigDecimal?): DeliusAssessments {
       return DeliusAssessments(
         rsr = rsr,
@@ -224,6 +242,169 @@ internal class ProtectLevelCalculatorTest {
       validate()
     }
 
+    @Test
+    fun `Should return RoSH level if present`() {
+      setup()
+
+      val registrations =
+        listOf(
+          Registration(
+            KeyValue("RMRH", "Medium RoSH"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now()
+          )
+        )
+
+      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
+
+      assertThat(result.points).isEqualTo(10)
+
+      validate()
+    }
+
+    @Test
+    fun `Should return RoSH level Case Insensitive`() {
+      setup()
+
+      val registrations =
+        listOf(
+          Registration(
+            KeyValue("rmrh", "Medium RoSH"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now()
+          )
+        )
+
+      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
+
+      assertThat(result.points).isEqualTo(10)
+
+      validate()
+    }
+
+    @Test
+    fun `Should return RoSH level if present as first value in list`() {
+      setup()
+
+      val registrations =
+        listOf(
+          Registration(
+            KeyValue("RMRH", "Medium RoSH"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now()
+          ),
+          Registration(
+            KeyValue("AV2S", "Risk to Staff"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now()
+          ),
+          Registration(
+            KeyValue("AV2S", "Risk to Staff"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now()
+          ),
+        )
+
+      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
+
+      assertThat(result.points).isEqualTo(10)
+
+      validate()
+    }
+
+    @Test
+    fun `Should return RoSH level if present as middle value in list`() {
+      setup()
+
+      val registrations =
+        listOf(
+          Registration(
+            KeyValue("AV2S", "Risk to Staff"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now()
+          ),
+          Registration(
+            KeyValue("RMRH", "Medium RoSH"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now()
+          ),
+          Registration(
+            KeyValue("AV2S", "Risk to Staff"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now()
+          ),
+
+        )
+
+      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
+
+      assertThat(result.points).isEqualTo(10)
+
+      validate()
+    }
+
+    @Test
+    fun `Should return latest RoSH`() {
+      setup()
+
+      val registrations =
+        listOf(
+          Registration(
+            KeyValue("RMRH", "Medium RoSH"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now()
+          ),
+          Registration(
+            KeyValue("RHRH", "High RoSH"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now().plusDays(1)
+          ),
+        )
+
+      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
+
+      assertThat(result.points).isEqualTo(10)
+
+      validate()
+    }
+
+    @Test
+    fun `Should ignore inactive RoSH`() {
+      setup()
+
+      val registrations =
+        listOf(
+          Registration(
+            KeyValue("RLRH", "Low RoSH"),
+            KeyValue("Not", "Used"),
+            false,
+            LocalDate.now().plusDays(1)
+          ),
+          Registration(
+            KeyValue("RMRH", "Medium RoSH"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now()
+          ),
+        )
+
+      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
+
+      assertThat(result.points).isEqualTo(10)
+
+      validate()
+    }
+
     private fun getValidRegistrations(rosh: Rosh, active: Boolean = true): Collection<Registration> {
       return listOf(Registration(type = KeyValue(rosh.registerCode, "Not Used"), registerLevel = null, active = active, startDate = LocalDate.now(clock)))
     }
@@ -271,6 +452,158 @@ internal class ProtectLevelCalculatorTest {
       val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf())
       assertThat(result.points).isEqualTo(0)
       validate()
+    }
+
+    @Test
+    fun `Should return Mappa level if present`() {
+      val registrations =
+        listOf(
+          Registration(
+            KeyValue("Not", "Used"),
+            KeyValue("M3", "One"),
+            true,
+            LocalDate.now()
+          )
+        )
+
+      setup()
+      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
+      validate()
+
+      assertThat(result.points).isEqualTo(30)
+    }
+
+    @Test
+    fun `Should return Mappa level Case Insensitive`() {
+      val registrations =
+        listOf(
+          Registration(
+            KeyValue("Not", "Used"),
+            KeyValue("m3", "One"),
+            true,
+            LocalDate.now()
+          )
+        )
+
+      setup()
+      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
+      validate()
+
+      assertThat(result.points).isEqualTo(30)
+    }
+
+    @Test
+    fun `Should return Mappa level if present as first value in list`() {
+      val registrations =
+        listOf(
+          Registration(
+            KeyValue("Not", "Used"),
+            KeyValue("M3", "One"),
+            true,
+            LocalDate.now()
+          ),
+          Registration(
+            KeyValue("AV2S", "Risk to Staff"),
+            KeyValue("BD", "OTHER"),
+            true,
+            LocalDate.now()
+          ),
+          Registration(
+            KeyValue("AV2S", "Risk to Staff"),
+            KeyValue("12", "ANOTHER"),
+            true,
+            LocalDate.now()
+          ),
+
+        )
+
+      setup()
+      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
+      validate()
+
+      assertThat(result.points).isEqualTo(30)
+    }
+
+    @Test
+    fun `Should return latest Mappa`() {
+      val registrations =
+        listOf(
+          Registration(
+            KeyValue("Not", "Used"),
+            KeyValue("M3", "One"),
+            true,
+            LocalDate.now()
+          ),
+          Registration(
+            KeyValue("Not", "Used"),
+            KeyValue("M1", "One"),
+            true,
+            LocalDate.now().plusDays(1)
+          ),
+        )
+
+      setup()
+      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
+      validate()
+
+      assertThat(result.points).isEqualTo(5)
+    }
+
+    @Test
+    fun `Should ignore inactive Mappa`() {
+
+      val registrations =
+        listOf(
+          Registration(
+            KeyValue("Not", "Used"),
+            KeyValue("M3", "One"),
+            false,
+            LocalDate.now().plusDays(1)
+          ),
+          Registration(
+            KeyValue("Not", "Used"),
+            KeyValue("M1", "One"),
+            true,
+            LocalDate.now()
+          ),
+        )
+
+      setup()
+      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
+      validate()
+
+      assertThat(result.points).isEqualTo(5)
+    }
+
+    @Test
+    fun `Should return null for invalid Mappa code`() {
+      val registrations =
+        listOf(
+          Registration(
+            KeyValue("AV2S", "Risk to Staff"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now()
+          ),
+          Registration(
+            KeyValue("AV2S", "Risk to Staff"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now()
+          ),
+          Registration(
+            KeyValue("Not", "Used"),
+            KeyValue("INVALID", "INVALID Mappa"),
+            true,
+            LocalDate.now()
+          ),
+        )
+
+      setup()
+      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
+      validate()
+
+      assertThat(result.points).isEqualTo(0)
     }
 
     private fun getValidRegistrations(mappa: Mappa, active: Boolean = true): Collection<Registration> {
@@ -348,6 +681,122 @@ internal class ProtectLevelCalculatorTest {
       val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf())
       assertThat(result.points).isEqualTo(0)
       validate()
+    }
+
+    @Test
+    fun `Should return Complexity Factor if present`() {
+      val registrations =
+        listOf(
+          Registration(
+            KeyValue("RMDO", "Mental Health"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now()
+          )
+        )
+
+      setup()
+      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
+      validate()
+
+      assertThat(result.points).isEqualTo(2)
+    }
+
+    @Test
+    fun `Should return Complexity Factor Case Insensitive`() {
+      val registrations =
+        listOf(
+          Registration(
+            KeyValue("rmdo", "Mental Health"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now()
+          )
+        )
+
+      setup()
+      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
+      validate()
+
+      assertThat(result.points).isEqualTo(2)
+    }
+
+    @Test
+    fun `Should return Complexity Factor if present as first value in list`() {
+      val registrations =
+        listOf(
+          Registration(
+            KeyValue("RMDO", "Mental Health"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now()
+          ),
+          Registration(
+            KeyValue("AV2S", "Risk to Staff"),
+            KeyValue("BD", "OTHER"),
+            true,
+            LocalDate.now()
+          ),
+          Registration(
+            KeyValue("AV2S", "Risk to Staff"),
+            KeyValue("12", "ANOTHER"),
+            true,
+            LocalDate.now()
+          ),
+
+        )
+
+      setup()
+      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
+      validate()
+
+      assertThat(result.points).isEqualTo(2)
+    }
+
+    @Test
+    fun `Should ignore inactive Complexity Factor`() {
+
+      val registrations =
+        listOf(
+          Registration(
+            KeyValue("RCHD", "RISK TO CHILDREN"),
+            KeyValue("Not", "Used"),
+            false,
+            LocalDate.now().plusDays(1)
+          ),
+          Registration(
+            KeyValue("RMDO", "Mental Health"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now()
+          ),
+        )
+
+      setup()
+      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
+      validate()
+
+      assertThat(result.points).isEqualTo(2)
+    }
+
+    @Test
+    fun `Should return empty List if no Complexity Factors present`() {
+
+      val registrations =
+        listOf(
+          Registration(
+            KeyValue("AV2S", "Risk to Staff"),
+            KeyValue("Not", "Used"),
+            true,
+            LocalDate.now()
+          )
+        )
+
+      setup()
+      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
+      validate()
+
+      assertThat(result.points).isEqualTo(0)
     }
 
     private fun getValidRegistrations(factors: List<ComplexityFactor>): Collection<Registration> {
@@ -532,6 +981,212 @@ internal class ProtectLevelCalculatorTest {
       val result = service.calculateProtectLevel(crn, assessment, null, listOf(), listOf())
       assertThat(result.points).isEqualTo(0)
 
+      verify { communityApiClient.getOffender(crn) }
+    }
+  }
+
+  @Nested
+  @DisplayName("Get Breach Recall Tests")
+  inner class GetBreachRecallTests {
+    private val irrelevantSentenceType: SentenceType = SentenceType("irrelevant")
+
+    private val irrelevantUnpaidWork = UnpaidWork("irrelevant")
+
+    @Test
+    fun `Should return Breach true if present and valid terminationDate`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val terminationDate = LocalDate.now(clock)
+      val sentence = Sentence(terminationDate, irrelevantSentenceType, irrelevantUnpaidWork)
+      val conviction = Conviction(convictionId, sentence)
+
+      val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
+
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+
+      val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf(conviction))
+      assertThat(result.points).isEqualTo(2)
+
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      verify { communityApiClient.getOffender(crn) }
+    }
+
+    @Test
+    fun `Should return Breach true if present and valid terminationDate after cutoff`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val terminationDate = LocalDate.now(clock).minusYears(1)
+      val sentence = Sentence(terminationDate, irrelevantSentenceType, irrelevantUnpaidWork)
+      val conviction = Conviction(convictionId, sentence)
+
+      val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
+
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+
+      val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf(conviction))
+      assertThat(result.points).isEqualTo(2)
+
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      verify { communityApiClient.getOffender(crn) }
+    }
+
+    @Test
+    fun `Should return Breach false if present and valid terminationDate on cutoff`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val terminationDate = LocalDate.now(clock).minusYears(1).minusDays(1)
+      val sentence = Sentence(terminationDate, irrelevantSentenceType, irrelevantUnpaidWork)
+      val conviction = Conviction(convictionId, sentence)
+
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+
+      val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf(conviction))
+      assertThat(result.points).isEqualTo(0)
+
+      verify { communityApiClient.getOffender(crn) }
+    }
+
+    @Test
+    fun `Should return Breach true if present and valid not terminated`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val sentence = Sentence(null, irrelevantSentenceType, irrelevantUnpaidWork)
+      val conviction = Conviction(convictionId, sentence)
+
+      val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
+
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+
+      val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf(conviction))
+      assertThat(result.points).isEqualTo(2)
+
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      verify { communityApiClient.getOffender(crn) }
+    }
+
+    @Test
+    fun `Should return Breach true if multiple convictions, one valid`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val sentence = Sentence(null, irrelevantSentenceType, irrelevantUnpaidWork)
+      val conviction = Conviction(convictionId, sentence)
+
+      val unrelatedConviction = Conviction(convictionId.plus(1), sentence)
+      val unrelatedBreaches = listOf(Nsi(status = KeyValue("BRE99", "Unused")))
+
+      val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
+
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId.plus(1)) } returns unrelatedBreaches
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+
+      val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf(conviction, unrelatedConviction))
+      assertThat(result.points).isEqualTo(2)
+
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      verify { communityApiClient.getOffender(crn) }
+    }
+
+    @Test
+    fun `Should return Breach false if no conviction`() {
+      val crn = "123"
+
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+
+      val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf())
+      assertThat(result.points).isEqualTo(0)
+
+      verify { communityApiClient.getOffender(crn) }
+    }
+
+    @Test
+    fun `Should return Breach true if one conviction, multiple breaches, one valid`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val sentence = Sentence(null, irrelevantSentenceType, irrelevantUnpaidWork)
+      val conviction = Conviction(convictionId, sentence)
+
+      val breaches = listOf(
+        Nsi(status = KeyValue("BRE54", "Unused")),
+        Nsi(status = KeyValue("BRE08", "Unused"))
+      )
+
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+
+      val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf(conviction))
+      assertThat(result.points).isEqualTo(2)
+
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      verify { communityApiClient.getOffender(crn) }
+    }
+
+    @Test
+    fun `Should return Breach true if one conviction, multiple breaches, one valid case insensitive`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val sentence = Sentence(null, irrelevantSentenceType, irrelevantUnpaidWork)
+      val conviction = Conviction(convictionId, sentence)
+
+      val breaches = listOf(
+        Nsi(status = KeyValue("BRE54", "Unused")),
+        Nsi(status = KeyValue("bre08", "Unused"))
+      )
+
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+
+      val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf(conviction))
+      assertThat(result.points).isEqualTo(2)
+
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      verify { communityApiClient.getOffender(crn) }
+    }
+
+    @Test
+    fun `Should return Breach true if one conviction, multiple breaches, multiple valid`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val sentence = Sentence(null, irrelevantSentenceType, irrelevantUnpaidWork)
+      val conviction = Conviction(convictionId, sentence)
+
+      val breaches = listOf(
+        Nsi(status = KeyValue("BRE09", "Unused")),
+        Nsi(status = KeyValue("BRE08", "Unused"))
+      )
+
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+
+      val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf(conviction))
+      assertThat(result.points).isEqualTo(2)
+
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      verify { communityApiClient.getOffender(crn) }
+    }
+
+    @Test
+    fun `Should return Breach false if one conviction, multiple breaches, none valid`() {
+      val crn = "123"
+      val convictionId = 54321L
+      val sentence = Sentence(null, irrelevantSentenceType, irrelevantUnpaidWork)
+      val conviction = Conviction(convictionId, sentence)
+
+      val breaches = listOf(
+        Nsi(status = KeyValue("BRE99", "Unused")),
+        Nsi(status = KeyValue("BRE99", "Unused"))
+      )
+
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+
+      val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf(conviction))
+      assertThat(result.points).isEqualTo(0)
+
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
       verify { communityApiClient.getOffender(crn) }
     }
   }
