@@ -1,0 +1,14 @@
+{
+  "role": {
+    "name": "hmpps-tier"
+  },
+  "instrumentation": {
+    "logging": {
+      "level": "DEBUG"
+    }
+  },
+  "selfDiagnostics": {
+    "destination": "console"
+  }
+}
+
