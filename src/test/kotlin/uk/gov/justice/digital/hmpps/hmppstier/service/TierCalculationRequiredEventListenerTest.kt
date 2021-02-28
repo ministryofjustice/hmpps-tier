@@ -119,6 +119,7 @@ class TierCalculationRequiredEventListenerTest {
   inner class UpdaterDisabled {
     private val noUpdateListener: TierCalculationRequiredEventListener =
       TierCalculationRequiredEventListener(objectMapper, tierCalculationService, successUpdater, false)
+
     @Test
     fun `should not call updater if tier has changed`() {
       val validMessage: String =

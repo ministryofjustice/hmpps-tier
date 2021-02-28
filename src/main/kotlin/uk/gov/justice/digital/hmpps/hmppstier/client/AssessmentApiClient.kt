@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
@@ -16,11 +15,14 @@ import java.time.LocalDateTime
 @Component
 class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val webClient: WebClient) {
 
-  fun getAssessmentAnswers(assessmentId: String): Collection<Question> {
-    return getAssessmentAnswersCall(assessmentId).also {
-      log.info("Fetched ${it.size} Questions for $assessmentId")
-      log.debug(it.toString())
-    }
+  fun getAssessmentAnswers(assessmentId: String?): Collection<Question> {
+    return assessmentId?.let {
+      getAssessmentAnswersCall(assessmentId)
+        .also {
+          log.info("Fetched ${it.size} Questions for $assessmentId")
+          log.debug(it.toString())
+        }
+    } ?: listOf()
   }
 
   fun getAssessmentNeeds(assessmentId: String): Collection<AssessmentNeed> {
@@ -30,18 +32,26 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
     }
   }
 
-  @Cacheable(value = ["oasysAssessment"], key = "{ #crn }")
-  fun getAssessmentSummaries(crn: String): Collection<AssessmentSummary> {
-    return getLatestAssessmentCall(crn).also {
-      log.info("Fetched ${it.size} Assessments for $crn")
-    }
+  fun getAssessmentSummaries(crn: String): Collection<OffenderAssessment> {
+    val responseType = object : ParameterizedTypeReference<Collection<OffenderAssessment>>() {}
+    return webClient
+      .get()
+      .uri("/offenders/crn/$crn/assessments/summary?assessmentType=LAYER_3")
+      .retrieve()
+      .bodyToMono(responseType)
+      .block().also {
+        log.info("Fetched ${it?.size ?: 0} Assessments for $crn")
+      } ?: emptyList()
   }
 
   private fun getAssessmentAnswersCall(assessmentId: String): Collection<Question> {
     return webClient
       .post()
       .uri("/assessments/oasysSetId/$assessmentId/answers")
-      .bodyValue(AssessmentComplexityFactor.values().groupBy { it.section }.mapValues { it.value.map { q -> q.answerCode } })
+      .bodyValue(
+        AssessmentComplexityFactor.values().groupBy { it.section }
+          .mapValues { it.value.map { q -> q.answerCode } }
+      )
       .retrieve()
       .bodyToMono(Answers::class.java)
       .block()?.questionAnswers ?: emptyList()
@@ -57,22 +67,12 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
       .block() ?: emptyList()
   }
 
-  private fun getLatestAssessmentCall(crn: String): Collection<AssessmentSummary> {
-    val responseType = object : ParameterizedTypeReference<Collection<AssessmentSummary>>() {}
-    return webClient
-      .get()
-      .uri("/offenders/crn/$crn/assessments/summary?assessmentType=LAYER_3")
-      .retrieve()
-      .bodyToMono(responseType)
-      .block() ?: emptyList()
-  }
-
   companion object {
     private val log = LoggerFactory.getLogger(AssessmentApiClient::class.java)
   }
 }
 
-data class AssessmentSummary @JsonCreator constructor(
+data class OffenderAssessment @JsonCreator constructor(
   @JsonProperty("assessmentId")
   val assessmentId: String,
 

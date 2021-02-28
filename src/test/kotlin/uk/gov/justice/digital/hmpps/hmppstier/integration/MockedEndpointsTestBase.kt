@@ -4,7 +4,6 @@ import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.mockserver.integration.ClientAndServer
-import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.MediaType.APPLICATION_JSON
@@ -36,10 +35,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun calculationMessage(crn: String): String {
-    val validMessage: String =
-      Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json")).replace("X373878", crn)
-
-    return validMessage
+    return Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json")).replace("X373878", crn)
   }
 
   fun setupNCCustodialSentence(crn: String) {
@@ -80,10 +76,9 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     )
   }
 
-  fun setupLatestAssessment(crn: String, year: Int, times: Int = 2) {
+  fun setupLatestAssessment(crn: String, year: Int) {
     mockAssessmentApiServer.`when`(
       HttpRequest.request().withPath("/offenders/crn/$crn/assessments/summary"),
-      Times.exactly(times)
     )
       .respond(
         HttpResponse.response().withContentType(

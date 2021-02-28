@@ -34,8 +34,6 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
-  implementation("org.springframework.boot:spring-boot-starter-cache")
-  implementation("com.github.ben-manes.caffeine:caffeine")
 
   implementation("org.springframework.cloud:spring-cloud-aws-messaging")
 

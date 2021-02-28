@@ -23,10 +23,6 @@ spring:
   flyway:
     locations: classpath:db/migration
 
-  cache:
-    cache-names: registration,deliusAssessment,oasysAssessment,conviction
-    caffeine.spec: maximumSize=500,expireAfterAccess=60s
-
   security:
     oauth2:
       client:

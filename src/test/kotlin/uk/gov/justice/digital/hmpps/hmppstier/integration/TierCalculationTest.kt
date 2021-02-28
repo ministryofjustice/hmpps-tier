@@ -148,7 +148,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
 
     setupSCCustodialSentence(crn)
     setupRestWithRegistrations(crn, includeAssessmentApi = false)
-    setupLatestAssessment(crn, 2018, times = 1)
+    setupLatestAssessment(crn, 2018)
 
     val expectedTierUpdate = setupUpdateTierSuccess(crn, "A2")
 

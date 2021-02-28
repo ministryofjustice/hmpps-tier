@@ -4,8 +4,9 @@ import io.mockk.clearMocks
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
+import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -14,12 +15,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.Answer
 import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentNeed
-import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentSummary
+import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Question
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
-import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundException
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -27,14 +27,20 @@ import java.time.ZoneId
 
 @ExtendWith(MockKExtension::class)
 @DisplayName("Detail Service tests")
-internal class AssessmentApiDataServiceTest {
+internal class AssessmentApiServiceTest {
   private val assessmentApiClient: AssessmentApiClient = mockk(relaxUnitFun = true)
   private val clock = Clock.fixed(LocalDate.of(2021, 1, 20).atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault())
-  private val assessmentService = AssessmentApiDataService(assessmentApiClient, clock)
+  private val assessmentService = AssessmentApiService(assessmentApiClient, clock)
 
   @BeforeEach
   fun resetAllMocks() {
     clearMocks(assessmentApiClient)
+  }
+
+  @AfterEach
+  fun confirmVerified() {
+    // Check we don't add any more calls without updating the tests
+    io.mockk.confirmVerified(assessmentApiClient)
   }
 
   @Nested
@@ -43,8 +49,7 @@ internal class AssessmentApiDataServiceTest {
 
     @Test
     fun `Should return Complexity Answer if present and positive`() {
-      val crn = "123"
-      val assessment = AssessmentSummary("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
       val complexityAnswers =
         listOf(
           Question(
@@ -53,22 +58,22 @@ internal class AssessmentApiDataServiceTest {
           )
         )
 
-      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
       every {
         assessmentApiClient.getAssessmentAnswers(
           assessment.assessmentId
         )
       } returns complexityAnswers
-      val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
+      val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
 
       assertThat(returnValue).hasSize(1)
       assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+
+      verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
     fun `Should return Complexity Answer even if present and negative`() {
-      val crn = "123"
-      val assessment = AssessmentSummary("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
       val complexityAnswers =
         listOf(
           Question(
@@ -77,22 +82,22 @@ internal class AssessmentApiDataServiceTest {
           )
         )
 
-      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
       every {
         assessmentApiClient.getAssessmentAnswers(
           assessment.assessmentId
         )
       } returns complexityAnswers
-      val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
+      val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
 
       assertThat(returnValue).hasSize(1)
       assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+
+      verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
     fun `Should match Complexity Answer Case Insensitive Question`() {
-      val crn = "123"
-      val assessment = AssessmentSummary("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
       val complexityAnswers =
         listOf(
           Question(
@@ -101,22 +106,22 @@ internal class AssessmentApiDataServiceTest {
           )
         )
 
-      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
       every {
         assessmentApiClient.getAssessmentAnswers(
           assessment.assessmentId
         )
       } returns complexityAnswers
-      val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
+      val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
 
       assertThat(returnValue).hasSize(1)
       assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+
+      verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
     fun `Should match Complexity Answer Case Insensitive Answer`() {
-      val crn = "123"
-      val assessment = AssessmentSummary("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
       val complexityAnswers =
         listOf(
           Question(
@@ -125,22 +130,22 @@ internal class AssessmentApiDataServiceTest {
           )
         )
 
-      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
       every {
         assessmentApiClient.getAssessmentAnswers(
           assessment.assessmentId
         )
       } returns complexityAnswers
-      val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
+      val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
 
       assertThat(returnValue).hasSize(1)
       assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+
+      verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
     fun `Should return empty List if no Complexity Answers match`() {
-      val crn = "123"
-      val assessment = AssessmentSummary("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
       val complexityAnswers =
         listOf(
           Question(
@@ -149,21 +154,20 @@ internal class AssessmentApiDataServiceTest {
           )
         )
 
-      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
       every {
         assessmentApiClient.getAssessmentAnswers(
           assessment.assessmentId
         )
       } returns complexityAnswers
-      val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
+      val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
 
       assertThat(returnValue).isEmpty()
+      verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
     fun `Should return Complexity any Answers Match`() {
-      val crn = "123"
-      val assessment = AssessmentSummary("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
       val complexityAnswers =
         listOf(
           Question(
@@ -172,22 +176,18 @@ internal class AssessmentApiDataServiceTest {
           )
         )
 
-      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
-      every {
-        assessmentApiClient.getAssessmentAnswers(
-          assessment.assessmentId
-        )
-      } returns complexityAnswers
-      val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
+      every { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) } returns complexityAnswers
+      val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
 
       assertThat(returnValue).hasSize(1)
       assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+
+      verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
     fun `Should return multiple Complexity Answers`() {
-      val crn = "123"
-      val assessment = AssessmentSummary("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
       val complexityAnswers =
         listOf(
           Question(
@@ -200,35 +200,36 @@ internal class AssessmentApiDataServiceTest {
           )
         )
 
-      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
       every {
         assessmentApiClient.getAssessmentAnswers(
           assessment.assessmentId
         )
       } returns complexityAnswers
-      val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
+      val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
 
       assertThat(returnValue).hasSize(2)
       assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
       assertThat(returnValue).containsKey(AssessmentComplexityFactor.TEMPER_CONTROL)
+
+      verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
     fun `Should return empty List if no Complexity Answers present`() {
-      val crn = "123"
-      val assessment = AssessmentSummary("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
       val complexityAnswers =
         listOf<Question>()
 
-      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
       every {
         assessmentApiClient.getAssessmentAnswers(
           assessment.assessmentId
         )
       } returns complexityAnswers
-      val returnValue = assessmentService.getAssessmentComplexityAnswers(crn)
+      val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
 
       assertThat(returnValue).isEmpty()
+
+      verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
     }
   }
 
@@ -238,21 +239,20 @@ internal class AssessmentApiDataServiceTest {
 
     @Test
     fun `Should return empty Map if no Needs`() {
-      val crn = "123"
-      val assessment = AssessmentSummary("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
       val needs = listOf<AssessmentNeed>()
 
-      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
       every { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) } returns needs
-      val returnValue = assessmentService.getAssessmentNeeds(crn)
+      val returnValue = assessmentService.getAssessmentNeeds(assessment.assessmentId)
 
       assertThat(returnValue).isEmpty()
+
+      verify { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) }
     }
 
     @Test
     fun `Should return Needs`() {
-      val crn = "123"
-      val assessment = AssessmentSummary("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
       val needs = listOf(
         AssessmentNeed(
           Need.ACCOMMODATION,
@@ -260,12 +260,37 @@ internal class AssessmentApiDataServiceTest {
         )
       )
 
-      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
       every { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) } returns needs
-      val returnValue = assessmentService.getAssessmentNeeds(crn)
+      val returnValue = assessmentService.getAssessmentNeeds(assessment.assessmentId)
 
       assertThat(returnValue).hasSize(1)
       assertThat(returnValue).containsEntry(Need.ACCOMMODATION, NeedSeverity.NO_NEED)
+
+      verify { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) }
+    }
+
+    @Test
+    fun `Should return Multiple Needs`() {
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
+      val needs = listOf(
+        AssessmentNeed(
+          Need.ACCOMMODATION,
+          NeedSeverity.NO_NEED
+        ),
+        AssessmentNeed(
+          Need.ALCOHOL_MISUSE,
+          NeedSeverity.SEVERE
+        )
+      )
+
+      every { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) } returns needs
+      val returnValue = assessmentService.getAssessmentNeeds(assessment.assessmentId)
+
+      assertThat(returnValue).hasSize(2)
+      assertThat(returnValue).containsEntry(Need.ACCOMMODATION, NeedSeverity.NO_NEED)
+      assertThat(returnValue).containsEntry(Need.ALCOHOL_MISUSE, NeedSeverity.SEVERE)
+
+      verify { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) }
     }
   }
 
@@ -274,50 +299,66 @@ internal class AssessmentApiDataServiceTest {
   inner class GetRecentAssessmentTests {
 
     @Test
-    fun `Should return true if inside Threshold`() {
+    fun `Should return if inside Threshold`() {
       val crn = "123"
-      val assessment = AssessmentSummary("1234", LocalDateTime.now(clock).minusWeeks(55), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55), null)
 
       every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
-      val returnValue = assessmentService.isAssessmentRecent(crn)
+      val returnValue = assessmentService.getRecentAssessment(crn)
 
-      assertThat(returnValue).isTrue
+      assertThat(returnValue).isNotNull
+
+      verify { assessmentApiClient.getAssessmentSummaries(crn) }
     }
 
     @Test
-    fun `Should return false if outside Threshold`() {
+    fun `Should return none if outside Threshold`() {
       val crn = "123"
-      val assessment = AssessmentSummary("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), null)
       // more recent, but voided
-      val voidedAssessment = AssessmentSummary("1234", LocalDateTime.now(clock).minusWeeks(40), LocalDateTime.now(clock))
+      val voidedAssessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(40), LocalDateTime.now(clock))
 
       every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment, voidedAssessment)
-      val returnValue = assessmentService.isAssessmentRecent(crn)
+      val returnValue = assessmentService.getRecentAssessment(crn)
 
-      assertThat(returnValue).isFalse
+      assertThat(returnValue).isNull()
+
+      verify { assessmentApiClient.getAssessmentSummaries(crn) }
     }
 
     @Test
-    fun `Should throw if none valid`() {
+    fun `Should return none if voided`() {
+      val crn = "123"
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), LocalDateTime.now(clock))
+
+      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
+      val returnValue = assessmentService.getRecentAssessment(crn)
+      assertThat(returnValue).isNull()
+
+      verify { assessmentApiClient.getAssessmentSummaries(crn) }
+    }
+
+    @Test
+    fun `Should return none if not complete`() {
+      val crn = "123"
+      val assessment = OffenderAssessment("1234", null, LocalDateTime.now(clock))
+
+      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
+      val returnValue = assessmentService.getRecentAssessment(crn)
+      assertThat(returnValue).isNull()
+
+      verify { assessmentApiClient.getAssessmentSummaries(crn) }
+    }
+
+    @Test
+    fun `Should return none if none valid`() {
       val crn = "123"
 
       every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf()
+      val returnValue = assessmentService.getRecentAssessment(crn)
+      assertThat(returnValue).isNull()
 
-      assertThrows(EntityNotFoundException::class.java) {
-        assessmentService.isAssessmentRecent(crn)
-      }
-    }
-
-    @Test
-    fun `Should throw if none valid with entries`() {
-      val crn = "123"
-      val assessment = AssessmentSummary("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), LocalDateTime.now(clock))
-
-      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
-
-      assertThrows(EntityNotFoundException::class.java) {
-        assessmentService.isAssessmentRecent(crn)
-      }
+      verify { assessmentApiClient.getAssessmentSummaries(crn) }
     }
   }
 }

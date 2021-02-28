@@ -1,4 +1,3 @@
-
 spring:
 
   jpa:
@@ -26,3 +25,6 @@ logging:
 
 server:
   shutdown: immediate
+
+community.endpoint.url: localhost:8082
+assessment.endpoint.url: localhsot:8081

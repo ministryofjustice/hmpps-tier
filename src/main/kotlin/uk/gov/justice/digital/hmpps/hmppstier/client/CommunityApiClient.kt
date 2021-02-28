@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.cache.annotation.Cacheable
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
@@ -16,56 +15,60 @@ import java.time.LocalDate
 @Component
 class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val webClient: WebClient) {
 
-  @Cacheable(value = ["registration"], key = "{ #crn }")
   fun getRegistrations(crn: String): Collection<Registration> {
-    return getRegistrationsCall(crn).also {
-      log.info("Fetched ${it.size} Registrations for $crn")
-      log.debug(it.toString())
-    }
+    return getRegistrationsCall(crn)
+      .also {
+        log.info("Fetched ${it.size} Registrations for $crn")
+        log.debug(it.toString())
+      }
   }
 
-  @Cacheable(value = ["deliusAssessment"], key = "{ #crn }")
-  fun getAssessments(crn: String): DeliusAssessmentsDto? {
-    return getAssessmentsCall(crn).also {
-      log.info("Fetched Delius Assessment scores for $crn")
-      log.debug(it.toString())
-    }
+  fun getDeliusAssessments(crn: String): DeliusAssessments? {
+    return getAssessmentsCall(crn)
+      .also {
+        log.info("Fetched Delius Assessment scores for $crn")
+        log.debug(it.toString())
+      }
   }
 
-  @Cacheable(value = ["conviction"], key = "{ #crn }")
   fun getConvictions(crn: String): List<Conviction> {
-    return getConvictionsCall(crn).also {
-      log.info("Fetched ${it.size} Convictions for $crn")
-      log.debug(it.toString())
-    }
+    return getConvictionsCall(crn)
+      .also {
+        log.info("Fetched ${it.size} Convictions for $crn")
+        log.debug(it.toString())
+      }
   }
 
   fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
-    return getBreachRecallNsisCall(crn, convictionId).also {
-      log.info("Fetched ${it.size} Convictions for $crn convictionId: $convictionId")
-      log.debug(it.toString())
-    }
+    return getBreachRecallNsisCall(crn, convictionId)
+      .also {
+        log.info("Fetched ${it.size} Convictions for $crn convictionId: $convictionId")
+        log.debug(it.toString())
+      }
   }
 
   fun getOffender(crn: String): Offender {
-    return getOffenderCall(crn).also {
-      log.info("Fetched Offender record for $crn")
-      log.debug(it.toString())
-    }
+    return getOffenderCall(crn)
+      .also {
+        log.info("Fetched Offender record for $crn")
+        log.debug(it.toString())
+      }
   }
 
   fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
-    return getRequirementsCall(crn, convictionId).also {
-      log.info("Fetched Requirements for $crn convictionId: $convictionId")
-      log.debug(it.toString())
-    }
+    return getRequirementsCall(crn, convictionId)
+      .also {
+        log.info("Fetched Requirements for $crn convictionId: $convictionId")
+        log.debug(it.toString())
+      }
   }
 
   fun updateTier(tier: String, crn: String): ResponseEntity<Void>? {
-    return updateTierCall(tier, crn).also {
-      log.info("Updated Tier for $crn")
-      log.debug("Body: $tier for $crn")
-    }
+    return updateTierCall(tier, crn)
+      .also {
+        log.info("Updated Tier for $crn")
+        log.debug("Body: $tier for $crn")
+      }
   }
 
   private fun getRegistrationsCall(crn: String): Collection<Registration> {
@@ -77,12 +80,12 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()?.registrations ?: listOf()
   }
 
-  private fun getAssessmentsCall(crn: String): DeliusAssessmentsDto? {
+  private fun getAssessmentsCall(crn: String): DeliusAssessments? {
     return webClient
       .get()
       .uri("/offenders/crn/$crn/assessments")
       .retrieve()
-      .bodyToMono(DeliusAssessmentsDto::class.java)
+      .bodyToMono(DeliusAssessments::class.java)
       .block()
   }
 
@@ -176,7 +179,7 @@ data class Sentence @JsonCreator constructor(
 
 data class UnpaidWork @JsonCreator constructor(
   @JsonProperty("minutesOrdered")
-  var minutesOrdered: String
+  var minutesOrdered: String?
 )
 
 data class SentenceType @JsonCreator constructor(
@@ -189,7 +192,7 @@ data class Offender @JsonCreator constructor(
   val gender: String?,
 )
 
-data class DeliusAssessmentsDto @JsonCreator constructor(
+data class DeliusAssessments @JsonCreator constructor(
   @JsonProperty("rsrScore")
   val rsr: BigDecimal?,
   @JsonProperty("ogrsScore")

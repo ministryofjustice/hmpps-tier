@@ -26,12 +26,11 @@ class AwsConfiguration(
   @Bean(name = ["awsClient"])
   fun amazonSQSAsync(): AmazonSQSAsync {
     val credentials: AWSCredentials = BasicAWSCredentials(accessKeyId, secretKey)
-    val client = AmazonSQSAsyncClientBuilder
+    return AmazonSQSAsyncClientBuilder
       .standard()
       .withRegion(region)
 
       .withCredentials(AWSStaticCredentialsProvider(credentials)).build()
-    return client
   }
 
   @Primary
