@@ -361,19 +361,19 @@ internal class ProtectLevelCalculatorTest {
             KeyValue("RMRH", "Medium RoSH"),
             KeyValue("Not", "Used"),
             true,
-            LocalDate.now()
+            LocalDate.now().minusDays(2)
           ),
           Registration(
             KeyValue("RHRH", "High RoSH"),
             KeyValue("Not", "Used"),
             true,
-            LocalDate.now().plusDays(1)
+            LocalDate.now().minusDays(1)
           ),
         )
 
       val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
 
-      assertThat(result.points).isEqualTo(10)
+      assertThat(result.points).isEqualTo(20)
 
       validate()
     }

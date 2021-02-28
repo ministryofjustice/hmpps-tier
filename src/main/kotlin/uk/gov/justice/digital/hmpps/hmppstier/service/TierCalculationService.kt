@@ -26,10 +26,14 @@ class TierCalculationService(
       TierDto.from(it.data)
     }.also { log.info("Returned tier for $crn") }
 
-  fun calculateTierForCrn(crn: String): CalculationResultDto =
-    calculateTier(crn).let {
-      CalculationResultDto(TierDto.from(it.data), !it.tierEquals(getLatestTierCalculation(crn)))
+  fun calculateTierForCrn(crn: String): CalculationResultDto {
+    val existingTier = getLatestTierCalculation(crn)?.data
+
+    return calculateTier(crn).let {
+      CalculationResultDto(TierDto.from(it.data), it.data != existingTier).also {
+      }
     }
+  }
 
   private fun calculateTier(crn: String): TierCalculationEntity {
     log.debug("Calculating tier for $crn")
