@@ -17,7 +17,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentNeed
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Question
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import java.time.Clock
@@ -44,13 +44,13 @@ internal class AssessmentApiServiceTest {
   }
 
   @Nested
-  @DisplayName("Get Complexity Answer Tests")
-  inner class GetComplexityAnswerTests {
+  @DisplayName("Get Additional Factors For Women Tests")
+  inner class GetAdditionalFactorsForWomenTests {
 
     @Test
-    fun `Should return Complexity Answer if present and positive`() {
+    fun `Should return Answer if present and positive`() {
       val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
-      val complexityAnswers =
+      val answers =
         listOf(
           Question(
             "13.3 - F",
@@ -62,19 +62,19 @@ internal class AssessmentApiServiceTest {
         assessmentApiClient.getAssessmentAnswers(
           assessment.assessmentId
         )
-      } returns complexityAnswers
+      } returns answers
       val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
 
       assertThat(returnValue).hasSize(1)
-      assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+      assertThat(returnValue).containsKey(AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES)
 
       verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
-    fun `Should return Complexity Answer even if present and negative`() {
+    fun `Should return Answer even if present and negative`() {
       val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
-      val complexityAnswers =
+      val answers =
         listOf(
           Question(
             "13.3 - F",
@@ -86,19 +86,19 @@ internal class AssessmentApiServiceTest {
         assessmentApiClient.getAssessmentAnswers(
           assessment.assessmentId
         )
-      } returns complexityAnswers
+      } returns answers
       val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
 
       assertThat(returnValue).hasSize(1)
-      assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+      assertThat(returnValue).containsKey(AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES)
 
       verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
-    fun `Should match Complexity Answer Case Insensitive Question`() {
+    fun `Should match Answer Case Insensitive Question`() {
       val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
-      val complexityAnswers =
+      val answers =
         listOf(
           Question(
             "13.3 - f",
@@ -110,19 +110,19 @@ internal class AssessmentApiServiceTest {
         assessmentApiClient.getAssessmentAnswers(
           assessment.assessmentId
         )
-      } returns complexityAnswers
+      } returns answers
       val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
 
       assertThat(returnValue).hasSize(1)
-      assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+      assertThat(returnValue).containsKey(AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES)
 
       verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
-    fun `Should match Complexity Answer Case Insensitive Answer`() {
+    fun `Should match Answer Case Insensitive Answer`() {
       val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
-      val complexityAnswers =
+      val answers =
         listOf(
           Question(
             "13.3 - F",
@@ -134,19 +134,19 @@ internal class AssessmentApiServiceTest {
         assessmentApiClient.getAssessmentAnswers(
           assessment.assessmentId
         )
-      } returns complexityAnswers
+      } returns answers
       val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
 
       assertThat(returnValue).hasSize(1)
-      assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+      assertThat(returnValue).containsKey(AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES)
 
       verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
-    fun `Should return empty List if no Complexity Answers match`() {
+    fun `Should return empty List if no Answers match`() {
       val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
-      val complexityAnswers =
+      val answers =
         listOf(
           Question(
             "15.3",
@@ -158,7 +158,7 @@ internal class AssessmentApiServiceTest {
         assessmentApiClient.getAssessmentAnswers(
           assessment.assessmentId
         )
-      } returns complexityAnswers
+      } returns answers
       val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
 
       assertThat(returnValue).isEmpty()
@@ -166,9 +166,9 @@ internal class AssessmentApiServiceTest {
     }
 
     @Test
-    fun `Should return Complexity any Answers Match`() {
+    fun `Should return any Answers Match`() {
       val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
-      val complexityAnswers =
+      val answers =
         listOf(
           Question(
             "13.3 - F",
@@ -176,19 +176,19 @@ internal class AssessmentApiServiceTest {
           )
         )
 
-      every { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) } returns complexityAnswers
+      every { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) } returns answers
       val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
 
       assertThat(returnValue).hasSize(1)
-      assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+      assertThat(returnValue).containsKey(AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES)
 
       verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
-    fun `Should return multiple Complexity Answers`() {
+    fun `Should return multiple Answers`() {
       val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
-      val complexityAnswers =
+      val answers =
         listOf(
           Question(
             "13.3 - F",
@@ -204,12 +204,12 @@ internal class AssessmentApiServiceTest {
         assessmentApiClient.getAssessmentAnswers(
           assessment.assessmentId
         )
-      } returns complexityAnswers
+      } returns answers
       val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
 
       assertThat(returnValue).hasSize(2)
-      assertThat(returnValue).containsKey(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
-      assertThat(returnValue).containsKey(AssessmentComplexityFactor.TEMPER_CONTROL)
+      assertThat(returnValue).containsKey(AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES)
+      assertThat(returnValue).containsKey(AdditionalFactorForWomen.TEMPER_CONTROL)
 
       verify { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) }
     }
@@ -217,14 +217,14 @@ internal class AssessmentApiServiceTest {
     @Test
     fun `Should return empty List if no Complexity Answers present`() {
       val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
-      val complexityAnswers =
+      val answers =
         listOf<Question>()
 
       every {
         assessmentApiClient.getAssessmentAnswers(
           assessment.assessmentId
         )
-      } returns complexityAnswers
+      } returns answers
       val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
 
       assertThat(returnValue).isEmpty()

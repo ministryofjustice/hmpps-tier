@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import java.time.LocalDateTime
@@ -49,7 +49,7 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
       .post()
       .uri("/assessments/oasysSetId/$assessmentId/answers")
       .bodyValue(
-        AssessmentComplexityFactor.values().groupBy { it.section }
+        AdditionalFactorForWomen.values().groupBy { it.section }
           .mapValues { it.value.map { q -> q.answerCode } }
       )
       .retrieve()
