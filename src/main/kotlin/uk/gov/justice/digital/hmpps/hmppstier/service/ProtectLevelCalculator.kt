@@ -8,7 +8,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NsiStatus
@@ -41,9 +41,9 @@ class ProtectLevelCalculator(
     val roshPoints = getRoshPoints(orderedRegistrations)
     val mappaPoints = getMappaPoints(orderedRegistrations)
     val complexityPoints = getComplexityPoints(orderedRegistrations)
-    val femaleComplexityPoints = getFemaleOnlyComplexityPoints(crn, convictions, offenderAssessment)
+    val additionalFactorsForWomen = getAdditionalFactorsForWomen(crn, convictions, offenderAssessment)
 
-    val totalPoints = maxOf(rsrPoints, roshPoints) + mappaPoints + (complexityPoints + femaleComplexityPoints).times(2)
+    val totalPoints = maxOf(rsrPoints, roshPoints) + mappaPoints + (complexityPoints + additionalFactorsForWomen).times(2)
 
     return when {
       totalPoints >= 30 -> TierLevel(ProtectLevel.A, totalPoints)
@@ -96,38 +96,38 @@ class ProtectLevelCalculator(
       .count()
       .also { log.debug("Complexity factor size: $it") }
 
-  private fun getFemaleOnlyComplexityPoints(
+  private fun getAdditionalFactorsForWomen(
     crn: String,
     convictions: Collection<Conviction>,
     offenderAssessment: OffenderAssessment?
   ): Int =
     when {
       communityApiClient.getOffender(crn).gender.equals("female", true) -> {
-        getAssessmentComplexityPoints(offenderAssessment) + getBreachRecallComplexityPoints(crn, convictions)
+        getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment) + getBreachRecallComplexityPoints(crn, convictions)
       }
       else -> 0
-    }.also { log.debug("Complexity Points for $crn : $it") }
+    }.also { log.debug("Additional Factors for Women for $crn : $it") }
 
-  private fun getAssessmentComplexityPoints(offenderAssessment: OffenderAssessment?): Int =
+  private fun getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment: OffenderAssessment?): Int =
     when (offenderAssessment) {
       null -> 0
       else -> {
         assessmentApiService.getAssessmentAnswers(offenderAssessment.assessmentId)
-          .also { log.debug("Assessment Complexity answers $it ") }
+          .also { log.debug("Additional Factors for Women Assessment answers $it ") }
           .let { answers ->
             val parenting = when {
-              isYes(answers[AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES]) -> 1
+              isYes(answers[AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES]) -> 1
               else -> 0
             }
             // We dont take the cumulative score, just '1' if at least one of these two is present
             val selfControl = when {
-              isAnswered(answers[AssessmentComplexityFactor.IMPULSIVITY]) || isAnswered(answers[AssessmentComplexityFactor.TEMPER_CONTROL]) -> 1
+              isAnswered(answers[AdditionalFactorForWomen.IMPULSIVITY]) || isAnswered(answers[AdditionalFactorForWomen.TEMPER_CONTROL]) -> 1
               else -> 0
             }
             parenting + selfControl
           }
       }
-    }.also { log.debug("Assessment Complexity Points $it") }
+    }.also { log.debug("Additional Factors for Women Points $it") }
 
   private fun getBreachRecallComplexityPoints(crn: String, convictions: Collection<Conviction>): Int =
     convictions

@@ -4,7 +4,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import java.time.Clock
@@ -31,9 +31,9 @@ class AssessmentApiService(
         }
       }
 
-  fun getAssessmentAnswers(assessmentId: String): Map<AssessmentComplexityFactor?, String?> =
+  fun getAssessmentAnswers(assessmentId: String): Map<AdditionalFactorForWomen?, String?> =
     assessmentApiClient.getAssessmentAnswers(assessmentId).associateBy(
-      { AssessmentComplexityFactor.from(it.questionCode) },
+      { AdditionalFactorForWomen.from(it.questionCode) },
       { it.answers.firstOrNull()?.refAnswerCode }
     ).filterKeys { it != null }
 

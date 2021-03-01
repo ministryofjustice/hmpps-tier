@@ -5,7 +5,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-class AssessmentComplexityFactorTest {
+class AdditionalFactorForWomenTest {
 
   @Nested
   @DisplayName("Sections test")
@@ -13,17 +13,17 @@ class AssessmentComplexityFactorTest {
 
     @Test
     fun `PARENTING_RESPONSIBILITIES should be in section 13`() {
-      assertThat(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES.section).isEqualTo("6")
+      assertThat(AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES.section).isEqualTo("6")
     }
 
     @Test
     fun `IMPULSIVITY should be in section 11`() {
-      assertThat(AssessmentComplexityFactor.IMPULSIVITY.section).isEqualTo("11")
+      assertThat(AdditionalFactorForWomen.IMPULSIVITY.section).isEqualTo("11")
     }
 
     @Test
     fun `TEMPER_CONTROL should be in section 11`() {
-      assertThat(AssessmentComplexityFactor.TEMPER_CONTROL.section).isEqualTo("11")
+      assertThat(AdditionalFactorForWomen.TEMPER_CONTROL.section).isEqualTo("11")
     }
   }
 
@@ -33,17 +33,17 @@ class AssessmentComplexityFactorTest {
 
     @Test
     fun `It should match PARENTING_RESPONSIBILITIES`() {
-      assertThat(AssessmentComplexityFactor.from("6.9")).isEqualTo(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+      assertThat(AdditionalFactorForWomen.from("6.9")).isEqualTo(AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES)
     }
 
     @Test
     fun `It should match IMPULSIVITY`() {
-      assertThat(AssessmentComplexityFactor.from("11.2")).isEqualTo(AssessmentComplexityFactor.IMPULSIVITY)
+      assertThat(AdditionalFactorForWomen.from("11.2")).isEqualTo(AdditionalFactorForWomen.IMPULSIVITY)
     }
 
     @Test
     fun `It should match TEMPER_CONTROL`() {
-      assertThat(AssessmentComplexityFactor.from("11.4")).isEqualTo(AssessmentComplexityFactor.TEMPER_CONTROL)
+      assertThat(AdditionalFactorForWomen.from("11.4")).isEqualTo(AdditionalFactorForWomen.TEMPER_CONTROL)
     }
 
     @Test
@@ -62,12 +62,12 @@ class AssessmentComplexityFactorTest {
   inner class CaseInsensitiveFrom {
     @Test
     fun `It should match case insensitive lower`() {
-      assertThat(AssessmentComplexityFactor.from("6.9")).isEqualTo(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+      assertThat(AdditionalFactorForWomen.from("6.9")).isEqualTo(AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES)
     }
 
     @Test
     fun `It should match case insensitive upper`() {
-      assertThat(AssessmentComplexityFactor.from("6.9")).isEqualTo(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+      assertThat(AdditionalFactorForWomen.from("6.9")).isEqualTo(AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES)
     }
   }
 }

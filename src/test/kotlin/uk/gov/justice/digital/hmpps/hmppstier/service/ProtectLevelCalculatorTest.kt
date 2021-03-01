@@ -24,7 +24,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.client.SentenceType
 import uk.gov.justice.digital.hmpps.hmppstier.client.UnpaidWork
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AssessmentComplexityFactor
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
@@ -815,21 +815,21 @@ internal class ProtectLevelCalculatorTest {
   }
 
   @Nested
-  @DisplayName("Female Complexity tests")
-  inner class FemaleComplexityTests {
+  @DisplayName("Additional Factors For Women tests")
+  inner class AdditionalFactorsForWomenTests {
     @Test
-    fun `should not count assessment complexity factors duplicates`() {
+    fun `should not count assessment additional factors duplicates`() {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
+          AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
+          AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
+          AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
+          AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
+          AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
+          AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
         )
 
       val result = service.calculateProtectLevel(crn, assessment, null, listOf(), listOf())
@@ -840,14 +840,14 @@ internal class ProtectLevelCalculatorTest {
     }
 
     @Test
-    fun `should add multiple complexity factors`() {
+    fun `should add multiple additional factors`() {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "Y",
-          AssessmentComplexityFactor.TEMPER_CONTROL to "1",
+          AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
+          AdditionalFactorForWomen.TEMPER_CONTROL to "1",
         )
 
       val result = service.calculateProtectLevel(crn, assessment, null, listOf(), listOf())
@@ -858,7 +858,7 @@ internal class ProtectLevelCalculatorTest {
     }
 
     @Test
-    fun `should not include complexity factors if no valid assessment`() {
+    fun `should not include additional factors if no valid assessment`() {
       val assessment = null
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
@@ -876,12 +876,12 @@ internal class ProtectLevelCalculatorTest {
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
-          AssessmentComplexityFactor.IMPULSIVITY to "2",
-          AssessmentComplexityFactor.TEMPER_CONTROL to "1",
+          AdditionalFactorForWomen.IMPULSIVITY to "2",
+          AdditionalFactorForWomen.TEMPER_CONTROL to "1",
         )
 
       val result = service.calculateProtectLevel(crn, assessment, null, listOf(), listOf())
-      assertThat(result.points).isEqualTo(2) // 1 * 2 weighting for all complexity factors
+      assertThat(result.points).isEqualTo(2) // 1 * 2 weighting for all additional factors
 
       verify { communityApiClient.getOffender(crn) }
       verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
@@ -894,11 +894,11 @@ internal class ProtectLevelCalculatorTest {
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
-          AssessmentComplexityFactor.TEMPER_CONTROL to "1",
+          AdditionalFactorForWomen.TEMPER_CONTROL to "1",
         )
 
       val result = service.calculateProtectLevel(crn, assessment, null, listOf(), listOf())
-      assertThat(result.points).isEqualTo(2) // 1 * 2 weighting for all complexity factors
+      assertThat(result.points).isEqualTo(2) // 1 * 2 weighting for all additional factors
 
       verify { communityApiClient.getOffender(crn) }
       verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
@@ -911,11 +911,11 @@ internal class ProtectLevelCalculatorTest {
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
-          AssessmentComplexityFactor.IMPULSIVITY to "2",
+          AdditionalFactorForWomen.IMPULSIVITY to "2",
         )
 
       val result = service.calculateProtectLevel(crn, assessment, null, listOf(), listOf())
-      assertThat(result.points).isEqualTo(2) // 1 * 2 weighting for all complexity factors
+      assertThat(result.points).isEqualTo(2) // 1 * 2 weighting for all additional factors
 
       verify { communityApiClient.getOffender(crn) }
       verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
@@ -928,7 +928,7 @@ internal class ProtectLevelCalculatorTest {
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
-          AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES to "N",
+          AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "N",
         )
 
       val result = service.calculateProtectLevel(crn, assessment, null, listOf(), listOf())
@@ -945,7 +945,7 @@ internal class ProtectLevelCalculatorTest {
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
-          AssessmentComplexityFactor.IMPULSIVITY to "0",
+          AdditionalFactorForWomen.IMPULSIVITY to "0",
         )
 
       val result = service.calculateProtectLevel(crn, assessment, null, listOf(), listOf())
@@ -962,7 +962,7 @@ internal class ProtectLevelCalculatorTest {
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
-          AssessmentComplexityFactor.TEMPER_CONTROL to "0",
+          AdditionalFactorForWomen.TEMPER_CONTROL to "0",
         )
 
       val result = service.calculateProtectLevel(crn, assessment, null, listOf(), listOf())
