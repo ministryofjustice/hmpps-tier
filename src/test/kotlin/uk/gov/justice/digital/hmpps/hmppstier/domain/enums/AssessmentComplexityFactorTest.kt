@@ -13,7 +13,7 @@ class AssessmentComplexityFactorTest {
 
     @Test
     fun `PARENTING_RESPONSIBILITIES should be in section 13`() {
-      assertThat(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES.section).isEqualTo("13")
+      assertThat(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES.section).isEqualTo("6")
     }
 
     @Test
@@ -33,7 +33,7 @@ class AssessmentComplexityFactorTest {
 
     @Test
     fun `It should match PARENTING_RESPONSIBILITIES`() {
-      assertThat(AssessmentComplexityFactor.from("13.3 - F")).isEqualTo(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+      assertThat(AssessmentComplexityFactor.from("6.9")).isEqualTo(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
     }
 
     @Test
@@ -62,12 +62,12 @@ class AssessmentComplexityFactorTest {
   inner class CaseInsensitiveFrom {
     @Test
     fun `It should match case insensitive lower`() {
-      assertThat(AssessmentComplexityFactor.from("13.3 - f")).isEqualTo(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+      assertThat(AssessmentComplexityFactor.from("6.9")).isEqualTo(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
     }
 
     @Test
     fun `It should match case insensitive upper`() {
-      assertThat(AssessmentComplexityFactor.from("13.3 - F")).isEqualTo(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
+      assertThat(AssessmentComplexityFactor.from("6.9")).isEqualTo(AssessmentComplexityFactor.PARENTING_RESPONSIBILITIES)
     }
   }
 }
