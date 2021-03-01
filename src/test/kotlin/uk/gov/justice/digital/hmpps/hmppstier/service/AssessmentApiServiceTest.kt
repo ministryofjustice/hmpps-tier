@@ -53,7 +53,7 @@ internal class AssessmentApiServiceTest {
       val complexityAnswers =
         listOf(
           Question(
-            "13.3 - F",
+            "6.9",
             setOf(Answer("Yes"))
           )
         )
@@ -77,7 +77,7 @@ internal class AssessmentApiServiceTest {
       val complexityAnswers =
         listOf(
           Question(
-            "13.3 - F",
+            "6.9",
             setOf(Answer("No"))
           )
         )
@@ -101,7 +101,7 @@ internal class AssessmentApiServiceTest {
       val complexityAnswers =
         listOf(
           Question(
-            "13.3 - f",
+            "6.9",
             setOf(Answer("Yes"))
           )
         )
@@ -125,7 +125,7 @@ internal class AssessmentApiServiceTest {
       val complexityAnswers =
         listOf(
           Question(
-            "13.3 - F",
+            "6.9",
             setOf(Answer("YeS"))
           )
         )
@@ -171,7 +171,7 @@ internal class AssessmentApiServiceTest {
       val complexityAnswers =
         listOf(
           Question(
-            "13.3 - F",
+            "6.9",
             setOf(Answer("No"), Answer("No"), Answer("Yes"))
           )
         )
@@ -191,7 +191,7 @@ internal class AssessmentApiServiceTest {
       val complexityAnswers =
         listOf(
           Question(
-            "13.3 - F",
+            "6.9",
             setOf(Answer("No"), Answer("No"), Answer("Yes"))
           ),
           Question(
