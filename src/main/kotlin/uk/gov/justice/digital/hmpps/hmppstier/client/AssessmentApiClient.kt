@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.HttpStatus
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.core.publisher.Mono
@@ -41,7 +41,7 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
       .uri("/offenders/crn/$crn/assessments/summary?assessmentType=LAYER_3")
       .retrieve()
       .onStatus(
-        { httpStatus -> HttpStatus.NOT_FOUND.equals(httpStatus) },
+        { httpStatus -> NOT_FOUND == httpStatus },
         { Mono.empty() }
       )
       .bodyToMono(responseType)
