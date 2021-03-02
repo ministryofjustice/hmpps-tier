@@ -42,9 +42,15 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
       .retrieve()
       .onStatus(
         { httpStatus -> NOT_FOUND == httpStatus },
-        { Mono.empty() }
+        { Mono.error(MissingAssessmentError("No assessment found for $crn")) }
       )
       .bodyToMono(responseType)
+      .onErrorResume { ex ->
+        when (ex) {
+          is MissingAssessmentError -> Mono.empty()
+          else -> Mono.error(ex)
+        }
+      }
       .block().also {
         log.info("Fetched ${it?.size ?: 0} Assessments for $crn")
       } ?: emptyList()
@@ -77,6 +83,8 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
     private val log = LoggerFactory.getLogger(AssessmentApiClient::class.java)
   }
 }
+
+private class MissingAssessmentError(msg: String) : RuntimeException(msg)
 
 data class OffenderAssessment @JsonCreator constructor(
   @JsonProperty("assessmentId")
