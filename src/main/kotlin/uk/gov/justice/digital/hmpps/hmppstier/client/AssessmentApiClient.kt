@@ -46,8 +46,8 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
       )
       .bodyToMono(responseType)
       .onErrorResume { ex ->
-        when (ex.message) {
-          "No assessment found" -> Mono.empty()
+        when (ex) {
+          is MissingAssessmentError -> Mono.empty()
           else -> Mono.error(ex)
         }
       }
