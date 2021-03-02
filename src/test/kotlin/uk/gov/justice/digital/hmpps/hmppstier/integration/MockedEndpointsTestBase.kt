@@ -87,6 +87,15 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       )
   }
 
+  fun setupAssessmentNotFound(crn: String) {
+    mockAssessmentApiServer.`when`(
+      HttpRequest.request().withPath("/offenders/crn/$crn/assessments/summary"),
+    )
+      .respond(
+        HttpResponse.notFoundResponse()
+      )
+  }
+
   fun setupUpdateTierSuccess(crn: String, score: String): RequestDefinition {
     val expectedTierUpdate = HttpRequest.request().withPath("/secure/offenders/crn/$crn/tier/$score").withMethod("POST")
 

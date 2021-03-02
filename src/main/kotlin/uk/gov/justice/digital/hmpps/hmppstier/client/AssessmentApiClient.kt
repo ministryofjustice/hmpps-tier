@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.ParameterizedTypeReference
+import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import reactor.core.publisher.Mono
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
@@ -38,6 +40,10 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
       .get()
       .uri("/offenders/crn/$crn/assessments/summary?assessmentType=LAYER_3")
       .retrieve()
+      .onStatus(
+        { httpStatus -> NOT_FOUND == httpStatus },
+        { Mono.empty() }
+      )
       .bodyToMono(responseType)
       .block().also {
         log.info("Fetched ${it?.size ?: 0} Assessments for $crn")
