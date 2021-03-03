@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationRequiredEventListener
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.TWO
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel.A
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.registrationsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 
 @TestInstance(PER_CLASS)
@@ -24,8 +25,8 @@ class NoAssessmentFoundTest : MockedEndpointsTestBase() {
     val crn = "X373878"
     setupNCCustodialSentence(crn)
     setupAssessmentNotFound(crn)
-    setupRegistrations(ApiResponses.registrationsResponse(), crn)
-    restOfSetup(crn)
+    setupRegistrations(registrationsResponse(), crn)
+    restOfSetupWithMaleOffender(crn)
     setupUpdateTierSuccess(crn, "A2")
 
     listener.listen(calculationMessage(crn))

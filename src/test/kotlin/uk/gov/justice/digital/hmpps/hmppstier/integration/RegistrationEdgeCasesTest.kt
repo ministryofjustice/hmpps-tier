@@ -26,7 +26,7 @@ class RegistrationEdgeCasesTest : MockedEndpointsTestBase() {
     val crn = "X373878"
     setupNCCustodialSentence(crn)
     setupRegistrations(emptyRegistrationsResponse(), crn)
-    restOfSetup(crn)
+    restOfSetupWithMaleOffender(crn)
     setupUpdateTierSuccess(crn, "B1")
 
     listener.listen(calculationMessage(crn))
@@ -41,7 +41,7 @@ class RegistrationEdgeCasesTest : MockedEndpointsTestBase() {
     val crn = "X445599"
     setupNCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithNoLevel(), crn)
-    restOfSetup(crn)
+    restOfSetupWithMaleOffender(crn)
     setupUpdateTierSuccess(crn, "B1")
 
     listener.listen(calculationMessage(crn))
