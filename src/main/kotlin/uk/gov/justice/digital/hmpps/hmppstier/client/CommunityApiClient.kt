@@ -42,7 +42,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
     return getBreachRecallNsisCall(crn, convictionId)
       .also {
-        log.info("Fetched ${it.size} Convictions for $crn convictionId: $convictionId")
+        log.info("Fetched ${it.size} NSIs for $crn convictionId: $convictionId")
         log.debug(it.toString())
       }
   }
@@ -66,8 +66,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   fun updateTier(tier: String, crn: String): ResponseEntity<Void>? {
     return updateTierCall(tier, crn)
       .also {
-        log.info("Updated Tier for $crn")
-        log.debug("Body: $tier for $crn")
+        log.info("Updated Tier for $crn with $tier")
       }
   }
 

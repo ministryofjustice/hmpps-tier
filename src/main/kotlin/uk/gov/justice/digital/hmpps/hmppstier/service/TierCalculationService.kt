@@ -30,8 +30,7 @@ class TierCalculationService(
     val existingTier = getLatestTierCalculation(crn)?.data
 
     return calculateTier(crn).let {
-      CalculationResultDto(TierDto.from(it.data), it.data != existingTier).also {
-      }
+      CalculationResultDto(TierDto.from(it.data), it.data != existingTier)
     }
   }
 
@@ -68,7 +67,7 @@ class TierCalculationService(
     )
 
     return tierCalculationRepository.save(calculation).also {
-      log.info("Calculated tier for $crn")
+      log.info("Calculated tier for $crn ${calculation.data}")
     }
   }
 
