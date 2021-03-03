@@ -8,6 +8,9 @@ object ApiResponses {
   fun communityApiAssessmentsResponse(): String =
     readString(Paths.get("src/test/resources/fixtures/community-api/assessments.json"))
 
+  fun emptyCommunityApiAssessmentsResponse(): String = "{}"
+
+  fun emptyNsiResponse(): String = "{}"
   fun registrationsResponse(): String =
     readString(Paths.get("src/test/resources/fixtures/community-api/registrations.json"))
 
@@ -33,6 +36,9 @@ object ApiResponses {
 
   fun maleOffenderResponse(): String =
     readString(Paths.get("src/test/resources/fixtures/community-api/offender-male.json"))
+
+  fun femaleOffenderResponse(): String =
+    readString(Paths.get("src/test/resources/fixtures/community-api/offender-female.json"))
 
   fun restrictiveRequirementsResponse(): String =
     readString(Paths.get("src/test/resources/fixtures/community-api/requirements-restrictive.json"))
