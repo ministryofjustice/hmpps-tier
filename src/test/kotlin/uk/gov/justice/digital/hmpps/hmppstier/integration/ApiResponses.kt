@@ -10,7 +10,7 @@ object ApiResponses {
 
   fun emptyCommunityApiAssessmentsResponse(): String = "{}"
 
-  fun emptyNsiResponse(): String = "{}"
+  fun emptyNsiResponse(): String = "{\"nsis\": []}"
   fun registrationsResponse(): String =
     readString(Paths.get("src/test/resources/fixtures/community-api/registrations.json"))
 

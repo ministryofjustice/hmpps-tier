@@ -149,8 +149,8 @@ data class Requirement @JsonCreator constructor(
 )
 
 private data class NsiWrapper @JsonCreator constructor(
-  @JsonProperty("convictionId")
-  val nsis: List<Nsi>?,
+  @JsonProperty("nsis")
+  val nsis: List<Nsi>,
 )
 
 data class Nsi @JsonCreator constructor(
