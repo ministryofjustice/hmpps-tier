@@ -6,8 +6,14 @@ import org.junit.jupiter.api.BeforeAll
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
+import org.mockserver.model.HttpResponse.notFoundResponse
 import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.mockserver.model.RequestDefinition
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiAssessmentsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiNeedsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.communityApiAssessmentsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialNCConvictionResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.maleOffenderResponse
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDate
@@ -42,7 +48,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     mockCommunityApiServer.`when`(HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
       HttpResponse.response().withContentType(
         APPLICATION_JSON
-      ).withBody(ApiResponses.custodialNCConvictionResponse())
+      ).withBody(custodialNCConvictionResponse())
     )
   }
 
@@ -54,17 +60,17 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     )
   }
 
-  fun restOfSetup(crn: String, includeAssessmentApi: Boolean = true) {
+  fun restOfSetupWithMaleOffender(crn: String, includeAssessmentApi: Boolean = true) {
     mockCommunityApiServer.`when`(HttpRequest.request().withPath("/secure/offenders/crn/$crn/assessments")).respond(
       HttpResponse.response().withContentType(
         APPLICATION_JSON
-      ).withBody(ApiResponses.communityApiAssessmentsResponse())
+      ).withBody(communityApiAssessmentsResponse())
     )
 
     mockCommunityApiServer.`when`(HttpRequest.request().withPath("/secure/offenders/crn/$crn")).respond(
       HttpResponse.response().withContentType(
         APPLICATION_JSON
-      ).withBody(ApiResponses.offenderResponse())
+      ).withBody(maleOffenderResponse())
     )
     if (includeAssessmentApi) {
       setupLatestAssessment(crn, LocalDate.now().year)
@@ -72,7 +78,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     mockAssessmentApiServer.`when`(HttpRequest.request().withPath("/assessments/oasysSetId/1234/needs")).respond(
       HttpResponse.response().withContentType(
         APPLICATION_JSON
-      ).withBody(ApiResponses.assessmentsApiNeedsResponse())
+      ).withBody(assessmentsApiNeedsResponse())
     )
   }
 
@@ -83,7 +89,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       .respond(
         HttpResponse.response().withContentType(
           APPLICATION_JSON
-        ).withBody(ApiResponses.assessmentsApiAssessmentsResponse(year))
+        ).withBody(assessmentsApiAssessmentsResponse(year))
       )
   }
 
@@ -91,9 +97,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     mockAssessmentApiServer.`when`(
       HttpRequest.request().withPath("/offenders/crn/$crn/assessments/summary"),
     )
-      .respond(
-        HttpResponse.notFoundResponse()
-      )
+      .respond(notFoundResponse())
   }
 
   fun setupUpdateTierSuccess(crn: String, score: String): RequestDefinition {

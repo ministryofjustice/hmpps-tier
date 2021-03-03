@@ -159,7 +159,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
 
   private fun setupRestWithRegistrations(crn: String, includeAssessmentApi: Boolean = true) {
     setupRegistrations(ApiResponses.registrationsResponse(), crn)
-    restOfSetup(crn, includeAssessmentApi)
+    restOfSetupWithMaleOffender(crn, includeAssessmentApi)
   }
 
   private fun setupNonCustodialSentenceWithNoUnpaidWork(crn: String) {
