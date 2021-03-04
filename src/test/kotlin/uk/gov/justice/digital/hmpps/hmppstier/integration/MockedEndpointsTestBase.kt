@@ -128,5 +128,5 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
 
   fun jsonResponse() = response().withContentType(APPLICATION_JSON)
 
-  private fun jsonResponseOf(response: String) = jsonResponse().withBody(response)
+  fun jsonResponseOf(response: String) = jsonResponse().withBody(response)
 }
