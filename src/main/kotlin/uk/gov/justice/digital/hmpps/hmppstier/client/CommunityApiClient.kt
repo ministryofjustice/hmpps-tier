@@ -163,7 +163,7 @@ data class Conviction @JsonCreator constructor(
   val convictionId: Long,
 
   @JsonProperty("sentence")
-  val sentence: Sentence,
+  val sentence: Sentence?,
 )
 
 data class Sentence @JsonCreator constructor(

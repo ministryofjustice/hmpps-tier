@@ -46,52 +46,70 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun setupNCCustodialSentence(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
-      jsonResponse().withBody(custodialNCConvictionResponse())
+    mockCommunityApiServer.`when`(
+      request()
+        .withPath("/secure/offenders/crn/$crn/convictions")
     )
+      .respond(jsonResponseOf(custodialNCConvictionResponse()))
   }
 
   fun setupRegistrations(registrationsResponse: String, crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/registrations")).respond(
-      jsonResponse().withBody(registrationsResponse)
+    mockCommunityApiServer.`when`(
+      request()
+        .withPath("/secure/offenders/crn/$crn/registrations")
     )
+      .respond(jsonResponseOf(registrationsResponse))
   }
 
   fun restOfSetupWithMaleOffender(crn: String, includeAssessmentApi: Boolean = true) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/assessments")).respond(
-      jsonResponse().withBody(communityApiAssessmentsResponse())
+    mockCommunityApiServer.`when`(
+      request()
+        .withPath("/secure/offenders/crn/$crn/assessments")
     )
+      .respond(jsonResponseOf(communityApiAssessmentsResponse()))
 
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn")).respond(
-      jsonResponse().withBody(maleOffenderResponse())
+    mockCommunityApiServer.`when`(
+      request()
+        .withPath("/secure/offenders/crn/$crn")
     )
+      .respond(
+        jsonResponseOf(maleOffenderResponse())
+      )
     if (includeAssessmentApi) {
       setupLatestAssessment(crn, LocalDate.now().year)
     }
-    mockAssessmentApiServer.`when`(request().withPath("/assessments/oasysSetId/1234/needs")).respond(
-      jsonResponse().withBody(assessmentsApiNeedsResponse())
+    mockAssessmentApiServer.`when`(
+      request()
+        .withPath("/assessments/oasysSetId/1234/needs")
     )
+      .respond(jsonResponseOf(assessmentsApiNeedsResponse()))
   }
 
   fun restOfSetupWithFemaleOffender(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/assessments")).respond(
-      jsonResponse().withBody(emptyCommunityApiAssessmentsResponse())
+    mockCommunityApiServer.`when`(
+      request()
+        .withPath("/secure/offenders/crn/$crn/assessments")
     )
+      .respond(jsonResponseOf(emptyCommunityApiAssessmentsResponse()))
 
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn")).respond(
-      jsonResponse().withBody(ApiResponses.femaleOffenderResponse())
+    mockCommunityApiServer.`when`(
+      request()
+        .withPath("/secure/offenders/crn/$crn")
     )
+      .respond(jsonResponseOf(ApiResponses.femaleOffenderResponse()))
     setupLatestAssessment(crn, LocalDate.now().year)
-    mockAssessmentApiServer.`when`(request().withPath("/assessments/oasysSetId/1234/needs")).respond(
-      notFoundResponse()
+    mockAssessmentApiServer.`when`(
+      request()
+        .withPath("/assessments/oasysSetId/1234/needs")
     )
+      .respond(notFoundResponse())
   }
 
   fun setupLatestAssessment(crn: String, year: Int) {
     mockAssessmentApiServer.`when`(
       request().withPath("/offenders/crn/$crn/assessments/summary"),
     )
-      .respond(jsonResponse().withBody(assessmentsApiAssessmentsResponse(year)))
+      .respond(jsonResponseOf(assessmentsApiAssessmentsResponse(year)))
   }
 
   fun setupAssessmentNotFound(crn: String) {
@@ -104,11 +122,11 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun setupUpdateTierSuccess(crn: String, score: String): RequestDefinition {
     val expectedTierUpdate = request().withPath("/secure/offenders/crn/$crn/tier/$score").withMethod("POST")
 
-    mockCommunityApiServer.`when`(expectedTierUpdate).respond(
-      jsonResponse().withBody("{}")
-    )
+    mockCommunityApiServer.`when`(expectedTierUpdate).respond(jsonResponseOf("{}"))
     return expectedTierUpdate
   }
 
   fun jsonResponse() = response().withContentType(APPLICATION_JSON)
+
+  fun jsonResponseOf(response: String) = jsonResponse().withBody(response)
 }

@@ -150,8 +150,8 @@ class ProtectLevelCalculator(
       .any { NsiStatus.from(it.status.code) != null }
 
   private fun qualifyingConvictions(conviction: Conviction): Boolean =
-    conviction.sentence.terminationDate == null ||
-      conviction.sentence.terminationDate!!.isAfter(LocalDate.now(clock).minusYears(1).minusDays(1))
+    conviction.sentence?.terminationDate == null ||
+      conviction.sentence?.terminationDate!!.isAfter(LocalDate.now(clock).minusYears(1).minusDays(1))
 
   companion object {
     private val log = LoggerFactory.getLogger(ProtectLevelCalculator::class.java)
