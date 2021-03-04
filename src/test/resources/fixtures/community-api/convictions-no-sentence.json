@@ -1,0 +1,102 @@
+[
+  {
+    "convictionId": 2500437156,
+    "index": "2",
+    "active": true,
+    "inBreach": false,
+    "convictionDate": "2021-03-03",
+    "referralDate": "2021-03-03",
+    "offences": [
+      {
+        "offenceId": "M2500437156",
+        "mainOffence": true,
+        "detail": {
+          "code": "04300",
+          "description": "Abstracting electricity - 04300",
+          "mainCategoryCode": "043",
+          "mainCategoryDescription": "Abstracting electricity",
+          "mainCategoryAbbreviation": "Abstracting electricity",
+          "ogrsOffenceCategory": "Theft (Non-motor)",
+          "subCategoryCode": "00",
+          "subCategoryDescription": "Abstracting electricity",
+          "form20Code": "7"
+        },
+        "offenceDate": "2021-03-03T00:00:00",
+        "offenceCount": 1,
+        "offenderId": 2500494726,
+        "createdDatetime": "2021-03-03T15:15:16",
+        "lastUpdatedDatetime": "2021-03-03T15:15:16"
+      }
+    ],
+    "sentence": {
+      "sentenceId": 2500419011,
+      "description": "Adult Custody < 12m",
+      "originalLength": 3,
+      "originalLengthUnits": "Months",
+      "defaultLength": 3,
+      "lengthInDays": 91,
+      "expectedSentenceEndDate": "2021-06-02",
+      "startDate": "2021-03-03",
+      "sentenceType": {
+        "code": "SC",
+        "description": "Adult Custody < 12m"
+      }
+    },
+    "latestCourtAppearanceOutcome": {
+      "code": "307",
+      "description": "Adult Custody < 12m"
+    },
+    "custody": {
+      "institution": {
+        "institutionId": 157,
+        "isEstablishment": true,
+        "code": "UNKNOW",
+        "description": "Unknown",
+        "institutionName": "Unknown",
+        "establishmentType": {
+          "code": "E",
+          "description": "Prison"
+        }
+      },
+      "keyDates": {},
+      "status": {
+        "code": "A",
+        "description": "Sentenced - In Custody"
+      },
+      "sentenceStartDate": "2021-03-03"
+    }
+  },
+  {
+    "convictionId": 2500436630,
+    "index": "1",
+    "active": true,
+    "inBreach": false,
+    "referralDate": "2021-03-02",
+    "offences": [
+      {
+        "offenceId": "M2500436630",
+        "mainOffence": true,
+        "detail": {
+          "code": "04300",
+          "description": "Abstracting electricity - 04300",
+          "mainCategoryCode": "043",
+          "mainCategoryDescription": "Abstracting electricity",
+          "mainCategoryAbbreviation": "Abstracting electricity",
+          "ogrsOffenceCategory": "Theft (Non-motor)",
+          "subCategoryCode": "00",
+          "subCategoryDescription": "Abstracting electricity",
+          "form20Code": "7"
+        },
+        "offenceDate": "2021-03-02T00:00:00",
+        "offenceCount": 1,
+        "offenderId": 2500494726,
+        "createdDatetime": "2021-03-02T16:47:05",
+        "lastUpdatedDatetime": "2021-03-02T16:47:05"
+      }
+    ],
+    "latestCourtAppearanceOutcome": {
+      "code": "102",
+      "description": "Adjourned - Other Report"
+    }
+  }
+]
