@@ -7,6 +7,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
+import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
@@ -62,9 +63,9 @@ class ChangeLevelCalculator(
         // Any custodial sentences OR non custodial without restrictive requirements or unpaid work
         activeConvictions.any {
           it.sentence?.sentenceType?.code in custodialSentences ||
-            !(hasRestrictiveRequirements(crn, it) || hasUnpaidWork(it))
+            !(hasRestrictiveRequirements(crn, it) || hasUnpaidWork(it.sentence))
         }
-      }.also { log.debug("Has Current Non Custodial sentence: $it") }
+      }.also { log.debug("Has Mandate for change: $it") }
 
   private fun hasRestrictiveRequirements(crn: String, conviction: Conviction): Boolean =
     communityApiClient.getRequirements(crn, conviction.convictionId)
@@ -72,8 +73,8 @@ class ChangeLevelCalculator(
         req.restrictive ?: false
       }.also { log.debug("Has Restrictive Requirements: $it") }
 
-  private fun hasUnpaidWork(conviction: Conviction): Boolean =
-    (conviction.sentence?.unpaidWork?.minutesOrdered != null)
+  private fun hasUnpaidWork(sentence: Sentence?): Boolean =
+    (sentence?.unpaidWork?.minutesOrdered != null)
       .also { log.debug("Unpaid work $it") }
 
   private fun getAssessmentNeedsPoints(offenderAssessment: OffenderAssessment?): Int =
