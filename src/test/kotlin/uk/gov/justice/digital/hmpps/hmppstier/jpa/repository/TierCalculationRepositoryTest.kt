@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import java.time.LocalDateTime
+import java.util.UUID
 
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -36,7 +37,7 @@ class TierCalculationRepositoryTest(
     fun `Should return latest calculation when only one`() {
 
       val created = LocalDateTime.now()
-      val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data)
+      val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data, uuid = UUID.randomUUID())
 
       repository.save(firstTierCalculation)
 
@@ -57,8 +58,8 @@ class TierCalculationRepositoryTest(
     fun `Should return latest calculation when multiple`() {
 
       val created = LocalDateTime.now()
-      val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data)
-      val secondTierCalculation = TierCalculationEntity(crn = "$crn 2", created = created.minusSeconds(1), data = data)
+      val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data, uuid = UUID.randomUUID())
+      val secondTierCalculation = TierCalculationEntity(crn = "$crn 2", created = created.minusSeconds(1), data = data, uuid = UUID.randomUUID())
 
       repository.save(firstTierCalculation)
       repository.save(secondTierCalculation)

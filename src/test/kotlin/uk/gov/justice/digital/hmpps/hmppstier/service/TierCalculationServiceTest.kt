@@ -25,6 +25,7 @@ import java.time.Clock
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.util.UUID
 
 @ExtendWith(MockKExtension::class)
 @DisplayName("Tier Calculation Service tests")
@@ -52,6 +53,7 @@ internal class TierCalculationServiceTest {
   private val changeLevelResult = TierLevel(ChangeLevel.TWO, 0)
   private val validTierCalculationEntity = TierCalculationEntity(
     0,
+    UUID.randomUUID(),
     crn,
     LocalDateTime.now(clock),
     TierCalculationResultEntity(protectLevelResult, changeLevelResult)

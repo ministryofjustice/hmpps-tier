@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEn
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import java.time.Clock
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Service
 class TierCalculationService(
@@ -23,15 +24,14 @@ class TierCalculationService(
 
   fun getTierByCrn(crn: String): TierDto? =
     getLatestTierCalculation(crn)?.let {
-      TierDto.from(it.data)
+      TierDto.from(it)
     }.also { log.info("Returned tier for $crn") }
 
   fun calculateTierForCrn(crn: String): CalculationResultDto {
     val existingTier = getLatestTierCalculation(crn)?.data
 
     return calculateTier(crn).let {
-      CalculationResultDto(TierDto.from(it.data), it.data != existingTier).also {
-      }
+      CalculationResultDto(TierDto.from(it), it.data != existingTier)
     }
   }
 
@@ -63,6 +63,7 @@ class TierCalculationService(
 
     val calculation = TierCalculationEntity(
       crn = crn,
+      uuid = UUID.randomUUID(),
       created = LocalDateTime.now(clock),
       data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel)
     )
