@@ -57,11 +57,11 @@ class ChangeLevelCalculator(
 
   private fun hasMandateForChange(crn: String, convictions: Collection<Conviction>): Boolean =
     convictions
-      .filter { it.sentence.terminationDate == null }
+      .filter { it.sentence?.terminationDate == null }
       .let { activeConvictions ->
         // Any custodial sentences OR non custodial without restrictive requirements or unpaid work
         activeConvictions.any {
-          it.sentence.sentenceType.code in custodialSentences ||
+          it.sentence?.sentenceType?.code in custodialSentences ||
             !(hasRestrictiveRequirements(crn, it) || hasUnpaidWork(it))
         }
       }.also { log.debug("Has Current Non Custodial sentence: $it") }
@@ -73,7 +73,7 @@ class ChangeLevelCalculator(
       }.also { log.debug("Has Restrictive Requirements: $it") }
 
   private fun hasUnpaidWork(conviction: Conviction): Boolean =
-    (conviction.sentence.unpaidWork?.minutesOrdered != null)
+    (conviction.sentence?.unpaidWork?.minutesOrdered != null)
       .also { log.debug("Unpaid work $it") }
 
   private fun getAssessmentNeedsPoints(offenderAssessment: OffenderAssessment?): Int =
