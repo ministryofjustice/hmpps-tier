@@ -63,12 +63,12 @@ class ChangeLevelCalculator(
         // Any custodial sentences OR non custodial without restrictive requirements or unpaid work
         activeConvictions.any {
           it.sentence?.sentenceType?.code in custodialSentences ||
-            !(hasRestrictiveRequirements(crn, it) || hasUnpaidWork(it.sentence))
+            !(hasRestrictiveRequirements(crn, it.convictionId) || hasUnpaidWork(it.sentence))
         }
       }.also { log.debug("Has Mandate for change: $it") }
 
-  private fun hasRestrictiveRequirements(crn: String, conviction: Conviction): Boolean =
-    communityApiClient.getRequirements(crn, conviction.convictionId)
+  private fun hasRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
+    communityApiClient.getRequirements(crn, convictionId)
       .any { req ->
         req.restrictive ?: false
       }.also { log.debug("Has Restrictive Requirements: $it") }
