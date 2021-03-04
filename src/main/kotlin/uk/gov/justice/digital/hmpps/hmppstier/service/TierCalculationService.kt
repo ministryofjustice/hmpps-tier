@@ -22,8 +22,13 @@ class TierCalculationService(
   private val communityApiClient: CommunityApiClient
 ) {
 
-  fun getTierByCrn(crn: String): TierDto? =
+  fun getLatestTierByCrn(crn: String): TierDto? =
     getLatestTierCalculation(crn)?.let {
+      TierDto.from(it)
+    }.also { log.info("Returned tier for $crn") }
+
+  fun getTierByCalculationId(crn: String, calculationId: UUID): TierDto? =
+    getTierCalculationById(crn, calculationId)?.let {
       TierDto.from(it)
     }.also { log.info("Returned tier for $crn") }
 
@@ -77,6 +82,17 @@ class TierCalculationService(
     log.debug("Finding latest tier calculation for $crn")
 
     return tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn).also {
+      when (it) {
+        null -> log.info("No tier calculation found for $crn")
+        else -> log.info("Found latest tier calculation for $crn")
+      }
+    }
+  }
+
+  private fun getTierCalculationById(crn: String, calculationId: UUID): TierCalculationEntity? {
+    log.debug("Finding latest tier calculation for $crn")
+
+    return tierCalculationRepository.findByCrnAndUuid(crn, calculationId).also {
       when (it) {
         null -> log.info("No tier calculation found for $crn")
         else -> log.info("Found latest tier calculation for $crn")
