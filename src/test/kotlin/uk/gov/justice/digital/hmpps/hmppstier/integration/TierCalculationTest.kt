@@ -36,7 +36,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
 
       restOfSetupWithFemaleOffender(crn)
       emptyNsisResponse(crn)
-      val expectedTierUpdate = setupUpdateTierSuccess(crn, "D2")
+      val expectedTierUpdate = tierUpdateWillSucceed(crn, "D2")
 
       listener.listen(calculationMessage(crn))
 
@@ -58,7 +58,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupSCCustodialSentence(crn)
       setupMaleOffenderWithRegistrations(crn)
 
-      val expectedTierUpdate = setupUpdateTierSuccess(crn, "A1")
+      val expectedTierUpdate = tierUpdateWillSucceed(crn, "A1")
 
       listener.listen(calculationMessage(crn))
 
@@ -70,7 +70,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       val crn = "123"
       setupNCCustodialSentence(crn)
       setupMaleOffenderWithRegistrations(crn)
-      val expectedTierUpdate = setupUpdateTierSuccess(crn, "A1")
+      val expectedTierUpdate = tierUpdateWillSucceed(crn, "A1")
 
       listener.listen(calculationMessage(crn))
 
@@ -83,7 +83,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupTerminatedCustodialSentence(crn)
       setupMaleOffenderWithRegistrations(crn)
 
-      val expectedTierUpdate = setupUpdateTierSuccess(crn, "A0")
+      val expectedTierUpdate = tierUpdateWillSucceed(crn, "A0")
 
       listener.listen(calculationMessage(crn))
 
@@ -97,7 +97,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupNonRestrictiveRequirements(crn)
       setupMaleOffenderWithRegistrations(crn)
 
-      val expectedTierUpdate = setupUpdateTierSuccess(crn, "A1")
+      val expectedTierUpdate = tierUpdateWillSucceed(crn, "A1")
 
       listener.listen(calculationMessage(crn))
 
@@ -112,7 +112,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupNonRestrictiveRequirements(crn)
       setupMaleOffenderWithRegistrations(crn)
 
-      val expectedTierUpdate = setupUpdateTierSuccess(crn, "A1")
+      val expectedTierUpdate = tierUpdateWillSucceed(crn, "A1")
 
       listener.listen(calculationMessage(crn))
 
@@ -127,7 +127,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupNonRestrictiveRequirements(crn)
       setupMaleOffenderWithRegistrations(crn)
 
-      val expectedTierUpdate = setupUpdateTierSuccess(crn, "A0")
+      val expectedTierUpdate = tierUpdateWillSucceed(crn, "A0")
 
       listener.listen(calculationMessage(crn))
 
@@ -142,7 +142,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupNonRestrictiveRequirements(crn)
       setupMaleOffenderWithRegistrations(crn)
 
-      val expectedTierUpdate = setupUpdateTierSuccess(crn, "A0")
+      val expectedTierUpdate = tierUpdateWillSucceed(crn, "A0")
 
       listener.listen(calculationMessage(crn))
 
@@ -157,7 +157,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupRestrictiveRequirements(crn)
       setupMaleOffenderWithRegistrations(crn)
 
-      val expectedTierUpdate = setupUpdateTierSuccess(crn, "A0")
+      val expectedTierUpdate = tierUpdateWillSucceed(crn, "A0")
 
       listener.listen(calculationMessage(crn))
 
@@ -172,7 +172,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupRestrictiveRequirements(crn)
       setupMaleOffenderWithRegistrations(crn)
 
-      val expectedTierUpdate = setupUpdateTierSuccess(crn, "A1")
+      val expectedTierUpdate = tierUpdateWillSucceed(crn, "A1")
 
       listener.listen(calculationMessage(crn))
 
@@ -187,7 +187,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupMaleOffenderWithRegistrations(crn, includeAssessmentApi = false)
       setupLatestAssessment(crn, 2018)
 
-      val expectedTierUpdate = setupUpdateTierSuccess(crn, "A2")
+      val expectedTierUpdate = tierUpdateWillSucceed(crn, "A2")
 
       listener.listen(calculationMessage(crn))
 

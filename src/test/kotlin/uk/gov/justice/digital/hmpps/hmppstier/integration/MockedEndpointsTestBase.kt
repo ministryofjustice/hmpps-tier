@@ -120,7 +120,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       .respond(notFoundResponse())
   }
 
-  fun setupUpdateTierSuccess(crn: String, score: String): RequestDefinition {
+  fun tierUpdateWillSucceed(crn: String, score: String): RequestDefinition {
     val expectedTierUpdate = request().withPath("/secure/offenders/crn/$crn/tier/$score").withMethod("POST")
 
     mockCommunityApiServer.`when`(expectedTierUpdate).respond(jsonResponseOf("{}"))
