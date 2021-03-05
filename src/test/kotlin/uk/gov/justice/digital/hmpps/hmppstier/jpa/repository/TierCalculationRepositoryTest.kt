@@ -59,7 +59,7 @@ class TierCalculationRepositoryTest(
 
       val created = LocalDateTime.now()
       val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data, uuid = UUID.randomUUID())
-      val secondTierCalculation = TierCalculationEntity(crn = "$crn 2", created = created.minusSeconds(1), data = data, uuid = UUID.randomUUID())
+      val secondTierCalculation = TierCalculationEntity(crn = crn, created = created.minusSeconds(1), data = data, uuid = UUID.randomUUID())
 
       repository.save(firstTierCalculation)
       repository.save(secondTierCalculation)
@@ -106,7 +106,7 @@ class TierCalculationRepositoryTest(
       val calculationId = UUID.randomUUID()
       val created = LocalDateTime.now()
       val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data, uuid = calculationId)
-      val secondTierCalculation = TierCalculationEntity(crn = "$crn 2", created = created.minusSeconds(1), data = data, uuid = UUID.randomUUID())
+      val secondTierCalculation = TierCalculationEntity(crn = crn, created = created.minusSeconds(1), data = data, uuid = UUID.randomUUID())
 
       repository.save(firstTierCalculation)
       repository.save(secondTierCalculation)

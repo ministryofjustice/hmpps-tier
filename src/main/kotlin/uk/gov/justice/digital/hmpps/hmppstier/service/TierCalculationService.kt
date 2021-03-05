@@ -30,7 +30,7 @@ class TierCalculationService(
   fun getTierByCalculationId(crn: String, calculationId: UUID): TierDto? =
     getTierCalculationById(crn, calculationId)?.let {
       TierDto.from(it)
-    }.also { log.info("Returned tier for $crn") }
+    }.also { log.info("Returned tier for $crn and $calculationId") }
 
   fun calculateTierForCrn(crn: String): CalculationResultDto {
     val existingTier = getLatestTierCalculation(crn)?.data
