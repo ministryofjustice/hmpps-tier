@@ -6,7 +6,8 @@ import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
+import java.util.UUID
 
 @ApiModel(description = "Tier")
 data class TierDto @JsonCreator constructor(
@@ -27,14 +28,20 @@ data class TierDto @JsonCreator constructor(
   @JsonProperty("changePoints")
   val changePoints: Int?,
 
+  @ApiModelProperty(value = "Calculation Id", example = "123e4567-e89b-12d3-a456-426614174000")
+  @JsonProperty("calculationId")
+  val calculationId: UUID?,
+
 ) {
+
   companion object {
-    fun from(calculation: TierCalculationResultEntity): TierDto {
+    fun from(calculation: TierCalculationEntity): TierDto {
       return TierDto(
-        calculation.protect.tier,
-        calculation.protect.points,
-        calculation.change.tier,
-        calculation.change.points
+        calculation.data.protect.tier,
+        calculation.data.protect.points,
+        calculation.data.change.tier,
+        calculation.data.change.points,
+        calculation.uuid
       )
     }
   }

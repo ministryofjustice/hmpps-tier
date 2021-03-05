@@ -22,6 +22,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.dto.CalculationResultDto
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.util.UUID
 
 @ExtendWith(MockKExtension::class)
 @DisplayName("Tier Calculation Event Listener tests")
@@ -77,7 +78,8 @@ class TierCalculationRequiredEventListenerTest {
           protect.tier,
           protect.points,
           change.tier,
-          change.points
+          change.points,
+          UUID.randomUUID()
         ),
         false
       )
@@ -100,7 +102,8 @@ class TierCalculationRequiredEventListenerTest {
           protect.tier,
           protect.points,
           change.tier,
-          change.points
+          change.points,
+          UUID.randomUUID()
         ),
         true
       )
@@ -130,7 +133,8 @@ class TierCalculationRequiredEventListenerTest {
           protect.tier,
           protect.points,
           change.tier,
-          change.points
+          change.points,
+          UUID.randomUUID()
         ),
         true
       )

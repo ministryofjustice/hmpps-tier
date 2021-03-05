@@ -6,6 +6,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import java.time.LocalDateTime
+import java.util.UUID
 
 internal class TierCalculationEntityTest {
 
@@ -14,12 +15,15 @@ internal class TierCalculationEntityTest {
     val crn = "Any CRN"
     val created = LocalDateTime.now()
     val data = data
+    val calculationId = UUID.randomUUID()
 
-    val tierCalculationResultEntity = TierCalculationEntity(crn = crn, created = created, data = data)
+    val tierCalculationResultEntity = TierCalculationEntity(crn = crn, created = created, data = data, uuid = calculationId)
 
     assertThat(tierCalculationResultEntity.crn).isEqualTo(crn)
     assertThat(tierCalculationResultEntity.created).isEqualTo(created)
     assertThat(tierCalculationResultEntity.data).isEqualTo(data)
+
+    assertThat(tierCalculationResultEntity.uuid).isEqualTo(calculationId)
   }
 
   companion object {
