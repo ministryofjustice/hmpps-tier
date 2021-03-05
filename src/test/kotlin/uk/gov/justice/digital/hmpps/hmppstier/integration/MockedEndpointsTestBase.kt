@@ -42,7 +42,8 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun calculationMessage(crn: String): String {
-    return Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json")).replace("X373878", crn)
+    return Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
+      .replace("X373878", crn)
   }
 
   fun setupNCCustodialSentence(crn: String) {
@@ -126,7 +127,5 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     return expectedTierUpdate
   }
 
-  fun jsonResponse() = response().withContentType(APPLICATION_JSON)
-
-  fun jsonResponseOf(response: String) = jsonResponse().withBody(response)
+  fun jsonResponseOf(response: String) = response().withContentType(APPLICATION_JSON).withBody(response)
 }
