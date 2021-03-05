@@ -7,6 +7,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
+import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
@@ -131,7 +132,7 @@ class ProtectLevelCalculator(
 
   private fun getBreachRecallComplexityPoints(crn: String, convictions: Collection<Conviction>): Int =
     convictions
-      .filter { qualifyingConvictions(it) }
+      .filter { qualifyingConvictions(it.sentence) }
       .let {
         when {
           it.any { conviction -> convictionHasBreachOrRecallNsis(crn, conviction.convictionId) } -> 1
@@ -149,9 +150,9 @@ class ProtectLevelCalculator(
     communityApiClient.getBreachRecallNsis(crn, convictionId)
       .any { NsiStatus.from(it.status.code) != null }
 
-  private fun qualifyingConvictions(conviction: Conviction): Boolean =
-    conviction.sentence?.terminationDate == null ||
-      conviction.sentence?.terminationDate!!.isAfter(LocalDate.now(clock).minusYears(1).minusDays(1))
+  private fun qualifyingConvictions(sentence: Sentence?): Boolean =
+    sentence?.terminationDate == null ||
+      sentence.terminationDate!!.isAfter(LocalDate.now(clock).minusYears(1).minusDays(1))
 
   companion object {
     private val log = LoggerFactory.getLogger(ProtectLevelCalculator::class.java)
