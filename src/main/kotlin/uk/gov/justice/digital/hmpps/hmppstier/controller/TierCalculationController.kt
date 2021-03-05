@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundException
+import java.util.UUID
 
 @Api
 @RestController
@@ -28,9 +29,16 @@ class TierCalculationController(private val tierCalculationService: TierCalculat
       ApiResponse(code = 404, message = "Result Not Found")
     ]
   )
+
   @GetMapping("crn/{crn}/tier")
-  fun getNotifications(@PathVariable(required = true) crn: String): ResponseEntity<TierDto> {
-    return ResponseEntity.ok(tierCalculationService.getTierByCrn(crn))
+  fun getLatestTierCalculation(@PathVariable(required = true) crn: String): ResponseEntity<TierDto> {
+    return ResponseEntity.ok(tierCalculationService.getLatestTierByCrn(crn))
+      ?: throw EntityNotFoundException("Tier Result Not Found for $crn")
+  }
+
+  @GetMapping("crn/{crn}/tier/{calculationId}")
+  fun getTierCalculationById(@PathVariable(required = true) crn: String, @PathVariable(required = true) calculationId: UUID): ResponseEntity<TierDto> {
+    return ResponseEntity.ok(tierCalculationService.getTierByCalculationId(crn, calculationId))
       ?: throw EntityNotFoundException("Tier Result Not Found for $crn")
   }
 }

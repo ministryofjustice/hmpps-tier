@@ -25,6 +25,7 @@ import java.time.Clock
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
+import java.util.UUID
 
 @ExtendWith(MockKExtension::class)
 @DisplayName("Tier Calculation Service tests")
@@ -47,11 +48,13 @@ internal class TierCalculationServiceTest {
     communityApiClient
   )
 
+  private val calculationId = UUID.randomUUID()
   private val crn = "Any Crn"
   private val protectLevelResult = TierLevel(ProtectLevel.B, 0)
   private val changeLevelResult = TierLevel(ChangeLevel.TWO, 0)
   private val validTierCalculationEntity = TierCalculationEntity(
     0,
+    calculationId,
     crn,
     LocalDateTime.now(clock),
     TierCalculationResultEntity(protectLevelResult, changeLevelResult)
@@ -83,7 +86,7 @@ internal class TierCalculationServiceTest {
     @Test
     fun `Should Call Collaborators Test - Existing found`() {
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns validTierCalculationEntity
-      val result = service.getTierByCrn(crn)
+      val result = service.getLatestTierByCrn(crn)
 
       assertThat(result?.protectLevel).isEqualTo(validTierCalculationEntity.data.protect.tier)
       assertThat(result?.protectPoints).isEqualTo(validTierCalculationEntity.data.protect.points)
@@ -96,11 +99,40 @@ internal class TierCalculationServiceTest {
     @Test
     fun `Should Call Collaborators Test - Existing Not found`() {
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
-      val result = service.getTierByCrn(crn)
+      val result = service.getLatestTierByCrn(crn)
 
       assertThat(result).isNull()
 
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
+    }
+  }
+
+  @Nested
+  @DisplayName("Get Tier By Crn tests")
+  inner class GetTierByCalculationIdTests {
+
+    @Test
+    fun `Should Call Collaborators Test - Existing found`() {
+      every { tierCalculationRepository.findByCrnAndUuid(crn, calculationId) } returns validTierCalculationEntity
+      val result = service.getTierByCalculationId(crn, calculationId)
+
+      assertThat(result?.protectLevel).isEqualTo(validTierCalculationEntity.data.protect.tier)
+      assertThat(result?.protectPoints).isEqualTo(validTierCalculationEntity.data.protect.points)
+      assertThat(result?.changeLevel).isEqualTo(validTierCalculationEntity.data.change.tier)
+      assertThat(result?.changePoints).isEqualTo(validTierCalculationEntity.data.change.points)
+      assertThat(result?.calculationId).isEqualTo(validTierCalculationEntity.uuid)
+
+      verify { tierCalculationRepository.findByCrnAndUuid(crn, calculationId) }
+    }
+
+    @Test
+    fun `Should Call Collaborators Test - Existing Not found`() {
+      every { tierCalculationRepository.findByCrnAndUuid(crn, calculationId) } returns null
+      val result = service.getTierByCalculationId(crn, calculationId)
+
+      assertThat(result).isNull()
+
+      verify { tierCalculationRepository.findByCrnAndUuid(crn, calculationId) }
     }
   }
 

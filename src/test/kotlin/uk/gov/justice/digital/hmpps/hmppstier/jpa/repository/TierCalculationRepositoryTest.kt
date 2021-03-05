@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import java.time.LocalDateTime
+import java.util.UUID
 
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
@@ -36,7 +37,7 @@ class TierCalculationRepositoryTest(
     fun `Should return latest calculation when only one`() {
 
       val created = LocalDateTime.now()
-      val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data)
+      val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data, uuid = UUID.randomUUID())
 
       repository.save(firstTierCalculation)
 
@@ -57,8 +58,55 @@ class TierCalculationRepositoryTest(
     fun `Should return latest calculation when multiple`() {
 
       val created = LocalDateTime.now()
-      val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data)
-      val secondTierCalculation = TierCalculationEntity(crn = "$crn 2", created = created.minusSeconds(1), data = data)
+      val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data, uuid = UUID.randomUUID())
+      val secondTierCalculation = TierCalculationEntity(crn = crn, created = created.minusSeconds(1), data = data, uuid = UUID.randomUUID())
+
+      repository.save(firstTierCalculation)
+      repository.save(secondTierCalculation)
+
+      val calculation = repository.findFirstByCrnOrderByCreatedDesc(crn)
+      assertThat(calculation).isNotNull
+      assertThat(calculation?.crn).isEqualTo(firstTierCalculation.crn)
+      assertThat(calculation?.created).isEqualToIgnoringNanos(firstTierCalculation.created)
+      assertThat(calculation?.data).isEqualTo(firstTierCalculation.data)
+    }
+  }
+
+  @Nested
+  @DisplayName("Get Calculation By Id Tests")
+  inner class GetCalculationByIdTests {
+
+    @Test
+    fun `Should return calculation by ID when only one`() {
+
+      val calculationId = UUID.randomUUID()
+      val created = LocalDateTime.now()
+      val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data, uuid = calculationId)
+
+      repository.save(firstTierCalculation)
+
+      val calculation = repository.findByCrnAndUuid(crn, calculationId)
+      assertThat(calculation).isNotNull
+      assertThat(calculation?.crn).isEqualTo(firstTierCalculation.crn)
+      assertThat(calculation?.created).isEqualToIgnoringNanos(firstTierCalculation.created)
+      assertThat(calculation?.data).isEqualTo(firstTierCalculation.data)
+    }
+
+    @Test
+    fun `Should return latest calculation none`() {
+
+      val calculationId = UUID.randomUUID()
+      val calculation = repository.findByCrnAndUuid(crn, calculationId)
+      assertThat(calculation).isNull()
+    }
+
+    @Test
+    fun `Should return calculation by Id when multiple`() {
+
+      val calculationId = UUID.randomUUID()
+      val created = LocalDateTime.now()
+      val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data, uuid = calculationId)
+      val secondTierCalculation = TierCalculationEntity(crn = crn, created = created.minusSeconds(1), data = data, uuid = UUID.randomUUID())
 
       repository.save(firstTierCalculation)
       repository.save(secondTierCalculation)

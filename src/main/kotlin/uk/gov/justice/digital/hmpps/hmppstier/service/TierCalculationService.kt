@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEn
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import java.time.Clock
 import java.time.LocalDateTime
+import java.util.UUID
 
 @Service
 class TierCalculationService(
@@ -21,17 +22,21 @@ class TierCalculationService(
   private val communityApiClient: CommunityApiClient
 ) {
 
-  fun getTierByCrn(crn: String): TierDto? =
+  fun getLatestTierByCrn(crn: String): TierDto? =
     getLatestTierCalculation(crn)?.let {
-      TierDto.from(it.data)
+      TierDto.from(it)
     }.also { log.info("Returned tier for $crn") }
+
+  fun getTierByCalculationId(crn: String, calculationId: UUID): TierDto? =
+    getTierCalculationById(crn, calculationId)?.let {
+      TierDto.from(it)
+    }.also { log.info("Returned tier for $crn and $calculationId") }
 
   fun calculateTierForCrn(crn: String): CalculationResultDto {
     val existingTier = getLatestTierCalculation(crn)?.data
 
     return calculateTier(crn).let {
-      CalculationResultDto(TierDto.from(it.data), it.data != existingTier).also {
-      }
+      CalculationResultDto(TierDto.from(it), it.data != existingTier)
     }
   }
 
@@ -63,6 +68,7 @@ class TierCalculationService(
 
     val calculation = TierCalculationEntity(
       crn = crn,
+      uuid = UUID.randomUUID(),
       created = LocalDateTime.now(clock),
       data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel)
     )
@@ -76,6 +82,17 @@ class TierCalculationService(
     log.debug("Finding latest tier calculation for $crn")
 
     return tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn).also {
+      when (it) {
+        null -> log.info("No tier calculation found for $crn")
+        else -> log.info("Found latest tier calculation for $crn")
+      }
+    }
+  }
+
+  private fun getTierCalculationById(crn: String, calculationId: UUID): TierCalculationEntity? {
+    log.debug("Finding latest tier calculation for $crn")
+
+    return tierCalculationRepository.findByCrnAndUuid(crn, calculationId).also {
       when (it) {
         null -> log.info("No tier calculation found for $crn")
         else -> log.info("Found latest tier calculation for $crn")
