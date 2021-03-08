@@ -17,10 +17,8 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
-import uk.gov.justice.digital.hmpps.hmppstier.client.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.client.SentenceType
-import uk.gov.justice.digital.hmpps.hmppstier.client.UnpaidWork
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
@@ -221,92 +219,6 @@ internal class ChangeLevelCalculatorTest {
 
     private fun getValidConviction(): List<Conviction> {
       return listOf(Conviction(54321L, Sentence(null, SentenceType("SC"), null)))
-    }
-  }
-
-  @Nested
-  @DisplayName("Simple Mandate for change tests")
-  inner class SimpleMandateForChangeTests {
-    @Test
-    fun `should not calculate change tier if current noncustodial, no restrictive requirements and some unpaid work`() {
-      val crn = "123"
-      val conviction = Conviction(54321L, Sentence(null, SentenceType("Not a custodial type"), UnpaidWork("Some UPW")))
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
-
-      every { communityApiClient.getRequirements(crn, conviction.convictionId) } returns listOf()
-
-      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), listOf(conviction))
-
-      assertThat(result.tier).isEqualTo(ChangeLevel.ZERO)
-      assertThat(result.points).isEqualTo(0)
-
-      verify { communityApiClient.getRequirements(crn, conviction.convictionId) }
-    }
-
-    @Test
-    fun `should not calculate change tier if current noncustodial, with restrictive requirements`() {
-      val crn = "123"
-      val conviction = Conviction(54321L, Sentence(null, SentenceType("Not a custodial type"), null))
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
-
-      every { communityApiClient.getRequirements(crn, conviction.convictionId) } returns listOf(Requirement(true))
-
-      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), listOf(conviction))
-
-      assertThat(result.tier).isEqualTo(ChangeLevel.ZERO)
-      assertThat(result.points).isEqualTo(0)
-
-      verify { communityApiClient.getRequirements(crn, conviction.convictionId) }
-    }
-
-    @Test
-    fun `should calculate change tier if current noncustodial, with no restrictive requirements or unpaid work`() {
-      val crn = "123"
-      val conviction = Conviction(54321L, Sentence(null, SentenceType("Not a custodial type"), null))
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
-
-      every { communityApiClient.getRequirements(crn, conviction.convictionId) } returns listOf()
-      every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf()
-
-      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), listOf(conviction))
-
-      assertThat(result.tier).isEqualTo(ChangeLevel.ONE)
-      assertThat(result.points).isEqualTo(0)
-
-      verify { communityApiClient.getRequirements(crn, conviction.convictionId) }
-      verify { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) }
-    }
-
-    @Test
-    fun `should calculate change tier if current custodial SC`() {
-      val crn = "123"
-      val conviction = Conviction(54321L, Sentence(null, SentenceType("SC"), null))
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
-
-      every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf()
-
-      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), listOf(conviction))
-
-      assertThat(result.tier).isEqualTo(ChangeLevel.ONE)
-      assertThat(result.points).isEqualTo(0)
-
-      verify { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) }
-    }
-
-    @Test
-    fun `should calculate change tier if current custodial NC`() {
-      val crn = "123"
-      val conviction = Conviction(54321L, Sentence(null, SentenceType("NC"), null))
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
-
-      every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf()
-
-      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), listOf(conviction))
-
-      assertThat(result.tier).isEqualTo(ChangeLevel.ONE)
-      assertThat(result.points).isEqualTo(0)
-
-      verify { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) }
     }
   }
 }
