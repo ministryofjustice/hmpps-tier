@@ -12,9 +12,18 @@ import org.mockserver.model.RequestDefinition
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiNeedsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.communityApiAssessmentsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialAndNonCustodialUnpaid
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialNCConvictionResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialSCConvictionResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialTerminatedConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.emptyCommunityApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.maleOffenderResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialConvictionResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialCurrentAndTerminatedConvictionWithUnpaidWorkResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialTerminatedConvictionResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialUnpaidWorkConvictionResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonRestrictiveRequirementsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveRequirementsResponse
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.LocalDate
@@ -42,7 +51,8 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun calculationMessage(crn: String): String {
-    return Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json")).replace("X373878", crn)
+    return Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
+      .replace("X373878", crn)
   }
 
   fun setupNCCustodialSentence(crn: String) {
@@ -119,14 +129,73 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       .respond(notFoundResponse())
   }
 
-  fun setupUpdateTierSuccess(crn: String, score: String): RequestDefinition {
+  fun tierUpdateWillSucceed(crn: String, score: String): RequestDefinition {
     val expectedTierUpdate = request().withPath("/secure/offenders/crn/$crn/tier/$score").withMethod("POST")
 
     mockCommunityApiServer.`when`(expectedTierUpdate).respond(jsonResponseOf("{}"))
     return expectedTierUpdate
   }
 
-  fun jsonResponse() = response().withContentType(APPLICATION_JSON)
+  fun setupNonCustodialSentenceWithNoUnpaidWork(crn: String) {
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
+      jsonResponseOf(nonCustodialConvictionResponse())
+    )
+  }
 
-  fun jsonResponseOf(response: String) = jsonResponse().withBody(response)
+  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentenceWithUnpaidWork(crn: String) {
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
+      jsonResponseOf(nonCustodialCurrentAndTerminatedConvictionWithUnpaidWorkResponse())
+    )
+  }
+
+  fun setupConcurrentCustodialAndNonCustodialSentenceWithUnpaidWork(crn: String) {
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
+      jsonResponseOf(custodialAndNonCustodialUnpaid())
+    )
+  }
+
+  fun setupNonCustodialSentenceWithUnpaidWork(crn: String) {
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
+      jsonResponseOf(nonCustodialUnpaidWorkConvictionResponse())
+    )
+  }
+
+  fun setupTerminatedCustodialSentence(crn: String) {
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
+      jsonResponseOf(custodialTerminatedConvictionResponse())
+    )
+  }
+
+  fun setupTerminatedNonCustodialSentenceWithNoUnpaidWork(crn: String) {
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
+      jsonResponseOf(nonCustodialTerminatedConvictionResponse())
+    )
+  }
+
+  fun setupRestrictiveRequirements(crn: String) {
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
+      .respond(
+        jsonResponseOf(restrictiveRequirementsResponse())
+      )
+  }
+
+  fun setupNonRestrictiveRequirements(crn: String) {
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
+      .respond(
+        jsonResponseOf(nonRestrictiveRequirementsResponse())
+      )
+  }
+
+  fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true) {
+    setupRegistrations(ApiResponses.registrationsResponse(), crn)
+    restOfSetupWithMaleOffender(crn, includeAssessmentApi)
+  }
+
+  fun setupSCCustodialSentence(crn: String) {
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
+      jsonResponseOf(custodialSCConvictionResponse())
+    )
+  }
+
+  fun jsonResponseOf(response: String) = response().withContentType(APPLICATION_JSON).withBody(response)
 }

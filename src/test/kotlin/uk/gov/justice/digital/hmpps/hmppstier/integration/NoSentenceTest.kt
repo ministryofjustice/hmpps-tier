@@ -2,13 +2,14 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
-import org.mockserver.model.HttpRequest
+import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
+import org.mockserver.model.HttpRequest.request
 import org.springframework.beans.factory.annotation.Autowired
 import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationRequiredEventListener
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.noSentenceConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.registrationsResponse
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(PER_CLASS)
 class NoSentenceTest : MockedEndpointsTestBase() {
 
   @Autowired
@@ -20,12 +21,12 @@ class NoSentenceTest : MockedEndpointsTestBase() {
     setUpNoSentence(crn)
     setupRegistrations(registrationsResponse(), crn)
     restOfSetupWithMaleOffender(crn)
-    setupUpdateTierSuccess(crn, "A1")
+    tierUpdateWillSucceed(crn, "A1")
     listener.listen(calculationMessage(crn))
   }
 
   private fun setUpNoSentence(crn: String) {
-    mockCommunityApiServer.`when`(HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
       jsonResponseOf(noSentenceConvictionResponse())
     )
   }

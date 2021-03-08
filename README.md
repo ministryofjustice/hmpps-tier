@@ -12,6 +12,15 @@ https://app.circleci.com/pipelines/github/ministryofjustice/hmpps-tier
 * Gradle  
 * Docker  
 * OAuth token
+
+## What it does
+
+Listens to events from Delius, calculates a new offender tier and writes it back into Delius
+
+Integration points:
+Delius via SQS
+Community-api read and write
+Assessment-api read
   
 ### How to run the app locally 
 
