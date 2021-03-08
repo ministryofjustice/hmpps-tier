@@ -20,7 +20,7 @@ class NoSentenceTest : MockedEndpointsTestBase() {
     val crn = "X333444"
     setUpNoSentence(crn)
     setupRegistrations(registrationsResponse(), crn)
-    restOfSetupWithMaleOffender(crn)
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn)
     tierUpdateWillSucceed(crn, "A1")
     listener.listen(calculationMessage(crn))
   }

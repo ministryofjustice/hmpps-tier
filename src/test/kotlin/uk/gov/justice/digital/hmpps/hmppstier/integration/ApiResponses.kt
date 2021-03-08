@@ -64,8 +64,11 @@ object ApiResponses {
       .replace("completedDate", "$year-01-01T00:00:00")
       .replace("voidedDate", "")
 
-  fun assessmentsApiNeedsResponse(): String =
-    responseFrom("src/test/resources/fixtures/assessment-api/needs.json")
+  fun assessmentsApiNoSeverityNeedsResponse(): String =
+    responseFrom("src/test/resources/fixtures/assessment-api/no_severity_needs.json")
+
+  fun assessmentsApiHighSeverityNeedsResponse(): String =
+    responseFrom("src/test/resources/fixtures/assessment-api/high_severity_needs_18_points.json")
 
   private fun responseFrom(path: String) =
     readString(Paths.get(path))

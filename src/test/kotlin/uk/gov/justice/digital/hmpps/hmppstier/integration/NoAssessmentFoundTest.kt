@@ -26,7 +26,7 @@ class NoAssessmentFoundTest : MockedEndpointsTestBase() {
     setupNCCustodialSentence(crn)
     setupAssessmentNotFound(crn)
     setupRegistrations(registrationsResponse(), crn)
-    restOfSetupWithMaleOffender(crn)
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn)
     tierUpdateWillSucceed(crn, "A2")
 
     listener.listen(calculationMessage(crn))
