@@ -154,7 +154,7 @@ private data class NsiWrapper @JsonCreator constructor(
 )
 
 data class Nsi @JsonCreator constructor(
-  @JsonProperty("nsiStatus")
+  @JsonProperty("nsiOutcome")
   val status: KeyValue
 )
 
