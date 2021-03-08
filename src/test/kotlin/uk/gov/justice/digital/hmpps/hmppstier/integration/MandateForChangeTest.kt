@@ -12,7 +12,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
   lateinit var listener: TierCalculationRequiredEventListener
 
   @Test
-  fun `do not calculate change for a non-custodial sentence with unpaid work`() {
+  fun `do not calculate change for a non-custodial sentence with unpaid work and non restrictive requirements`() {
     val crn = "X232323"
 
     setupNonCustodialSentenceWithUnpaidWork(crn)
