@@ -66,7 +66,7 @@ class ChangeLevelCalculator(
         }
       }.also { log.debug("Has Mandate for change: $it") }
 
-  //only used from hasMandateForChange so can be changed
+  // only used from hasMandateForChange so can be changed
   private fun hasRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
     communityApiClient.getRequirements(crn, convictionId)
       .any { req ->
