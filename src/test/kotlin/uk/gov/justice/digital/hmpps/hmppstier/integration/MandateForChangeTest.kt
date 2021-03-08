@@ -2,21 +2,22 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.springframework.beans.factory.annotation.Autowired
 import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationRequiredEventListener
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestInstance(PER_CLASS)
 class MandateForChangeTest : MockedEndpointsTestBase() {
 
   @Autowired
   lateinit var listener: TierCalculationRequiredEventListener
 
   @Test
-  fun `do not calculate change for a non-custodial sentence with unpaid work and non restrictive requirements`() {
+  fun `do not calculate change for a non-custodial sentence with unpaid work and only restrictive requirements`() {
     val crn = "X232323"
 
     setupNonCustodialSentenceWithUnpaidWork(crn)
-    setupNonRestrictiveRequirements(crn)
+    setupRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 
     val expectedTierUpdate = tierUpdateWillSucceed(crn, "A0")
@@ -129,6 +130,21 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
 
     setupTerminatedNonCustodialSentenceWithNoUnpaidWork(crn)
     setupNonRestrictiveRequirements(crn)
+    setupMaleOffenderWithRegistrations(crn)
+
+    val expectedTierUpdate = tierUpdateWillSucceed(crn, "A0")
+
+    listener.listen(calculationMessage(crn))
+
+    mockCommunityApiServer.verify(expectedTierUpdate)
+  }
+
+  @Test
+  fun `do not calculate change when only restrictive requirements are present on a non-custodial sentence with no unpaid work`() {
+    val crn = "X888866"
+
+    setupNonCustodialSentenceWithNoUnpaidWork(crn)
+    setupRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 
     val expectedTierUpdate = tierUpdateWillSucceed(crn, "A0")
