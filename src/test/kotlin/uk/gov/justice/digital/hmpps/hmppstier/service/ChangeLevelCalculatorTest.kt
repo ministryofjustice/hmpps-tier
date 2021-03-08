@@ -227,7 +227,7 @@ internal class ChangeLevelCalculatorTest {
   @Nested
   @DisplayName("Simple Mandate for change tests")
   inner class SimpleMandateForChangeTests {
-
+    // move these up to entrypoint tests
     @Test
     fun `should not calculate change tier if current noncustodial, no restrictive requirements and some unpaid work`() {
       val crn = "123"
