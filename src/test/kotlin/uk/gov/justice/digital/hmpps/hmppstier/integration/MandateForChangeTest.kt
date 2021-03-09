@@ -28,7 +28,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
   }
 
   @Test
-  fun `do not calculate change for non-custodial sentence with restrictive requirements`() {
+  fun `do not calculate change for non-custodial sentence with only restrictive requirements and no unpaid work`() {
     val crn = "X989898"
 
     setupNonCustodialSentenceWithNoUnpaidWork(crn)
@@ -153,4 +153,35 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
 
     mockCommunityApiServer.verify(expectedTierUpdate)
   }
+
+  @Test
+  fun `calculate change with restrictive and non-restrictive requirements on a non-custodial sentence with no unpaid work`() {
+    val crn = "X888855"
+
+    setupNonCustodialSentenceWithNoUnpaidWork(crn)
+    setupRestrictiveAndNonRestrictiveRequirements(crn)
+    setupMaleOffenderWithRegistrations(crn)
+
+    val expectedTierUpdate = tierUpdateWillSucceed(crn, "A1")
+
+    listener.listen(calculationMessage(crn))
+
+    mockCommunityApiServer.verify(expectedTierUpdate)
+  }
+
+// Confirm this can happen in pre-production
+//  @Test
+//  fun `do not calculate change when no requirements are present on a non-custodial sentence with unpaid work`() {
+//    val crn = "X888844"
+//
+//    setupNonCustodialSentenceWithUnpaidWork(crn)
+//    setupNoRequirements(crn)
+//    setupMaleOffenderWithRegistrations(crn)
+//
+//    val expectedTierUpdate = tierUpdateWillSucceed(crn, "A0")
+//
+//    listener.listen(calculationMessage(crn))
+//
+//    mockCommunityApiServer.verify(expectedTierUpdate)
+//  }
 }

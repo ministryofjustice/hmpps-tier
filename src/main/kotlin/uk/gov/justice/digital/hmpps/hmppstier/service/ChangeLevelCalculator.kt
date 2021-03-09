@@ -7,7 +7,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
-import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
@@ -65,29 +64,15 @@ class ChangeLevelCalculator(
             log.debug("Mandate for change: Custodial sentence")
             return true
           }
-
-          if (hasOnlyRestrictiveRequirements(crn, it.convictionId)) {
-            log.debug("Mandate for change: non-restrictive requirements")
-            return false
-          }
-
-          if (hasUnpaidWork(it.sentence)) {
-            return false
-          }
-
-          return true
+          return hasNonRestrictiveRequirements(crn, it.convictionId)
         }
       }.also { log.debug("Has Mandate for change: $it") }
 
-  private fun hasOnlyRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
+  private fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
     communityApiClient.getRequirements(crn, convictionId)
-      .all { req ->
-        req.restrictive == true
-      }.also { log.debug("Has only restrictive Requirements: $it") }
-
-  private fun hasUnpaidWork(sentence: Sentence?): Boolean =
-    (sentence?.unpaidWork?.minutesOrdered != null)
-      .also { log.debug("Unpaid work $it") }
+      .any { req ->
+        req.restrictive != true
+      }.also { log.debug("Has non-restrictive requirements: $it") }
 
   private fun getAssessmentNeedsPoints(offenderAssessment: OffenderAssessment?): Int =
     (

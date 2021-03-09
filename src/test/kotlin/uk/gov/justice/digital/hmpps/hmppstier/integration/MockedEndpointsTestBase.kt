@@ -19,11 +19,13 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodial
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialTerminatedConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.emptyCommunityApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.maleOffenderResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.noRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialCurrentAndTerminatedConvictionWithUnpaidWorkResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialTerminatedConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialUnpaidWorkConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonRestrictiveRequirementsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveAndNonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveRequirementsResponse
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -201,6 +203,20 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
       .respond(
         jsonResponseOf(restrictiveRequirementsResponse())
+      )
+  }
+
+  fun setupNoRequirements(crn: String) {
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
+      .respond(
+        jsonResponseOf(noRequirementsResponse())
+      )
+  }
+
+  fun setupRestrictiveAndNonRestrictiveRequirements(crn: String) {
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
+      .respond(
+        jsonResponseOf(restrictiveAndNonRestrictiveRequirementsResponse())
       )
   }
 
