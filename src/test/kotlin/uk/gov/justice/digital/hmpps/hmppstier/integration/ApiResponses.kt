@@ -56,7 +56,9 @@ object ApiResponses {
   fun nonRestrictiveRequirementsResponse(): String =
     responseFrom("src/test/resources/fixtures/community-api/requirements-non-restrictive.json")
 
-  fun noRequirementsResponse(): String = "[]"
+  fun noRequirementsResponse(): String = "{\n" +
+    "    \"requirements\": []\n" +
+    "}"
 
   fun custodialAndNonCustodialUnpaid(): String =
     responseFrom("src/test/resources/fixtures/community-api/convictions-custodial-and-non-custodial-unpaid.json")

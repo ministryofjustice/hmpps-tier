@@ -169,19 +169,18 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     mockCommunityApiServer.verify(expectedTierUpdate)
   }
 
-// Confirm this can happen in pre-production. Check behaviour - is it a 404 or an empty array?
-//  @Test
-//  fun `do not calculate change when no requirements are present on a non-custodial sentence with unpaid work`() {
-//    val crn = "X888844"
-//
-//    setupNonCustodialSentenceWithUnpaidWork(crn)
-//    setupNoRequirements(crn)
-//    setupMaleOffenderWithRegistrations(crn)
-//
-//    val expectedTierUpdate = tierUpdateWillSucceed(crn, "A0")
-//
-//    listener.listen(calculationMessage(crn))
-//
-//    mockCommunityApiServer.verify(expectedTierUpdate)
-//  }
+  @Test
+  fun `do not calculate change when no requirements are present on a non-custodial sentence with unpaid work`() {
+    val crn = "X888844"
+
+    setupNonCustodialSentenceWithUnpaidWork(crn)
+    setupNoRequirements(crn)
+    setupMaleOffenderWithRegistrations(crn)
+
+    val expectedTierUpdate = tierUpdateWillSucceed(crn, "A0")
+
+    listener.listen(calculationMessage(crn))
+
+    mockCommunityApiServer.verify(expectedTierUpdate)
+  }
 }
