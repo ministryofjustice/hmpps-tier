@@ -7,6 +7,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
+import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
@@ -60,9 +61,12 @@ class ChangeLevelCalculator(
       .filter { it.sentence?.terminationDate == null }
       .let { activeConvictions ->
         activeConvictions.any {
-          it.sentence?.sentenceType?.code in custodialSentences || hasNonRestrictiveRequirements(crn, it.convictionId)
+          isCustodialSentence(it.sentence) || hasNonRestrictiveRequirements(crn, it.convictionId)
         }
       }.also { log.debug("Has Mandate for change: $it") }
+
+  private fun isCustodialSentence(sentence: Sentence?) =
+    sentence?.sentenceType?.code in custodialSentences
 
   private fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
     communityApiClient.getRequirements(crn, convictionId)
