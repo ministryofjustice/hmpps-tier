@@ -5,6 +5,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest.request
+import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.notFoundResponse
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
@@ -238,5 +239,5 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     )
   }
 
-  fun jsonResponseOf(response: String) = response().withContentType(APPLICATION_JSON).withBody(response)
+  fun jsonResponseOf(response: String): HttpResponse = response().withContentType(APPLICATION_JSON).withBody(response)
 }
