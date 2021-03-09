@@ -60,11 +60,7 @@ class ChangeLevelCalculator(
       .filter { it.sentence?.terminationDate == null }
       .let { activeConvictions ->
         activeConvictions.any {
-          if (it.sentence?.sentenceType?.code in custodialSentences) {
-            log.debug("Mandate for change: Custodial sentence")
-            return true
-          }
-          return hasNonRestrictiveRequirements(crn, it.convictionId)
+          it.sentence?.sentenceType?.code in custodialSentences || hasNonRestrictiveRequirements(crn, it.convictionId)
         }
       }.also { log.debug("Has Mandate for change: $it") }
 
