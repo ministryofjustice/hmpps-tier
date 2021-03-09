@@ -110,7 +110,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
   }
 
   @Test
-  fun `calculate change and protect for non-custodial sentence with no restrictive requirements or unpaid work`() {
+  fun `calculate change and protect for non-custodial sentence with non-restrictive requirements and no unpaid work`() {
     val crn = "X222222"
 
     setupNonCustodialSentenceWithNoUnpaidWork(crn)
@@ -125,7 +125,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
   }
 
   @Test
-  fun `do not calculate change for terminated non-custodial sentence with no restrictive requirements or unpaid work`() {
+  fun `do not calculate change for terminated non-custodial sentence with non-restrictive requirements and no unpaid work`() {
     val crn = "X888888"
 
     setupTerminatedNonCustodialSentenceWithNoUnpaidWork(crn)
@@ -169,7 +169,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     mockCommunityApiServer.verify(expectedTierUpdate)
   }
 
-// Confirm this can happen in pre-production
+// Confirm this can happen in pre-production. Check behaviour - is it a 404 or an empty array?
 //  @Test
 //  fun `do not calculate change when no requirements are present on a non-custodial sentence with unpaid work`() {
 //    val crn = "X888844"
