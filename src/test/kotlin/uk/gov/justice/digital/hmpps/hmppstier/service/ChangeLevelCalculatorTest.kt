@@ -131,7 +131,7 @@ internal class ChangeLevelCalculatorTest {
     }
 
     private fun getValidConviction(): List<Conviction> {
-      return listOf(Conviction(54321L, Sentence(null, SentenceType("SC"), null)))
+      return listOf(Conviction(54321L, Sentence(null, SentenceType("SC"))))
     }
   }
 
@@ -192,7 +192,7 @@ internal class ChangeLevelCalculatorTest {
     }
 
     private fun getValidConviction(): List<Conviction> {
-      return listOf(Conviction(54321L, Sentence(null, SentenceType("SC"), null)))
+      return listOf(Conviction(54321L, Sentence(null, SentenceType("SC"))))
     }
 
     private fun setup() {
@@ -218,7 +218,7 @@ internal class ChangeLevelCalculatorTest {
     }
 
     private fun getValidConviction(): List<Conviction> {
-      return listOf(Conviction(54321L, Sentence(null, SentenceType("SC"), null)))
+      return listOf(Conviction(54321L, Sentence(null, SentenceType("SC"))))
     }
   }
 }
