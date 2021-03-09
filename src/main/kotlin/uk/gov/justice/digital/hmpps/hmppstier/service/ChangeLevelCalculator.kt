@@ -61,12 +61,12 @@ class ChangeLevelCalculator(
       .filter { it.sentence?.terminationDate == null }
       .let { activeConvictions ->
         activeConvictions.any {
-          isCustodialSentence(it.sentence) || hasNonRestrictiveRequirements(crn, it.convictionId)
+          it.sentence != null && (isCustodialSentence(it.sentence) || hasNonRestrictiveRequirements(crn, it.convictionId))
         }
       }.also { log.debug("Has Mandate for change: $it") }
 
-  private fun isCustodialSentence(sentence: Sentence?) =
-    sentence?.sentenceType?.code in custodialSentences
+  private fun isCustodialSentence(sentence: Sentence) =
+    sentence.sentenceType?.code in custodialSentences
 
   private fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
     communityApiClient.getRequirements(crn, convictionId)
