@@ -12,7 +12,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NsiStatus
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NsiOutcome
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
@@ -148,7 +148,7 @@ class ProtectLevelCalculator(
 
   private fun convictionHasBreachOrRecallNsis(crn: String, convictionId: Long): Boolean =
     communityApiClient.getBreachRecallNsis(crn, convictionId)
-      .any { NsiStatus.from(it.status.code) != null }
+      .any { NsiOutcome.from(it.status.code) != null }
 
   private fun qualifyingConvictions(sentence: Sentence?): Boolean =
     sentence?.terminationDate == null ||
