@@ -1,0 +1,84 @@
+[
+  {
+    "flaggedAsNeed": true,
+    "name": "Accommodation",
+    "overThreshold": false,
+    "riskOfHarm": true,
+    "riskOfReoffending": true,
+    "section": "ACCOMMODATION",
+    "severity": "SEVERE"
+  },
+  {
+    "flaggedAsNeed": true,
+    "name": "Made Up EDUCATION_TRAINING_AND_EMPLOYABILITY response - check with Assessments-api when it is up",
+    "overThreshold": false,
+    "riskOfHarm": true,
+    "riskOfReoffending": true,
+    "section": "EDUCATION_TRAINING_AND_EMPLOYABILITY",
+    "severity": "SEVERE"
+  },
+  {
+    "flaggedAsNeed": true,
+    "name": "Made Up RELATIONSHIPS response - check with Assessments-api when it is up",
+    "overThreshold": false,
+    "riskOfHarm": true,
+    "riskOfReoffending": true,
+    "section": "RELATIONSHIPS",
+    "severity": "SEVERE"
+  },
+  {
+    "flaggedAsNeed": true,
+    "name": "Made Up LIFESTYLE_AND_ASSOCIATES response - check with Assessments-api when it is up",
+    "overThreshold": false,
+    "riskOfHarm": true,
+    "riskOfReoffending": true,
+    "section": "LIFESTYLE_AND_ASSOCIATES",
+    "severity": "SEVERE"
+  },
+  {
+    "flaggedAsNeed": true,
+    "name": "Made Up DRUG_MISUSE response - check with Assessments-api when it is up",
+    "overThreshold": false,
+    "riskOfHarm": true,
+    "riskOfReoffending": true,
+    "section": "DRUG_MISUSE",
+    "severity": "SEVERE"
+  },
+  {
+    "flaggedAsNeed": true,
+    "name": "Made Up THINKING_AND_BEHAVIOUR response - check with Assessments-api when it is up",
+    "overThreshold": false,
+    "riskOfHarm": true,
+    "riskOfReoffending": true,
+    "section": "THINKING_AND_BEHAVIOUR",
+    "severity": "SEVERE"
+  },
+  {
+    "flaggedAsNeed": true,
+    "name": "Made Up ATTITUDES response - check with Assessments-api when it is up",
+    "overThreshold": false,
+    "riskOfHarm": true,
+    "riskOfReoffending": true,
+    "section": "ATTITUDES",
+    "severity": "SEVERE"
+  },
+
+  {
+    "flaggedAsNeed": true,
+    "name": "Made Up Financial Management response - check with Assessments-api when it is up",
+    "overThreshold": false,
+    "riskOfHarm": true,
+    "riskOfReoffending": true,
+    "section": "FINANCIAL_MANAGEMENT_AND_INCOME",
+    "severity": "SEVERE"
+  },
+  {
+    "flaggedAsNeed": true,
+    "name": "Made Up Emotional well being response - check with Assessments-api when it is up",
+    "overThreshold": false,
+    "riskOfHarm": true,
+    "riskOfReoffending": true,
+    "section": "EMOTIONAL_WELL_BEING",
+    "severity": "SEVERE"
+  }
+]
