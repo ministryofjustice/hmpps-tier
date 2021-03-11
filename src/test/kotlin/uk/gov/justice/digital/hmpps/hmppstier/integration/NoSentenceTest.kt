@@ -16,12 +16,12 @@ class NoSentenceTest : MockedEndpointsTestBase() {
   lateinit var listener: TierCalculationRequiredEventListener
 
   @Test
-  fun `Tier is calculated when no sentence is found`() {
+  fun `Tier is calculated with change level zero when no sentence is found`() {
     val crn = "X333444"
     setUpNoSentence(crn)
     setupRegistrations(registrationsResponse(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn)
-    tierUpdateWillSucceed(crn, "A1")
+    tierUpdateWillSucceed(crn, "A0")
     listener.listen(calculationMessage(crn))
   }
 

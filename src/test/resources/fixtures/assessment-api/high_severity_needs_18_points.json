@@ -10,7 +10,7 @@
   },
   {
     "flaggedAsNeed": true,
-    "name": "Made Up EDUCATION_TRAINING_AND_EMPLOYABILITY response - check with Assessments-api when it is up",
+    "name": "Education, Training and Employability",
     "overThreshold": false,
     "riskOfHarm": true,
     "riskOfReoffending": true,
@@ -19,7 +19,7 @@
   },
   {
     "flaggedAsNeed": true,
-    "name": "Made Up RELATIONSHIPS response - check with Assessments-api when it is up",
+    "name": "Relationships",
     "overThreshold": false,
     "riskOfHarm": true,
     "riskOfReoffending": true,
@@ -28,7 +28,7 @@
   },
   {
     "flaggedAsNeed": true,
-    "name": "Made Up LIFESTYLE_AND_ASSOCIATES response - check with Assessments-api when it is up",
+    "name": "Lifestyle and Associates",
     "overThreshold": false,
     "riskOfHarm": true,
     "riskOfReoffending": true,
@@ -37,7 +37,7 @@
   },
   {
     "flaggedAsNeed": true,
-    "name": "Made Up DRUG_MISUSE response - check with Assessments-api when it is up",
+    "name": "Drug Misuse",
     "overThreshold": false,
     "riskOfHarm": true,
     "riskOfReoffending": true,
@@ -46,7 +46,7 @@
   },
   {
     "flaggedAsNeed": true,
-    "name": "Made Up THINKING_AND_BEHAVIOUR response - check with Assessments-api when it is up",
+    "name": "Thinking and Behaviour",
     "overThreshold": false,
     "riskOfHarm": true,
     "riskOfReoffending": true,
@@ -55,7 +55,7 @@
   },
   {
     "flaggedAsNeed": true,
-    "name": "Made Up ATTITUDES response - check with Assessments-api when it is up",
+    "name": "Attitudes",
     "overThreshold": false,
     "riskOfHarm": true,
     "riskOfReoffending": true,
@@ -65,7 +65,7 @@
 
   {
     "flaggedAsNeed": true,
-    "name": "Made Up Financial Management response - check with Assessments-api when it is up",
+    "name": "Fianncial Management and Income",
     "overThreshold": false,
     "riskOfHarm": true,
     "riskOfReoffending": true,
@@ -74,7 +74,7 @@
   },
   {
     "flaggedAsNeed": true,
-    "name": "Made Up Emotional well being response - check with Assessments-api when it is up",
+    "name": "Emotional Well-Being",
     "overThreshold": false,
     "riskOfHarm": true,
     "riskOfReoffending": true,

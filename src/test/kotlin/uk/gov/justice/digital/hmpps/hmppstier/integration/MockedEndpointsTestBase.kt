@@ -5,6 +5,7 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest.request
+import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.notFoundResponse
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
@@ -19,11 +20,13 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodial
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialTerminatedConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.emptyCommunityApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.maleOffenderResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.noRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialCurrentAndTerminatedConvictionWithUnpaidWorkResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialTerminatedConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialUnpaidWorkConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonRestrictiveRequirementsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveAndNonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveRequirementsResponse
 import java.nio.file.Files
 import java.nio.file.Paths
@@ -204,6 +207,20 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       )
   }
 
+  fun setupNoRequirements(crn: String) {
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
+      .respond(
+        jsonResponseOf(noRequirementsResponse())
+      )
+  }
+
+  fun setupRestrictiveAndNonRestrictiveRequirements(crn: String) {
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
+      .respond(
+        jsonResponseOf(restrictiveAndNonRestrictiveRequirementsResponse())
+      )
+  }
+
   fun setupNonRestrictiveRequirements(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
       .respond(
@@ -222,5 +239,5 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     )
   }
 
-  fun jsonResponseOf(response: String) = response().withContentType(APPLICATION_JSON).withBody(response)
+  fun jsonResponseOf(response: String): HttpResponse = response().withContentType(APPLICATION_JSON).withBody(response)
 }

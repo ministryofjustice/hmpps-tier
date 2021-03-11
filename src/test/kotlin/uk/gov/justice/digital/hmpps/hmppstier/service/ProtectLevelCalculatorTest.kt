@@ -23,7 +23,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.client.SentenceType
-import uk.gov.justice.digital.hmpps.hmppstier.client.UnpaidWork
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
@@ -990,14 +989,12 @@ internal class ProtectLevelCalculatorTest {
   inner class GetBreachRecallTests {
     private val irrelevantSentenceType: SentenceType = SentenceType("irrelevant")
 
-    private val irrelevantUnpaidWork = UnpaidWork("irrelevant")
-
     @Test
     fun `Should return Breach true if present and valid terminationDate`() {
       val crn = "123"
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock)
-      val sentence = Sentence(terminationDate, irrelevantSentenceType, irrelevantUnpaidWork)
+      val sentence = Sentence(terminationDate, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
 
       val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
@@ -1017,7 +1014,7 @@ internal class ProtectLevelCalculatorTest {
       val crn = "123"
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock).minusYears(1)
-      val sentence = Sentence(terminationDate, irrelevantSentenceType, irrelevantUnpaidWork)
+      val sentence = Sentence(terminationDate, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
 
       val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
@@ -1037,7 +1034,7 @@ internal class ProtectLevelCalculatorTest {
       val crn = "123"
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock).minusYears(1).minusDays(1)
-      val sentence = Sentence(terminationDate, irrelevantSentenceType, irrelevantUnpaidWork)
+      val sentence = Sentence(terminationDate, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
@@ -1052,7 +1049,7 @@ internal class ProtectLevelCalculatorTest {
     fun `Should return Breach true if present and valid not terminated`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, irrelevantUnpaidWork)
+      val sentence = Sentence(null, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
 
       val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
@@ -1071,7 +1068,7 @@ internal class ProtectLevelCalculatorTest {
     fun `Should return Breach true if multiple convictions, one valid`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, irrelevantUnpaidWork)
+      val sentence = Sentence(null, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
 
       val unrelatedConviction = Conviction(convictionId.plus(1), sentence)
@@ -1106,7 +1103,7 @@ internal class ProtectLevelCalculatorTest {
     fun `Should return Breach true if one conviction, multiple breaches, one valid`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, irrelevantUnpaidWork)
+      val sentence = Sentence(null, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
 
       val breaches = listOf(
@@ -1128,7 +1125,7 @@ internal class ProtectLevelCalculatorTest {
     fun `Should return Breach true if one conviction, multiple breaches, one valid case insensitive`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, irrelevantUnpaidWork)
+      val sentence = Sentence(null, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
 
       val breaches = listOf(
@@ -1150,7 +1147,7 @@ internal class ProtectLevelCalculatorTest {
     fun `Should return Breach true if one conviction, multiple breaches, multiple valid`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, irrelevantUnpaidWork)
+      val sentence = Sentence(null, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
 
       val breaches = listOf(
@@ -1172,7 +1169,7 @@ internal class ProtectLevelCalculatorTest {
     fun `Should return Breach false if one conviction, multiple breaches, none valid`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, irrelevantUnpaidWork)
+      val sentence = Sentence(null, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
 
       val breaches = listOf(

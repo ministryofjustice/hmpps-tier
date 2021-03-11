@@ -61,21 +61,18 @@ class ChangeLevelCalculator(
       .filter { it.sentence?.terminationDate == null }
       .let { activeConvictions ->
         activeConvictions.any {
-          it.sentence?.sentenceType?.code in custodialSentences ||
-            !(hasRestrictiveRequirements(crn, it.convictionId) || hasUnpaidWork(it.sentence))
+          it.sentence != null && (isCustodialSentence(it.sentence) || hasNonRestrictiveRequirements(crn, it.convictionId))
         }
       }.also { log.debug("Has Mandate for change: $it") }
 
-  // only used from hasMandateForChange so can be changed
-  private fun hasRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
+  private fun isCustodialSentence(sentence: Sentence) =
+    sentence.sentenceType?.code in custodialSentences
+
+  private fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
     communityApiClient.getRequirements(crn, convictionId)
       .any { req ->
-        req.restrictive ?: false
-      }.also { log.debug("Has Restrictive Requirements: $it") }
-
-  private fun hasUnpaidWork(sentence: Sentence?): Boolean =
-    (sentence?.unpaidWork?.minutesOrdered != null)
-      .also { log.debug("Unpaid work $it") }
+        req.restrictive != true
+      }.also { log.debug("Has non-restrictive requirements: $it") }
 
   private fun getAssessmentNeedsPoints(offenderAssessment: OffenderAssessment?): Int =
     (
