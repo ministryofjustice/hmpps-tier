@@ -184,6 +184,15 @@ internal class ChangeLevelCalculatorTest {
       validate()
     }
 
+    @Test
+    fun `should calculate Ogrs take 10s 100`() {
+      setup()
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null)
+      val result = service.calculateChangeLevel(crn, assessment, getValidAssessments(100), listOf(), getValidConviction())
+      assertThat(result.points).isEqualTo(10)
+      validate()
+    }
+
     private fun getValidAssessments(ogrs: Int?): DeliusAssessments {
       return DeliusAssessments(
         rsr = null,
