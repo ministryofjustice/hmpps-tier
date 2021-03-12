@@ -19,7 +19,8 @@ class TierCalculationService(
   private val changeLevelCalculator: ChangeLevelCalculator,
   private val protectLevelCalculator: ProtectLevelCalculator,
   private val assessmentApiService: AssessmentApiService,
-  private val communityApiClient: CommunityApiClient
+  private val communityApiClient: CommunityApiClient,
+  private val telemetryService: TelemetryService
 ) {
 
   fun getLatestTierByCrn(crn: String): TierDto? =
@@ -37,6 +38,8 @@ class TierCalculationService(
 
     return calculateTier(crn).let {
       CalculationResultDto(TierDto.from(it), it.data != existingTier)
+    }.also {
+      telemetryService.trackTierCalculated(crn, it)
     }
   }
 
