@@ -38,6 +38,7 @@ internal class TierCalculationServiceTest {
   private val protectLevelCalculator: ProtectLevelCalculator = mockk(relaxUnitFun = true)
   private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
   private val communityApiClient: CommunityApiClient = mockk(relaxUnitFun = true)
+  private val telemetryService: TelemetryService = mockk(relaxUnitFun = true)
 
   private val service = TierCalculationService(
     clock,
@@ -45,7 +46,8 @@ internal class TierCalculationServiceTest {
     changeLevelCalculator,
     protectLevelCalculator,
     assessmentApiService,
-    communityApiClient
+    communityApiClient,
+    telemetryService
   )
 
   private val calculationId = UUID.randomUUID()
@@ -67,6 +69,7 @@ internal class TierCalculationServiceTest {
     clearMocks(protectLevelCalculator)
     clearMocks(assessmentApiService)
     clearMocks(communityApiClient)
+    clearMocks(telemetryService)
   }
 
   @AfterEach
@@ -77,6 +80,7 @@ internal class TierCalculationServiceTest {
     confirmVerified(protectLevelCalculator)
     confirmVerified(assessmentApiService)
     confirmVerified(communityApiClient)
+    confirmVerified(telemetryService)
   }
 
   @Nested
@@ -172,6 +176,7 @@ internal class TierCalculationServiceTest {
       verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
       verify { tierCalculationRepository.save(capture(slot)) }
+      verify { telemetryService.trackTierCalculated(crn, result) }
     }
 
     @Test
@@ -206,6 +211,7 @@ internal class TierCalculationServiceTest {
       verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
       verify { tierCalculationRepository.save(capture(slot)) }
+      verify { telemetryService.trackTierCalculated(crn, result) }
     }
   }
 }
