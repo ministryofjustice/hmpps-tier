@@ -3,6 +3,8 @@ package uk.gov.justice.digital.hmpps.hmppstier.config
 import com.amazonaws.auth.AWSCredentials
 import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.services.sns.AmazonSNSAsync
+import com.amazonaws.services.sns.AmazonSNSAsyncClientBuilder
 import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.amazonaws.services.sqs.AmazonSQSAsyncClientBuilder
 import org.springframework.beans.factory.annotation.Value
@@ -17,19 +19,31 @@ import org.springframework.context.annotation.Primary
 @Configuration
 @ConditionalOnProperty(name = ["offender-events.sqs-provider"], havingValue = "aws")
 class AwsConfiguration(
-  @Value("\${aws.access-key-id}") val accessKeyId: String,
-  @Value("\${aws.secret-access-key}") val secretKey: String,
-  @Value("\${aws.region}") val region: String
+  @Value("\${aws.offender.access-key-id}") val offenderEventsAccessKeyId: String,
+  @Value("\${aws.offender.secret-access-key}") val offenderEventsSecretKey: String,
+  @Value("\${aws.offender.region}") val offenderEventsRegion: String,
+  @Value("\${aws.hmpps-domain.access-key-id}") val hmppsDomainEventsAccessKeyId: String,
+  @Value("\${aws.hmpps-domain.secret-access-key}") val hmppsDomainEventsSecretKey: String,
+  @Value("\${aws.hmpps-domain.region}") val hmppsDomainEventsRegion: String
 ) {
 
   @Primary
-  @Bean(name = ["awsClient"])
-  fun amazonSQSAsync(): AmazonSQSAsync {
-    val credentials: AWSCredentials = BasicAWSCredentials(accessKeyId, secretKey)
+  @Bean(name = ["offenderEvents"])
+  fun offenderEventsAmazonSQSAsync(): AmazonSQSAsync {
+    val credentials: AWSCredentials = BasicAWSCredentials(offenderEventsAccessKeyId, offenderEventsSecretKey)
     return AmazonSQSAsyncClientBuilder
       .standard()
-      .withRegion(region)
+      .withRegion(offenderEventsRegion)
+      .withCredentials(AWSStaticCredentialsProvider(credentials)).build()
+  }
 
+  @Primary
+  @Bean(name = ["hmmpsDomainEvents"])
+  fun hmppsDomainEventsAmazonSNSAsync(): AmazonSNSAsync {
+    val credentials: AWSCredentials = BasicAWSCredentials(hmppsDomainEventsAccessKeyId, hmppsDomainEventsSecretKey)
+    return AmazonSNSAsyncClientBuilder
+      .standard()
+      .withRegion(hmppsDomainEventsRegion)
       .withCredentials(AWSStaticCredentialsProvider(credentials)).build()
   }
 

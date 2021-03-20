@@ -34,9 +34,9 @@ class TierCalculationService(
     }.also { log.info("Returned tier for $crn and $calculationId") }
 
   fun calculateTierForCrn(crn: String): CalculationResultDto {
+    val newTier = calculateTier(crn)
     val existingTier = getLatestTierCalculation(crn)?.data
-
-    return calculateTier(crn).let {
+    return tierCalculationRepository.save(newTier).let {
       CalculationResultDto(TierDto.from(it), it.data != existingTier)
     }.also {
       telemetryService.trackTierCalculated(crn, it)
@@ -47,11 +47,8 @@ class TierCalculationService(
     log.debug("Calculating tier for $crn")
 
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
-
     val deliusAssessments = communityApiClient.getDeliusAssessments(crn)
-
     val deliusRegistrations = communityApiClient.getRegistrations(crn)
-
     val deliusConvictions = communityApiClient.getConvictions(crn)
 
     val protectLevel = protectLevelCalculator.calculateProtectLevel(
@@ -69,14 +66,12 @@ class TierCalculationService(
       deliusConvictions
     )
 
-    val calculation = TierCalculationEntity(
+    return TierCalculationEntity(
       crn = crn,
       uuid = UUID.randomUUID(),
       created = LocalDateTime.now(clock),
       data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel)
-    )
-
-    return tierCalculationRepository.save(calculation).also {
+    ).also {
       log.info("Calculated tier for $crn")
     }
   }

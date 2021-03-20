@@ -4,6 +4,12 @@ offender-events:
   sqs-provider: localstack
 
 aws:
-  access-key-id: key
-  secret-access-key: secret
-  region: eu-west-2
+  hmpps-domain:
+    access-key-id: $key
+    secret-access-key: secret
+    topic-arn: arn
+    region: eu-west-2
+  offender:
+    access-key-id: key
+    secret-access-key: secret
+    region: eu-west-2

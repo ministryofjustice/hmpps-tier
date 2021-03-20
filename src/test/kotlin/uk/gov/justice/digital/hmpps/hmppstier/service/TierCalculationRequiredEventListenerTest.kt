@@ -47,10 +47,10 @@ class TierCalculationRequiredEventListenerTest {
   }
 
   @Nested
-  @DisplayName("updater is enabled")
-  inner class UpdaterEnabled {
+  @DisplayName("Update Publish tests")
+  inner class UpdatePublishTests {
     private val updaterEnabledListener: TierCalculationRequiredEventListener =
-      TierCalculationRequiredEventListener(objectMapper, tierCalculationService, successUpdater, true)
+      TierCalculationRequiredEventListener(objectMapper, tierCalculationService, successUpdater)
 
     @Test
     fun `should not call community-api update tier on failure`() {
@@ -79,6 +79,7 @@ class TierCalculationRequiredEventListenerTest {
           protect.points,
           change.tier,
           change.points,
+          protect.tier.value.plus(change.tier.value),
           UUID.randomUUID()
         ),
         false
@@ -89,7 +90,7 @@ class TierCalculationRequiredEventListenerTest {
       updaterEnabledListener.listen(validMessage)
 
       verify { tierCalculationService.calculateTierForCrn(crn) }
-      verify(exactly = 0) { successUpdater.update(calculationResult.tierDto, crn) }
+      verify(exactly = 0) { successUpdater.update(crn, calculationResult.tierDto.calculationId) }
     }
 
     @Test
@@ -103,6 +104,7 @@ class TierCalculationRequiredEventListenerTest {
           protect.points,
           change.tier,
           change.points,
+          protect.tier.value.plus(change.tier.value),
           UUID.randomUUID()
         ),
         true
@@ -113,38 +115,7 @@ class TierCalculationRequiredEventListenerTest {
       updaterEnabledListener.listen(validMessage)
 
       verify { tierCalculationService.calculateTierForCrn(crn) }
-      verify { successUpdater.update(calculationResult.tierDto, crn) }
-    }
-  }
-
-  @Nested
-  @DisplayName("updater is disabled")
-  inner class UpdaterDisabled {
-    private val noUpdateListener: TierCalculationRequiredEventListener =
-      TierCalculationRequiredEventListener(objectMapper, tierCalculationService, successUpdater, false)
-
-    @Test
-    fun `should not call updater if tier has changed`() {
-      val validMessage: String =
-        Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json")) // TODO use a helper
-
-      val calculationResult = CalculationResultDto(
-        TierDto(
-          protect.tier,
-          protect.points,
-          change.tier,
-          change.points,
-          UUID.randomUUID()
-        ),
-        true
-      )
-      every { tierCalculationService.calculateTierForCrn(crn) } returns
-        calculationResult
-
-      noUpdateListener.listen(validMessage)
-
-      verify { tierCalculationService.calculateTierForCrn(crn) }
-      verify(exactly = 0) { successUpdater.update(calculationResult.tierDto, crn) }
+      verify { successUpdater.update(crn, calculationResult.tierDto.calculationId) }
     }
   }
 }

@@ -21,7 +21,6 @@ class NoSentenceTest : MockedEndpointsTestBase() {
     setUpNoSentence(crn)
     setupRegistrations(registrationsResponse(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn)
-    tierUpdateWillSucceed(crn, "A0")
     listener.listen(calculationMessage(crn))
   }
 

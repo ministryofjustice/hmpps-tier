@@ -27,7 +27,6 @@ class RegistrationEdgeCasesTest : MockedEndpointsTestBase() {
     setupNCCustodialSentence(crn)
     setupRegistrations(emptyRegistrationsResponse(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn)
-    tierUpdateWillSucceed(crn, "B1")
 
     listener.listen(calculationMessage(crn))
     val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)
@@ -42,7 +41,6 @@ class RegistrationEdgeCasesTest : MockedEndpointsTestBase() {
     setupNCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithNoLevel(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn)
-    tierUpdateWillSucceed(crn, "B1")
 
     listener.listen(calculationMessage(crn))
     val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)

@@ -30,6 +30,7 @@ internal class TelemetryServiceTest {
     17,
     ChangeLevel.ONE,
     5,
+    ProtectLevel.A.value.plus(ChangeLevel.ONE.value),
     UUID.randomUUID()
   )
 
