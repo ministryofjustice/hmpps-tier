@@ -10,10 +10,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
-import uk.gov.justice.digital.hmpps.hmppstier.dto.CalculationResultDto
-import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
+import java.time.LocalDateTime
 import java.util.UUID
 
 @ExtendWith(MockKExtension::class)
@@ -25,20 +27,22 @@ internal class TelemetryServiceTest {
   private val service = TelemetryService(client)
 
   private val crn = "ABC123"
-  private val tierDto = TierDto(
-    ProtectLevel.A,
-    17,
-    ChangeLevel.ONE,
-    5,
-    ProtectLevel.A.value.plus(ChangeLevel.ONE.value),
-    UUID.randomUUID()
-  )
-
-  private fun resultDto(isUpdated: Boolean): CalculationResultDto {
-    return CalculationResultDto(
-      tierDto, isUpdated
+  private val tierCalculation = TierCalculationEntity(
+    0,
+    UUID.randomUUID(),
+    crn,
+    LocalDateTime.now(),
+    TierCalculationResultEntity(
+      TierLevel(
+        ProtectLevel.A,
+        17
+      ),
+      TierLevel(
+        ChangeLevel.ONE,
+        5
+      )
     )
-  }
+  )
 
   @BeforeEach
   fun resetAllMocks() {
@@ -54,15 +58,15 @@ internal class TelemetryServiceTest {
   @Test
   fun `Should emit TierChanged event when tier HAS changed`() {
 
-    service.trackTierCalculated(crn, resultDto(true))
+    service.trackTierCalculated(crn, tierCalculation, true)
 
     verify {
       client.trackEvent(
         TelemetryEventType.TIER_CHANGED.eventName,
         mapOf(
           "crn" to crn,
-          "protect" to tierDto.protectLevel.value,
-          "change" to tierDto.changeLevel.value.toString()
+          "protect" to tierCalculation.data.protect.tier.value,
+          "change" to tierCalculation.data.change.tier.value.toString()
         ),
         null
       )
@@ -72,15 +76,15 @@ internal class TelemetryServiceTest {
   @Test
   fun `Should emit TierUnchanged event when tier HAS NOT changed`() {
 
-    service.trackTierCalculated(crn, resultDto(false))
+    service.trackTierCalculated(crn, tierCalculation, false)
 
     verify {
       client.trackEvent(
         TelemetryEventType.TIER_UNCHANGED.eventName,
         mapOf(
           "crn" to crn,
-          "protect" to tierDto.protectLevel.value,
-          "change" to tierDto.changeLevel.value.toString()
+          "protect" to tierCalculation.data.protect.tier.value,
+          "change" to tierCalculation.data.change.tier.value.toString()
         ),
         null
       )

@@ -18,10 +18,11 @@ import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationRequired
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.TWO
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel.B
-import uk.gov.justice.digital.hmpps.hmppstier.dto.CalculationResultDto
-import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.LocalDateTime
 import java.util.UUID
 
 @ExtendWith(MockKExtension::class)
@@ -73,17 +74,16 @@ class TierCalculationRequiredEventListenerTest {
       val validMessage: String =
         Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
 
-      val calculationResult = CalculationResultDto(
-        TierDto(
-          protect.tier,
-          protect.points,
-          change.tier,
-          change.points,
-          protect.tier.value.plus(change.tier.value),
-          UUID.randomUUID()
-        ),
-        false
+      val calculationResult = TierCalculationEntity(
+        0,
+        UUID.randomUUID(),
+        crn,
+        LocalDateTime.now(),
+        TierCalculationResultEntity(
+          protect, change
+        )
       )
+
       every { tierCalculationService.calculateTierForCrn(crn) } returns
         calculationResult
 
@@ -98,17 +98,16 @@ class TierCalculationRequiredEventListenerTest {
       val validMessage: String =
         Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
 
-      val calculationResult = CalculationResultDto(
-        TierDto(
-          protect.tier,
-          protect.points,
-          change.tier,
-          change.points,
-          protect.tier.value.plus(change.tier.value),
-          UUID.randomUUID()
-        ),
-        true
+      val calculationResult = TierCalculationEntity(
+        0,
+        UUID.randomUUID(),
+        crn,
+        LocalDateTime.now(),
+        TierCalculationResultEntity(
+          protect, change
+        )
       )
+
       every { tierCalculationService.calculateTierForCrn(crn) } returns
         calculationResult
 
