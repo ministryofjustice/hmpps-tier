@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import io.mockk.clearMocks
 import io.mockk.confirmVerified
 import io.mockk.every
@@ -15,6 +14,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.Mockito.times
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
@@ -165,7 +165,7 @@ internal class TierCalculationServiceTest {
       service.calculateTierForCrn(crn)
 
       // We don't update the SNS and recognise that is hasn't change.
-      verifyNoMoreInteractions(successUpdater.update(crn, calculationId))
+      verify(exactly = 0) { successUpdater.update(crn, slot.captured.uuid) }
       verify { telemetryService.trackTierCalculated(crn, slot.captured, false) }
 
       verify { assessmentApiService.getRecentAssessment(crn) }
@@ -195,8 +195,8 @@ internal class TierCalculationServiceTest {
 
       service.calculateTierForCrn(crn)
 
-      // We don't update and recognise that is hasn't change.
-      verify { successUpdater.update(crn, calculationId) }
+      // We do update and recognise that is has changed.
+      verify { successUpdater.update(crn, slot.captured.uuid) }
       verify { telemetryService.trackTierCalculated(crn, slot.captured, true) }
 
       verify { assessmentApiService.getRecentAssessment(crn) }
