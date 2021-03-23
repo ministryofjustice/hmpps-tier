@@ -44,7 +44,6 @@ class TierCalculationService(
   }
 
   private fun calculateTier(crn: String): TierCalculationEntity {
-    log.debug("Calculating tier for $crn")
 
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
 

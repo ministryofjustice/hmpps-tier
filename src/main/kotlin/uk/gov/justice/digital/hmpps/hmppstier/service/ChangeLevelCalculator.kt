@@ -25,7 +25,6 @@ class ChangeLevelCalculator(
     deliusRegistrations: Collection<Registration>,
     convictions: Collection<Conviction>
   ): TierLevel<ChangeLevel> {
-    log.info("Calculating Change Level for $crn")
 
     val orderedRegistrations = deliusRegistrations
       .filter { it.active }
