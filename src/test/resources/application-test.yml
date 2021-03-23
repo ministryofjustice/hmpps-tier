@@ -42,7 +42,7 @@ hmpps-events:
   topic: any_value
 
 aws:
-  access-key-id: test-access-key-id
+  access-key: test-access-key
   secret-access-key: test-secret-key
   region: eu-west-2
 

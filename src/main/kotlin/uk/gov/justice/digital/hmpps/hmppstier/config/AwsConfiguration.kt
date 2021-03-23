@@ -19,10 +19,10 @@ import org.springframework.context.annotation.Primary
 @Configuration
 @ConditionalOnProperty(name = ["offender-events.sqs-provider"], havingValue = "aws")
 class AwsConfiguration(
-  @Value("\${aws.offender.access-key-id}") val offenderEventsAccessKeyId: String,
+  @Value("\${aws.offender.access-key}") val offenderEventsAccessKeyId: String,
   @Value("\${aws.offender.secret-access-key}") val offenderEventsSecretKey: String,
   @Value("\${aws.offender.region}") val offenderEventsRegion: String,
-  @Value("\${aws.hmpps-domain.access-key-id}") val hmppsDomainEventsAccessKeyId: String,
+  @Value("\${aws.hmpps-domain.access-key}") val hmppsDomainEventsAccessKeyId: String,
   @Value("\${aws.hmpps-domain.secret-access-key}") val hmppsDomainEventsSecretKey: String,
   @Value("\${aws.hmpps-domain.region}") val hmppsDomainEventsRegion: String
 ) {
@@ -38,7 +38,7 @@ class AwsConfiguration(
   }
 
   @Primary
-  @Bean(name = ["hmmpsDomainEvents"])
+  @Bean(name = ["hmppsDomainEvents"])
   fun hmppsDomainEventsAmazonSNSAsync(): AmazonSNSAsync {
     val credentials: AWSCredentials = BasicAWSCredentials(hmppsDomainEventsAccessKeyId, hmppsDomainEventsSecretKey)
     return AmazonSNSAsyncClientBuilder

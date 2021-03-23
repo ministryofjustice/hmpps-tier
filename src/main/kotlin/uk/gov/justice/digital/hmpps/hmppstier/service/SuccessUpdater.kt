@@ -21,7 +21,7 @@ class SuccessUpdater(
 }
 
 private data class TierChangeEvent(
-  val eventType: EventType?,
+  val eventType: EventType,
   val crn: String,
   val calculationId: UUID
 )

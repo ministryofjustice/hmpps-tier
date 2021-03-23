@@ -7,11 +7,11 @@ hmpps-events:
 
 aws:
   hmpps-domain:
-    access-key-id: ${aws.hmpps-domain.events.access.key}
+    access-key: ${aws.hmpps-domain.events.access.key}
     secret-access-key: ${aws.hmpps-domain.events.secret.access.key}
     topic-arn: ${aws.hmpps-domain.events.topic.arn}
     region: eu-west-2
   offender:
-    access-key-id: ${aws.offender.events.access.key}
+    access-key: ${aws.offender.events.access.key}
     secret-access-key: ${aws.offender.events.secret.access.key}
     region: eu-west-2
