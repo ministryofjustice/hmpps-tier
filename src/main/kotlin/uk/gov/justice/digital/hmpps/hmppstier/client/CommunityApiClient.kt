@@ -19,7 +19,6 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
     return getRegistrationsCall(crn)
       .also {
         log.info("Fetched ${it.size} Registrations for $crn")
-        log.debug(it.toString())
       }
   }
 
@@ -27,7 +26,6 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
     return getAssessmentsCall(crn)
       .also {
         log.info("Fetched Delius Assessment scores for $crn")
-        log.debug(it.toString())
       }
   }
 
@@ -35,7 +33,6 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
     return getConvictionsCall(crn)
       .also {
         log.info("Fetched ${it.size} Convictions for $crn")
-        log.debug(it.toString())
       }
   }
 
@@ -43,7 +40,6 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
     return getBreachRecallNsisCall(crn, convictionId)
       .also {
         log.info("Fetched ${it.size} Convictions for $crn convictionId: $convictionId")
-        log.debug(it.toString())
       }
   }
 
@@ -51,7 +47,6 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
     return getOffenderCall(crn)
       .also {
         log.info("Fetched Offender record for $crn")
-        log.debug(it.toString())
       }
   }
 
@@ -59,7 +54,6 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
     return getRequirementsCall(crn, convictionId)
       .also {
         log.info("Fetched Requirements for $crn convictionId: $convictionId")
-        log.debug(it.toString())
       }
   }
 
