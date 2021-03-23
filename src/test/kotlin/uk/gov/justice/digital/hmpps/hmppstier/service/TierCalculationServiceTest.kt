@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.Mockito.times
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
@@ -39,6 +40,7 @@ internal class TierCalculationServiceTest {
   private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
   private val communityApiClient: CommunityApiClient = mockk(relaxUnitFun = true)
   private val telemetryService: TelemetryService = mockk(relaxUnitFun = true)
+  private val successUpdater: SuccessUpdater = mockk(relaxUnitFun = true)
 
   private val service = TierCalculationService(
     clock,
@@ -47,6 +49,7 @@ internal class TierCalculationServiceTest {
     protectLevelCalculator,
     assessmentApiService,
     communityApiClient,
+    successUpdater,
     telemetryService
   )
 
@@ -159,14 +162,11 @@ internal class TierCalculationServiceTest {
       val slot = slot<TierCalculationEntity>()
       every { tierCalculationRepository.save(capture(slot)) } answers { slot.captured }
 
-      val result = service.calculateTierForCrn(crn)
+      service.calculateTierForCrn(crn)
 
-      assertThat(result.tierDto.protectLevel).isEqualTo(slot.captured.data.protect.tier)
-      assertThat(result.tierDto.protectPoints).isEqualTo(slot.captured.data.protect.points)
-      assertThat(result.tierDto.changeLevel).isEqualTo(slot.captured.data.change.tier)
-      assertThat(result.tierDto.changePoints).isEqualTo(slot.captured.data.change.points)
-
-      assertThat(result.isUpdated).isFalse
+      // We don't update the SNS and recognise that is hasn't change.
+      verify(exactly = 0) { successUpdater.update(crn, slot.captured.uuid) }
+      verify { telemetryService.trackTierCalculated(crn, slot.captured, false) }
 
       verify { assessmentApiService.getRecentAssessment(crn) }
       verify { communityApiClient.getDeliusAssessments(crn) }
@@ -176,7 +176,6 @@ internal class TierCalculationServiceTest {
       verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
       verify { tierCalculationRepository.save(capture(slot)) }
-      verify { telemetryService.trackTierCalculated(crn, result) }
     }
 
     @Test
@@ -194,14 +193,11 @@ internal class TierCalculationServiceTest {
       val slot = slot<TierCalculationEntity>()
       every { tierCalculationRepository.save(capture(slot)) } answers { slot.captured }
 
-      val result = service.calculateTierForCrn(crn)
+      service.calculateTierForCrn(crn)
 
-      assertThat(result.tierDto.protectLevel).isEqualTo(slot.captured.data.protect.tier)
-      assertThat(result.tierDto.protectPoints).isEqualTo(slot.captured.data.protect.points)
-      assertThat(result.tierDto.changeLevel).isEqualTo(slot.captured.data.change.tier)
-      assertThat(result.tierDto.changePoints).isEqualTo(slot.captured.data.change.points)
-
-      assertThat(result.isUpdated).isTrue
+      // We do update and recognise that is has changed.
+      verify { successUpdater.update(crn, slot.captured.uuid) }
+      verify { telemetryService.trackTierCalculated(crn, slot.captured, true) }
 
       verify { assessmentApiService.getRecentAssessment(crn) }
       verify { communityApiClient.getDeliusAssessments(crn) }
@@ -211,7 +207,6 @@ internal class TierCalculationServiceTest {
       verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
       verify { tierCalculationRepository.save(capture(slot)) }
-      verify { telemetryService.trackTierCalculated(crn, result) }
     }
   }
 }

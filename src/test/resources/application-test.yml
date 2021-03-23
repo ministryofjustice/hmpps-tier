@@ -35,11 +35,14 @@ assessment:
     url: http://localhost:8082
 
 offender-events:
-  sqs-queue: http://localhost:4576
+  sqs-endpoint: http://localhost:4576
   sqs-provider: mocked
 
+hmpps-events:
+  topic: any_value
+
 aws:
-  access-key-id: test-access-key-id
+  access-key: test-access-key
   secret-access-key: test-secret-key
   region: eu-west-2
 

@@ -13,14 +13,14 @@ env:
   - name: OAUTH_CLIENT_ID
     valueFrom:
       secretKeyRef:
-         name: {{ template "app.name" . }}
-         key: OAUTH_CLIENT_ID
+       name: {{ template "app.name" . }}
+       key: OAUTH_CLIENT_ID
 
   - name: OAUTH_CLIENT_SECRET
     valueFrom:
       secretKeyRef:
-         name: {{ template "app.name" . }}
-         key: OAUTH_CLIENT_SECRET
+       name: {{ template "app.name" . }}
+       key: OAUTH_CLIENT_SECRET
 
   - name: SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI
     value: "{{ .Values.env.SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI }}"
@@ -39,6 +39,24 @@ env:
 
   - name: SPRING_PROFILES_ACTIVE
     value: "aws,logstash,stdout"
+
+  - name: AWS_HMPPS_DOMAIN_EVENTS_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+       name: hmpps-domain-events-output
+       key: access_key_id
+
+  - name: AWS_HMPPS_DOMAIN_EVENTS_SECRET_ACCESS_KEY
+    valueFrom:
+      secretKeyRef:
+        name: hmpps-domain-events-output
+        key: secret_access_key
+
+  - name: AWS_HMPPS_DOMAIN_EVENTS_TOPIC_ARN
+    valueFrom:
+      secretKeyRef:
+        name: hmpps-domain-events-output
+        key: topic_arn
 
   - name: AWS_OFFENDER_EVENTS_ACCESS_KEY
     valueFrom:

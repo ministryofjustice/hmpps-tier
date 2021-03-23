@@ -2,7 +2,16 @@ offender-events:
   sqs-queue: ${aws.offender.events.queue}
   sqs-provider: aws
 
+hmpps-events:
+  topic: ${aws.hmpps.domain.events.topic.arc}
+
 aws:
-  access-key-id: ${aws.offender.events.access.key}
-  secret-access-key: ${aws.offender.events.secret.access.key}
-  region: eu-west-2
+  hmpps-domain:
+    access-key: ${aws.hmpps-domain.events.access.key}
+    secret-access-key: ${aws.hmpps-domain.events.secret.access.key}
+    topic-arn: ${aws.hmpps-domain.events.topic.arn}
+    region: eu-west-2
+  offender:
+    access-key: ${aws.offender.events.access.key}
+    secret-access-key: ${aws.offender.events.secret.access.key}
+    region: eu-west-2

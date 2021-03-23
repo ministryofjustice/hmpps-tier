@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundException
@@ -63,14 +62,6 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       }
   }
 
-  fun updateTier(tier: String, crn: String): ResponseEntity<Void>? {
-    return updateTierCall(tier, crn)
-      .also {
-        log.info("Updated Tier for $crn")
-        log.debug("Body: $tier for $crn")
-      }
-  }
-
   private fun getRegistrationsCall(crn: String): Collection<Registration> {
     return webClient
       .get()
@@ -124,13 +115,6 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .retrieve()
       .bodyToMono(Requirements::class.java)
       .block()?.requirements ?: listOf()
-  }
-
-  private fun updateTierCall(tier: String, crn: String): ResponseEntity<Void>? {
-    return webClient
-      .post()
-      .uri("/offenders/crn/$crn/tier/$tier")
-      .retrieve().toBodilessEntity().block()
   }
 
   companion object {

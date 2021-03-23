@@ -27,7 +27,6 @@ class NoAssessmentFoundTest : MockedEndpointsTestBase() {
     setupAssessmentNotFound(crn)
     setupRegistrations(registrationsResponse(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn)
-    tierUpdateWillSucceed(crn, "A2")
 
     listener.listen(calculationMessage(crn))
     val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)
