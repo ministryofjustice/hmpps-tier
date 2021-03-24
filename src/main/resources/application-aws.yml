@@ -3,7 +3,7 @@ offender-events:
   sqs-provider: aws
 
 hmpps-events:
-  topic: ${aws.hmpps.domain.events.topic.arc}
+  topic: ${aws.hmpps.domain.events.topic.arn}
 
 aws:
   hmpps-domain:
