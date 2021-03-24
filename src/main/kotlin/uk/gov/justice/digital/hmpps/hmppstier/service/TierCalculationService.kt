@@ -74,9 +74,7 @@ class TierCalculationService(
       uuid = UUID.randomUUID(),
       created = LocalDateTime.now(clock),
       data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel)
-    ).also {
-      log.info("Calculated tier for $crn")
-    }
+    )
   }
 
   private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =

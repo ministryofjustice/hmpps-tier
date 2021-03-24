@@ -38,7 +38,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
     return getBreachRecallNsisCall(crn, convictionId)
       .also {
-        log.info("Fetched ${it.size} Convictions for $crn convictionId: $convictionId")
+        log.info("Fetched ${it.size} breacn/recall NSIs for $crn convictionId: $convictionId")
       }
   }
 
