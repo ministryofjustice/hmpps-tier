@@ -10,6 +10,10 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ONE
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.THREE
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.TWO
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ZERO
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 
 @Service
@@ -25,7 +29,6 @@ class ChangeLevelCalculator(
     deliusRegistrations: Collection<Registration>,
     convictions: Collection<Conviction>
   ): TierLevel<ChangeLevel> {
-    log.info("Calculating Change Level for $crn")
 
     val orderedRegistrations = deliusRegistrations
       .filter { it.active }
@@ -33,12 +36,11 @@ class ChangeLevelCalculator(
 
     return when {
       !hasMandateForChange(crn, convictions) -> {
-        log.info("No Mandate for Change for $crn")
-        TierLevel(ChangeLevel.ZERO, 0)
+        TierLevel(ZERO, 0)
       }
       offenderAssessment == null -> {
-        log.info("Assessment out of date for $crn")
-        TierLevel(ChangeLevel.TWO, 0)
+        log.info("No valid assessment found for $crn")
+        TierLevel(TWO, 0)
       }
       else -> {
         val needsPoints = getAssessmentNeedsPoints(offenderAssessment)
@@ -48,9 +50,9 @@ class ChangeLevelCalculator(
         val totalPoints = needsPoints + ogrsPoints + iomPoints
 
         when {
-          totalPoints >= 20 -> TierLevel(ChangeLevel.THREE, totalPoints)
-          totalPoints in 10..19 -> TierLevel(ChangeLevel.TWO, totalPoints)
-          else -> TierLevel(ChangeLevel.ONE, totalPoints)
+          totalPoints >= 20 -> TierLevel(THREE, totalPoints)
+          totalPoints in 10..19 -> TierLevel(TWO, totalPoints)
+          else -> TierLevel(ONE, totalPoints)
         }
       }
     }.also { log.debug("Calculated Change Level for $crn: $it") }
@@ -78,9 +80,7 @@ class ChangeLevelCalculator(
     (
       offenderAssessment?.let { assessment ->
         assessmentApiService.getAssessmentNeeds(assessment.assessmentId)
-          .also {
-            log.debug("Assessment Needs: $it ")
-          }.let {
+          .let {
             it.entries.sumBy { ent ->
               ent.key.weighting.times(ent.value?.score ?: 0)
             }

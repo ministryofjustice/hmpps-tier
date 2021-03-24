@@ -48,7 +48,6 @@ class TierCalculationService(
   }
 
   private fun calculateTier(crn: String): TierCalculationEntity {
-    log.debug("Calculating tier for $crn")
 
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
     val deliusAssessments = communityApiClient.getDeliusAssessments(crn)
@@ -75,32 +74,23 @@ class TierCalculationService(
       uuid = UUID.randomUUID(),
       created = LocalDateTime.now(clock),
       data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel)
-    ).also {
-      log.info("Calculated tier for $crn")
-    }
+    )
   }
 
-  private fun getLatestTierCalculation(crn: String): TierCalculationEntity? {
-    log.debug("Finding latest tier calculation for $crn")
-
-    return tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn).also {
+  private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
+    tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn).also {
       when (it) {
         null -> log.info("No tier calculation found for $crn")
         else -> log.info("Found latest tier calculation for $crn")
       }
     }
-  }
 
-  private fun getTierCalculationById(crn: String, calculationId: UUID): TierCalculationEntity? {
-    log.debug("Finding latest tier calculation for $crn")
-
-    return tierCalculationRepository.findByCrnAndUuid(crn, calculationId).also {
+  private fun getTierCalculationById(crn: String, calculationId: UUID): TierCalculationEntity? =
+    tierCalculationRepository.findByCrnAndUuid(crn, calculationId).also {
       when (it) {
-        null -> log.info("No tier calculation found for $crn")
-        else -> log.info("Found latest tier calculation for $crn")
+        null -> log.info("No tier calculation found for $crn $calculationId")
       }
     }
-  }
 
   companion object {
     private val log = LoggerFactory.getLogger(TierCalculationService::class.java)

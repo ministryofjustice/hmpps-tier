@@ -22,7 +22,6 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
       getAssessmentAnswersCall(assessmentId)
         .also {
           log.info("Fetched ${it.size} Questions for $assessmentId")
-          log.debug(it.toString())
         }
     } ?: listOf()
   }
@@ -30,7 +29,6 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
   fun getAssessmentNeeds(assessmentId: String): Collection<AssessmentNeed> {
     return getAssessmentNeedsCall(assessmentId).also {
       log.info("Fetched ${it.size} Assessment needs for $assessmentId")
-      log.debug(it.toString())
     }
   }
 
