@@ -24,6 +24,7 @@ internal class TierDtoTest {
       5,
       changeLevel,
       12,
+      protectLevel.value.plus(changeLevel.value),
       calculationId
     )
 

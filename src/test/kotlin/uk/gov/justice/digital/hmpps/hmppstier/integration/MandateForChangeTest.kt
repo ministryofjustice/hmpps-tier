@@ -1,16 +1,23 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
+import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.springframework.beans.factory.annotation.Autowired
 import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationRequiredEventListener
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 
 @TestInstance(PER_CLASS)
 class MandateForChangeTest : MockedEndpointsTestBase() {
 
   @Autowired
   lateinit var listener: TierCalculationRequiredEventListener
+
+  @Autowired
+  lateinit var repo: TierCalculationRepository
 
   @Test
   fun `do not calculate change for a non-custodial sentence with only restrictive requirements`() {
@@ -20,11 +27,11 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 
-    val expectedTierUpdate = tierUpdateWillSucceed(crn, "A0")
-
     listener.listen(calculationMessage(crn))
+    val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)
 
-    mockCommunityApiServer.verify(expectedTierUpdate)
+    Assertions.assertThat(tier?.data?.change?.tier).isEqualTo(ChangeLevel.ZERO)
+    Assertions.assertThat(tier?.data?.protect?.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -35,11 +42,12 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 
-    val expectedTierUpdate = tierUpdateWillSucceed(crn, "A1")
-
     listener.listen(calculationMessage(crn))
 
-    mockCommunityApiServer.verify(expectedTierUpdate)
+    val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)
+
+    Assertions.assertThat(tier?.data?.change?.tier).isEqualTo(ChangeLevel.ONE)
+    Assertions.assertThat(tier?.data?.protect?.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -48,11 +56,12 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupSCCustodialSentence(crn)
     setupMaleOffenderWithRegistrations(crn)
 
-    val expectedTierUpdate = tierUpdateWillSucceed(crn, "A1")
-
     listener.listen(calculationMessage(crn))
 
-    mockCommunityApiServer.verify(expectedTierUpdate)
+    val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)
+
+    Assertions.assertThat(tier?.data?.change?.tier).isEqualTo(ChangeLevel.ONE)
+    Assertions.assertThat(tier?.data?.protect?.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -60,11 +69,13 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     val crn = "123"
     setupNCCustodialSentence(crn)
     setupMaleOffenderWithRegistrations(crn)
-    val expectedTierUpdate = tierUpdateWillSucceed(crn, "A1")
 
     listener.listen(calculationMessage(crn))
 
-    mockCommunityApiServer.verify(expectedTierUpdate)
+    val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)
+
+    Assertions.assertThat(tier?.data?.change?.tier).isEqualTo(ChangeLevel.ONE)
+    Assertions.assertThat(tier?.data?.protect?.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -73,11 +84,12 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupTerminatedCustodialSentence(crn)
     setupMaleOffenderWithRegistrations(crn)
 
-    val expectedTierUpdate = tierUpdateWillSucceed(crn, "A0")
-
     listener.listen(calculationMessage(crn))
 
-    mockCommunityApiServer.verify(expectedTierUpdate)
+    val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)
+
+    Assertions.assertThat(tier?.data?.change?.tier).isEqualTo(ChangeLevel.ZERO)
+    Assertions.assertThat(tier?.data?.protect?.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -87,11 +99,12 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupNonRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 
-    val expectedTierUpdate = tierUpdateWillSucceed(crn, "A1")
-
     listener.listen(calculationMessage(crn))
 
-    mockCommunityApiServer.verify(expectedTierUpdate)
+    val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)
+
+    Assertions.assertThat(tier?.data?.change?.tier).isEqualTo(ChangeLevel.ONE)
+    Assertions.assertThat(tier?.data?.protect?.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -102,11 +115,12 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupNonRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 
-    val expectedTierUpdate = tierUpdateWillSucceed(crn, "A1")
-
     listener.listen(calculationMessage(crn))
 
-    mockCommunityApiServer.verify(expectedTierUpdate)
+    val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)
+
+    Assertions.assertThat(tier?.data?.change?.tier).isEqualTo(ChangeLevel.ONE)
+    Assertions.assertThat(tier?.data?.protect?.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -117,11 +131,12 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupNonRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 
-    val expectedTierUpdate = tierUpdateWillSucceed(crn, "A0")
-
     listener.listen(calculationMessage(crn))
 
-    mockCommunityApiServer.verify(expectedTierUpdate)
+    val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)
+
+    Assertions.assertThat(tier?.data?.change?.tier).isEqualTo(ChangeLevel.ZERO)
+    Assertions.assertThat(tier?.data?.protect?.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -132,11 +147,12 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 
-    val expectedTierUpdate = tierUpdateWillSucceed(crn, "A0")
-
     listener.listen(calculationMessage(crn))
 
-    mockCommunityApiServer.verify(expectedTierUpdate)
+    val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)
+
+    Assertions.assertThat(tier?.data?.change?.tier).isEqualTo(ChangeLevel.ZERO)
+    Assertions.assertThat(tier?.data?.protect?.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -147,11 +163,12 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupRestrictiveAndNonRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 
-    val expectedTierUpdate = tierUpdateWillSucceed(crn, "A1")
-
     listener.listen(calculationMessage(crn))
 
-    mockCommunityApiServer.verify(expectedTierUpdate)
+    val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)
+
+    Assertions.assertThat(tier?.data?.change?.tier).isEqualTo(ChangeLevel.ONE)
+    Assertions.assertThat(tier?.data?.protect?.tier).isEqualTo(ProtectLevel.A)
   }
 
   @Test
@@ -162,10 +179,11 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupNoRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 
-    val expectedTierUpdate = tierUpdateWillSucceed(crn, "A0")
-
     listener.listen(calculationMessage(crn))
 
-    mockCommunityApiServer.verify(expectedTierUpdate)
+    val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)
+
+    Assertions.assertThat(tier?.data?.change?.tier).isEqualTo(ChangeLevel.ZERO)
+    Assertions.assertThat(tier?.data?.protect?.tier).isEqualTo(ProtectLevel.A)
   }
 }

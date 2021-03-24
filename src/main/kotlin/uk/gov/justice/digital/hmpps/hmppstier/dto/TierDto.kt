@@ -18,19 +18,23 @@ data class TierDto @JsonCreator constructor(
 
   @ApiModelProperty(value = "Protect Points", example = "17")
   @JsonProperty("protectPoints")
-  val protectPoints: Int?,
+  val protectPoints: Int,
 
-  @ApiModelProperty(value = "Change Level", example = "2")
+  @ApiModelProperty(value = "Change Level", example = "TWO")
   @JsonProperty("changeLevel")
   val changeLevel: ChangeLevel,
 
   @ApiModelProperty(value = "Change Points", example = "12")
   @JsonProperty("changePoints")
-  val changePoints: Int?,
+  val changePoints: Int,
+
+  @ApiModelProperty(value = "Tier Score", example = "D2")
+  @JsonProperty("tierScore")
+  val tierScore: String,
 
   @ApiModelProperty(value = "Calculation Id", example = "123e4567-e89b-12d3-a456-426614174000")
   @JsonProperty("calculationId")
-  val calculationId: UUID?,
+  val calculationId: UUID,
 
 ) {
 
@@ -41,6 +45,7 @@ data class TierDto @JsonCreator constructor(
         calculation.data.protect.points,
         calculation.data.change.tier,
         calculation.data.change.points,
+        calculation.data.protect.tier.value.plus(calculation.data.change.tier.value),
         calculation.uuid
       )
     }

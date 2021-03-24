@@ -9,7 +9,6 @@ import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.notFoundResponse
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
-import org.mockserver.model.RequestDefinition
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiHighSeverityNeedsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiNoSeverityNeedsResponse
@@ -155,13 +154,6 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       request().withPath("/offenders/crn/$crn/assessments/summary"),
     )
       .respond(notFoundResponse())
-  }
-
-  fun tierUpdateWillSucceed(crn: String, score: String): RequestDefinition {
-    val expectedTierUpdate = request().withPath("/secure/offenders/crn/$crn/tier/$score").withMethod("POST")
-
-    mockCommunityApiServer.`when`(expectedTierUpdate).respond(jsonResponseOf("{}"))
-    return expectedTierUpdate
   }
 
   fun setupNonCustodialSentenceWithNoUnpaidWork(crn: String) {

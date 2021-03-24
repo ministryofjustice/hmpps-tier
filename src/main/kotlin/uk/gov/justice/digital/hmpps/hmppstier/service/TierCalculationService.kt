@@ -2,8 +2,8 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
-import uk.gov.justice.digital.hmpps.hmppstier.dto.CalculationResultDto
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
@@ -20,6 +20,7 @@ class TierCalculationService(
   private val protectLevelCalculator: ProtectLevelCalculator,
   private val assessmentApiService: AssessmentApiService,
   private val communityApiClient: CommunityApiClient,
+  private val successUpdater: SuccessUpdater,
   private val telemetryService: TelemetryService
 ) {
 
@@ -33,24 +34,24 @@ class TierCalculationService(
       TierDto.from(it)
     }.also { log.info("Returned tier for $crn and $calculationId") }
 
-  fun calculateTierForCrn(crn: String): CalculationResultDto {
-    val existingTier = getLatestTierCalculation(crn)?.data
-
-    return calculateTier(crn).let {
-      CalculationResultDto(TierDto.from(it), it.data != existingTier)
-    }.also {
-      telemetryService.trackTierCalculated(crn, it)
+  @Transactional
+  fun calculateTierForCrn(crn: String) {
+    val newTier = calculateTier(crn)
+    val existingTier = getLatestTierCalculation(crn)
+    val isUpdated = newTier.data != existingTier?.data
+    tierCalculationRepository.save(newTier)
+    if (isUpdated) {
+      successUpdater.update(crn, newTier.uuid)
     }
+    log.info("Tier calculated for $crn. Different from previous tier: $isUpdated")
+    telemetryService.trackTierCalculated(crn, newTier, isUpdated)
   }
 
   private fun calculateTier(crn: String): TierCalculationEntity {
 
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
-
     val deliusAssessments = communityApiClient.getDeliusAssessments(crn)
-
     val deliusRegistrations = communityApiClient.getRegistrations(crn)
-
     val deliusConvictions = communityApiClient.getConvictions(crn)
 
     val protectLevel = protectLevelCalculator.calculateProtectLevel(
@@ -68,14 +69,12 @@ class TierCalculationService(
       deliusConvictions
     )
 
-    val calculation = TierCalculationEntity(
+    return TierCalculationEntity(
       crn = crn,
       uuid = UUID.randomUUID(),
       created = LocalDateTime.now(clock),
       data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel)
-    )
-
-    return tierCalculationRepository.save(calculation).also {
+    ).also {
       log.info("Calculated tier for $crn")
     }
   }
