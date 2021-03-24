@@ -14,19 +14,22 @@ class SuccessUpdater(
 ) {
 
   fun update(crn: String, calculationId: UUID) {
-    val tierChangeEvent = TierChangeEvent(EventType.TIER_CALCULATION_COMPLETE, crn, calculationId)
-    val message = Message(gson.toJson(tierChangeEvent), calculationId.toString())
+    val message = Message(EventType.TIER_CALCULATION_COMPLETE, gson.toJson(TierChangeEvent(crn, calculationId)), calculationId.toString())
+
     amazonSNS.publish(topic, gson.toJson(message))
   }
 }
 
 private data class TierChangeEvent(
-  val eventType: EventType,
   val crn: String,
   val calculationId: UUID
 )
 
-private data class Message(val Message: String, val MessageId: String)
+private data class Message(
+  val eventType: EventType,
+  val Message: String,
+  val MessageId: String
+)
 
 private enum class EventType {
   TIER_CALCULATION_COMPLETE,
