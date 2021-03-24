@@ -43,19 +43,19 @@ env:
   - name: AWS_HMPPS_DOMAIN_EVENTS_ACCESS_KEY
     valueFrom:
       secretKeyRef:
-       name: hmpps-domain-events-output
+       name: hmpps-domain-events-topic
        key: access_key_id
 
   - name: AWS_HMPPS_DOMAIN_EVENTS_SECRET_ACCESS_KEY
     valueFrom:
       secretKeyRef:
-        name: hmpps-domain-events-output
+        name: hmpps-domain-events-topic
         key: secret_access_key
 
   - name: AWS_HMPPS_DOMAIN_EVENTS_TOPIC_ARN
     valueFrom:
       secretKeyRef:
-        name: hmpps-domain-events-output
+        name: hmpps-domain-events-topic
         key: topic_arn
 
   - name: AWS_OFFENDER_EVENTS_ACCESS_KEY
