@@ -37,8 +37,8 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
 
   @BeforeAll
   fun setupMockServer() {
-    mockCommunityApiServer = ClientAndServer.startClientAndServer(8081)
-    mockAssessmentApiServer = ClientAndServer.startClientAndServer(8082)
+    mockCommunityApiServer = ClientAndServer.startClientAndServer(8091)
+    mockAssessmentApiServer = ClientAndServer.startClientAndServer(8092)
   }
 
   @AfterEach

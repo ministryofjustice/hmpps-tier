@@ -28,11 +28,11 @@ management.endpoint:
 
 community:
   endpoint:
-    url: http://localhost:8081/secure
+    url: http://localhost:8091/secure
 
 assessment:
   endpoint:
-    url: http://localhost:8082
+    url: http://localhost:8092
 
 offender-events:
   sqs-endpoint: http://localhost:4576
