@@ -18,14 +18,17 @@ internal class TierDtoTest {
     val protectLevel = ProtectLevel.A
     val changeLevel = ChangeLevel.TWO
     val calculationId = UUID.randomUUID()
+    val calculationDate = LocalDateTime.now()
 
     val tierDto = TierDto(
       protectLevel.value.plus(changeLevel.value),
-      calculationId
+      calculationId,
+      calculationDate
     )
 
     assertThat(tierDto.tierScore).isEqualTo(protectLevel.value.plus(changeLevel.value))
     assertThat(tierDto.calculationId).isEqualTo(calculationId)
+    assertThat(tierDto.calculationDate).isEqualTo(calculationDate)
   }
 
   @Test
@@ -33,8 +36,8 @@ internal class TierDtoTest {
 
     val protectLevel = ProtectLevel.A
     val changeLevel = ChangeLevel.TWO
-
     val calculationId = UUID.randomUUID()
+    val calculationDate = LocalDateTime.now()
 
     val data = TierCalculationResultEntity(
       protect = TierLevel(protectLevel, 5),
@@ -45,7 +48,7 @@ internal class TierDtoTest {
       0,
       calculationId,
       "Any Crn",
-      LocalDateTime.now(),
+      calculationDate,
       data
     )
 
@@ -53,5 +56,6 @@ internal class TierDtoTest {
 
     assertThat(tierDto.tierScore).isEqualTo(protectLevel.value.plus(changeLevel.value))
     assertThat(tierDto.calculationId).isEqualTo(calculationId)
+    assertThat(tierDto.calculationDate).isEqualTo(calculationDate)
   }
 }

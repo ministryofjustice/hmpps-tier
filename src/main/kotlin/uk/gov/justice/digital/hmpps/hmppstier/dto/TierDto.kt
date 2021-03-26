@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.annotations.ApiModel
 import io.swagger.annotations.ApiModelProperty
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
+import java.time.LocalDateTime
 import java.util.UUID
 
 @ApiModel(description = "Tier")
@@ -18,13 +19,18 @@ data class TierDto @JsonCreator constructor(
   @JsonProperty("calculationId")
   val calculationId: UUID,
 
+  @ApiModelProperty(value = "Calculation Date Time", example = "2021-04-23T18:25:43.511Z")
+  @JsonProperty("calculationDate")
+  val calculationDate: LocalDateTime,
+
 ) {
 
   companion object {
     fun from(calculation: TierCalculationEntity): TierDto {
       return TierDto(
         calculation.data.protect.tier.value.plus(calculation.data.change.tier.value),
-        calculation.uuid
+        calculation.uuid,
+        calculation.created
       )
     }
   }
