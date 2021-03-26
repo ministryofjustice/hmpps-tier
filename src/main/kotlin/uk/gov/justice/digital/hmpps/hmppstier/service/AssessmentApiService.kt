@@ -19,7 +19,8 @@ class AssessmentApiService(
   fun getRecentAssessment(crn: String): OffenderAssessment? =
     assessmentApiClient.getAssessmentSummaries(crn)
       .filter {
-        it.voided == null &&
+        it.assessmentStatus == "COMPLETE" &&
+          it.voided == null &&
           it.completed != null &&
           it.completed.toLocalDate().isAfter(LocalDate.now(clock).minusWeeks(55).minusDays(1))
       }

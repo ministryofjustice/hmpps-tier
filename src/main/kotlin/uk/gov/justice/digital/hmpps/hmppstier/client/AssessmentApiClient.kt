@@ -93,6 +93,9 @@ data class OffenderAssessment @JsonCreator constructor(
 
   @JsonProperty("voided")
   val voided: LocalDateTime?,
+
+  @JsonProperty("assessmentStatus")
+  val assessmentStatus: String?
 )
 
 data class AssessmentNeed @JsonCreator constructor(
