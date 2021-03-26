@@ -20,20 +20,11 @@ internal class TierDtoTest {
     val calculationId = UUID.randomUUID()
 
     val tierDto = TierDto(
-      protectLevel,
-      5,
-      changeLevel,
-      12,
       protectLevel.value.plus(changeLevel.value),
       calculationId
     )
 
-    assertThat(tierDto.protectLevel).isEqualTo(protectLevel)
-    assertThat(tierDto.changeLevel).isEqualTo(changeLevel)
-
-    assertThat(tierDto.protectPoints).isEqualTo(5)
-    assertThat(tierDto.changePoints).isEqualTo(12)
-
+    assertThat(tierDto.tierScore).isEqualTo(protectLevel.value.plus(changeLevel.value))
     assertThat(tierDto.calculationId).isEqualTo(calculationId)
   }
 
@@ -60,12 +51,7 @@ internal class TierDtoTest {
 
     val tierDto = TierDto.from(entity)
 
-    assertThat(tierDto.protectLevel).isEqualTo(protectLevel)
-    assertThat(tierDto.changeLevel).isEqualTo(changeLevel)
-
-    assertThat(tierDto.protectPoints).isEqualTo(5)
-    assertThat(tierDto.changePoints).isEqualTo(12)
-
+    assertThat(tierDto.tierScore).isEqualTo(protectLevel.value.plus(changeLevel.value))
     assertThat(tierDto.calculationId).isEqualTo(calculationId)
   }
 }

@@ -95,10 +95,8 @@ internal class TierCalculationServiceTest {
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns validTierCalculationEntity
       val result = service.getLatestTierByCrn(crn)
 
-      assertThat(result?.protectLevel).isEqualTo(validTierCalculationEntity.data.protect.tier)
-      assertThat(result?.protectPoints).isEqualTo(validTierCalculationEntity.data.protect.points)
-      assertThat(result?.changeLevel).isEqualTo(validTierCalculationEntity.data.change.tier)
-      assertThat(result?.changePoints).isEqualTo(validTierCalculationEntity.data.change.points)
+      assertThat(result?.tierScore).isEqualTo(validTierCalculationEntity.data.protect.tier.value.plus(validTierCalculationEntity.data.change.tier.value))
+      assertThat(result?.calculationId).isEqualTo(validTierCalculationEntity.uuid)
 
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
     }
@@ -123,10 +121,7 @@ internal class TierCalculationServiceTest {
       every { tierCalculationRepository.findByCrnAndUuid(crn, calculationId) } returns validTierCalculationEntity
       val result = service.getTierByCalculationId(crn, calculationId)
 
-      assertThat(result?.protectLevel).isEqualTo(validTierCalculationEntity.data.protect.tier)
-      assertThat(result?.protectPoints).isEqualTo(validTierCalculationEntity.data.protect.points)
-      assertThat(result?.changeLevel).isEqualTo(validTierCalculationEntity.data.change.tier)
-      assertThat(result?.changePoints).isEqualTo(validTierCalculationEntity.data.change.points)
+      assertThat(result?.tierScore).isEqualTo(validTierCalculationEntity.data.protect.tier.value.plus(validTierCalculationEntity.data.change.tier.value))
       assertThat(result?.calculationId).isEqualTo(validTierCalculationEntity.uuid)
 
       verify { tierCalculationRepository.findByCrnAndUuid(crn, calculationId) }
