@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
-import uk.gov.justice.digital.hmpps.hmppstier.service.SuccessUpdater
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundException
 import java.util.UUID
@@ -19,7 +18,7 @@ import java.util.UUID
 @Api
 @RestController
 @RequestMapping(produces = [APPLICATION_JSON_VALUE])
-class TierCalculationController(private val tierCalculationService: TierCalculationService, private val successUpdater: SuccessUpdater) {
+class TierCalculationController(private val tierCalculationService: TierCalculationService) {
 
   @ApiOperation(value = "Retrieve tiering score by crn")
   @ApiResponses(
