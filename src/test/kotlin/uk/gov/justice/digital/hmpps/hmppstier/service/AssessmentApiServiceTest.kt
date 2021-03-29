@@ -49,7 +49,7 @@ internal class AssessmentApiServiceTest {
 
     @Test
     fun `Should return Answer if present and positive`() {
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null, "COMPLETE")
       val answers =
         listOf(
           Question(
@@ -73,7 +73,7 @@ internal class AssessmentApiServiceTest {
 
     @Test
     fun `Should return Answer even if present and negative`() {
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null, "COMPLETE")
       val answers =
         listOf(
           Question(
@@ -97,7 +97,7 @@ internal class AssessmentApiServiceTest {
 
     @Test
     fun `Should match Answer Case Insensitive Question`() {
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null, "COMPLETE")
       val answers =
         listOf(
           Question(
@@ -121,7 +121,7 @@ internal class AssessmentApiServiceTest {
 
     @Test
     fun `Should match Answer Case Insensitive Answer`() {
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null, "COMPLETE")
       val answers =
         listOf(
           Question(
@@ -145,7 +145,7 @@ internal class AssessmentApiServiceTest {
 
     @Test
     fun `Should return empty List if no Answers match`() {
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null, "COMPLETE")
       val answers =
         listOf(
           Question(
@@ -167,7 +167,7 @@ internal class AssessmentApiServiceTest {
 
     @Test
     fun `Should return any Answers Match`() {
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null, "COMPLETE")
       val answers =
         listOf(
           Question(
@@ -187,7 +187,7 @@ internal class AssessmentApiServiceTest {
 
     @Test
     fun `Should return multiple Answers`() {
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null, "COMPLETE")
       val answers =
         listOf(
           Question(
@@ -216,7 +216,7 @@ internal class AssessmentApiServiceTest {
 
     @Test
     fun `Should return empty List if no Complexity Answers present`() {
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null, "COMPLETE")
       val answers =
         listOf<Question>()
 
@@ -239,7 +239,7 @@ internal class AssessmentApiServiceTest {
 
     @Test
     fun `Should return empty Map if no Needs`() {
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null, "COMPLETE")
       val needs = listOf<AssessmentNeed>()
 
       every { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) } returns needs
@@ -252,7 +252,7 @@ internal class AssessmentApiServiceTest {
 
     @Test
     fun `Should return Needs`() {
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null, "COMPLETE")
       val needs = listOf(
         AssessmentNeed(
           Need.ACCOMMODATION,
@@ -271,7 +271,7 @@ internal class AssessmentApiServiceTest {
 
     @Test
     fun `Should return Multiple Needs`() {
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null, "COMPLETE")
       val needs = listOf(
         AssessmentNeed(
           Need.ACCOMMODATION,
@@ -301,7 +301,7 @@ internal class AssessmentApiServiceTest {
     @Test
     fun `Should return if inside Threshold`() {
       val crn = "123"
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55), null, "COMPLETE")
 
       every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
       val returnValue = assessmentService.getRecentAssessment(crn)
@@ -314,9 +314,9 @@ internal class AssessmentApiServiceTest {
     @Test
     fun `Should return none if outside Threshold`() {
       val crn = "123"
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), null)
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), null, "COMPLETE")
       // more recent, but voided
-      val voidedAssessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(40), LocalDateTime.now(clock))
+      val voidedAssessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(40), LocalDateTime.now(clock), "COMPLETE")
 
       every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment, voidedAssessment)
       val returnValue = assessmentService.getRecentAssessment(crn)
@@ -329,7 +329,7 @@ internal class AssessmentApiServiceTest {
     @Test
     fun `Should return none if voided`() {
       val crn = "123"
-      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), LocalDateTime.now(clock))
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), LocalDateTime.now(clock), "COMPLETE")
 
       every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
       val returnValue = assessmentService.getRecentAssessment(crn)
@@ -339,9 +339,9 @@ internal class AssessmentApiServiceTest {
     }
 
     @Test
-    fun `Should return none if not complete`() {
+    fun `Should return none if not complete date`() {
       val crn = "123"
-      val assessment = OffenderAssessment("1234", null, LocalDateTime.now(clock))
+      val assessment = OffenderAssessment("1234", null, LocalDateTime.now(clock), "COMPLETE")
 
       every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
       val returnValue = assessmentService.getRecentAssessment(crn)
@@ -355,6 +355,18 @@ internal class AssessmentApiServiceTest {
       val crn = "123"
 
       every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf()
+      val returnValue = assessmentService.getRecentAssessment(crn)
+      assertThat(returnValue).isNull()
+
+      verify { assessmentApiClient.getAssessmentSummaries(crn) }
+    }
+
+    @Test
+    fun `Should return none if not complete status`() {
+      val crn = "123"
+      val assessment = OffenderAssessment("1234", null, LocalDateTime.now(clock), "INCOMPLETE_LOCKED")
+
+      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
       val returnValue = assessmentService.getRecentAssessment(crn)
       assertThat(returnValue).isNull()
 
