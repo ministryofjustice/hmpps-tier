@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import com.amazonaws.services.sqs.AmazonSQSAsync
+import com.amazonaws.services.sqs.model.PurgeQueueRequest
 import com.google.gson.Gson
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.matches
@@ -18,8 +19,6 @@ import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
-import org.springframework.security.authentication.TestingAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiHighSeverityNeedsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiNoSeverityNeedsResponse
@@ -55,6 +54,18 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   @Value("\${calculation-complete.sqs-queue}")
   lateinit var calculationCompleteUrl: String
 
+  @Autowired
+  lateinit var offenderEventsAmazonSQSAsync: AmazonSQSAsync
+
+  @Value("\${offender-events.sqs-queue}")
+  lateinit var eventQueueUrl: String
+
+  @BeforeEach
+  fun `purge Queues`() {
+    offenderEventsAmazonSQSAsync.purgeQueue(PurgeQueueRequest(eventQueueUrl))
+    calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
+  }
+
   companion object {
     internal val oauthMockServer = OAuthMockServer()
 
@@ -69,12 +80,6 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     fun stopMocks() {
       oauthMockServer.stop()
     }
-  }
-
-  init {
-    SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
-    // Resolves an issue where Wiremock keeps previous sockets open from other tests causing connection resets
-    System.setProperty("http.keepAlive", "false")
   }
 
   @BeforeEach
