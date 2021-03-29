@@ -44,11 +44,14 @@ dependencies {
     exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     exclude(module = "mockito-core")
   }
+  testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.mock-server:mockserver-netty:5.11.1")
 
   testImplementation("com.ninja-squad:springmockk:2.0.1")
   testImplementation("org.assertj:assertj-core:3.18.0")
   testImplementation("org.awaitility:awaitility-kotlin:4.0.3")
+  testImplementation("io.jsonwebtoken:jjwt:0.9.1")
+  testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
 }
 
 extra["springCloudVersion"] = "Hoxton.SR8"

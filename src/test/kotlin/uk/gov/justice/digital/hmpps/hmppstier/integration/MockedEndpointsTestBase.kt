@@ -1,14 +1,25 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
+import com.amazonaws.services.sqs.AmazonSQSAsync
+import com.google.gson.Gson
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.matches
+import org.awaitility.kotlin.untilCallTo
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeAll
+import org.junit.jupiter.api.BeforeEach
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.notFoundResponse
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpHeaders
+import org.springframework.security.authentication.TestingAuthenticationToken
+import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiHighSeverityNeedsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiNoSeverityNeedsResponse
@@ -29,9 +40,51 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restricti
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveRequirementsResponse
 import java.nio.file.Files
 import java.nio.file.Paths
+import java.time.Duration
 import java.time.LocalDate
+import java.util.UUID
 
 abstract class MockedEndpointsTestBase : IntegrationTestBase() {
+
+  @Autowired
+  lateinit var gson: Gson
+
+  @Autowired
+  lateinit var calculationCompleteClient: AmazonSQSAsync
+
+  @Value("\${calculation-complete.sqs-queue}")
+  lateinit var calculationCompleteUrl: String
+
+  companion object {
+    internal val oauthMockServer = OAuthMockServer()
+
+    @BeforeAll
+    @JvmStatic
+    fun startMocks() {
+      oauthMockServer.start()
+    }
+
+    @AfterAll
+    @JvmStatic
+    fun stopMocks() {
+      oauthMockServer.stop()
+    }
+  }
+
+  init {
+    SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("user", "pw")
+    // Resolves an issue where Wiremock keeps previous sockets open from other tests causing connection resets
+    System.setProperty("http.keepAlive", "false")
+  }
+
+  @BeforeEach
+  fun resetStubs() {
+    oauthMockServer.resetAll()
+    oauthMockServer.stubGrantToken()
+  }
+  @Autowired
+  internal lateinit var jwtHelper: JwtAuthHelper
+
   lateinit var mockCommunityApiServer: ClientAndServer
   lateinit var mockAssessmentApiServer: ClientAndServer
 
@@ -231,5 +284,46 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     )
   }
 
+  fun expectTierCalculation(tierScore: String) {
+    await untilCallTo {
+      getNumberOfMessagesCurrentlyOnQueue(
+        calculationCompleteClient,
+        calculationCompleteUrl
+      )
+    } matches { it == 1 }
+    val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
+    val sqsMessage: SQSMessage = gson.fromJson(message.messages.get(0).body, SQSMessage::class.java)
+    val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
+    webTestClient
+      .get()
+      .uri("crn/${changeEvent.crn}/tier/${changeEvent.calculationId}")
+      .headers(setAuthorisation("ROLE_HMPPS_TIER"))
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("tierScore").isEqualTo(tierScore)
+  }
+
   fun jsonResponseOf(response: String): HttpResponse = response().withContentType(APPLICATION_JSON).withBody(response)
+
+  internal fun setAuthorisation(role: String): (HttpHeaders) -> Unit {
+    val token = jwtHelper.createJwt(
+      subject = "hmpps-tier",
+      scope = listOf("read"),
+      expiryTime = Duration.ofHours(1L),
+      roles = listOf(role)
+    )
+    return { it.set(HttpHeaders.AUTHORIZATION, "Bearer $token") }
+  }
 }
+
+data class TierChangeEvent(
+  val crn: String,
+  val calculationId: UUID
+)
+
+data class SQSMessage(
+  val Message: String,
+  val MessageId: String
+)
