@@ -28,23 +28,30 @@ management.endpoint:
 
 community:
   endpoint:
-    url: http://localhost:8081/secure
+    url: http://localhost:8091/secure
 
 assessment:
   endpoint:
-    url: http://localhost:8082
+    url: http://localhost:8092
 
 offender-events:
   sqs-endpoint: http://localhost:4576
-  sqs-provider: mocked
+  sqs-queue: http://localhost:4576/queue/Digital-Prison-Services-dev-hmpps_tier_offender_events_queue
+  sqs-provider: localstack
 
 hmpps-events:
-  topic: any_value
+  topic: arn:aws:sns:eu-west-2:000000000000:hmpps-domain
+
+hmpps-domain-events:
+  sns-endpoint: http://localhost:4575
+
+calculation-complete:
+  sqs-endpoint: http://localhost:4576
+  sqs-queue: http://localhost:4576/queue/Digital-Prison-Services-dev-hmpps_tier_calculation_complete_queue
 
 aws:
-  access-key: test-access-key
-  secret-access-key: test-secret-key
-  region: eu-west-2
+  offender:
+    region: eu-west-2
 
 flags:
   enableDeliusTierUpdates: true

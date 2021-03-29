@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.config
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider
 import com.amazonaws.auth.AnonymousAWSCredentials
+import com.amazonaws.auth.BasicAWSCredentials
 import com.amazonaws.client.builder.AwsClientBuilder
 import com.amazonaws.services.sns.AmazonSNSAsync
 import com.amazonaws.services.sns.AmazonSNSAsyncClientBuilder
@@ -33,6 +34,16 @@ class AwsLocalStackConfiguration(
       .build()
   }
 
+  @Bean
+  fun calculationCompleteEventsAmazonSQSAsync(
+    @Value("\${calculation-complete.sqs-endpoint}") serviceEndpoint: String
+  ): AmazonSQSAsync {
+    return AmazonSQSAsyncClientBuilder.standard()
+      .withEndpointConfiguration(AwsClientBuilder.EndpointConfiguration(serviceEndpoint, region))
+      .withCredentials(AWSStaticCredentialsProvider(AnonymousAWSCredentials()))
+      .build()
+  }
+
   @Primary
   @Bean(name = ["hmppsDomainEvents"])
   fun hmppsDomainEventsAmazonSNSAsync(
@@ -40,7 +51,7 @@ class AwsLocalStackConfiguration(
   ): AmazonSNSAsync {
     return AmazonSNSAsyncClientBuilder.standard()
       .withEndpointConfiguration(AwsClientBuilder.EndpointConfiguration(serviceEndpoint, region))
-      .withCredentials(AWSStaticCredentialsProvider(AnonymousAWSCredentials()))
+      .withCredentials(AWSStaticCredentialsProvider(BasicAWSCredentials("key", "secret")))
       .build()
   }
 

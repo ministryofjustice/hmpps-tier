@@ -1,20 +1,5 @@
 version: "3"
 services:
-  hmpps-tier:
-    build:
-      context: .
-    network_mode: "host"
-    container_name: hmpps-tier
-    ports:
-      - "8081:8080"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/health/ping"]
-    environment:
-      - SERVER_PORT=8080
-      - SPRING_PROFILES_ACTIVE=dev, localstack
-    depends_on:
-      - localstack
-      - postgres
   postgres:
     image: postgres:11
     networks:
@@ -37,12 +22,7 @@ services:
     environment:
       - SERVICES=sns,sqs
       - DEBUG=${DEBUG- }
-      - DATA_DIR=${DATA_DIR- }
-      - PORT_WEB_UI=${PORT_WEB_UI- }
-      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR- }
-      - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
       - DOCKER_HOST=unix:///var/run/docker.sock
-      - AWS_EXECUTION_ENV=True
       - DEFAULT_REGION=eu-west-2
     volumes:
       - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
