@@ -48,6 +48,7 @@ dependencies {
 
   testImplementation("com.ninja-squad:springmockk:2.0.1")
   testImplementation("org.assertj:assertj-core:3.18.0")
+  testImplementation("org.awaitility:awaitility-kotlin:4.0.3")
 }
 
 extra["springCloudVersion"] = "Hoxton.SR8"
