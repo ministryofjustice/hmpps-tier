@@ -13,7 +13,7 @@ class NeedsTest : MockedEndpointsTestBase() {
     setupSCCustodialSentence(crn)
     setupRegistrations(ApiResponses.registrationsResponse(), crn)
     restOfSetupWithMaleOffenderAndSevereNeeds(crn)
-    putMessageOnQueue(offenderEventsAmazonSQSAsync, eventQueueUrl, crn)
+    calculateTierFor(crn)
     expectTierCalculation("A3")
   }
 }

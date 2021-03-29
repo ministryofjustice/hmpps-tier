@@ -289,6 +289,10 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     )
   }
 
+  fun calculateTierFor(crn: String) {
+    putMessageOnQueue(offenderEventsAmazonSQSAsync, eventQueueUrl, crn)
+  }
+
   fun expectTierCalculation(tierScore: String) {
     await untilCallTo {
       getNumberOfMessagesCurrentlyOnQueue(

@@ -15,7 +15,7 @@ class NoAssessmentFoundTest : MockedEndpointsTestBase() {
     setupAssessmentNotFound(crn)
     setupRegistrations(registrationsResponse(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn)
-    putMessageOnQueue(offenderEventsAmazonSQSAsync, eventQueueUrl, crn)
+    calculateTierFor(crn)
     expectTierCalculation("A2")
   }
 }
