@@ -12,8 +12,6 @@ executors:
           - SERVICES=sqs,sns
           - DEBUG=${DEBUG- }
           - DOCKER_HOST=unix:///var/run/docker.sock
-          - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR- }
-          - AWS_EXECUTION_ENV=True
           - DEFAULT_REGION=eu-west-2
           - TMPDIR=/private
     environment:

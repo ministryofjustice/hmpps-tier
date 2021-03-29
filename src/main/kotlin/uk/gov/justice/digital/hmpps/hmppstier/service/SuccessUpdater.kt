@@ -25,7 +25,6 @@ class SuccessUpdater(
       }
       addMessageAttributesEntry("eventType", messageAttributeValue)
     }
-
     amazonSNS.publish(event)
   }
 }
