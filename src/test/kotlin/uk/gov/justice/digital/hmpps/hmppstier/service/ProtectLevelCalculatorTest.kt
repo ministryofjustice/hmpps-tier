@@ -818,7 +818,7 @@ internal class ProtectLevelCalculatorTest {
   inner class AdditionalFactorsForWomenTests {
     @Test
     fun `should not count assessment additional factors duplicates`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
@@ -840,7 +840,7 @@ internal class ProtectLevelCalculatorTest {
 
     @Test
     fun `should add multiple additional factors`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
@@ -870,7 +870,7 @@ internal class ProtectLevelCalculatorTest {
 
     @Test
     fun `should count both Temper and Impulsivity as max '1'`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
@@ -888,7 +888,7 @@ internal class ProtectLevelCalculatorTest {
 
     @Test
     fun `should count Temper without Impulsivity as max '2'`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
@@ -905,7 +905,7 @@ internal class ProtectLevelCalculatorTest {
 
     @Test
     fun `should count Impulsivity without Temper as max '1'`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
@@ -922,7 +922,7 @@ internal class ProtectLevelCalculatorTest {
 
     @Test
     fun `should ignore negative Parenting`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
@@ -939,7 +939,7 @@ internal class ProtectLevelCalculatorTest {
 
     @Test
     fun `should ignore negative Impulsivity`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
@@ -956,7 +956,7 @@ internal class ProtectLevelCalculatorTest {
 
     @Test
     fun `should ignore negative Temper`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
@@ -973,7 +973,7 @@ internal class ProtectLevelCalculatorTest {
 
     @Test
     fun `should not count female only if male`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Male")
 

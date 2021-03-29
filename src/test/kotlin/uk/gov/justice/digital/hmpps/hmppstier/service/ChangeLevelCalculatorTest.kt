@@ -60,7 +60,7 @@ internal class ChangeLevelCalculatorTest {
 
     @Test
     fun `should calculate Oasys Needs none`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf()
 
@@ -72,7 +72,7 @@ internal class ChangeLevelCalculatorTest {
 
     @Test
     fun `should add Oasys Needs no need`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf(
         Need.ACCOMMODATION to NeedSeverity.NO_NEED, // 0
@@ -86,7 +86,7 @@ internal class ChangeLevelCalculatorTest {
 
     @Test
     fun `should add Oasys Needs standard need`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf(
         Need.ACCOMMODATION to NeedSeverity.STANDARD, // 1
@@ -100,7 +100,7 @@ internal class ChangeLevelCalculatorTest {
 
     @Test
     fun `should add Oasys Needs severe need`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf(
         Need.ACCOMMODATION to NeedSeverity.SEVERE, // 2
@@ -114,7 +114,7 @@ internal class ChangeLevelCalculatorTest {
 
     @Test
     fun `should add multiple Oasys Needs`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf(
         Need.ACCOMMODATION to NeedSeverity.SEVERE, // 2
@@ -142,7 +142,7 @@ internal class ChangeLevelCalculatorTest {
     @Test
     fun `should calculate Ogrs null`() {
       setup()
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
       val result = service.calculateChangeLevel(crn, assessment, getValidAssessments(null), listOf(), getValidConviction())
       assertThat(result.points).isEqualTo(0)
       validate()
@@ -151,7 +151,7 @@ internal class ChangeLevelCalculatorTest {
     @Test
     fun `should calculate Ogrs null - no deliusAssessment`() {
       setup()
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
       val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction())
       assertThat(result.points).isEqualTo(0)
       validate()
@@ -160,7 +160,7 @@ internal class ChangeLevelCalculatorTest {
     @Test
     fun `should calculate Ogrs take 10s 50`() {
       setup()
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
       val result = service.calculateChangeLevel(crn, assessment, getValidAssessments(50), listOf(), getValidConviction())
       assertThat(result.points).isEqualTo(5)
       validate()
@@ -169,7 +169,7 @@ internal class ChangeLevelCalculatorTest {
     @Test
     fun `should calculate Ogrs take 10s 51`() {
       setup()
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
       val result = service.calculateChangeLevel(crn, assessment, getValidAssessments(51), listOf(), getValidConviction())
       assertThat(result.points).isEqualTo(5)
       validate()
@@ -178,7 +178,7 @@ internal class ChangeLevelCalculatorTest {
     @Test
     fun `should calculate Ogrs take 10s 59`() {
       setup()
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
       val result = service.calculateChangeLevel(crn, assessment, getValidAssessments(59), listOf(), getValidConviction())
       assertThat(result.points).isEqualTo(5)
       validate()
@@ -187,7 +187,7 @@ internal class ChangeLevelCalculatorTest {
     @Test
     fun `should calculate Ogrs take 10s 100`() {
       setup()
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, null)
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
       val result = service.calculateChangeLevel(crn, assessment, getValidAssessments(100), listOf(), getValidConviction())
       assertThat(result.points).isEqualTo(10)
       validate()
