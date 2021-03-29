@@ -30,15 +30,14 @@ class TierCalculationController(private val tierCalculationService: TierCalculat
   )
 
   @GetMapping("crn/{crn}/tier")
-  fun getLatestTierCalculation(@PathVariable(required = true) crn: String): ResponseEntity<String> {
-    successUpdater.update(crn, UUID.randomUUID())
-    return ResponseEntity.ok("ok")
+  fun getLatestTierCalculation(@PathVariable(required = true) crn: String): ResponseEntity<TierDto> {
+    return ResponseEntity.ok(tierCalculationService.getLatestTierByCrn(crn))
       ?: throw EntityNotFoundException("Tier Result Not Found for $crn")
   }
 
   @GetMapping("crn/{crn}/tier/{calculationId}")
   fun getTierCalculationById(@PathVariable(required = true) crn: String, @PathVariable(required = true) calculationId: UUID): ResponseEntity<TierDto> {
     return ResponseEntity.ok(tierCalculationService.getTierByCalculationId(crn, calculationId))
-      ?: throw EntityNotFoundException("Tier Result Not Found for $crn")
+      ?: throw EntityNotFoundException("Tier Result Not Found for $crn, $calculationId")
   }
 }
