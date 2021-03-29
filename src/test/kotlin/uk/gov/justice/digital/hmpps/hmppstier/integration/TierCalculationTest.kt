@@ -1,26 +1,14 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
-import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.mockserver.model.HttpRequest.request
-import org.springframework.beans.factory.annotation.Autowired
-import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationRequiredEventListener
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.emptyNsiResponse
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 
 @TestInstance(PER_CLASS)
 class TierCalculationTest : MockedEndpointsTestBase() {
-
-  @Autowired
-  lateinit var listener: TierCalculationRequiredEventListener
-
-  @Autowired
-  lateinit var repo: TierCalculationRepository
 
   @Nested
   inner class FemaleOffender {
@@ -35,12 +23,8 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       restOfSetupWithFemaleOffender(crn)
       emptyNsisResponse(crn)
 
-      listener.listen(calculationMessage(crn))
-
-      val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)
-
-      Assertions.assertThat(tier?.data?.change?.tier).isEqualTo(ChangeLevel.TWO)
-      Assertions.assertThat(tier?.data?.protect?.tier).isEqualTo(ProtectLevel.D)
+      calculateTierFor(crn)
+      expectTierCalculation("D2")
     }
   }
 
@@ -61,12 +45,8 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupMaleOffenderWithRegistrations(crn, includeAssessmentApi = false)
       setupLatestAssessment(crn, 2018)
 
-      listener.listen(calculationMessage(crn))
-
-      val tier = repo.findFirstByCrnOrderByCreatedDesc(crn)
-
-      Assertions.assertThat(tier?.data?.change?.tier).isEqualTo(ChangeLevel.TWO)
-      Assertions.assertThat(tier?.data?.protect?.tier).isEqualTo(ProtectLevel.A)
+      calculateTierFor(crn)
+      expectTierCalculation("A2")
     }
   }
 }
