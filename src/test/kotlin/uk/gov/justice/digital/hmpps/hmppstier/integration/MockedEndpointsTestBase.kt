@@ -119,7 +119,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun setupNCCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(
       request()
-        .withPath("/secure/offenders/crn/$crn/convictions")
+        .withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
     )
       .respond(jsonResponseOf(custodialNCConvictionResponse()))
   }
@@ -215,37 +215,37 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun setupNonCustodialSentenceWithNoUnpaidWork(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
       jsonResponseOf(nonCustodialConvictionResponse())
     )
   }
 
   fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentenceWithUnpaidWork(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
       jsonResponseOf(nonCustodialCurrentAndTerminatedConvictionWithUnpaidWorkResponse())
     )
   }
 
   fun setupConcurrentCustodialAndNonCustodialSentenceWithUnpaidWork(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
       jsonResponseOf(custodialAndNonCustodialUnpaid())
     )
   }
 
   fun setupNonCustodialSentenceWithUnpaidWork(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
       jsonResponseOf(nonCustodialUnpaidWorkConvictionResponse())
     )
   }
 
   fun setupTerminatedCustodialSentence(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
       jsonResponseOf(custodialTerminatedConvictionResponse())
     )
   }
 
   fun setupTerminatedNonCustodialSentenceWithNoUnpaidWork(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
       jsonResponseOf(nonCustodialTerminatedConvictionResponse())
     )
   }
@@ -284,7 +284,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun setupSCCustodialSentence(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
       jsonResponseOf(custodialSCConvictionResponse())
     )
   }

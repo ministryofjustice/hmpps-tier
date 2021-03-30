@@ -78,7 +78,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
     val responseType = object : ParameterizedTypeReference<List<Conviction>>() {}
     return webClient
       .get()
-      .uri("/offenders/crn/$crn/convictions")
+      .uri("/offenders/crn/$crn/convictions?activeOnly=true")
       .retrieve()
       .bodyToMono(responseType)
       .block() ?: listOf()
