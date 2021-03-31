@@ -20,7 +20,7 @@ class MandateForChange(
       }.also { log.debug("Has Mandate for change: $it") }
 
   private fun isCustodialSentence(sentence: Sentence) =
-    sentence.sentenceType.code in MandateForChange.custodialSentences
+    sentence.sentenceType.code in custodialSentences
 
   private fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
     communityApiClient.getRequirements(crn, convictionId)
