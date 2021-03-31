@@ -33,7 +33,7 @@ class ChangeLevelCalculator(
       .sortedByDescending { it.startDate }
 
     return when {
-      !mandateForChange.hasMandateForChange(crn, convictions) -> {
+      mandateForChange.hasNoMandate(crn, convictions) -> {
         TierLevel(ZERO, 0)
       }
       offenderAssessment == null -> {

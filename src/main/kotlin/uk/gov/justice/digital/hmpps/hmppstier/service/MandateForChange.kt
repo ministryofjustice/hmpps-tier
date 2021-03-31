@@ -10,8 +10,8 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 class MandateForChange(
   private val communityApiClient: CommunityApiClient
 ) {
-  fun hasMandateForChange(crn: String, convictions: Collection<Conviction>): Boolean =
-    convictions
+  fun hasNoMandate(crn: String, convictions: Collection<Conviction>): Boolean =
+    !convictions
       .filter { it.sentence?.terminationDate == null }
       .let { activeConvictions ->
         activeConvictions.any {
