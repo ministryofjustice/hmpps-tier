@@ -143,9 +143,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       request()
         .withPath("/secure/offenders/crn/$crn")
     )
-      .respond(
-        jsonResponseOf(maleOffenderResponse())
-      )
+      .respond(maleOffenderResponse())
     if (includeAssessmentApi) {
       setupCurrentAssessment(crn)
     }
@@ -167,7 +165,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       request()
         .withPath("/secure/offenders/crn/$crn")
     )
-      .respond(jsonResponseOf(femaleOffenderResponse()))
+      .respond(femaleOffenderResponse())
     setupCurrentAssessment(crn)
     mockAssessmentApiServer.`when`(
       request()
@@ -235,36 +233,32 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun setupRestrictiveRequirements(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
       .respond(
-        jsonResponseOf(restrictiveRequirementsResponse())
+        restrictiveRequirementsResponse()
       )
   }
 
   fun setupUnpaidWorkRequirements(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
       .respond(
-        jsonResponseOf(unpaidWorkRequirementsResponse())
+        unpaidWorkRequirementsResponse()
       )
   }
 
   fun setupNoRequirements(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
       .respond(
-        jsonResponseOf(noRequirementsResponse())
+        noRequirementsResponse()
       )
   }
 
   fun setupRestrictiveAndNonRestrictiveRequirements(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
-      .respond(
-        jsonResponseOf(restrictiveAndNonRestrictiveRequirementsResponse())
-      )
+      .respond(restrictiveAndNonRestrictiveRequirementsResponse())
   }
 
   fun setupNonRestrictiveRequirements(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
-      .respond(
-        jsonResponseOf(nonRestrictiveRequirementsResponse())
-      )
+      .respond(nonRestrictiveRequirementsResponse())
   }
 
   fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true) {

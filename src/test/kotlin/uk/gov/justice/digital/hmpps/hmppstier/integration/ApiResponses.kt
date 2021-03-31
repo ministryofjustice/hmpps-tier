@@ -45,27 +45,35 @@ fun nonCustodialTerminatedConvictionResponse(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/community-api/convictions-non-custodial-terminated.json")
 )
 
-fun maleOffenderResponse(): String =
+fun maleOffenderResponse(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/community-api/offender-male.json")
+)
 
-fun femaleOffenderResponse(): String =
+fun femaleOffenderResponse(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/community-api/offender-female.json")
+)
 
-fun restrictiveRequirementsResponse(): String =
+fun restrictiveRequirementsResponse(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/community-api/requirements-restrictive.json")
+)
 
-fun restrictiveAndNonRestrictiveRequirementsResponse(): String =
+fun restrictiveAndNonRestrictiveRequirementsResponse(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/community-api/requirements-restrictive-and-non-restrictive.json")
+)
 
-fun nonRestrictiveRequirementsResponse(): String =
+fun nonRestrictiveRequirementsResponse(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/community-api/requirements-non-restrictive.json")
+)
 
-fun unpaidWorkRequirementsResponse(): String =
+fun unpaidWorkRequirementsResponse(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/community-api/requirements-unpaid-work.json")
+)
 
-fun noRequirementsResponse(): String = "{\n" +
-  "    \"requirements\": []\n" +
-  "}"
+fun noRequirementsResponse(): HttpResponse = jsonResponseOf(
+  "{\n" +
+    "    \"requirements\": []\n" +
+    "}"
+)
 
 fun custodialAndNonCustodialConvictions(): String =
   responseFrom("src/test/resources/fixtures/community-api/convictions-custodial-and-non-custodial.json")
