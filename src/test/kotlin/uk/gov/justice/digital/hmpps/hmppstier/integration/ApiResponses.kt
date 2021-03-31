@@ -57,8 +57,8 @@ object ApiResponses {
     "    \"requirements\": []\n" +
     "}"
 
-  fun custodialAndNonCustodialUnpaid(): String =
-    responseFrom("src/test/resources/fixtures/community-api/convictions-custodial-and-non-custodial-unpaid.json")
+  fun custodialAndNonCustodialConvictions(): String =
+    responseFrom("src/test/resources/fixtures/community-api/convictions-custodial-and-non-custodial.json")
 
   fun nonCustodialCurrentAndTerminatedConvictionWithUnpaidWorkResponse(): String =
     responseFrom("src/test/resources/fixtures/community-api/convictions-non-custodial-current-and-terminated-with-unpaid-work.json")

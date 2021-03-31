@@ -23,7 +23,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmen
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiHighSeverityNeedsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiNoSeverityNeedsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.communityApiAssessmentsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialAndNonCustodialUnpaid
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialAndNonCustodialConvictions
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialNCConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialSCConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialTerminatedConvictionResponse
@@ -227,7 +227,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
 
   fun setupConcurrentCustodialAndNonCustodialSentenceWithUnpaidWork(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
-      jsonResponseOf(custodialAndNonCustodialUnpaid())
+      jsonResponseOf(custodialAndNonCustodialConvictions())
     )
   }
 
