@@ -23,7 +23,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
   fun `calculate change for concurrent custodial and non-custodial sentence`() {
     val crn = "X676767"
 
-    setupConcurrentCustodialAndNonCustodialSentenceWithUnpaidWork(crn)
+    setupConcurrentCustodialAndNonCustodialSentence(crn)
     setupRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 
@@ -64,7 +64,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
   @Test
   fun `calculate change for terminated non-custodial sentence and current non-custodial sentence with non-restrictive requirements`() {
     val crn = "X505050"
-    setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentenceWithUnpaidWork(crn)
+    setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn)
     setupNonRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 
@@ -88,7 +88,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
   fun `do not calculate change for terminated non-custodial sentence with non-restrictive requirements`() {
     val crn = "X888888"
 
-    setupTerminatedNonCustodialSentenceWithNoUnpaidWork(crn)
+    setupTerminatedNonCustodialSentence(crn)
     setupNonRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 

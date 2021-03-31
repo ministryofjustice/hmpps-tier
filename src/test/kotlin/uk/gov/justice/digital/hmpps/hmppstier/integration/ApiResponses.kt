@@ -60,8 +60,8 @@ object ApiResponses {
   fun custodialAndNonCustodialConvictions(): String =
     responseFrom("src/test/resources/fixtures/community-api/convictions-custodial-and-non-custodial.json")
 
-  fun nonCustodialCurrentAndTerminatedConvictionWithUnpaidWorkResponse(): String =
-    responseFrom("src/test/resources/fixtures/community-api/convictions-non-custodial-current-and-terminated-with-unpaid-work.json")
+  fun nonCustodialCurrentAndTerminatedConviction(): String =
+    responseFrom("src/test/resources/fixtures/community-api/convictions-non-custodial-current-and-terminated.json")
 
   fun assessmentsApiAssessmentsResponse(year: Int): String =
     responseFrom("src/test/resources/fixtures/assessment-api/assessments.json")
