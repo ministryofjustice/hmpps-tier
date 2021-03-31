@@ -114,13 +114,13 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     expectTierCalculation("A0")
   }
 
-//  @Test
-//  fun `do not calculate change for non-custodial sentence where the only non-restrictive requirement is unpaid work`() {
-//    val crn = "X252525"
-//    setupNonCustodialSentence(crn)
-//    setupUnpaidWorkRequirements(crn)
-//    setupMaleOffenderWithRegistrations(crn)
-//    calculateTierFor(crn)
-//    expectTierCalculation("A0")
-//  }
+  @Test
+  fun `do not calculate change for non-custodial sentence where the only non-restrictive requirement is unpaid work`() {
+    val crn = "X252525"
+    setupNonCustodialSentence(crn)
+    setupUnpaidWorkRequirements(crn)
+    setupMaleOffenderWithRegistrations(crn)
+    calculateTierFor(crn)
+    expectTierCalculation("A0")
+  }
 }
