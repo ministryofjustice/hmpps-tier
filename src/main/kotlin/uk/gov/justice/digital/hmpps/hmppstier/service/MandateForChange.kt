@@ -11,10 +11,10 @@ class MandateForChange(
   private val communityApiClient: CommunityApiClient
 ) {
   fun hasNoMandate(crn: String, convictions: Collection<Conviction>): Boolean =
-    !convictions
+    convictions
       .filter { it.sentence?.terminationDate == null }
       .let { activeConvictions ->
-        activeConvictions.any {
+        activeConvictions.none {
           it.sentence != null && (isCustodialSentence(it.sentence) || hasNonRestrictiveRequirements(crn, it.convictionId))
         }
       }.also { log.debug("Has Mandate for change: $it") }
