@@ -37,8 +37,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonRestri
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveAndNonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.unpaidWorkRequirementsResponse
-import java.nio.file.Files
-import java.nio.file.Paths
 import java.time.Duration
 import java.time.LocalDate
 import java.util.UUID
@@ -87,6 +85,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     oauthMockServer.resetAll()
     oauthMockServer.stubGrantToken()
   }
+
   @Autowired
   internal lateinit var jwtHelper: JwtAuthHelper
 
@@ -109,11 +108,6 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun tearDownServer() {
     mockCommunityApiServer.stop()
     mockAssessmentApiServer.stop()
-  }
-
-  fun calculationMessage(crn: String): String {
-    return Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
-      .replace("X373878", crn)
   }
 
   fun setupNCCustodialSentence(crn: String) {
@@ -147,7 +141,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
         jsonResponseOf(maleOffenderResponse())
       )
     if (includeAssessmentApi) {
-      setupLatestAssessment(crn, LocalDate.now().year)
+      setupCurrentAssessment(crn)
     }
     mockAssessmentApiServer.`when`(
       request()
@@ -171,7 +165,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
         jsonResponseOf(maleOffenderResponse())
       )
     if (includeAssessmentApi) {
-      setupLatestAssessment(crn, LocalDate.now().year)
+      setupCurrentAssessment(crn)
     }
     mockAssessmentApiServer.`when`(
       request()
@@ -192,13 +186,15 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
         .withPath("/secure/offenders/crn/$crn")
     )
       .respond(jsonResponseOf(ApiResponses.femaleOffenderResponse()))
-    setupLatestAssessment(crn, LocalDate.now().year)
+    setupCurrentAssessment(crn)
     mockAssessmentApiServer.`when`(
       request()
         .withPath("/assessments/oasysSetId/1234/needs")
     )
       .respond(notFoundResponse())
   }
+
+  fun setupCurrentAssessment(crn: String) = setupLatestAssessment(crn, LocalDate.now().year)
 
   fun setupLatestAssessment(crn: String, year: Int) {
     mockAssessmentApiServer.`when`(
@@ -215,31 +211,41 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun setupNonCustodialSentence(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
+    mockCommunityApiServer.`when`(
+      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
+    ).respond(
       jsonResponseOf(nonCustodialConvictionResponse())
     )
   }
 
   fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
+    mockCommunityApiServer.`when`(
+      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
+    ).respond(
       jsonResponseOf(nonCustodialCurrentAndTerminatedConviction())
     )
   }
 
   fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
+    mockCommunityApiServer.`when`(
+      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
+    ).respond(
       jsonResponseOf(custodialAndNonCustodialConvictions())
     )
   }
 
   fun setupTerminatedCustodialSentence(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
+    mockCommunityApiServer.`when`(
+      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
+    ).respond(
       jsonResponseOf(custodialTerminatedConvictionResponse())
     )
   }
 
   fun setupTerminatedNonCustodialSentence(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
+    mockCommunityApiServer.`when`(
+      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
+    ).respond(
       jsonResponseOf(nonCustodialTerminatedConvictionResponse())
     )
   }
@@ -285,7 +291,9 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun setupSCCustodialSentence(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
+    mockCommunityApiServer.`when`(
+      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
+    ).respond(
       jsonResponseOf(custodialSCConvictionResponse())
     )
   }
@@ -302,7 +310,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       )
     } matches { it == 1 }
     val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
-    val sqsMessage: SQSMessage = gson.fromJson(message.messages.get(0).body, SQSMessage::class.java)
+    val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
     val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
     webTestClient
       .get()
