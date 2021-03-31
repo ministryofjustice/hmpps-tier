@@ -19,7 +19,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.client.SentenceType
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import java.time.Clock
@@ -210,24 +209,6 @@ internal class ChangeLevelCalculatorTest {
 
     private fun validate() {
       verify { assessmentApiService.getAssessmentNeeds(any()) }
-    }
-  }
-
-  @Nested
-  @DisplayName("Simple Recent Assessment tests")
-  inner class SimpleRecentAssessmentTests {
-
-    @Test
-    fun `should not calculate change tier if not recent`() {
-
-      val result = service.calculateChangeLevel(crn, null, null, listOf(), getValidConviction())
-
-      assertThat(result.tier).isEqualTo(ChangeLevel.TWO)
-      assertThat(result.points).isEqualTo(0)
-    }
-
-    private fun getValidConviction(): List<Conviction> {
-      return listOf(Conviction(54321L, Sentence(null, SentenceType("SC"))))
     }
   }
 }
