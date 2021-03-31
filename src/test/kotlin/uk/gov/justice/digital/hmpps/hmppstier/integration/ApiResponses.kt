@@ -29,9 +29,6 @@ object ApiResponses {
   fun custodialTerminatedConvictionResponse(): String =
     responseFrom("src/test/resources/fixtures/community-api/convictions-custodial-terminated.json")
 
-  fun nonCustodialUnpaidWorkConvictionResponse(): String =
-    responseFrom("src/test/resources/fixtures/community-api/convictions-non-custodial-unpaid-work.json")
-
   fun nonCustodialConvictionResponse(): String =
     responseFrom("src/test/resources/fixtures/community-api/convictions-non-custodial.json")
 

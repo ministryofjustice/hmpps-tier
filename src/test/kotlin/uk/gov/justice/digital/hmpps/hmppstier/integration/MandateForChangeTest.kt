@@ -11,7 +11,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
   fun `do not calculate change for a non-custodial sentence with only restrictive requirements`() {
     val crn = "X232323"
 
-    setupNonCustodialSentenceWithNoUnpaidWork(crn)
+    setupNonCustodialSentence(crn)
     setupRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 
@@ -76,7 +76,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
   fun `calculate change and protect for non-custodial sentence with non-restrictive requirements`() {
     val crn = "X222222"
 
-    setupNonCustodialSentenceWithNoUnpaidWork(crn)
+    setupNonCustodialSentence(crn)
     setupNonRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 
@@ -100,7 +100,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
   fun `do not calculate change when only restrictive requirements are present on a non-custodial sentence`() {
     val crn = "X888866"
 
-    setupNonCustodialSentenceWithNoUnpaidWork(crn)
+    setupNonCustodialSentence(crn)
     setupRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 
@@ -112,7 +112,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
   fun `calculate change with restrictive and non-restrictive requirements on a non-custodial sentence`() {
     val crn = "X888855"
 
-    setupNonCustodialSentenceWithNoUnpaidWork(crn)
+    setupNonCustodialSentence(crn)
     setupRestrictiveAndNonRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 
@@ -124,11 +124,24 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
   fun `do not calculate change when no requirements are present on a non-custodial sentence`() {
     val crn = "X888844"
 
-    setupNonCustodialSentenceWithUnpaidWork(crn)
+    setupNonCustodialSentence(crn)
     setupNoRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
 
     calculateTierFor(crn)
     expectTierCalculation("A0")
   }
+
+//  @Test
+//  fun `do not calculate change for non-custodial sentence where the only non-restrictive requirement is unpaid work`() {
+//
+//    val crn = "X252525"
+//
+//    setupNonCustodialSentenceWithNoUnpaidWork(crn)
+//    setupNonRestrictiveRequirements(crn)
+//    setupMaleOffenderWithRegistrations(crn)
+//
+//    calculateTierFor(crn)
+//    expectTierCalculation("A1")
+//  }
 }

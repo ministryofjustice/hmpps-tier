@@ -33,7 +33,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.noRequire
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialCurrentAndTerminatedConvictionWithUnpaidWorkResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialTerminatedConvictionResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialUnpaidWorkConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveAndNonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveRequirementsResponse
@@ -214,7 +213,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       .respond(notFoundResponse())
   }
 
-  fun setupNonCustodialSentenceWithNoUnpaidWork(crn: String) {
+  fun setupNonCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
       jsonResponseOf(nonCustodialConvictionResponse())
     )
@@ -229,12 +228,6 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun setupConcurrentCustodialAndNonCustodialSentenceWithUnpaidWork(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
       jsonResponseOf(custodialAndNonCustodialUnpaid())
-    )
-  }
-
-  fun setupNonCustodialSentenceWithUnpaidWork(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
-      jsonResponseOf(nonCustodialUnpaidWorkConvictionResponse())
     )
   }
 
