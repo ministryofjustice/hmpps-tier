@@ -97,15 +97,15 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       request()
         .withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
     )
-      .respond(jsonResponseOf(custodialNCConvictionResponse()))
+      .respond(custodialNCConvictionResponse())
   }
 
-  fun setupRegistrations(registrationsResponse: String, crn: String) {
+  fun setupRegistrations(registrationsResponse: HttpResponse, crn: String) {
     mockCommunityApiServer.`when`(
       request()
         .withPath("/secure/offenders/crn/$crn/registrations")
     )
-      .respond(jsonResponseOf(registrationsResponse))
+      .respond(registrationsResponse)
   }
 
   fun restOfSetupWithMaleOffenderNoSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) {
@@ -120,12 +120,24 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiHighSeverityNeedsResponse())
   }
 
+  fun emptyNsisResponse(crn: String) {
+    mockCommunityApiServer
+      .`when`(
+        request()
+          .withPath("/secure/offenders/crn/$crn/convictions/2500222290/nsis")
+          .withQueryStringParameter("nsiCodes", "BRE,BRES,REC,RECS")
+      )
+      .respond(
+        emptyNsiResponse()
+      )
+  }
+
   private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: String) {
     mockCommunityApiServer.`when`(
       request()
         .withPath("/secure/offenders/crn/$crn/assessments")
     )
-      .respond(jsonResponseOf(communityApiAssessmentsResponse()))
+      .respond(communityApiAssessmentsResponse())
 
     mockCommunityApiServer.`when`(
       request()
@@ -149,7 +161,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       request()
         .withPath("/secure/offenders/crn/$crn/assessments")
     )
-      .respond(jsonResponseOf(emptyCommunityApiAssessmentsResponse()))
+      .respond(emptyCommunityApiAssessmentsResponse())
 
     mockCommunityApiServer.`when`(
       request()
@@ -184,7 +196,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     mockCommunityApiServer.`when`(
       request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
     ).respond(
-      jsonResponseOf(nonCustodialConvictionResponse())
+      nonCustodialConvictionResponse()
     )
   }
 
@@ -208,7 +220,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     mockCommunityApiServer.`when`(
       request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
     ).respond(
-      jsonResponseOf(custodialTerminatedConvictionResponse())
+      custodialTerminatedConvictionResponse()
     )
   }
 
@@ -216,7 +228,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     mockCommunityApiServer.`when`(
       request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
     ).respond(
-      jsonResponseOf(nonCustodialTerminatedConvictionResponse())
+      nonCustodialTerminatedConvictionResponse()
     )
   }
 
@@ -264,7 +276,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     mockCommunityApiServer.`when`(
       request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
     ).respond(
-      jsonResponseOf(custodialSCConvictionResponse())
+      custodialSCConvictionResponse()
     )
   }
 

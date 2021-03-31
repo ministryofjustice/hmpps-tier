@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
-import org.mockserver.model.HttpRequest.request
 
 @TestInstance(PER_CLASS)
 class TierCalculationTest : MockedEndpointsTestBase() {
@@ -25,12 +24,6 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       calculateTierFor(crn)
       expectTierCalculation("D2")
     }
-  }
-
-  private fun emptyNsisResponse(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/2500222290/nsis").withQueryStringParameter("nsiCodes", "BRE,BRES,REC,RECS")).respond(
-      jsonResponseOf(emptyNsiResponse())
-    )
   }
 
   @Nested

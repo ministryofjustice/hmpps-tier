@@ -20,7 +20,7 @@ class NoSentenceTest : MockedEndpointsTestBase() {
 
   private fun setUpNoSentence(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions")).respond(
-      jsonResponseOf(noSentenceConvictionResponse())
+      noSentenceConvictionResponse()
     )
   }
 }

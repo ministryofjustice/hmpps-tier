@@ -1,40 +1,49 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
+import org.mockserver.model.HttpResponse
+import org.mockserver.model.MediaType.APPLICATION_JSON
 import java.nio.file.Files.readString
 import java.nio.file.Paths
 
-fun communityApiAssessmentsResponse(): String =
-  responseFrom("src/test/resources/fixtures/community-api/assessments.json")
+fun communityApiAssessmentsResponse(): HttpResponse =
+  jsonResponseOf(responseFrom("src/test/resources/fixtures/community-api/assessments.json"))
 
-fun emptyCommunityApiAssessmentsResponse(): String = "{}"
+fun emptyCommunityApiAssessmentsResponse(): HttpResponse = jsonResponseOf("{}")
 
-fun emptyNsiResponse(): String = "{\"nsis\": []}"
+fun emptyNsiResponse(): HttpResponse = jsonResponseOf("{\"nsis\": []}")
 
-fun registrationsResponse(): String =
-  responseFrom("src/test/resources/fixtures/community-api/registrations.json")
+fun registrationsResponse(): HttpResponse =
+  jsonResponseOf(responseFrom("src/test/resources/fixtures/community-api/registrations.json"))
 
-fun emptyRegistrationsResponse(): String = "{}"
+fun emptyRegistrationsResponse(): HttpResponse = jsonResponseOf("{}")
 
-fun registrationsResponseWithNoLevel(): String =
+fun registrationsResponseWithNoLevel(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/community-api/registrations-no-level.json")
+)
 
-fun custodialSCConvictionResponse(): String =
+fun custodialSCConvictionResponse(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/community-api/convictions-custodial-sc.json")
+)
 
-fun custodialNCConvictionResponse(): String =
+fun custodialNCConvictionResponse(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/community-api/convictions-custodial-nc.json")
+)
 
-fun custodialTerminatedConvictionResponse(): String =
+fun custodialTerminatedConvictionResponse(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/community-api/convictions-custodial-terminated.json")
+)
 
-fun nonCustodialConvictionResponse(): String =
+fun nonCustodialConvictionResponse(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/community-api/convictions-non-custodial.json")
+)
 
-fun noSentenceConvictionResponse(): String =
+fun noSentenceConvictionResponse(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/community-api/convictions-no-sentence.json")
+)
 
-fun nonCustodialTerminatedConvictionResponse(): String =
+fun nonCustodialTerminatedConvictionResponse(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/community-api/convictions-non-custodial-terminated.json")
+)
 
 fun maleOffenderResponse(): String =
   responseFrom("src/test/resources/fixtures/community-api/offender-male.json")
@@ -80,3 +89,6 @@ fun assessmentsApiHighSeverityNeedsResponse(): String =
 
 private fun responseFrom(path: String) =
   readString(Paths.get(path))
+
+private fun jsonResponseOf(response: String): HttpResponse =
+  HttpResponse.response().withContentType(APPLICATION_JSON).withBody(response)
