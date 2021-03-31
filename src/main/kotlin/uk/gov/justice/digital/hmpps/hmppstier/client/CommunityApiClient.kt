@@ -129,8 +129,8 @@ data class Requirement @JsonCreator constructor(
 )
 
 data class RequirementTypeMainCategory @JsonCreator constructor(
-  @JsonProperty("description")
-  val description: String
+  @JsonProperty("code")
+  val code: String
 )
 
 private data class NsiWrapper @JsonCreator constructor(
