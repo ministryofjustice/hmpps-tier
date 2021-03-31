@@ -74,6 +74,9 @@ object ApiResponses {
   fun assessmentsApiNoSeverityNeedsResponse(): String =
     responseFrom("src/test/resources/fixtures/assessment-api/no_severity_needs.json")
 
+  fun assessmentsApi8NeedsResponse(): String =
+    responseFrom("src/test/resources/fixtures/assessment-api/8_points_needs.json")
+
   fun assessmentsApiHighSeverityNeedsResponse(): String =
     responseFrom("src/test/resources/fixtures/assessment-api/high_severity_needs_18_points.json")
 

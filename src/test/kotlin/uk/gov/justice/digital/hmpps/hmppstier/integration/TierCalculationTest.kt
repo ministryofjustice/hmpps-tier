@@ -48,5 +48,17 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       calculateTierFor(crn)
       expectTierCalculation("A2")
     }
+
+    @Test
+    fun `change score 2 for 10 points`() {
+      val crn = "X432768"
+
+      setupSCCustodialSentence(crn)
+      setupRegistrations(ApiResponses.registrationsResponse(), crn)
+      restOfSetupWithMaleOffenderAnd8PointNeeds(crn, true)
+
+      calculateTierFor(crn)
+      expectTierCalculation("A2")
+    }
   }
 }

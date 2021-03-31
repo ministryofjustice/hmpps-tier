@@ -34,6 +34,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustod
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialCurrentAndTerminatedConviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialTerminatedConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonRestrictiveRequirementsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.registrationsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveAndNonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.unpaidWorkRequirementsResponse
@@ -127,30 +128,18 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun restOfSetupWithMaleOffenderNoSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) {
-    mockCommunityApiServer.`when`(
-      request()
-        .withPath("/secure/offenders/crn/$crn/assessments")
-    )
-      .respond(jsonResponseOf(communityApiAssessmentsResponse()))
+    restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiNoSeverityNeedsResponse())
+  }
 
-    mockCommunityApiServer.`when`(
-      request()
-        .withPath("/secure/offenders/crn/$crn")
-    )
-      .respond(
-        jsonResponseOf(maleOffenderResponse())
-      )
-    if (includeAssessmentApi) {
-      setupCurrentAssessment(crn)
-    }
-    mockAssessmentApiServer.`when`(
-      request()
-        .withPath("/assessments/oasysSetId/1234/needs")
-    )
-      .respond(jsonResponseOf(assessmentsApiNoSeverityNeedsResponse()))
+  fun restOfSetupWithMaleOffenderAnd8PointNeeds(crn: String, includeAssessmentApi: Boolean = true) {
+    restOfSetupWithNeeds(crn, includeAssessmentApi, ApiResponses.assessmentsApi8NeedsResponse())
   }
 
   fun restOfSetupWithMaleOffenderAndSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) {
+    restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiHighSeverityNeedsResponse())
+  }
+
+  private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: String) {
     mockCommunityApiServer.`when`(
       request()
         .withPath("/secure/offenders/crn/$crn/assessments")
@@ -171,7 +160,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       request()
         .withPath("/assessments/oasysSetId/1234/needs")
     )
-      .respond(jsonResponseOf(assessmentsApiHighSeverityNeedsResponse()))
+      .respond(jsonResponseOf(needs))
   }
 
   fun restOfSetupWithFemaleOffender(crn: String) {
@@ -286,7 +275,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true) {
-    setupRegistrations(ApiResponses.registrationsResponse(), crn)
+    setupRegistrations(registrationsResponse(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, includeAssessmentApi)
   }
 
