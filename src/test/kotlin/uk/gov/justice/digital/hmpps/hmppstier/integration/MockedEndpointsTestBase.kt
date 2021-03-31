@@ -36,6 +36,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustod
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveAndNonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveRequirementsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.unpaidWorkRequirementsResponse
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.Duration
@@ -247,6 +248,13 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
       .respond(
         jsonResponseOf(restrictiveRequirementsResponse())
+      )
+  }
+
+  fun setupUnpaidWorkRequirements(crn: String) {
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
+      .respond(
+        jsonResponseOf(unpaidWorkRequirementsResponse())
       )
   }
 

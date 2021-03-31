@@ -35,7 +35,7 @@ internal class ChangeLevelCalculatorTest {
   private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
 
   private val service = ChangeLevelCalculator(
-    communityApiClient,
+    MandateForChange(communityApiClient),
     assessmentApiService
   )
 

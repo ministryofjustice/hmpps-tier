@@ -53,6 +53,9 @@ object ApiResponses {
   fun nonRestrictiveRequirementsResponse(): String =
     responseFrom("src/test/resources/fixtures/community-api/requirements-non-restrictive.json")
 
+  fun unpaidWorkRequirementsResponse(): String =
+    responseFrom("src/test/resources/fixtures/community-api/requirements-unpaid-work.json")
+
   fun noRequirementsResponse(): String = "{\n" +
     "    \"requirements\": []\n" +
     "}"
