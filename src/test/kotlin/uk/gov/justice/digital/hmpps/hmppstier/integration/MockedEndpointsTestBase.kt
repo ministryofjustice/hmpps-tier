@@ -19,25 +19,6 @@ import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiAssessmentsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiHighSeverityNeedsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiNoSeverityNeedsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.communityApiAssessmentsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialAndNonCustodialConvictions
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialNCConvictionResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialSCConvictionResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialTerminatedConvictionResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.emptyCommunityApiAssessmentsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.maleOffenderResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.noRequirementsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialConvictionResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialCurrentAndTerminatedConviction
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialTerminatedConvictionResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonRestrictiveRequirementsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.registrationsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveAndNonRestrictiveRequirementsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveRequirementsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.unpaidWorkRequirementsResponse
 import java.time.Duration
 import java.time.LocalDate
 import java.util.UUID
@@ -132,7 +113,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun restOfSetupWithMaleOffenderAnd8PointNeeds(crn: String, includeAssessmentApi: Boolean = true) {
-    restOfSetupWithNeeds(crn, includeAssessmentApi, ApiResponses.assessmentsApi8NeedsResponse())
+    restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApi8NeedsResponse())
   }
 
   fun restOfSetupWithMaleOffenderAndSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) {
@@ -174,7 +155,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       request()
         .withPath("/secure/offenders/crn/$crn")
     )
-      .respond(jsonResponseOf(ApiResponses.femaleOffenderResponse()))
+      .respond(jsonResponseOf(femaleOffenderResponse()))
     setupCurrentAssessment(crn)
     mockAssessmentApiServer.`when`(
       request()

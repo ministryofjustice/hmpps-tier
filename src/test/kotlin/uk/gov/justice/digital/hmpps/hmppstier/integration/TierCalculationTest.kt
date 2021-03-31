@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.mockserver.model.HttpRequest.request
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.emptyNsiResponse
 
 @TestInstance(PER_CLASS)
 class TierCalculationTest : MockedEndpointsTestBase() {
@@ -18,7 +17,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupAssessmentNotFound(crn)
 
       setupNCCustodialSentence(crn)
-      setupRegistrations(ApiResponses.emptyRegistrationsResponse(), crn)
+      setupRegistrations(emptyRegistrationsResponse(), crn)
 
       restOfSetupWithFemaleOffender(crn)
       emptyNsisResponse(crn)
@@ -54,7 +53,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       val crn = "X432768"
 
       setupSCCustodialSentence(crn)
-      setupRegistrations(ApiResponses.registrationsResponse(), crn)
+      setupRegistrations(registrationsResponse(), crn)
       restOfSetupWithMaleOffenderAnd8PointNeeds(crn, true)
 
       calculateTierFor(crn)
