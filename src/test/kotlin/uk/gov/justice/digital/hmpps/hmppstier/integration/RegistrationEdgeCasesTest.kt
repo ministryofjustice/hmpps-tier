@@ -3,8 +3,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.emptyRegistrationsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.registrationsResponseWithNoLevel
 
 @TestInstance(PER_CLASS)
 class RegistrationEdgeCasesTest : MockedEndpointsTestBase() {

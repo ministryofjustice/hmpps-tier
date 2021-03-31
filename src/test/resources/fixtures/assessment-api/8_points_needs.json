@@ -1,0 +1,38 @@
+[
+  {
+    "flaggedAsNeed": true,
+    "name": "Accommodation",
+    "overThreshold": false,
+    "riskOfHarm": true,
+    "riskOfReoffending": true,
+    "section": "ACCOMMODATION",
+    "severity": "SEVERE"
+  },
+  {
+    "flaggedAsNeed": true,
+    "name": "Education, Training and Employability",
+    "overThreshold": false,
+    "riskOfHarm": true,
+    "riskOfReoffending": true,
+    "section": "EDUCATION_TRAINING_AND_EMPLOYABILITY",
+    "severity": "SEVERE"
+  },
+  {
+    "flaggedAsNeed": true,
+    "name": "Relationships",
+    "overThreshold": false,
+    "riskOfHarm": true,
+    "riskOfReoffending": true,
+    "section": "RELATIONSHIPS",
+    "severity": "SEVERE"
+  },
+  {
+    "flaggedAsNeed": true,
+    "name": "Lifestyle and Associates",
+    "overThreshold": false,
+    "riskOfHarm": true,
+    "riskOfReoffending": true,
+    "section": "LIFESTYLE_AND_ASSOCIATES",
+    "severity": "SEVERE"
+  }
+]

@@ -11,7 +11,7 @@ class NeedsTest : MockedEndpointsTestBase() {
   fun `severe needs 18 points plus 2 OGRS make change level 3`() {
     val crn = "X333444"
     setupSCCustodialSentence(crn)
-    setupRegistrations(ApiResponses.registrationsResponse(), crn)
+    setupRegistrations(registrationsResponse(), crn)
     restOfSetupWithMaleOffenderAndSevereNeeds(crn)
     calculateTierFor(crn)
     expectTierCalculation("A3")

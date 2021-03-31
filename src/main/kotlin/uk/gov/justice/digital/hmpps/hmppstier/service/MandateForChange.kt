@@ -17,7 +17,7 @@ class MandateForChange(
         activeConvictions.none {
           it.sentence != null && (isCustodialSentence(it.sentence) || hasNonRestrictiveRequirements(crn, it.convictionId))
         }
-      }.also { log.debug("Has Mandate for change: $it") }
+      }.also { log.debug("Has no mandate for change: $it") }
 
   private fun isCustodialSentence(sentence: Sentence) =
     sentence.sentenceType.code in custodialSentences
