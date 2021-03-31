@@ -27,7 +27,7 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 
 @ExtendWith(MockKExtension::class)
-@DisplayName("Tier Calculation Service tests")
+@DisplayName("Change Level Calculator tests")
 internal class ChangeLevelCalculatorTest {
   private val clock = Clock.fixed(LocalDateTime.of(2020, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault())
   private val communityApiClient: CommunityApiClient = mockk(relaxUnitFun = true)
