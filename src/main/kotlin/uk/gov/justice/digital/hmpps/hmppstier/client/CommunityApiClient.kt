@@ -123,7 +123,14 @@ private data class Requirements @JsonCreator constructor(
 
 data class Requirement @JsonCreator constructor(
   @JsonProperty("restrictive")
-  val restrictive: Boolean?
+  val restrictive: Boolean?,
+  @JsonProperty("requirementTypeMainCategory")
+  val requirementTypeMainCategory: RequirementTypeMainCategory
+)
+
+data class RequirementTypeMainCategory @JsonCreator constructor(
+  @JsonProperty("description")
+  val description: String
 )
 
 private data class NsiWrapper @JsonCreator constructor(

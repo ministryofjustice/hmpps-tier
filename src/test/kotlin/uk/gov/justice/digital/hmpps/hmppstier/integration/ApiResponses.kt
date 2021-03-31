@@ -29,9 +29,6 @@ object ApiResponses {
   fun custodialTerminatedConvictionResponse(): String =
     responseFrom("src/test/resources/fixtures/community-api/convictions-custodial-terminated.json")
 
-  fun nonCustodialUnpaidWorkConvictionResponse(): String =
-    responseFrom("src/test/resources/fixtures/community-api/convictions-non-custodial-unpaid-work.json")
-
   fun nonCustodialConvictionResponse(): String =
     responseFrom("src/test/resources/fixtures/community-api/convictions-non-custodial.json")
 
@@ -56,15 +53,18 @@ object ApiResponses {
   fun nonRestrictiveRequirementsResponse(): String =
     responseFrom("src/test/resources/fixtures/community-api/requirements-non-restrictive.json")
 
+  fun unpaidWorkRequirementsResponse(): String =
+    responseFrom("src/test/resources/fixtures/community-api/requirements-unpaid-work.json")
+
   fun noRequirementsResponse(): String = "{\n" +
     "    \"requirements\": []\n" +
     "}"
 
-  fun custodialAndNonCustodialUnpaid(): String =
-    responseFrom("src/test/resources/fixtures/community-api/convictions-custodial-and-non-custodial-unpaid.json")
+  fun custodialAndNonCustodialConvictions(): String =
+    responseFrom("src/test/resources/fixtures/community-api/convictions-custodial-and-non-custodial.json")
 
-  fun nonCustodialCurrentAndTerminatedConvictionWithUnpaidWorkResponse(): String =
-    responseFrom("src/test/resources/fixtures/community-api/convictions-non-custodial-current-and-terminated-with-unpaid-work.json")
+  fun nonCustodialCurrentAndTerminatedConviction(): String =
+    responseFrom("src/test/resources/fixtures/community-api/convictions-non-custodial-current-and-terminated.json")
 
   fun assessmentsApiAssessmentsResponse(year: Int): String =
     responseFrom("src/test/resources/fixtures/assessment-api/assessments.json")

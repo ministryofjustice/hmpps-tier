@@ -2,12 +2,10 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
-import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ONE
@@ -18,7 +16,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 
 @Service
 class ChangeLevelCalculator(
-  private val communityApiClient: CommunityApiClient,
+  private val mandateForChange: MandateForChange,
   private val assessmentApiService: AssessmentApiService,
 ) {
 
@@ -35,7 +33,7 @@ class ChangeLevelCalculator(
       .sortedByDescending { it.startDate }
 
     return when {
-      !hasMandateForChange(crn, convictions) -> {
+      mandateForChange.hasNoMandate(crn, convictions) -> {
         TierLevel(ZERO, 0)
       }
       offenderAssessment == null -> {
@@ -57,24 +55,6 @@ class ChangeLevelCalculator(
       }
     }.also { log.debug("Calculated Change Level for $crn: $it") }
   }
-
-  private fun hasMandateForChange(crn: String, convictions: Collection<Conviction>): Boolean =
-    convictions
-      .filter { it.sentence?.terminationDate == null }
-      .let { activeConvictions ->
-        activeConvictions.any {
-          it.sentence != null && (isCustodialSentence(it.sentence) || hasNonRestrictiveRequirements(crn, it.convictionId))
-        }
-      }.also { log.debug("Has Mandate for change: $it") }
-
-  private fun isCustodialSentence(sentence: Sentence) =
-    sentence.sentenceType.code in custodialSentences
-
-  private fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
-    communityApiClient.getRequirements(crn, convictionId)
-      .any { req ->
-        req.restrictive != true
-      }.also { log.debug("Has non-restrictive requirements: $it") }
 
   private fun getAssessmentNeedsPoints(offenderAssessment: OffenderAssessment?): Int =
     (
@@ -101,6 +81,5 @@ class ChangeLevelCalculator(
 
   companion object {
     private val log = LoggerFactory.getLogger(ChangeLevelCalculator::class.java)
-    private val custodialSentences = arrayOf("NC", "SC")
   }
 }

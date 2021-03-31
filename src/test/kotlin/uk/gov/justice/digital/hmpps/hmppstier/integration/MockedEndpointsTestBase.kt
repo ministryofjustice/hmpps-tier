@@ -23,7 +23,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmen
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiHighSeverityNeedsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.assessmentsApiNoSeverityNeedsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.communityApiAssessmentsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialAndNonCustodialUnpaid
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialAndNonCustodialConvictions
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialNCConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialSCConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.custodialTerminatedConvictionResponse
@@ -31,12 +31,12 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.emptyComm
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.maleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.noRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialConvictionResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialCurrentAndTerminatedConvictionWithUnpaidWorkResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialCurrentAndTerminatedConviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialTerminatedConvictionResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonCustodialUnpaidWorkConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.nonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveAndNonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.restrictiveRequirementsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.ApiResponses.unpaidWorkRequirementsResponse
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.Duration
@@ -214,27 +214,21 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       .respond(notFoundResponse())
   }
 
-  fun setupNonCustodialSentenceWithNoUnpaidWork(crn: String) {
+  fun setupNonCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
       jsonResponseOf(nonCustodialConvictionResponse())
     )
   }
 
-  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentenceWithUnpaidWork(crn: String) {
+  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
-      jsonResponseOf(nonCustodialCurrentAndTerminatedConvictionWithUnpaidWorkResponse())
+      jsonResponseOf(nonCustodialCurrentAndTerminatedConviction())
     )
   }
 
-  fun setupConcurrentCustodialAndNonCustodialSentenceWithUnpaidWork(crn: String) {
+  fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
-      jsonResponseOf(custodialAndNonCustodialUnpaid())
-    )
-  }
-
-  fun setupNonCustodialSentenceWithUnpaidWork(crn: String) {
-    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
-      jsonResponseOf(nonCustodialUnpaidWorkConvictionResponse())
+      jsonResponseOf(custodialAndNonCustodialConvictions())
     )
   }
 
@@ -244,7 +238,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     )
   }
 
-  fun setupTerminatedNonCustodialSentenceWithNoUnpaidWork(crn: String) {
+  fun setupTerminatedNonCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")).respond(
       jsonResponseOf(nonCustodialTerminatedConvictionResponse())
     )
@@ -254,6 +248,13 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
       .respond(
         jsonResponseOf(restrictiveRequirementsResponse())
+      )
+  }
+
+  fun setupUnpaidWorkRequirements(crn: String) {
+    mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
+      .respond(
+        jsonResponseOf(unpaidWorkRequirementsResponse())
       )
   }
 
