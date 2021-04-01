@@ -108,6 +108,15 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       .respond(registrationsResponse)
   }
 
+  fun setupEmptyNsisResponse(crn: String) {
+    mockCommunityApiServer.`when`(
+      request().withPath("/secure/offenders/crn/$crn/convictions/2500222290/nsis")
+        .withQueryStringParameter("nsiCodes", "BRE,BRES,REC,RECS")
+    ).respond(
+      emptyNsisResponse()
+    )
+  }
+
   fun restOfSetupWithMaleOffenderNoSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) {
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiNoSeverityNeedsResponse())
   }
@@ -118,18 +127,6 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
 
   fun restOfSetupWithMaleOffenderAndSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) {
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiHighSeverityNeedsResponse())
-  }
-
-  fun emptyNsisResponse(crn: String) {
-    mockCommunityApiServer
-      .`when`(
-        request()
-          .withPath("/secure/offenders/crn/$crn/convictions/2500222290/nsis")
-          .withQueryStringParameter("nsiCodes", "BRE,BRES,REC,RECS")
-      )
-      .respond(
-        emptyNsiResponse()
-      )
   }
 
   private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: String) {
@@ -164,8 +161,8 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     mockCommunityApiServer.`when`(
       request()
         .withPath("/secure/offenders/crn/$crn")
-    )
-      .respond(femaleOffenderResponse())
+    ).respond(femaleOffenderResponse())
+
     setupCurrentAssessment(crn)
     mockAssessmentApiServer.`when`(
       request()
@@ -193,9 +190,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun setupNonCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(
       request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(
-      nonCustodialConvictionResponse()
-    )
+    ).respond(nonCustodialConvictionResponse())
   }
 
   fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) {
@@ -217,17 +212,13 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun setupTerminatedCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(
       request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(
-      custodialTerminatedConvictionResponse()
-    )
+    ).respond(custodialTerminatedConvictionResponse())
   }
 
   fun setupTerminatedNonCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(
       request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(
-      nonCustodialTerminatedConvictionResponse()
-    )
+    ).respond(nonCustodialTerminatedConvictionResponse())
   }
 
   fun setupRestrictiveRequirements(crn: String) {
@@ -269,9 +260,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun setupSCCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(
       request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(
-      custodialSCConvictionResponse()
-    )
+    ).respond(custodialSCConvictionResponse())
   }
 
   fun calculateTierFor(crn: String) {

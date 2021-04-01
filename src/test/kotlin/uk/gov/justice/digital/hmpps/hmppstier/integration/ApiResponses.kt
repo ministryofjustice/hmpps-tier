@@ -10,7 +10,7 @@ fun communityApiAssessmentsResponse(): HttpResponse =
 
 fun emptyCommunityApiAssessmentsResponse(): HttpResponse = jsonResponseOf("{}")
 
-fun emptyNsiResponse(): HttpResponse = jsonResponseOf("{\"nsis\": []}")
+fun emptyNsisResponse(): HttpResponse = jsonResponseOf("{\"nsis\": []}")
 
 fun registrationsResponse(): HttpResponse =
   jsonResponseOf(responseFrom("src/test/resources/fixtures/community-api/registrations.json"))

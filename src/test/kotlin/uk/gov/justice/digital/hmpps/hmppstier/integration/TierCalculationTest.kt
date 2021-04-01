@@ -19,7 +19,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupRegistrations(emptyRegistrationsResponse(), crn)
 
       restOfSetupWithFemaleOffender(crn)
-      emptyNsisResponse(crn)
+      setupEmptyNsisResponse(crn)
 
       calculateTierFor(crn)
       expectTierCalculation("D2")
