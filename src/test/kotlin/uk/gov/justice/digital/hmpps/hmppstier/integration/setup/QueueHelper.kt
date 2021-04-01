@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppstier.integration
+package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 
 import com.amazonaws.services.sqs.AmazonSQSAsync
 import java.nio.file.Files
@@ -14,7 +14,7 @@ fun getNumberOfMessagesCurrentlyOnQueue(client: AmazonSQSAsync, queueUrl: String
   return queueAttributes.attributes["ApproximateNumberOfMessages"]?.toInt()
 }
 
-fun calculationMessage(crn: String): String {
+private fun calculationMessage(crn: String): String {
   return Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
     .replace("X373878", crn)
 }

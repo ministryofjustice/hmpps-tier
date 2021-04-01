@@ -47,7 +47,7 @@ class AwsLocalStackConfiguration(
   @Primary
   @Bean(name = ["hmppsDomainEvents"])
   fun hmppsDomainEventsAmazonSNSAsync(
-    @Value("\${hmpps-domain-events.sns-endpoint}") serviceEndpoint: String
+    @Value("\${hmpps-events.sns-endpoint}") serviceEndpoint: String
   ): AmazonSNSAsync {
     return AmazonSNSAsyncClientBuilder.standard()
       .withEndpointConfiguration(AwsClientBuilder.EndpointConfiguration(serviceEndpoint, region))
