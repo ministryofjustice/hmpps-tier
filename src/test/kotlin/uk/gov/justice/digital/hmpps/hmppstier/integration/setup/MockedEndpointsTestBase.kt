@@ -94,13 +94,11 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       .respond(custodialNCConvictionResponse())
   }
 
-  fun setupRegistrations(registrationsResponse: HttpResponse, crn: String) {
+  fun setupRegistrations(registrationsResponse: HttpResponse, crn: String) =
     httpSetup(registrationsResponse, "/secure/offenders/crn/$crn/registrations", communityApi)
-  }
 
-  private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) {
+  private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
     clientAndServer.`when`(request().withPath(urlTemplate)).respond(response)
-  }
 
   fun setupEmptyNsisResponse(crn: String) {
     communityApi.`when`(
@@ -111,17 +109,14 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     )
   }
 
-  fun restOfSetupWithMaleOffenderNoSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) {
+  fun restOfSetupWithMaleOffenderNoSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) =
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiNoSeverityNeedsResponse())
-  }
 
-  fun restOfSetupWithMaleOffenderAnd8PointNeeds(crn: String, includeAssessmentApi: Boolean = true) {
+  fun restOfSetupWithMaleOffenderAnd8PointNeeds(crn: String, includeAssessmentApi: Boolean = true) =
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApi8NeedsResponse())
-  }
 
-  fun restOfSetupWithMaleOffenderAndSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) {
+  fun restOfSetupWithMaleOffenderAndSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) =
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiHighSeverityNeedsResponse())
-  }
 
   private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: HttpResponse) {
     httpSetup(communityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments", communityApi)
@@ -142,16 +137,11 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
 
   fun setupCurrentAssessment(crn: String) = setupLatestAssessment(crn, LocalDate.now().year)
 
-  fun setupLatestAssessment(crn: String, year: Int) {
+  fun setupLatestAssessment(crn: String, year: Int) =
     httpSetup(assessmentsApiAssessmentsResponse(year), "/offenders/crn/$crn/assessments/summary", assessmentApi)
-  }
 
-  fun setupAssessmentNotFound(crn: String) {
-    assessmentApi.`when`(
-      request().withPath("/offenders/crn/$crn/assessments/summary"),
-    )
-      .respond(notFoundResponse())
-  }
+  fun setupAssessmentNotFound(crn: String) =
+    httpSetup(notFoundResponse(), "/offenders/crn/$crn/assessments/summary", assessmentApi)
 
   fun setupNonCustodialSentence(crn: String) {
     communityApi.`when`(
@@ -183,12 +173,8 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     ).respond(nonCustodialTerminatedConvictionResponse())
   }
 
-  fun setupRestrictiveRequirements(crn: String) {
-    communityApi.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
-      .respond(
-        restrictiveRequirementsResponse()
-      )
-  }
+  fun setupRestrictiveRequirements(crn: String) =
+    httpSetup(restrictiveRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements", communityApi)
 
   fun setupUnpaidWorkRequirements(crn: String) {
     communityApi.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
