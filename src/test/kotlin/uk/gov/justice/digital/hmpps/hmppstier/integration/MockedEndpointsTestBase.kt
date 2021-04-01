@@ -14,8 +14,6 @@ import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.notFoundResponse
-import org.mockserver.model.HttpResponse.response
-import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -177,7 +175,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     mockAssessmentApiServer.`when`(
       request().withPath("/offenders/crn/$crn/assessments/summary"),
     )
-      .respond(jsonResponseOf(assessmentsApiAssessmentsResponse(year)))
+      .respond(assessmentsApiAssessmentsResponse(year))
   }
 
   fun setupAssessmentNotFound(crn: String) {
@@ -283,8 +281,6 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       .expectBody()
       .jsonPath("tierScore").isEqualTo(tierScore)
   }
-
-  fun jsonResponseOf(response: String): HttpResponse = response().withContentType(APPLICATION_JSON).withBody(response)
 
   internal fun setAuthorisation(role: String): (HttpHeaders) -> Unit {
     val token = jwtHelper.createJwt(
