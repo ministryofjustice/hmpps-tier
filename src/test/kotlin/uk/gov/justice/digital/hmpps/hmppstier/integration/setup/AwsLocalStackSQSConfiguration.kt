@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppstier.integration
+package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 
 import com.amazonaws.services.sns.AmazonSNSAsync
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty

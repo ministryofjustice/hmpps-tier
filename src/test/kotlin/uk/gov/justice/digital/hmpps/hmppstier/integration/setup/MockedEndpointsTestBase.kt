@@ -17,6 +17,9 @@ import org.mockserver.model.HttpResponse.notFoundResponse
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.JwtAuthHelper
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.OAuthMockServer
 import java.time.Duration
 import java.time.LocalDate
 import java.util.UUID

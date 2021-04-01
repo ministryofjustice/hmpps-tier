@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppstier.integration
+package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
