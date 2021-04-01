@@ -54,8 +54,8 @@ internal class TierCalculationServiceTest {
 
   private val calculationId = UUID.randomUUID()
   private val crn = "Any Crn"
-  private val protectLevelResult = TierLevel(ProtectLevel.B, 0)
-  private val changeLevelResult = TierLevel(ChangeLevel.TWO, 0)
+  private val protectLevelResult = TierLevel(ProtectLevel.B, 0, mapOf())
+  private val changeLevelResult = TierLevel(ChangeLevel.TWO, 0, mapOf())
   private val validTierCalculationEntity = TierCalculationEntity(
     0,
     calculationId,

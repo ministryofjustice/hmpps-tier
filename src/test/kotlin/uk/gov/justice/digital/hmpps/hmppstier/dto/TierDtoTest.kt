@@ -40,8 +40,8 @@ internal class TierDtoTest {
     val calculationDate = LocalDateTime.now()
 
     val data = TierCalculationResultEntity(
-      protect = TierLevel(protectLevel, 5),
-      change = TierLevel(changeLevel, 12)
+      protect = TierLevel(protectLevel, 4, mapOf("SomeValue" to 4)),
+      change = TierLevel(changeLevel, 12, mapOf("SomeValue" to 12))
     )
 
     val tierDto = TierDto from TierCalculationEntity(

@@ -41,8 +41,8 @@ internal class TierCalculationEntityTest {
   }
 
   companion object {
-    private val tierLetterResult = TierLevel(ProtectLevel.B, 0)
-    private val tierNumberResult = TierLevel(ChangeLevel.TWO, 0)
+    private val tierLetterResult = TierLevel(ProtectLevel.B, 4, mapOf("SomeValue" to 4))
+    private val tierNumberResult = TierLevel(ChangeLevel.TWO, 9, mapOf("OtherValue" to 9))
 
     val data = TierCalculationResultEntity(
       protect = tierLetterResult,

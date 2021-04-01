@@ -122,8 +122,8 @@ class TierCalculationRepositoryTest(
   companion object {
     private const val crn = "Any CRN"
     private val data = TierCalculationResultEntity(
-      protect = TierLevel(ProtectLevel.B, 0),
-      change = TierLevel(ChangeLevel.TWO, 0)
+      protect = TierLevel(ProtectLevel.B, 4, mapOf("SomeValue" to 4)),
+      change = TierLevel(ChangeLevel.TWO, 9, mapOf("OtherValue" to 9))
     )
   }
 }

@@ -34,12 +34,10 @@ internal class TelemetryServiceTest {
     LocalDateTime.now(),
     TierCalculationResultEntity(
       TierLevel(
-        ProtectLevel.A,
-        17
+        ProtectLevel.A, 17, mapOf()
       ),
       TierLevel(
-        ChangeLevel.ONE,
-        5
+        ChangeLevel.ONE, 5, mapOf()
       )
     )
   )
