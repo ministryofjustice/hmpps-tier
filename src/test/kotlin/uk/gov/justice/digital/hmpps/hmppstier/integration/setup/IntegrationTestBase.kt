@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppstier.integration
+package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest

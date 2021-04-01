@@ -14,11 +14,12 @@ import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.notFoundResponse
-import org.mockserver.model.HttpResponse.response
-import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.JwtAuthHelper
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.OAuthMockServer
 import java.time.Duration
 import java.time.LocalDate
 import java.util.UUID
@@ -97,15 +98,24 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       request()
         .withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
     )
-      .respond(jsonResponseOf(custodialNCConvictionResponse()))
+      .respond(custodialNCConvictionResponse())
   }
 
-  fun setupRegistrations(registrationsResponse: String, crn: String) {
+  fun setupRegistrations(registrationsResponse: HttpResponse, crn: String) {
     mockCommunityApiServer.`when`(
       request()
         .withPath("/secure/offenders/crn/$crn/registrations")
     )
-      .respond(jsonResponseOf(registrationsResponse))
+      .respond(registrationsResponse)
+  }
+
+  fun setupEmptyNsisResponse(crn: String) {
+    mockCommunityApiServer.`when`(
+      request().withPath("/secure/offenders/crn/$crn/convictions/2500222290/nsis")
+        .withQueryStringParameter("nsiCodes", "BRE,BRES,REC,RECS")
+    ).respond(
+      emptyNsisResponse()
+    )
   }
 
   fun restOfSetupWithMaleOffenderNoSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) {
@@ -120,20 +130,18 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiHighSeverityNeedsResponse())
   }
 
-  private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: String) {
+  private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: HttpResponse) {
     mockCommunityApiServer.`when`(
       request()
         .withPath("/secure/offenders/crn/$crn/assessments")
     )
-      .respond(jsonResponseOf(communityApiAssessmentsResponse()))
+      .respond(communityApiAssessmentsResponse())
 
     mockCommunityApiServer.`when`(
       request()
         .withPath("/secure/offenders/crn/$crn")
     )
-      .respond(
-        jsonResponseOf(maleOffenderResponse())
-      )
+      .respond(maleOffenderResponse())
     if (includeAssessmentApi) {
       setupCurrentAssessment(crn)
     }
@@ -141,7 +149,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       request()
         .withPath("/assessments/oasysSetId/1234/needs")
     )
-      .respond(jsonResponseOf(needs))
+      .respond(needs)
   }
 
   fun restOfSetupWithFemaleOffender(crn: String) {
@@ -149,13 +157,13 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       request()
         .withPath("/secure/offenders/crn/$crn/assessments")
     )
-      .respond(jsonResponseOf(emptyCommunityApiAssessmentsResponse()))
+      .respond(emptyCommunityApiAssessmentsResponse())
 
     mockCommunityApiServer.`when`(
       request()
         .withPath("/secure/offenders/crn/$crn")
-    )
-      .respond(jsonResponseOf(femaleOffenderResponse()))
+    ).respond(femaleOffenderResponse())
+
     setupCurrentAssessment(crn)
     mockAssessmentApiServer.`when`(
       request()
@@ -170,7 +178,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     mockAssessmentApiServer.`when`(
       request().withPath("/offenders/crn/$crn/assessments/summary"),
     )
-      .respond(jsonResponseOf(assessmentsApiAssessmentsResponse(year)))
+      .respond(assessmentsApiAssessmentsResponse(year))
   }
 
   fun setupAssessmentNotFound(crn: String) {
@@ -183,76 +191,62 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun setupNonCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(
       request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(
-      jsonResponseOf(nonCustodialConvictionResponse())
-    )
+    ).respond(nonCustodialConvictionResponse())
   }
 
   fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(
       request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(
-      jsonResponseOf(nonCustodialCurrentAndTerminatedConviction())
-    )
+    ).respond(nonCustodialCurrentAndTerminatedConviction())
   }
 
   fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(
       request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(
-      jsonResponseOf(custodialAndNonCustodialConvictions())
-    )
+    ).respond(custodialAndNonCustodialConvictions())
   }
 
   fun setupTerminatedCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(
       request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(
-      jsonResponseOf(custodialTerminatedConvictionResponse())
-    )
+    ).respond(custodialTerminatedConvictionResponse())
   }
 
   fun setupTerminatedNonCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(
       request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(
-      jsonResponseOf(nonCustodialTerminatedConvictionResponse())
-    )
+    ).respond(nonCustodialTerminatedConvictionResponse())
   }
 
   fun setupRestrictiveRequirements(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
       .respond(
-        jsonResponseOf(restrictiveRequirementsResponse())
+        restrictiveRequirementsResponse()
       )
   }
 
   fun setupUnpaidWorkRequirements(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
       .respond(
-        jsonResponseOf(unpaidWorkRequirementsResponse())
+        unpaidWorkRequirementsResponse()
       )
   }
 
   fun setupNoRequirements(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
       .respond(
-        jsonResponseOf(noRequirementsResponse())
+        noRequirementsResponse()
       )
   }
 
   fun setupRestrictiveAndNonRestrictiveRequirements(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
-      .respond(
-        jsonResponseOf(restrictiveAndNonRestrictiveRequirementsResponse())
-      )
+      .respond(restrictiveAndNonRestrictiveRequirementsResponse())
   }
 
   fun setupNonRestrictiveRequirements(crn: String) {
     mockCommunityApiServer.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
-      .respond(
-        jsonResponseOf(nonRestrictiveRequirementsResponse())
-      )
+      .respond(nonRestrictiveRequirementsResponse())
   }
 
   fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true) {
@@ -263,9 +257,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun setupSCCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(
       request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(
-      jsonResponseOf(custodialSCConvictionResponse())
-    )
+    ).respond(custodialSCConvictionResponse())
   }
 
   fun calculateTierFor(crn: String) {
@@ -292,8 +284,6 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       .expectBody()
       .jsonPath("tierScore").isEqualTo(tierScore)
   }
-
-  fun jsonResponseOf(response: String): HttpResponse = response().withContentType(APPLICATION_JSON).withBody(response)
 
   internal fun setAuthorisation(role: String): (HttpHeaders) -> Unit {
     val token = jwtHelper.createJwt(
