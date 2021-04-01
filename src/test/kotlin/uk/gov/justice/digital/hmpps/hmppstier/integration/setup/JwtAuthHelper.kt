@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppstier.integration
+package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
