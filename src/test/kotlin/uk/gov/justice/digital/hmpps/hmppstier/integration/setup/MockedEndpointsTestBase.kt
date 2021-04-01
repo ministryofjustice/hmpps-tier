@@ -95,10 +95,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun setupRegistrations(registrationsResponse: HttpResponse, crn: String) =
-    httpSetup(registrationsResponse, "/secure/offenders/crn/$crn/registrations", communityApi)
-
-  private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
-    clientAndServer.`when`(request().withPath(urlTemplate)).respond(response)
+    communityApiResponse(registrationsResponse, "/secure/offenders/crn/$crn/registrations")
 
   fun setupEmptyNsisResponse(crn: String) {
     communityApi.`when`(
@@ -119,8 +116,8 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiHighSeverityNeedsResponse())
 
   private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: HttpResponse) {
-    httpSetup(communityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments", communityApi)
-    httpSetup(maleOffenderResponse(), "/secure/offenders/crn/$crn", communityApi)
+    communityApiResponse(communityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments")
+    communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
 
     if (includeAssessmentApi) {
       setupCurrentAssessment(crn)
@@ -129,8 +126,8 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun restOfSetupWithFemaleOffender(crn: String) {
-    httpSetup(emptyCommunityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments", communityApi)
-    httpSetup(femaleOffenderResponse(), "/secure/offenders/crn/$crn", communityApi)
+    communityApiResponse(emptyCommunityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments")
+    communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
     setupCurrentAssessment(crn)
     httpSetup(notFoundResponse(), "/assessments/oasysSetId/1234/needs", assessmentApi)
   }
@@ -174,26 +171,16 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun setupRestrictiveRequirements(crn: String) =
-    httpSetup(restrictiveRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements", communityApi)
+    communityApiResponse(restrictiveRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
 
-  fun setupUnpaidWorkRequirements(crn: String) {
-    communityApi.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
-      .respond(
-        unpaidWorkRequirementsResponse()
-      )
-  }
+  fun setupUnpaidWorkRequirements(crn: String) =
+    communityApiResponse(unpaidWorkRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
 
-  fun setupNoRequirements(crn: String) {
-    communityApi.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
-      .respond(
-        noRequirementsResponse()
-      )
-  }
+  fun setupNoRequirements(crn: String) =
+    communityApiResponse(noRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
 
-  fun setupRestrictiveAndNonRestrictiveRequirements(crn: String) {
-    communityApi.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
-      .respond(restrictiveAndNonRestrictiveRequirementsResponse())
-  }
+  fun setupRestrictiveAndNonRestrictiveRequirements(crn: String) =
+    communityApiResponse(restrictiveAndNonRestrictiveRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
 
   fun setupNonRestrictiveRequirements(crn: String) {
     communityApi.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
@@ -235,6 +222,11 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       .expectBody()
       .jsonPath("tierScore").isEqualTo(tierScore)
   }
+
+  private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
+    clientAndServer.`when`(request().withPath(urlTemplate)).respond(response)
+
+  private fun communityApiResponse(response: HttpResponse, urlTemplate: String) = httpSetup(response, urlTemplate, communityApi)
 
   internal fun setAuthorisation(role: String): (HttpHeaders) -> Unit {
     val token = jwtHelper.createJwt(
