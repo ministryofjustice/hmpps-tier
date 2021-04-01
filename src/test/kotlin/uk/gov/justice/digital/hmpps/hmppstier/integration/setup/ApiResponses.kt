@@ -13,7 +13,7 @@ fun emptyCommunityApiAssessmentsResponse(): HttpResponse = jsonResponseOf("{}")
 fun emptyNsisResponse(): HttpResponse = jsonResponseOf("{\"nsis\": []}")
 
 fun registrationsResponse(): HttpResponse =
-  jsonResponseOf(responseFrom("src/test/resources/fixtures/community-api/registrations.json"))
+  jsonResponseFromPath("src/test/resources/fixtures/community-api/registrations.json")
 
 fun emptyRegistrationsResponse(): HttpResponse = jsonResponseOf("{}")
 
