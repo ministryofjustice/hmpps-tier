@@ -7,8 +7,10 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import java.time.Clock
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Service
@@ -64,7 +66,11 @@ class TierCalculationService(
       deliusConvictions
     )
 
-    return TierCalculationEntity.from(crn, protectLevel, changeLevel, clock, version)
+    return TierCalculationEntity(
+      crn = crn,
+      created = LocalDateTime.now(clock),
+      data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel, calculationVersion = version)
+    )
   }
 
   private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
