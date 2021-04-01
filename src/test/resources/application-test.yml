@@ -41,8 +41,6 @@ offender-events:
 
 hmpps-events:
   topic: arn:aws:sns:eu-west-2:000000000000:hmpps-domain
-
-hmpps-domain-events:
   sns-endpoint: http://localhost:4575
 
 calculation-complete:
