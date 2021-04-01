@@ -74,3 +74,6 @@ management:
     info:
       cache:
         time-to-live: 2000ms
+
+calculation:
+  version:  1

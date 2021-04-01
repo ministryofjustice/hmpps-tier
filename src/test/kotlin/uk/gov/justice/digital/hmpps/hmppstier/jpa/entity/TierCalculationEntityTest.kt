@@ -34,7 +34,7 @@ internal class TierCalculationEntityTest {
     val clock = Clock.systemDefaultZone()
     val data = data
 
-    val tierCalculationResultEntity = TierCalculationEntity.from(crn = crn, data.protect, data.change, clock)
+    val tierCalculationResultEntity = TierCalculationEntity.from(crn = crn, data.protect, data.change, clock, data.calculationVersion)
 
     assertThat(tierCalculationResultEntity.crn).isEqualTo(crn)
     assertThat(tierCalculationResultEntity.created).isEqualToIgnoringSeconds(LocalDateTime.now(clock))
@@ -47,7 +47,8 @@ internal class TierCalculationEntityTest {
 
     val data = TierCalculationResultEntity(
       protect = tierLetterResult,
-      change = tierNumberResult
+      change = tierNumberResult,
+      calculationVersion = "Any version"
     )
   }
 }

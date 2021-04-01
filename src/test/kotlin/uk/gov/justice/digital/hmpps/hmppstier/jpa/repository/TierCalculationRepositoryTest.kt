@@ -124,7 +124,8 @@ class TierCalculationRepositoryTest(
     private const val crn = "Any CRN"
     private val data = TierCalculationResultEntity(
       protect = TierLevel(ProtectLevel.B, 4, mapOf(CalculationRule.ROSH to 4)),
-      change = TierLevel(ChangeLevel.TWO, 12, mapOf(CalculationRule.COMPLEXITY to 12))
+      change = TierLevel(ChangeLevel.TWO, 12, mapOf(CalculationRule.COMPLEXITY to 12)),
+      calculationVersion = "Version"
     )
   }
 }

@@ -21,7 +21,8 @@ class TelemetryService(@Autowired private val telemetryClient: TelemetryClient) 
       mapOf(
         "crn" to crn,
         "protect" to calculation.data.protect.tier.value,
-        "change" to calculation.data.change.tier.value.toString()
+        "change" to calculation.data.change.tier.value.toString(),
+        "version" to calculation.data.calculationVersion
       )
     )
   }

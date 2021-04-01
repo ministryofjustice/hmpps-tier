@@ -45,11 +45,11 @@ data class TierCalculationEntity(
   val data: TierCalculationResultEntity
 ) {
   companion object {
-    fun from(crn: String, protectLevel: TierLevel<ProtectLevel>, changeLevel: TierLevel<ChangeLevel>, clock: Clock): TierCalculationEntity {
+    fun from(crn: String, protectLevel: TierLevel<ProtectLevel>, changeLevel: TierLevel<ChangeLevel>, clock: Clock, version: String): TierCalculationEntity {
       return TierCalculationEntity(
         crn = crn,
         created = LocalDateTime.now(clock),
-        data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel)
+        data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel, calculationVersion = version)
       )
     }
   }
