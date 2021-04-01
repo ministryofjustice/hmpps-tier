@@ -26,12 +26,14 @@ data class TierDto @JsonCreator constructor(
 ) {
 
   companion object {
-    fun from(calculation: TierCalculationEntity): TierDto {
-      return TierDto(
-        calculation.data.protect.tier.value.plus(calculation.data.change.tier.value),
-        calculation.uuid,
-        calculation.created
-      )
+    infix fun from(calculation: TierCalculationEntity?): TierDto? {
+      return calculation?.let {
+        TierDto(
+          calculation.data.protect.tier.value.plus(calculation.data.change.tier.value),
+          calculation.uuid,
+          calculation.created
+        )
+      }
     }
   }
 }
