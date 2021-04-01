@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppstier.integration
+package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.MediaType.APPLICATION_JSON

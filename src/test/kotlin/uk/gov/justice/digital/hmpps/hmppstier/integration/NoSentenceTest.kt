@@ -4,6 +4,9 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.mockserver.model.HttpRequest.request
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.noSentenceConvictionResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponse
 
 @TestInstance(PER_CLASS)
 class NoSentenceTest : MockedEndpointsTestBase() {
