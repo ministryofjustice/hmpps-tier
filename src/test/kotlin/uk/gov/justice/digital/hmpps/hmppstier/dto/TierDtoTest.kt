@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.dto
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
@@ -40,8 +41,8 @@ internal class TierDtoTest {
     val calculationDate = LocalDateTime.now()
 
     val data = TierCalculationResultEntity(
-      protect = TierLevel(protectLevel, 4, mapOf("SomeValue" to 4)),
-      change = TierLevel(changeLevel, 12, mapOf("SomeValue" to 12))
+      protect = TierLevel(protectLevel, 4, mapOf(CalculationRule.ROSH to 4)),
+      change = TierLevel(changeLevel, 12, mapOf(CalculationRule.COMPLEXITY to 12))
     )
 
     val tierDto = TierDto from TierCalculationEntity(

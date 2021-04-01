@@ -78,7 +78,7 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
   }
 
   companion object {
-    private val log = LoggerFactory.getLogger(AssessmentApiClient::class.java)
+    private val log = LoggerFactory.getLogger(this::class.java)
   }
 }
 

@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NsiOutcome
@@ -39,14 +40,14 @@ class ProtectLevelCalculator(
       .sortedByDescending { it.startDate }
 
     val points = mapOf(
-      "RSR" to getRsrPoints(deliusAssessments),
-      "ROSH" to getRoshPoints(orderedRegistrations),
-      "MAPPA" to getMappaPoints(orderedRegistrations),
-      "COMPLEXITY" to getComplexityPoints(orderedRegistrations),
-      "ADDITIONAL_FACTORS_FOR_WOMEN" to getAdditionalFactorsForWomen(crn, convictions, offenderAssessment)
+      CalculationRule.RSR to getRsrPoints(deliusAssessments),
+      CalculationRule.ROSH to getRoshPoints(orderedRegistrations),
+      CalculationRule.MAPPA to getMappaPoints(orderedRegistrations),
+      CalculationRule.COMPLEXITY to getComplexityPoints(orderedRegistrations),
+      CalculationRule.ADDITIONAL_FACTORS_FOR_WOMEN to getAdditionalFactorsForWomen(crn, convictions, offenderAssessment)
     )
 
-    val total = points.map { it.value }.sum().minus(minOf(points.getOrDefault("RSR", 0), points.getOrDefault("ROSH", 0)))
+    val total = points.map { it.value }.sum().minus(minOf(points.getOrDefault(CalculationRule.RSR, 0), points.getOrDefault(CalculationRule.ROSH, 0)))
 
     return when {
       total >= 30 -> TierLevel(ProtectLevel.A, total, points)
@@ -159,6 +160,6 @@ class ProtectLevelCalculator(
       sentence.terminationDate!!.isAfter(LocalDate.now(clock).minusYears(1).minusDays(1))
 
   companion object {
-    private val log = LoggerFactory.getLogger(ProtectLevelCalculator::class.java)
+    private val log = LoggerFactory.getLogger(this::class.java)
   }
 }
