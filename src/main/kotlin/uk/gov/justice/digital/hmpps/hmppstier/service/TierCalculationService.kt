@@ -27,10 +27,10 @@ class TierCalculationService(
 ) {
 
   fun getLatestTierByCrn(crn: String): TierDto? =
-    TierDto from getLatestTierCalculation(crn)
+    TierDto.from(getLatestTierCalculation(crn))
 
   fun getTierByCalculationId(crn: String, calculationId: UUID): TierDto? =
-    TierDto from getTierCalculationById(crn, calculationId)
+    TierDto.from(getTierCalculationById(crn, calculationId))
 
   @Transactional
   fun calculateTierForCrn(crn: String) =
