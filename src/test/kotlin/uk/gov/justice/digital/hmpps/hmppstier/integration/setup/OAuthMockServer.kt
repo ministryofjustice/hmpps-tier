@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock
 import com.github.tomakehurst.wiremock.http.HttpHeader
 import com.github.tomakehurst.wiremock.http.HttpHeaders
-import com.microsoft.applicationinsights.core.dependencies.google.gson.GsonBuilder
+import com.google.gson.GsonBuilder
 
 class OAuthMockServer : WireMockServer(9090) {
   private val gson = GsonBuilder().create()
