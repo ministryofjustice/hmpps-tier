@@ -32,7 +32,7 @@ data class TierCalculationEntity(
   val id: Long? = null,
 
   @Column
-  val uuid: UUID,
+  val uuid: UUID = UUID.randomUUID(),
 
   @Column
   val crn: String,
@@ -48,7 +48,6 @@ data class TierCalculationEntity(
     fun from(crn: String, protectLevel: TierLevel<ProtectLevel>, changeLevel: TierLevel<ChangeLevel>, clock: Clock): TierCalculationEntity {
       return TierCalculationEntity(
         crn = crn,
-        uuid = UUID.randomUUID(),
         created = LocalDateTime.now(clock),
         data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel)
       )
