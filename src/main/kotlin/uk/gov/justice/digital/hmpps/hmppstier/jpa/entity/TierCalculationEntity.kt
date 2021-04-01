@@ -5,10 +5,6 @@ import com.vladmihalcea.hibernate.type.json.JsonStringType
 import org.hibernate.annotations.Type
 import org.hibernate.annotations.TypeDef
 import org.hibernate.annotations.TypeDefs
-import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
-import java.time.Clock
 import java.time.LocalDateTime
 import java.util.UUID
 import javax.persistence.Column
@@ -43,14 +39,4 @@ data class TierCalculationEntity(
   @Type(type = "json")
   @Column(columnDefinition = "jsonb")
   val data: TierCalculationResultEntity
-) {
-  companion object {
-    fun from(crn: String, protectLevel: TierLevel<ProtectLevel>, changeLevel: TierLevel<ChangeLevel>, clock: Clock): TierCalculationEntity {
-      return TierCalculationEntity(
-        crn = crn,
-        created = LocalDateTime.now(clock),
-        data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel)
-      )
-    }
-  }
-}
+)
