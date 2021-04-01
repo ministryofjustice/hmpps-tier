@@ -138,32 +138,16 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun restOfSetupWithFemaleOffender(crn: String) {
-    mockCommunityApiServer.`when`(
-      request()
-        .withPath("/secure/offenders/crn/$crn/assessments")
-    )
-      .respond(emptyCommunityApiAssessmentsResponse())
-
-    mockCommunityApiServer.`when`(
-      request()
-        .withPath("/secure/offenders/crn/$crn")
-    ).respond(femaleOffenderResponse())
-
+    httpSetup(emptyCommunityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments", mockCommunityApiServer)
+    httpSetup(femaleOffenderResponse(), "/secure/offenders/crn/$crn", mockCommunityApiServer)
     setupCurrentAssessment(crn)
-    mockAssessmentApiServer.`when`(
-      request()
-        .withPath("/assessments/oasysSetId/1234/needs")
-    )
-      .respond(notFoundResponse())
+    httpSetup(notFoundResponse(), "/assessments/oasysSetId/1234/needs", mockAssessmentApiServer)
   }
 
   fun setupCurrentAssessment(crn: String) = setupLatestAssessment(crn, LocalDate.now().year)
 
   fun setupLatestAssessment(crn: String, year: Int) {
-    mockAssessmentApiServer.`when`(
-      request().withPath("/offenders/crn/$crn/assessments/summary"),
-    )
-      .respond(assessmentsApiAssessmentsResponse(year))
+    httpSetup(assessmentsApiAssessmentsResponse(year), "/offenders/crn/$crn/assessments/summary", mockAssessmentApiServer)
   }
 
   fun setupAssessmentNotFound(crn: String) {
