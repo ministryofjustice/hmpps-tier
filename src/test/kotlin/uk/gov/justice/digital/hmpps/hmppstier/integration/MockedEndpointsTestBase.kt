@@ -129,7 +129,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiHighSeverityNeedsResponse())
   }
 
-  private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: String) {
+  private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: HttpResponse) {
     mockCommunityApiServer.`when`(
       request()
         .withPath("/secure/offenders/crn/$crn/assessments")
@@ -148,7 +148,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       request()
         .withPath("/assessments/oasysSetId/1234/needs")
     )
-      .respond(jsonResponseOf(needs))
+      .respond(needs)
   }
 
   fun restOfSetupWithFemaleOffender(crn: String) {
@@ -196,17 +196,13 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(
       request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(
-      jsonResponseOf(nonCustodialCurrentAndTerminatedConviction())
-    )
+    ).respond(nonCustodialCurrentAndTerminatedConviction())
   }
 
   fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) {
     mockCommunityApiServer.`when`(
       request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(
-      jsonResponseOf(custodialAndNonCustodialConvictions())
-    )
+    ).respond(custodialAndNonCustodialConvictions())
   }
 
   fun setupTerminatedCustodialSentence(crn: String) {

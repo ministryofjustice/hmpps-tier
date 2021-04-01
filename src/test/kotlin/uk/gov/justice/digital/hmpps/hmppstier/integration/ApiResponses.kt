@@ -75,25 +75,30 @@ fun noRequirementsResponse(): HttpResponse = jsonResponseOf(
     "}"
 )
 
-fun custodialAndNonCustodialConvictions(): String =
+fun custodialAndNonCustodialConvictions(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/community-api/convictions-custodial-and-non-custodial.json")
+)
 
-fun nonCustodialCurrentAndTerminatedConviction(): String =
+fun nonCustodialCurrentAndTerminatedConviction(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/community-api/convictions-non-custodial-current-and-terminated.json")
+)
 
 fun assessmentsApiAssessmentsResponse(year: Int): String =
   responseFrom("src/test/resources/fixtures/assessment-api/assessments.json")
     .replace("completedDate", "$year-01-01T00:00:00")
     .replace("voidedDate", "")
 
-fun assessmentsApiNoSeverityNeedsResponse(): String =
+fun assessmentsApiNoSeverityNeedsResponse(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/assessment-api/no_severity_needs.json")
+)
 
-fun assessmentsApi8NeedsResponse(): String =
+fun assessmentsApi8NeedsResponse(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/assessment-api/8_points_needs.json")
+)
 
-fun assessmentsApiHighSeverityNeedsResponse(): String =
+fun assessmentsApiHighSeverityNeedsResponse(): HttpResponse = jsonResponseOf(
   responseFrom("src/test/resources/fixtures/assessment-api/high_severity_needs_18_points.json")
+)
 
 private fun responseFrom(path: String) =
   readString(Paths.get(path))
