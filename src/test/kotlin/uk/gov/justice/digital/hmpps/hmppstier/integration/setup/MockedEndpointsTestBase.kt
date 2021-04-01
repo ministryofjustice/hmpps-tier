@@ -99,11 +99,11 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun setupRegistrations(registrationsResponse: HttpResponse, crn: String) {
-    mockCommunityApiServer.`when`(
-      request()
-        .withPath("/secure/offenders/crn/$crn/registrations")
-    )
-      .respond(registrationsResponse)
+    httpSetup(registrationsResponse, "/secure/offenders/crn/$crn/registrations", mockCommunityApiServer)
+  }
+
+  private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) {
+    clientAndServer.`when`(request().withPath(urlTemplate)).respond(response)
   }
 
   fun setupEmptyNsisResponse(crn: String) {
@@ -128,25 +128,13 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: HttpResponse) {
-    mockCommunityApiServer.`when`(
-      request()
-        .withPath("/secure/offenders/crn/$crn/assessments")
-    )
-      .respond(communityApiAssessmentsResponse())
+    httpSetup(communityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments", mockCommunityApiServer)
+    httpSetup(maleOffenderResponse(), "/secure/offenders/crn/$crn", mockCommunityApiServer)
 
-    mockCommunityApiServer.`when`(
-      request()
-        .withPath("/secure/offenders/crn/$crn")
-    )
-      .respond(maleOffenderResponse())
     if (includeAssessmentApi) {
       setupCurrentAssessment(crn)
     }
-    mockAssessmentApiServer.`when`(
-      request()
-        .withPath("/assessments/oasysSetId/1234/needs")
-    )
-      .respond(needs)
+    httpSetup(needs, "/assessments/oasysSetId/1234/needs", mockAssessmentApiServer)
   }
 
   fun restOfSetupWithFemaleOffender(crn: String) {
