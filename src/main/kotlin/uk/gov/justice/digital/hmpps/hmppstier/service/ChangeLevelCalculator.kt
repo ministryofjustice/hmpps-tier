@@ -34,23 +34,26 @@ class ChangeLevelCalculator(
 
     return when {
       mandateForChange.hasNoMandate(crn, convictions) -> {
-        TierLevel(ZERO, 0)
+        TierLevel(ZERO, 0, mapOf("NO_MANDATE_FOR_CHANGE" to 0))
       }
       offenderAssessment == null -> {
         log.info("No valid assessment found for $crn")
-        TierLevel(TWO, 0)
+        TierLevel(TWO, 0, mapOf("NO_VALID_ASSESSMENT" to 0))
       }
       else -> {
-        val needsPoints = getAssessmentNeedsPoints(offenderAssessment)
-        val ogrsPoints = getOgrsPoints(deliusAssessments)
-        val iomPoints = getIomNominalPoints(orderedRegistrations)
 
-        val totalPoints = needsPoints + ogrsPoints + iomPoints
+        val points = mapOf(
+          "NEEDS" to getAssessmentNeedsPoints(offenderAssessment),
+          "OGRS" to getOgrsPoints(deliusAssessments),
+          "IOM" to getIomNominalPoints(orderedRegistrations)
+        )
+
+        val total = points.map { it.value }.sum()
 
         when {
-          totalPoints >= 20 -> TierLevel(THREE, totalPoints)
-          totalPoints in 10..19 -> TierLevel(TWO, totalPoints)
-          else -> TierLevel(ONE, totalPoints)
+          total >= 20 -> TierLevel(THREE, total, points)
+          total in 10..19 -> TierLevel(TWO, total, points)
+          else -> TierLevel(ONE, total, points)
         }
       }
     }.also { log.debug("Calculated Change Level for $crn: $it") }
