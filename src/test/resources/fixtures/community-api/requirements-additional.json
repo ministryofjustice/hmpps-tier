@@ -1,0 +1,17 @@
+{
+  "requirements": [
+    {
+      "requirementId": 1502361279,
+      "startDate": "2019-09-19",
+      "active": true,
+      "adRequirementTypeMainCategory": {
+        "code": "7",
+        "description": "Court - Accredited Programme"
+      },
+      "adRequirementTypeSubCategory": {
+        "code": "AR42",
+        "description": "Horizon"
+      }
+    }
+  ]
+}

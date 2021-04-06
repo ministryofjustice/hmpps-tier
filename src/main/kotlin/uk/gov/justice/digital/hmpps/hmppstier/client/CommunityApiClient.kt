@@ -125,7 +125,7 @@ data class Requirement @JsonCreator constructor(
   @JsonProperty("restrictive")
   val restrictive: Boolean?,
   @JsonProperty("requirementTypeMainCategory")
-  val requirementTypeMainCategory: RequirementTypeMainCategory
+  val requirementTypeMainCategory: RequirementTypeMainCategory?
 )
 
 data class RequirementTypeMainCategory @JsonCreator constructor(
