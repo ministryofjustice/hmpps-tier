@@ -18,9 +18,9 @@ import org.mockserver.model.MediaType
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
+import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import java.time.Duration
 import java.time.LocalDate
-import java.util.UUID
 
 abstract class MockedEndpointsTestBase : IntegrationTestBase() {
 
@@ -207,11 +207,6 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     return { it.set(HttpHeaders.AUTHORIZATION, "Bearer $token") }
   }
 }
-
-private data class TierChangeEvent(
-  val crn: String,
-  val calculationId: UUID
-)
 
 private data class SQSMessage(
   val Message: String,
