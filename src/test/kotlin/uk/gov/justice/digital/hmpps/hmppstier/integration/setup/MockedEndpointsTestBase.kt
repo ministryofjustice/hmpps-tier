@@ -42,12 +42,27 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   @Autowired
   internal lateinit var jwtHelper: JwtAuthHelper
 
+  private var communityApi: ClientAndServer = startClientAndServer(8091)
+  private var assessmentApi: ClientAndServer = startClientAndServer(8092)
+
   @BeforeEach
   fun `purge Queues`() {
     offenderEventsAmazonSQSAsync.purgeQueue(PurgeQueueRequest(eventQueueUrl))
     calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
     oauthMockServer.resetAll()
     oauthMockServer.stubGrantToken()
+  }
+
+  @AfterEach
+  fun reset() {
+    communityApi.reset()
+    assessmentApi.reset()
+  }
+
+  @AfterAll
+  fun tearDownServer() {
+    communityApi.stop()
+    assessmentApi.stop()
   }
 
   companion object {
@@ -66,44 +81,19 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     }
   }
 
-  private lateinit var communityApi: ClientAndServer
-  lateinit var assessmentApi: ClientAndServer
-
-  @BeforeAll
-  fun setupMockServer() {
-    communityApi = startClientAndServer(8091)
-    assessmentApi = startClientAndServer(8092)
-  }
-
-  @AfterEach
-  fun reset() {
-    communityApi.reset()
-    assessmentApi.reset()
-  }
-
-  @AfterAll
-  fun tearDownServer() {
-    communityApi.stop()
-    assessmentApi.stop()
-  }
-
-  fun setupNCCustodialSentence(crn: String) {
-    setupActiveConvictions(crn, custodialNCConvictionResponse())
-  }
+  fun setupNCCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialNCConvictionResponse())
 
   fun setUpNoSentence(crn: String) = setupActiveConvictions(crn, noSentenceConvictionResponse())
 
   fun setupRegistrations(registrationsResponse: HttpResponse, crn: String) =
     communityApiResponse(registrationsResponse, "/secure/offenders/crn/$crn/registrations")
 
-  fun setupEmptyNsisResponse(crn: String) {
-    communityApi.`when`(
-      request().withPath("/secure/offenders/crn/$crn/convictions/2500222290/nsis")
-        .withQueryStringParameter("nsiCodes", "BRE,BRES,REC,RECS")
-    ).respond(
-      emptyNsisResponse()
-    )
-  }
+  fun setupEmptyNsisResponse(crn: String) = communityApi.`when`(
+    request().withPath("/secure/offenders/crn/$crn/convictions/2500222290/nsis")
+      .withQueryStringParameter("nsiCodes", "BRE,BRES,REC,RECS")
+  ).respond(
+    emptyNsisResponse()
+  )
 
   fun restOfSetupWithMaleOffenderNoSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) =
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiNoSeverityNeedsResponse())
