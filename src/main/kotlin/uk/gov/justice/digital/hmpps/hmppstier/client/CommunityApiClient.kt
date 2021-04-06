@@ -122,8 +122,12 @@ private data class Requirements @JsonCreator constructor(
 )
 
 data class Requirement @JsonCreator constructor(
+  @JsonProperty("active")
+  val active: Boolean,
+
   @JsonProperty("restrictive")
   val restrictive: Boolean?,
+
   @JsonProperty("requirementTypeMainCategory")
   val requirementTypeMainCategory: RequirementTypeMainCategory?
 )

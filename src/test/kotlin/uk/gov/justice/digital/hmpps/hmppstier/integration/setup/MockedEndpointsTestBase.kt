@@ -152,6 +152,12 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       "/secure/offenders/crn/$crn/convictions/\\d+/requirements"
     )
 
+  fun setupInactiveNonRestrictiveRequirements(crn: String) =
+    communityApiResponse(
+      inactiveNonRestrictiveRequirementsResponse(),
+      "/secure/offenders/crn/$crn/convictions/\\d+/requirements"
+    )
+
   fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true) {
     setupRegistrations(registrationsResponse(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, includeAssessmentApi)
