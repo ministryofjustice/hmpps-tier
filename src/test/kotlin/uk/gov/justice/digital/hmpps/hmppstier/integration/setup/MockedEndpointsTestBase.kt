@@ -66,7 +66,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     }
   }
 
-  lateinit var communityApi: ClientAndServer
+  private lateinit var communityApi: ClientAndServer
   lateinit var assessmentApi: ClientAndServer
 
   @BeforeAll
@@ -90,6 +90,8 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun setupNCCustodialSentence(crn: String) {
     setupActiveConvictions(crn, custodialNCConvictionResponse())
   }
+
+  fun setUpNoSentence(crn: String) = setupActiveConvictions(crn, noSentenceConvictionResponse())
 
   fun setupRegistrations(registrationsResponse: HttpResponse, crn: String) =
     communityApiResponse(registrationsResponse, "/secure/offenders/crn/$crn/registrations")
