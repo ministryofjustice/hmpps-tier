@@ -24,7 +24,7 @@ class MandateForChange(
 
   private fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
     communityApiClient.getRequirements(crn, convictionId)
-      .filter { req -> req.requirementTypeMainCategory.code != "W" }
+      .filter { req -> req.requirementTypeMainCategory?.code != "W" }
       .any { req ->
         req.restrictive != true
       }.also { log.debug("Has non-restrictive requirements: $it") }

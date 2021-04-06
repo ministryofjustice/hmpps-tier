@@ -7,13 +7,14 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsT
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponse
 
 @TestInstance(PER_CLASS)
-class NeedsTest : MockedEndpointsTestBase() {
+class AdditionalRequirementsTest : MockedEndpointsTestBase() {
 
   @Test
-  fun `severe needs 18 points plus 2 OGRS make change level 3`() {
-    val crn = "X333445"
-    setupSCCustodialSentence(crn)
+  fun `Additional requirements do not cause a processing error`() {
+    val crn = "X333444"
+    setupNonCustodialSentence(crn)
     setupRegistrations(registrationsResponse(), crn)
+    setupAdditionalRequirements(crn)
     restOfSetupWithMaleOffenderAndSevereNeeds(crn)
     calculateTierFor(crn)
     expectTierCalculation("A3")

@@ -134,6 +134,9 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun setupUnpaidWorkRequirements(crn: String) =
     communityApiResponse(unpaidWorkRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
 
+  fun setupAdditionalRequirements(crn: String) =
+    communityApiResponse(additionalRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
+
   fun setupNoRequirements(crn: String) =
     communityApiResponse(noRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
 
