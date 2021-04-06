@@ -47,12 +47,14 @@ internal class TierDtoTest {
       calculationVersion = version
     )
 
-    val tierDto = TierDto from TierCalculationEntity(
-      0,
-      calculationId,
-      "Any Crn",
-      calculationDate,
-      data
+    val tierDto = TierDto.from(
+      TierCalculationEntity(
+        0,
+        calculationId,
+        "Any Crn",
+        calculationDate,
+        data
+      )
     )
 
     assertThat(tierDto?.tierScore).isEqualTo(protectLevel.value.plus(changeLevel.value))
