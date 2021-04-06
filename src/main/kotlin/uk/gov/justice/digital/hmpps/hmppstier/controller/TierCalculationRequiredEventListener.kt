@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.cloud.aws.messaging.listener.SqsMessageDeletionPolicy.ON_SUCCESS
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener
+import org.springframework.messaging.handler.annotation.MessageExceptionHandler
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 
@@ -13,6 +14,12 @@ class TierCalculationRequiredEventListener(
   private val objectMapper: ObjectMapper,
   private val calculator: TierCalculationService
 ) {
+
+  @MessageExceptionHandler()
+  fun errorHandler(e: Exception, msg: String) {
+    log.info("Failed to calculate tier for CRN ${getCrn(msg)} with error: ${e.message}")
+    throw e
+  }
 
   @SqsListener(value = ["\${offender-events.sqs-queue}"], deletionPolicy = ON_SUCCESS)
   fun listen(msg: String) {
