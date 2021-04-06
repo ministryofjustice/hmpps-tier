@@ -34,13 +34,12 @@ internal class TelemetryServiceTest {
     LocalDateTime.now(),
     TierCalculationResultEntity(
       TierLevel(
-        ProtectLevel.A,
-        17
+        ProtectLevel.A, 17, mapOf()
       ),
       TierLevel(
-        ChangeLevel.ONE,
-        5
-      )
+        ChangeLevel.ONE, 5, mapOf()
+      ),
+      "Version"
     )
   )
 
@@ -66,7 +65,8 @@ internal class TelemetryServiceTest {
         mapOf(
           "crn" to crn,
           "protect" to tierCalculation.data.protect.tier.value,
-          "change" to tierCalculation.data.change.tier.value.toString()
+          "change" to tierCalculation.data.change.tier.value.toString(),
+          "version" to tierCalculation.data.calculationVersion
         ),
         null
       )
@@ -84,7 +84,8 @@ internal class TelemetryServiceTest {
         mapOf(
           "crn" to crn,
           "protect" to tierCalculation.data.protect.tier.value,
-          "change" to tierCalculation.data.change.tier.value.toString()
+          "change" to tierCalculation.data.change.tier.value.toString(),
+          "version" to tierCalculation.data.calculationVersion
         ),
         null
       )

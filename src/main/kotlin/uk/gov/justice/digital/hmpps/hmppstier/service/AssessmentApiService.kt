@@ -44,6 +44,6 @@ class AssessmentApiService(
       .associateBy({ it.need!! }, { it.severity })
 
   companion object {
-    private val log = LoggerFactory.getLogger(AssessmentApiService::class.java)
+    private val log = LoggerFactory.getLogger(this::class.java)
   }
 }

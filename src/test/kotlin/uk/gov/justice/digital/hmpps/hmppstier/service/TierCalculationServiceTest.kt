@@ -41,6 +41,8 @@ internal class TierCalculationServiceTest {
   private val telemetryService: TelemetryService = mockk(relaxUnitFun = true)
   private val successUpdater: SuccessUpdater = mockk(relaxUnitFun = true)
 
+  private val version = "version"
+
   private val service = TierCalculationService(
     clock,
     tierCalculationRepository,
@@ -49,19 +51,20 @@ internal class TierCalculationServiceTest {
     assessmentApiService,
     communityApiClient,
     successUpdater,
-    telemetryService
+    telemetryService,
+    version
   )
 
   private val calculationId = UUID.randomUUID()
   private val crn = "Any Crn"
-  private val protectLevelResult = TierLevel(ProtectLevel.B, 0)
-  private val changeLevelResult = TierLevel(ChangeLevel.TWO, 0)
+  private val protectLevelResult = TierLevel(ProtectLevel.B, 0, mapOf())
+  private val changeLevelResult = TierLevel(ChangeLevel.TWO, 0, mapOf())
   private val validTierCalculationEntity = TierCalculationEntity(
     0,
     calculationId,
     crn,
     LocalDateTime.now(clock),
-    TierCalculationResultEntity(protectLevelResult, changeLevelResult)
+    TierCalculationResultEntity(protectLevelResult, changeLevelResult, version)
   )
 
   @BeforeEach
