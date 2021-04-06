@@ -14,10 +14,11 @@ import org.mockserver.integration.ClientAndServer.startClientAndServer
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.notFoundResponse
-import org.mockserver.model.MediaType
+import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpHeaders.AUTHORIZATION
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import java.time.Duration
 import java.time.LocalDate
@@ -51,7 +52,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     offenderEventsAmazonSQSAsync.purgeQueue(PurgeQueueRequest(eventQueueUrl))
     calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
 
-    val response = HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
+    val response = HttpResponse.response().withContentType(APPLICATION_JSON).withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
     httpSetup(response, "/auth/oauth/token", oauthMock)
   }
 
@@ -180,7 +181,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     webTestClient
       .get()
       .uri("crn/${changeEvent.crn}/tier/${changeEvent.calculationId}")
-      .headers(setAuthorisation("ROLE_HMPPS_TIER"))
+      .headers(setAuthorisation())
       .exchange()
       .expectStatus()
       .isOk
@@ -197,14 +198,14 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   private fun assessmentApiResponse(response: HttpResponse, urlTemplate: String) =
     httpSetup(response, urlTemplate, assessmentApi)
 
-  private fun setAuthorisation(role: String): (HttpHeaders) -> Unit {
+  private fun setAuthorisation(): (HttpHeaders) -> Unit {
     val token = jwtHelper.createJwt(
       subject = "hmpps-tier",
       scope = listOf("read"),
       expiryTime = Duration.ofHours(1L),
-      roles = listOf(role)
+      roles = listOf("ROLE_HMPPS_TIER")
     )
-    return { it.set(HttpHeaders.AUTHORIZATION, "Bearer $token") }
+    return { it.set(AUTHORIZATION, "Bearer $token") }
   }
 }
 
