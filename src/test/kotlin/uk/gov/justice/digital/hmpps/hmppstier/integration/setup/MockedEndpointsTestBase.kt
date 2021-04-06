@@ -8,13 +8,13 @@ import org.awaitility.kotlin.matches
 import org.awaitility.kotlin.untilCallTo
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.integration.ClientAndServer.startClientAndServer
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.notFoundResponse
+import org.mockserver.model.MediaType
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -42,6 +42,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   @Autowired
   internal lateinit var jwtHelper: JwtAuthHelper
 
+  private var oauthMock: ClientAndServer = startClientAndServer(9090)
   private var communityApi: ClientAndServer = startClientAndServer(8091)
   private var assessmentApi: ClientAndServer = startClientAndServer(8092)
 
@@ -49,36 +50,23 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun `purge Queues`() {
     offenderEventsAmazonSQSAsync.purgeQueue(PurgeQueueRequest(eventQueueUrl))
     calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
-    oauthMockServer.resetAll()
-    oauthMockServer.stubGrantToken()
+
+    val response = HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
+    httpSetup(response, "/auth/oauth/token", oauthMock)
   }
 
   @AfterEach
   fun reset() {
     communityApi.reset()
     assessmentApi.reset()
+    oauthMock.reset()
   }
 
   @AfterAll
   fun tearDownServer() {
     communityApi.stop()
     assessmentApi.stop()
-  }
-
-  companion object {
-    internal val oauthMockServer = OAuthMockServer()
-
-    @BeforeAll
-    @JvmStatic
-    fun startMocks() {
-      oauthMockServer.start()
-    }
-
-    @AfterAll
-    @JvmStatic
-    fun stopMocks() {
-      oauthMockServer.stop()
-    }
+    oauthMock.stop()
   }
 
   fun setupNCCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialNCConvictionResponse())
