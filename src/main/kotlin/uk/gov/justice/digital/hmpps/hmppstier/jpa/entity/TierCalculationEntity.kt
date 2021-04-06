@@ -28,7 +28,7 @@ data class TierCalculationEntity(
   val id: Long? = null,
 
   @Column
-  val uuid: UUID,
+  val uuid: UUID = UUID.randomUUID(),
 
   @Column
   val crn: String,

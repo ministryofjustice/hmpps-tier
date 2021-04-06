@@ -7,5 +7,6 @@ import java.io.Serializable
 
 data class TierCalculationResultEntity(
   val protect: TierLevel<ProtectLevel>,
-  val change: TierLevel<ChangeLevel>
+  val change: TierLevel<ChangeLevel>,
+  val calculationVersion: String
 ) : Serializable

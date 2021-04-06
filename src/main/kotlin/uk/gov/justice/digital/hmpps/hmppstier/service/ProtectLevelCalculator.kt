@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NsiOutcome
@@ -38,19 +39,21 @@ class ProtectLevelCalculator(
       .filter { it.active }
       .sortedByDescending { it.startDate }
 
-    val rsrPoints = getRsrPoints(deliusAssessments)
-    val roshPoints = getRoshPoints(orderedRegistrations)
-    val mappaPoints = getMappaPoints(orderedRegistrations)
-    val complexityPoints = getComplexityPoints(orderedRegistrations)
-    val additionalFactorsForWomen = getAdditionalFactorsForWomen(crn, convictions, offenderAssessment)
+    val points = mapOf(
+      CalculationRule.RSR to getRsrPoints(deliusAssessments),
+      CalculationRule.ROSH to getRoshPoints(orderedRegistrations),
+      CalculationRule.MAPPA to getMappaPoints(orderedRegistrations),
+      CalculationRule.COMPLEXITY to getComplexityPoints(orderedRegistrations),
+      CalculationRule.ADDITIONAL_FACTORS_FOR_WOMEN to getAdditionalFactorsForWomen(crn, convictions, offenderAssessment)
+    )
 
-    val totalPoints = maxOf(rsrPoints, roshPoints) + mappaPoints + (complexityPoints + additionalFactorsForWomen).times(2)
+    val total = points.map { it.value }.sum().minus(minOf(points.getOrDefault(CalculationRule.RSR, 0), points.getOrDefault(CalculationRule.ROSH, 0)))
 
     return when {
-      totalPoints >= 30 -> TierLevel(ProtectLevel.A, totalPoints)
-      totalPoints in 20..29 -> TierLevel(ProtectLevel.B, totalPoints)
-      totalPoints in 10..19 -> TierLevel(ProtectLevel.C, totalPoints)
-      else -> TierLevel(ProtectLevel.D, totalPoints)
+      total >= 30 -> TierLevel(ProtectLevel.A, total, points)
+      total in 20..29 -> TierLevel(ProtectLevel.B, total, points)
+      total in 10..19 -> TierLevel(ProtectLevel.C, total, points)
+      else -> TierLevel(ProtectLevel.D, total, points)
     }.also { log.debug("Calculated Protect Level for $crn: $it") }
   }
 
@@ -95,6 +98,7 @@ class ProtectLevelCalculator(
       .distinct()
       .filter { it != ComplexityFactor.IOM_NOMINAL }
       .count()
+      .times(2)
       .also { log.debug("Complexity factor size: $it") }
 
   private fun getAdditionalFactorsForWomen(
@@ -104,7 +108,8 @@ class ProtectLevelCalculator(
   ): Int =
     when {
       communityApiClient.getOffender(crn).gender.equals("female", true) -> {
-        getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment) + getBreachRecallComplexityPoints(crn, convictions)
+        (getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment) + getBreachRecallComplexityPoints(crn, convictions))
+          .times(2)
       }
       else -> 0
     }.also { log.debug("Additional Factors for Women for $crn : $it") }
@@ -155,6 +160,6 @@ class ProtectLevelCalculator(
       sentence.terminationDate!!.isAfter(LocalDate.now(clock).minusYears(1).minusDays(1))
 
   companion object {
-    private val log = LoggerFactory.getLogger(ProtectLevelCalculator::class.java)
+    private val log = LoggerFactory.getLogger(this::class.java)
   }
 }

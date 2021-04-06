@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
@@ -21,31 +22,31 @@ class TierCalculationService(
   private val assessmentApiService: AssessmentApiService,
   private val communityApiClient: CommunityApiClient,
   private val successUpdater: SuccessUpdater,
-  private val telemetryService: TelemetryService
+  private val telemetryService: TelemetryService,
+  @Value("\${calculation.version}")private val version: String
 ) {
 
   fun getLatestTierByCrn(crn: String): TierDto? =
     getLatestTierCalculation(crn)?.let {
       TierDto.from(it)
-    }.also { log.info("Returned tier for $crn") }
+    }
 
   fun getTierByCalculationId(crn: String, calculationId: UUID): TierDto? =
     getTierCalculationById(crn, calculationId)?.let {
       TierDto.from(it)
-    }.also { log.info("Returned tier for $crn and $calculationId") }
+    }
 
   @Transactional
-  fun calculateTierForCrn(crn: String) {
-    val newTier = calculateTier(crn)
-    val existingTier = getLatestTierCalculation(crn)
-    val isUpdated = newTier.data != existingTier?.data
-    tierCalculationRepository.save(newTier)
-    if (isUpdated) {
-      successUpdater.update(crn, newTier.uuid)
+  fun calculateTierForCrn(crn: String) =
+    calculateTier(crn).let {
+      val isUpdated = it.data != getLatestTierCalculation(crn)?.data
+      tierCalculationRepository.save(it)
+      when {
+        isUpdated -> successUpdater.update(crn, it.uuid)
+      }
+      log.info("Tier calculated for $crn. Different from previous tier: $isUpdated")
+      telemetryService.trackTierCalculated(crn, it, isUpdated)
     }
-    log.info("Tier calculated for $crn. Different from previous tier: $isUpdated")
-    telemetryService.trackTierCalculated(crn, newTier, isUpdated)
-  }
 
   private fun calculateTier(crn: String): TierCalculationEntity {
 
@@ -71,9 +72,8 @@ class TierCalculationService(
 
     return TierCalculationEntity(
       crn = crn,
-      uuid = UUID.randomUUID(),
       created = LocalDateTime.now(clock),
-      data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel)
+      data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel, calculationVersion = version)
     )
   }
 
@@ -88,11 +88,12 @@ class TierCalculationService(
   private fun getTierCalculationById(crn: String, calculationId: UUID): TierCalculationEntity? =
     tierCalculationRepository.findByCrnAndUuid(crn, calculationId).also {
       when (it) {
-        null -> log.info("No tier calculation found for $crn $calculationId")
+        null -> log.info("No tier calculation found for $crn and $calculationId")
+        else -> log.info("Found tier for $crn and $calculationId")
       }
     }
 
   companion object {
-    private val log = LoggerFactory.getLogger(TierCalculationService::class.java)
+    private val log = LoggerFactory.getLogger(this::class.java)
   }
 }

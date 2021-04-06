@@ -30,7 +30,7 @@ class MandateForChange(
       }.also { log.debug("Has non-restrictive requirements: $it") }
 
   companion object {
-    private val log = LoggerFactory.getLogger(MandateForChange::class.java)
+    private val log = LoggerFactory.getLogger(this::class.java)
     private val custodialSentences = arrayOf("NC", "SC")
   }
 }

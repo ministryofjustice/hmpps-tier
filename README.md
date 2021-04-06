@@ -107,3 +107,6 @@ curl -X GET http://localhost:8080/health
 curl -X GET http://localhost:8080/ping  
 ```  
 
+##### Calculation versioning
+
+This project uses semver to version the calculation used in calculating the tier score. If you make any change to the way the tier score is calculated, you must increment the version 
