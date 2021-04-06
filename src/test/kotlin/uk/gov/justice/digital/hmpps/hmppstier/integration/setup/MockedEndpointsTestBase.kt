@@ -49,6 +49,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     oauthMockServer.resetAll()
     oauthMockServer.stubGrantToken()
   }
+
   companion object {
     internal val oauthMockServer = OAuthMockServer()
 
@@ -122,23 +123,23 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     if (includeAssessmentApi) {
       setupCurrentAssessment(crn)
     }
-    httpSetup(needs, "/assessments/oasysSetId/1234/needs", assessmentApi)
+    assessmentApiResponse(needs, "/assessments/oasysSetId/1234/needs")
   }
 
   fun restOfSetupWithFemaleOffender(crn: String) {
     communityApiResponse(emptyCommunityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments")
     communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
     setupCurrentAssessment(crn)
-    httpSetup(notFoundResponse(), "/assessments/oasysSetId/1234/needs", assessmentApi)
+    assessmentApiResponse(notFoundResponse(), "/assessments/oasysSetId/1234/needs")
   }
 
   fun setupCurrentAssessment(crn: String) = setupLatestAssessment(crn, LocalDate.now().year)
 
   fun setupLatestAssessment(crn: String, year: Int) =
-    httpSetup(assessmentsApiAssessmentsResponse(year), "/offenders/crn/$crn/assessments/summary", assessmentApi)
+    assessmentApiResponse(assessmentsApiAssessmentsResponse(year), "/offenders/crn/$crn/assessments/summary")
 
   fun setupAssessmentNotFound(crn: String) =
-    httpSetup(notFoundResponse(), "/offenders/crn/$crn/assessments/summary", assessmentApi)
+    assessmentApiResponse(notFoundResponse(), "/offenders/crn/$crn/assessments/summary")
 
   fun setupNonCustodialSentence(crn: String) {
     communityApi.`when`(
@@ -180,12 +181,16 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     communityApiResponse(noRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
 
   fun setupRestrictiveAndNonRestrictiveRequirements(crn: String) =
-    communityApiResponse(restrictiveAndNonRestrictiveRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
+    communityApiResponse(
+      restrictiveAndNonRestrictiveRequirementsResponse(),
+      "/secure/offenders/crn/$crn/convictions/\\d+/requirements"
+    )
 
-  fun setupNonRestrictiveRequirements(crn: String) {
-    communityApi.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
-      .respond(nonRestrictiveRequirementsResponse())
-  }
+  fun setupNonRestrictiveRequirements(crn: String) =
+    communityApiResponse(
+      nonRestrictiveRequirementsResponse(),
+      "/secure/offenders/crn/$crn/convictions/\\d+/requirements"
+    )
 
   fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true) {
     setupRegistrations(registrationsResponse(), crn)
@@ -226,7 +231,11 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
     clientAndServer.`when`(request().withPath(urlTemplate)).respond(response)
 
-  private fun communityApiResponse(response: HttpResponse, urlTemplate: String) = httpSetup(response, urlTemplate, communityApi)
+  private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
+    httpSetup(response, urlTemplate, communityApi)
+
+  private fun assessmentApiResponse(response: HttpResponse, urlTemplate: String) =
+    httpSetup(response, urlTemplate, assessmentApi)
 
   internal fun setAuthorisation(role: String): (HttpHeaders) -> Unit {
     val token = jwtHelper.createJwt(
