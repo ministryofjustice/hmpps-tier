@@ -51,7 +51,6 @@ dependencies {
   testImplementation("org.assertj:assertj-core:3.18.0")
   testImplementation("org.awaitility:awaitility-kotlin:4.0.3")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
-  testImplementation("com.github.tomakehurst:wiremock-standalone:2.27.2")
 }
 
 extra["springCloudVersion"] = "Hoxton.SR8"

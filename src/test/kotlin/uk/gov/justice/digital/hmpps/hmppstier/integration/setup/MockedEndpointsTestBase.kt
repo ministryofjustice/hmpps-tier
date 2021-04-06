@@ -8,19 +8,20 @@ import org.awaitility.kotlin.matches
 import org.awaitility.kotlin.untilCallTo
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.integration.ClientAndServer.startClientAndServer
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.notFoundResponse
+import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
+import org.springframework.http.HttpHeaders.AUTHORIZATION
+import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import java.time.Duration
 import java.time.LocalDate
-import java.util.UUID
 
 abstract class MockedEndpointsTestBase : IntegrationTestBase() {
 
@@ -42,69 +43,46 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   @Autowired
   internal lateinit var jwtHelper: JwtAuthHelper
 
+  private var oauthMock: ClientAndServer = startClientAndServer(9090)
+  private var communityApi: ClientAndServer = startClientAndServer(8091)
+  private var assessmentApi: ClientAndServer = startClientAndServer(8092)
+
   @BeforeEach
   fun `purge Queues`() {
     offenderEventsAmazonSQSAsync.purgeQueue(PurgeQueueRequest(eventQueueUrl))
     calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
-    oauthMockServer.resetAll()
-    oauthMockServer.stubGrantToken()
-  }
-  companion object {
-    internal val oauthMockServer = OAuthMockServer()
 
-    @BeforeAll
-    @JvmStatic
-    fun startMocks() {
-      oauthMockServer.start()
-    }
-
-    @AfterAll
-    @JvmStatic
-    fun stopMocks() {
-      oauthMockServer.stop()
-    }
-  }
-
-  lateinit var communityApi: ClientAndServer
-  lateinit var assessmentApi: ClientAndServer
-
-  @BeforeAll
-  fun setupMockServer() {
-    communityApi = startClientAndServer(8091)
-    assessmentApi = startClientAndServer(8092)
+    val response = HttpResponse.response().withContentType(APPLICATION_JSON).withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
+    httpSetup(response, "/auth/oauth/token", oauthMock)
   }
 
   @AfterEach
   fun reset() {
     communityApi.reset()
     assessmentApi.reset()
+    oauthMock.reset()
   }
 
   @AfterAll
   fun tearDownServer() {
     communityApi.stop()
     assessmentApi.stop()
+    oauthMock.stop()
   }
 
-  fun setupNCCustodialSentence(crn: String) {
-    communityApi.`when`(
-      request()
-        .withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    )
-      .respond(custodialNCConvictionResponse())
-  }
+  fun setupNCCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialNCConvictionResponse())
+
+  fun setUpNoSentence(crn: String) = setupActiveConvictions(crn, noSentenceConvictionResponse())
 
   fun setupRegistrations(registrationsResponse: HttpResponse, crn: String) =
     communityApiResponse(registrationsResponse, "/secure/offenders/crn/$crn/registrations")
 
-  fun setupEmptyNsisResponse(crn: String) {
-    communityApi.`when`(
-      request().withPath("/secure/offenders/crn/$crn/convictions/2500222290/nsis")
-        .withQueryStringParameter("nsiCodes", "BRE,BRES,REC,RECS")
-    ).respond(
-      emptyNsisResponse()
-    )
-  }
+  fun setupEmptyNsisResponse(crn: String) = communityApi.`when`(
+    request().withPath("/secure/offenders/crn/$crn/convictions/2500222290/nsis")
+      .withQueryStringParameter("nsiCodes", "BRE,BRES,REC,RECS")
+  ).respond(
+    emptyNsisResponse()
+  )
 
   fun restOfSetupWithMaleOffenderNoSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) =
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiNoSeverityNeedsResponse())
@@ -122,53 +100,33 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     if (includeAssessmentApi) {
       setupCurrentAssessment(crn)
     }
-    httpSetup(needs, "/assessments/oasysSetId/1234/needs", assessmentApi)
+    assessmentApiResponse(needs, "/assessments/oasysSetId/1234/needs")
   }
 
   fun restOfSetupWithFemaleOffender(crn: String) {
     communityApiResponse(emptyCommunityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments")
     communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
     setupCurrentAssessment(crn)
-    httpSetup(notFoundResponse(), "/assessments/oasysSetId/1234/needs", assessmentApi)
+    assessmentApiResponse(notFoundResponse(), "/assessments/oasysSetId/1234/needs")
   }
 
   fun setupCurrentAssessment(crn: String) = setupLatestAssessment(crn, LocalDate.now().year)
 
   fun setupLatestAssessment(crn: String, year: Int) =
-    httpSetup(assessmentsApiAssessmentsResponse(year), "/offenders/crn/$crn/assessments/summary", assessmentApi)
+    assessmentApiResponse(assessmentsApiAssessmentsResponse(year), "/offenders/crn/$crn/assessments/summary")
 
   fun setupAssessmentNotFound(crn: String) =
-    httpSetup(notFoundResponse(), "/offenders/crn/$crn/assessments/summary", assessmentApi)
+    assessmentApiResponse(notFoundResponse(), "/offenders/crn/$crn/assessments/summary")
 
-  fun setupNonCustodialSentence(crn: String) {
-    communityApi.`when`(
-      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(nonCustodialConvictionResponse())
-  }
+  fun setupNonCustodialSentence(crn: String) = setupActiveConvictions(crn, nonCustodialConvictionResponse())
 
-  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) {
-    communityApi.`when`(
-      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(nonCustodialCurrentAndTerminatedConviction())
-  }
+  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) = setupActiveConvictions(crn, nonCustodialCurrentAndTerminatedConviction())
 
-  fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) {
-    communityApi.`when`(
-      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(custodialAndNonCustodialConvictions())
-  }
+  fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialAndNonCustodialConvictions())
 
-  fun setupTerminatedCustodialSentence(crn: String) {
-    communityApi.`when`(
-      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(custodialTerminatedConvictionResponse())
-  }
+  fun setupTerminatedCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialTerminatedConvictionResponse())
 
-  fun setupTerminatedNonCustodialSentence(crn: String) {
-    communityApi.`when`(
-      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(nonCustodialTerminatedConvictionResponse())
-  }
+  fun setupTerminatedNonCustodialSentence(crn: String) = setupActiveConvictions(crn, nonCustodialTerminatedConvictionResponse())
 
   fun setupRestrictiveRequirements(crn: String) =
     communityApiResponse(restrictiveRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
@@ -180,22 +138,30 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     communityApiResponse(noRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
 
   fun setupRestrictiveAndNonRestrictiveRequirements(crn: String) =
-    communityApiResponse(restrictiveAndNonRestrictiveRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
+    communityApiResponse(
+      restrictiveAndNonRestrictiveRequirementsResponse(),
+      "/secure/offenders/crn/$crn/convictions/\\d+/requirements"
+    )
 
-  fun setupNonRestrictiveRequirements(crn: String) {
-    communityApi.`when`(request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements"))
-      .respond(nonRestrictiveRequirementsResponse())
-  }
+  fun setupNonRestrictiveRequirements(crn: String) =
+    communityApiResponse(
+      nonRestrictiveRequirementsResponse(),
+      "/secure/offenders/crn/$crn/convictions/\\d+/requirements"
+    )
 
   fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true) {
     setupRegistrations(registrationsResponse(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, includeAssessmentApi)
   }
 
-  fun setupSCCustodialSentence(crn: String) {
+  fun setupSCCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialSCConvictionResponse())
+
+  private fun setupActiveConvictions(crn: String, response: HttpResponse) {
     communityApi.`when`(
-      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(custodialSCConvictionResponse())
+      request()
+        .withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
+    )
+      .respond(response)
   }
 
   fun calculateTierFor(crn: String) {
@@ -215,7 +181,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     webTestClient
       .get()
       .uri("crn/${changeEvent.crn}/tier/${changeEvent.calculationId}")
-      .headers(setAuthorisation("ROLE_HMPPS_TIER"))
+      .headers(setAuthorisation())
       .exchange()
       .expectStatus()
       .isOk
@@ -226,25 +192,24 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
     clientAndServer.`when`(request().withPath(urlTemplate)).respond(response)
 
-  private fun communityApiResponse(response: HttpResponse, urlTemplate: String) = httpSetup(response, urlTemplate, communityApi)
+  private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
+    httpSetup(response, urlTemplate, communityApi)
 
-  internal fun setAuthorisation(role: String): (HttpHeaders) -> Unit {
+  private fun assessmentApiResponse(response: HttpResponse, urlTemplate: String) =
+    httpSetup(response, urlTemplate, assessmentApi)
+
+  private fun setAuthorisation(): (HttpHeaders) -> Unit {
     val token = jwtHelper.createJwt(
       subject = "hmpps-tier",
       scope = listOf("read"),
       expiryTime = Duration.ofHours(1L),
-      roles = listOf(role)
+      roles = listOf("ROLE_HMPPS_TIER")
     )
-    return { it.set(HttpHeaders.AUTHORIZATION, "Bearer $token") }
+    return { it.set(AUTHORIZATION, "Bearer $token") }
   }
 }
 
-data class TierChangeEvent(
-  val crn: String,
-  val calculationId: UUID
-)
-
-data class SQSMessage(
+private data class SQSMessage(
   val Message: String,
   val MessageId: String
 )
