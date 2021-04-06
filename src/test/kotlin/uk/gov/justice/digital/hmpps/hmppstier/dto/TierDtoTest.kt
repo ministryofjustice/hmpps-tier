@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.dto
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
@@ -38,24 +39,26 @@ internal class TierDtoTest {
     val changeLevel = ChangeLevel.TWO
     val calculationId = UUID.randomUUID()
     val calculationDate = LocalDateTime.now()
+    val version = "Version"
 
     val data = TierCalculationResultEntity(
-      protect = TierLevel(protectLevel, 5),
-      change = TierLevel(changeLevel, 12)
+      protect = TierLevel(protectLevel, 4, mapOf(CalculationRule.ROSH to 4)),
+      change = TierLevel(changeLevel, 12, mapOf(CalculationRule.COMPLEXITY to 12)),
+      calculationVersion = version
     )
 
-    val entity = TierCalculationEntity(
-      0,
-      calculationId,
-      "Any Crn",
-      calculationDate,
-      data
+    val tierDto = TierDto.from(
+      TierCalculationEntity(
+        0,
+        calculationId,
+        "Any Crn",
+        calculationDate,
+        data
+      )
     )
 
-    val tierDto = TierDto.from(entity)
-
-    assertThat(tierDto.tierScore).isEqualTo(protectLevel.value.plus(changeLevel.value))
-    assertThat(tierDto.calculationId).isEqualTo(calculationId)
-    assertThat(tierDto.calculationDate).isEqualTo(calculationDate)
+    assertThat(tierDto?.tierScore).isEqualTo(protectLevel.value.plus(changeLevel.value))
+    assertThat(tierDto?.calculationId).isEqualTo(calculationId)
+    assertThat(tierDto?.calculationDate).isEqualTo(calculationDate)
   }
 }

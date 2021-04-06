@@ -17,14 +17,12 @@ class SuccessUpdater(
 
   fun update(crn: String, calculationId: UUID) {
     val event = PublishRequest(topic, gson.toJson(TierChangeEvent(crn, calculationId)))
-    with(event) {
-      val messageAttributeValue = MessageAttributeValue()
-      with(messageAttributeValue) {
-        stringValue = EventType.TIER_CALCULATION_COMPLETE.toString()
-        dataType = "String"
-      }
-      addMessageAttributesEntry("eventType", messageAttributeValue)
+    val messageAttributeValue = MessageAttributeValue()
+    with(messageAttributeValue) {
+      stringValue = EventType.TIER_CALCULATION_COMPLETE.toString()
+      dataType = "String"
     }
+    event.addMessageAttributesEntry("eventType", messageAttributeValue)
     amazonSNS.publish(event)
   }
 }

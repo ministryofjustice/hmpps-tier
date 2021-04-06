@@ -7,6 +7,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ONE
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.THREE
@@ -34,23 +35,26 @@ class ChangeLevelCalculator(
 
     return when {
       mandateForChange.hasNoMandate(crn, convictions) -> {
-        TierLevel(ZERO, 0)
+        TierLevel(ZERO, 0, mapOf(CalculationRule.NO_MANDATE_FOR_CHANGE to 0))
       }
       offenderAssessment == null -> {
         log.info("No valid assessment found for $crn")
-        TierLevel(TWO, 0)
+        TierLevel(TWO, 0, mapOf(CalculationRule.NO_VALID_ASSESSMENT to 0))
       }
       else -> {
-        val needsPoints = getAssessmentNeedsPoints(offenderAssessment)
-        val ogrsPoints = getOgrsPoints(deliusAssessments)
-        val iomPoints = getIomNominalPoints(orderedRegistrations)
 
-        val totalPoints = needsPoints + ogrsPoints + iomPoints
+        val points = mapOf(
+          CalculationRule.NEEDS to getAssessmentNeedsPoints(offenderAssessment),
+          CalculationRule.OGRS to getOgrsPoints(deliusAssessments),
+          CalculationRule.IOM to getIomNominalPoints(orderedRegistrations)
+        )
+
+        val total = points.map { it.value }.sum()
 
         when {
-          totalPoints >= 20 -> TierLevel(THREE, totalPoints)
-          totalPoints in 10..19 -> TierLevel(TWO, totalPoints)
-          else -> TierLevel(ONE, totalPoints)
+          total >= 20 -> TierLevel(THREE, total, points)
+          total in 10..19 -> TierLevel(TWO, total, points)
+          else -> TierLevel(ONE, total, points)
         }
       }
     }.also { log.debug("Calculated Change Level for $crn: $it") }
@@ -80,6 +84,6 @@ class ChangeLevelCalculator(
     }.also { log.debug("IOM Nominal Points: $it") }
 
   companion object {
-    private val log = LoggerFactory.getLogger(ChangeLevelCalculator::class.java)
+    private val log = LoggerFactory.getLogger(this::class.java)
   }
 }

@@ -27,7 +27,7 @@ class TierCalculationRequiredEventListener(
 
   companion object {
     private val typeReference = object : TypeReference<TierCalculationMessage>() {}
-    private val log = LoggerFactory.getLogger(TierCalculationRequiredEventListener::class.java)
+    private val log = LoggerFactory.getLogger(this::class.java)
   }
 }
 
