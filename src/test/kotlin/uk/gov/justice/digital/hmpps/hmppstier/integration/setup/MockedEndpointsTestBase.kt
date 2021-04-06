@@ -88,11 +88,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun setupNCCustodialSentence(crn: String) {
-    communityApi.`when`(
-      request()
-        .withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    )
-      .respond(custodialNCConvictionResponse())
+    setupActiveConvictions(crn, custodialNCConvictionResponse())
   }
 
   fun setupRegistrations(registrationsResponse: HttpResponse, crn: String) =
@@ -141,35 +137,15 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun setupAssessmentNotFound(crn: String) =
     assessmentApiResponse(notFoundResponse(), "/offenders/crn/$crn/assessments/summary")
 
-  fun setupNonCustodialSentence(crn: String) {
-    communityApi.`when`(
-      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(nonCustodialConvictionResponse())
-  }
+  fun setupNonCustodialSentence(crn: String) = setupActiveConvictions(crn, nonCustodialConvictionResponse())
 
-  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) {
-    communityApi.`when`(
-      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(nonCustodialCurrentAndTerminatedConviction())
-  }
+  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) = setupActiveConvictions(crn, nonCustodialCurrentAndTerminatedConviction())
 
-  fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) {
-    communityApi.`when`(
-      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(custodialAndNonCustodialConvictions())
-  }
+  fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialAndNonCustodialConvictions())
 
-  fun setupTerminatedCustodialSentence(crn: String) {
-    communityApi.`when`(
-      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(custodialTerminatedConvictionResponse())
-  }
+  fun setupTerminatedCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialTerminatedConvictionResponse())
 
-  fun setupTerminatedNonCustodialSentence(crn: String) {
-    communityApi.`when`(
-      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(nonCustodialTerminatedConvictionResponse())
-  }
+  fun setupTerminatedNonCustodialSentence(crn: String) = setupActiveConvictions(crn, nonCustodialTerminatedConvictionResponse())
 
   fun setupRestrictiveRequirements(crn: String) =
     communityApiResponse(restrictiveRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
@@ -197,10 +173,14 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, includeAssessmentApi)
   }
 
-  fun setupSCCustodialSentence(crn: String) {
+  fun setupSCCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialSCConvictionResponse())
+
+  private fun setupActiveConvictions(crn: String, response: HttpResponse) {
     communityApi.`when`(
-      request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    ).respond(custodialSCConvictionResponse())
+      request()
+        .withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
+    )
+      .respond(response)
   }
 
   fun calculateTierFor(crn: String) {
