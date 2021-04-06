@@ -237,7 +237,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   private fun assessmentApiResponse(response: HttpResponse, urlTemplate: String) =
     httpSetup(response, urlTemplate, assessmentApi)
 
-  internal fun setAuthorisation(role: String): (HttpHeaders) -> Unit {
+  private fun setAuthorisation(role: String): (HttpHeaders) -> Unit {
     val token = jwtHelper.createJwt(
       subject = "hmpps-tier",
       scope = listOf("read"),
@@ -248,12 +248,12 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 }
 
-data class TierChangeEvent(
+private data class TierChangeEvent(
   val crn: String,
   val calculationId: UUID
 )
 
-data class SQSMessage(
+private data class SQSMessage(
   val Message: String,
   val MessageId: String
 )
