@@ -29,7 +29,7 @@ class SuccessUpdater(
   }
 }
 
-private data class TierChangeEvent(
+data class TierChangeEvent(
   val crn: String,
   val calculationId: UUID
 )
