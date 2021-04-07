@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
-import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundException
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -99,7 +98,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .uri("/offenders/crn/$crn")
       .retrieve()
       .bodyToMono(Offender::class.java)
-      .block() ?: throw EntityNotFoundException("No Offender record found for $crn")
+      .block()
   }
 
   private fun getRequirementsCall(crn: String, convictionId: Long): List<Requirement> {
@@ -122,8 +121,12 @@ private data class Requirements @JsonCreator constructor(
 )
 
 data class Requirement @JsonCreator constructor(
+  @JsonProperty("active")
+  val active: Boolean,
+
   @JsonProperty("restrictive")
   val restrictive: Boolean?,
+
   @JsonProperty("requirementTypeMainCategory")
   val requirementTypeMainCategory: RequirementTypeMainCategory?
 )

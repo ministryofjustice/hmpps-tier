@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponse
 
 @TestInstance(PER_CLASS)
 class MandateForChangeTest : MockedEndpointsTestBase() {
@@ -121,6 +122,17 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupNonCustodialSentence(crn)
     setupUnpaidWorkRequirements(crn)
     setupMaleOffenderWithRegistrations(crn)
+    calculateTierFor(crn)
+    expectTierCalculation("A0")
+  }
+
+  @Test
+  fun `Inactive requirements are ignored so no mandate for change`() {
+    val crn = "X335444"
+    setupNonCustodialSentence(crn)
+    setupRegistrations(registrationsResponse(), crn)
+    setupInactiveNonRestrictiveRequirements(crn)
+    restOfSetupWithMaleOffenderAndSevereNeeds(crn)
     calculateTierFor(crn)
     expectTierCalculation("A0")
   }

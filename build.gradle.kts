@@ -82,7 +82,7 @@ tasks.jacocoTestCoverageVerification {
       }
       limit {
         counter = "COMPLEXITY"
-        minimum = BigDecimal(0.793)
+        minimum = BigDecimal(0.80)
       }
     }
   }

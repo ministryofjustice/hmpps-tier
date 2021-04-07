@@ -14,6 +14,11 @@ fun getNumberOfMessagesCurrentlyOnQueue(client: AmazonSQSAsync, queueUrl: String
   return queueAttributes.attributes["ApproximateNumberOfMessages"]?.toInt()
 }
 
+fun getNumberOfMessagesCurrentlyNotVisibleOnQueue(client: AmazonSQSAsync, queueUrl: String): Int? {
+  val queueAttributes = client.getQueueAttributes(queueUrl, listOf("ApproximateNumberOfMessagesNotVisible"))
+  return queueAttributes.attributes["ApproximateNumberOfMessagesNotVisible"]?.toInt()
+}
+
 private fun calculationMessage(crn: String): String {
   return Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
     .replace("X373878", crn)
