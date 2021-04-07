@@ -58,10 +58,8 @@ class ChangeLevelCalculator(
     }.also { log.debug("Calculated Change Level for $crn: $it") }
   }
 
-  private fun hasNoAssessment(crn: String, offenderAssessment: OffenderAssessment?): Boolean {
-    log.info("Valid assessment found for $crn : ${offenderAssessment == null}")
-    return offenderAssessment == null
-  }
+  private fun hasNoAssessment(crn: String, offenderAssessment: OffenderAssessment?): Boolean =
+    (offenderAssessment == null).also { log.info("Valid assessment found for $crn : ${offenderAssessment == null}") }
 
   private fun getAssessmentNeedsPoints(offenderAssessment: OffenderAssessment?): Int =
     (
