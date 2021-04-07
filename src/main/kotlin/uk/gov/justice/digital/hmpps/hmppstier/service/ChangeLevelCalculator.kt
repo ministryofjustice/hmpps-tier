@@ -78,7 +78,6 @@ class ChangeLevelCalculator(
       .also { log.debug("Ogrs Points: $it") }
 
   private fun getIomNominalPoints(registrations: Collection<Registration>): Int =
-    // We don't care about the full list, only if there is IOM Nominal
     when {
       registrations.any { ComplexityFactor.from(it.type.code) == ComplexityFactor.IOM_NOMINAL } -> 2
       else -> 0
