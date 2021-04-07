@@ -34,10 +34,8 @@ class ChangeLevelCalculator(
   ): TierLevel<ChangeLevel> {
     return when {
       mandateForChange.hasNoMandate(crn, convictions) -> noMandateTier
-      offenderAssessment == null -> {
-        log.info("No valid assessment found for $crn")
-        noValidAssessmentTier
-      }
+      hasNoAssessment(crn, offenderAssessment) -> noValidAssessmentTier
+
       else -> {
         val orderedRegistrations = deliusRegistrations
           .filter { it.active }
@@ -58,6 +56,11 @@ class ChangeLevelCalculator(
         }
       }
     }.also { log.debug("Calculated Change Level for $crn: $it") }
+  }
+
+  private fun hasNoAssessment(crn: String, offenderAssessment: OffenderAssessment?): Boolean {
+    log.info("Valid assessment found for $crn : ${offenderAssessment == null}")
+    return offenderAssessment == null
   }
 
   private fun getAssessmentNeedsPoints(offenderAssessment: OffenderAssessment?): Int =
