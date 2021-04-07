@@ -35,7 +35,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   lateinit var calculationCompleteUrl: String
 
   @Autowired
-  lateinit var offenderEventsAmazonSQSAsync: AmazonSQSAsync
+  lateinit var offenderEventsClient: AmazonSQSAsync
 
   @Value("\${offender-events.sqs-queue}")
   lateinit var eventQueueUrl: String
@@ -49,10 +49,11 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
 
   @BeforeEach
   fun `purge Queues`() {
-    offenderEventsAmazonSQSAsync.purgeQueue(PurgeQueueRequest(eventQueueUrl))
+    offenderEventsClient.purgeQueue(PurgeQueueRequest(eventQueueUrl))
     calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
 
-    val response = HttpResponse.response().withContentType(APPLICATION_JSON).withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
+    val response = HttpResponse.response().withContentType(APPLICATION_JSON)
+      .withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
     httpSetup(response, "/auth/oauth/token", oauthMock)
   }
 
@@ -120,13 +121,17 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
 
   fun setupNonCustodialSentence(crn: String) = setupActiveConvictions(crn, nonCustodialConvictionResponse())
 
-  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) = setupActiveConvictions(crn, nonCustodialCurrentAndTerminatedConviction())
+  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) =
+    setupActiveConvictions(crn, nonCustodialCurrentAndTerminatedConviction())
 
-  fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialAndNonCustodialConvictions())
+  fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) =
+    setupActiveConvictions(crn, custodialAndNonCustodialConvictions())
 
-  fun setupTerminatedCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialTerminatedConvictionResponse())
+  fun setupTerminatedCustodialSentence(crn: String) =
+    setupActiveConvictions(crn, custodialTerminatedConvictionResponse())
 
-  fun setupTerminatedNonCustodialSentence(crn: String) = setupActiveConvictions(crn, nonCustodialTerminatedConvictionResponse())
+  fun setupTerminatedNonCustodialSentence(crn: String) =
+    setupActiveConvictions(crn, nonCustodialTerminatedConvictionResponse())
 
   fun setupRestrictiveRequirements(crn: String) =
     communityApiResponse(restrictiveRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
@@ -174,7 +179,16 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 
   fun calculateTierFor(crn: String) {
-    putMessageOnQueue(offenderEventsAmazonSQSAsync, eventQueueUrl, crn)
+    putMessageOnQueue(offenderEventsClient, eventQueueUrl, crn)
+  }
+
+  fun expectNoTierCalculation() {
+    // the message goes back on the queue but is not visible until after the test ends
+    await untilCallTo {
+      getNumberOfMessagesCurrentlyNotVisibleOnQueue(
+        offenderEventsClient, eventQueueUrl
+      )
+    } matches { it == 1 }
   }
 
   fun expectTierCalculation(tierScore: String) {

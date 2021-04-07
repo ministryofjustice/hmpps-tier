@@ -38,4 +38,4 @@ class TierCalculationRequiredEventListener(
   }
 }
 
-private data class TierCalculationMessage(val crn: String)
+data class TierCalculationMessage(val crn: String)
