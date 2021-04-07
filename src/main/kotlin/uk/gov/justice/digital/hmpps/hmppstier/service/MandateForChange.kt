@@ -16,11 +16,11 @@ class MandateForChange(
       .filter { it.sentence?.terminationDate == null }
       .let { activeConvictions ->
         activeConvictions.none {
-          it.sentence != null && (isCustodialSentence(it.sentence) || hasNonRestrictiveRequirements(crn, it.convictionId))
+          it.sentence != null && (isCustodial(it.sentence) || hasNonRestrictiveRequirements(crn, it.convictionId))
         }
       }.also { log.debug("Has no mandate for change: $it") }
 
-  private fun isCustodialSentence(sentence: Sentence) =
+  private fun isCustodial(sentence: Sentence) =
     sentence.sentenceType.code in custodialSentences
 
   private fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =

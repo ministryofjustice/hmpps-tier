@@ -7,7 +7,11 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.IOM
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.NEEDS
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.NO_MANDATE_FOR_CHANGE
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.NO_VALID_ASSESSMENT
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.OGRS
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ONE
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.THREE
@@ -28,25 +32,21 @@ class ChangeLevelCalculator(
     deliusRegistrations: Collection<Registration>,
     convictions: Collection<Conviction>
   ): TierLevel<ChangeLevel> {
-
-    val orderedRegistrations = deliusRegistrations
-      .filter { it.active }
-      .sortedByDescending { it.startDate }
-
     return when {
-      mandateForChange.hasNoMandate(crn, convictions) -> {
-        TierLevel(ZERO, 0, mapOf(CalculationRule.NO_MANDATE_FOR_CHANGE to 0))
-      }
+      mandateForChange.hasNoMandate(crn, convictions) -> noMandateTier
       offenderAssessment == null -> {
         log.info("No valid assessment found for $crn")
-        TierLevel(TWO, 0, mapOf(CalculationRule.NO_VALID_ASSESSMENT to 0))
+        noValidAssessmentTier
       }
       else -> {
+        val orderedRegistrations = deliusRegistrations
+          .filter { it.active }
+          .sortedByDescending { it.startDate }
 
         val points = mapOf(
-          CalculationRule.NEEDS to getAssessmentNeedsPoints(offenderAssessment),
-          CalculationRule.OGRS to getOgrsPoints(deliusAssessments),
-          CalculationRule.IOM to getIomNominalPoints(orderedRegistrations)
+          NEEDS to getAssessmentNeedsPoints(offenderAssessment),
+          OGRS to getOgrsPoints(deliusAssessments),
+          IOM to getIomNominalPoints(orderedRegistrations)
         )
 
         val total = points.map { it.value }.sum()
@@ -85,5 +85,7 @@ class ChangeLevelCalculator(
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
+    private val noMandateTier = TierLevel(ZERO, 0, mapOf(NO_MANDATE_FOR_CHANGE to 0))
+    private val noValidAssessmentTier = TierLevel(TWO, 0, mapOf(NO_VALID_ASSESSMENT to 0))
   }
 }
