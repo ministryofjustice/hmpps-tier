@@ -57,8 +57,8 @@ internal class TierDtoTest {
       )
     )
 
-    assertThat(tierDto?.tierScore).isEqualTo(protectLevel.value.plus(changeLevel.value))
-    assertThat(tierDto?.calculationId).isEqualTo(calculationId)
-    assertThat(tierDto?.calculationDate).isEqualTo(calculationDate)
+    assertThat(tierDto.tierScore).isEqualTo(protectLevel.value.plus(changeLevel.value))
+    assertThat(tierDto.calculationId).isEqualTo(calculationId)
+    assertThat(tierDto.calculationDate).isEqualTo(calculationDate)
   }
 }

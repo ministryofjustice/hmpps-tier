@@ -25,10 +25,9 @@ class MandateForChange(
   private fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
     communityApiClient.getRequirements(crn, convictionId)
       .filter { it.active }
-      .filter { req -> req.requirementTypeMainCategory?.code != "W" }
-      .any { req ->
-        req.restrictive != true
-      }.also { log.debug("Has non-restrictive requirements: $it") }
+      .filter { it.requirementTypeMainCategory?.code != "W" }
+      .any { it.restrictive != true }
+      .also { log.debug("Has non-restrictive requirements: $it") }
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)

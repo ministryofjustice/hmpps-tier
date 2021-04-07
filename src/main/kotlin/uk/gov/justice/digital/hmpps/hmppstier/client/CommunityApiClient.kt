@@ -41,7 +41,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       }
   }
 
-  fun getOffender(crn: String): Offender {
+  fun getOffender(crn: String): Offender? {
     return getOffenderCall(crn)
       .also {
         log.info("Fetched Offender record for $crn")
@@ -92,7 +92,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()?.nsis ?: listOf()
   }
 
-  private fun getOffenderCall(crn: String): Offender {
+  private fun getOffenderCall(crn: String): Offender? {
     return webClient
       .get()
       .uri("/offenders/crn/$crn")

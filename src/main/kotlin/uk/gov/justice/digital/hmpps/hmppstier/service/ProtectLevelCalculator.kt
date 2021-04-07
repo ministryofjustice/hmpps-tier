@@ -107,7 +107,7 @@ class ProtectLevelCalculator(
     offenderAssessment: OffenderAssessment?
   ): Int =
     when {
-      communityApiClient.getOffender(crn).gender.equals("female", true) -> {
+      communityApiClient.getOffender(crn)?.gender.equals("female", true) -> {
         (getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment) + getBreachRecallComplexityPoints(crn, convictions))
           .times(2)
       }
@@ -157,7 +157,7 @@ class ProtectLevelCalculator(
 
   private fun qualifyingConvictions(sentence: Sentence?): Boolean =
     sentence?.terminationDate == null ||
-      sentence.terminationDate!!.isAfter(LocalDate.now(clock).minusYears(1).minusDays(1))
+      sentence.terminationDate.isAfter(LocalDate.now(clock).minusYears(1).minusDays(1))
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
