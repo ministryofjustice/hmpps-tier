@@ -107,12 +107,14 @@ class ProtectLevelCalculator(
     offenderAssessment: OffenderAssessment?
   ): Int =
     when {
-      communityApiClient.getOffender(crn)?.gender.equals("female", true) -> {
+      isFemale(crn) -> {
         (getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment) + getBreachRecallComplexityPoints(crn, convictions))
           .times(2)
       }
       else -> 0
     }.also { log.debug("Additional Factors for Women for $crn : $it") }
+
+  private fun isFemale(crn: String) = communityApiClient.getOffender(crn)?.gender.equals("female", true)
 
   private fun getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment: OffenderAssessment?): Int =
     when (offenderAssessment) {
