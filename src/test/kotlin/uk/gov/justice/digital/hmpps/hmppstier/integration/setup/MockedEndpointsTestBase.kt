@@ -78,12 +78,13 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun setupRegistrations(registrationsResponse: HttpResponse, crn: String) =
     communityApiResponse(registrationsResponse, "/secure/offenders/crn/$crn/registrations")
 
-  fun setupEmptyNsisResponse(crn: String) = communityApi.`when`(
-    request().withPath("/secure/offenders/crn/$crn/convictions/2500222290/nsis")
-      .withQueryStringParameter("nsiCodes", "BRE,BRES,REC,RECS")
-  ).respond(
-    emptyNsisResponse()
-  )
+  fun setupEmptyNsisResponse(crn: String) =
+    communityApi.`when`(
+      request().withPath("/secure/offenders/crn/$crn/convictions/2500222290/nsis")
+        .withQueryStringParameter("nsiCodes", "BRE,BRES,REC,RECS")
+    ).respond(
+      emptyNsisResponse()
+    )
 
   fun restOfSetupWithMaleOffenderNoSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) =
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiNoSeverityNeedsResponse())

@@ -18,6 +18,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.THREE
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.TWO
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ZERO
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor.IOM_NOMINAL
 
 @Service
 class ChangeLevelCalculator(
@@ -29,15 +30,15 @@ class ChangeLevelCalculator(
     crn: String,
     offenderAssessment: OffenderAssessment?,
     deliusAssessments: DeliusAssessments?,
-    deliusRegistrations: Collection<Registration>,
+    registrations: Collection<Registration>,
     convictions: Collection<Conviction>
   ): TierLevel<ChangeLevel> {
     return when {
-      mandateForChange.hasNoMandate(crn, convictions) -> noMandateTier
-      hasNoAssessment(crn, offenderAssessment) -> noValidAssessmentTier
+      mandateForChange.hasNoMandate(crn, convictions) -> TIER_NO_MANDATE
+      hasNoAssessment(crn, offenderAssessment) -> TIER_NO_ASSESSMENT
 
       else -> {
-        val orderedRegistrations = deliusRegistrations
+        val orderedRegistrations = registrations
           .filter { it.active }
           .sortedByDescending { it.startDate }
 
@@ -59,7 +60,7 @@ class ChangeLevelCalculator(
   }
 
   private fun hasNoAssessment(crn: String, offenderAssessment: OffenderAssessment?): Boolean =
-    (offenderAssessment == null).also { log.info("Valid assessment found for $crn : ${offenderAssessment == null}") }
+    (offenderAssessment == null).also { log.info("Valid assessment found for $crn : $it") }
 
   private fun getAssessmentNeedsPoints(offenderAssessment: OffenderAssessment?): Int =
     (
@@ -79,13 +80,13 @@ class ChangeLevelCalculator(
 
   private fun getIomNominalPoints(registrations: Collection<Registration>): Int =
     when {
-      registrations.any { ComplexityFactor.from(it.type.code) == ComplexityFactor.IOM_NOMINAL } -> 2
+      registrations.any { ComplexityFactor.from(it.type.code) == IOM_NOMINAL } -> 2
       else -> 0
     }.also { log.debug("IOM Nominal Points: $it") }
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
-    private val noMandateTier = TierLevel(ZERO, 0, mapOf(NO_MANDATE_FOR_CHANGE to 0))
-    private val noValidAssessmentTier = TierLevel(TWO, 0, mapOf(NO_VALID_ASSESSMENT to 0))
+    private val TIER_NO_MANDATE = TierLevel(ZERO, 0, mapOf(NO_MANDATE_FOR_CHANGE to 0))
+    private val TIER_NO_ASSESSMENT = TierLevel(TWO, 0, mapOf(NO_VALID_ASSESSMENT to 0))
   }
 }
