@@ -39,7 +39,7 @@ class ChangeLevelCalculator(
 
       else -> {
         val points = mapOf(
-          NEEDS to getAssessmentNeedsPoints(offenderAssessment),
+          NEEDS to getAssessmentNeedsPoints(offenderAssessment!!.assessmentId),
           OGRS to getOgrsPoints(deliusAssessments),
           IOM to getIomNominalPoints(registrations)
         )
@@ -58,16 +58,14 @@ class ChangeLevelCalculator(
   private fun hasNoAssessment(crn: String, offenderAssessment: OffenderAssessment?): Boolean =
     (offenderAssessment == null).also { log.info("Valid assessment found for $crn : $it") }
 
-  private fun getAssessmentNeedsPoints(offenderAssessment: OffenderAssessment?): Int =
+  private fun getAssessmentNeedsPoints(assessmentId: String): Int =
     (
-      offenderAssessment?.let { assessment ->
-        assessmentApiService.getAssessmentNeeds(assessment.assessmentId)
-          .let {
-            it.entries.sumBy { ent ->
-              ent.key.weighting.times(ent.value?.score ?: 0)
-            }
+      assessmentApiService.getAssessmentNeeds(assessmentId)
+        .let {
+          it.entries.sumBy { ent ->
+            ent.key.weighting.times(ent.value?.score ?: 0)
           }
-      } ?: 0
+        }
       ).also { log.debug("Needs Points: $it") }
 
   private fun getOgrsPoints(deliusAssessments: DeliusAssessments?): Int =
