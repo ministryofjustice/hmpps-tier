@@ -41,7 +41,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       }
   }
 
-  fun getOffender(crn: String): Offender {
+  fun getOffender(crn: String): Offender? {
     return getOffenderCall(crn)
       .also {
         log.info("Fetched Offender record for $crn")
@@ -60,7 +60,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .get()
       .uri("/offenders/crn/$crn/registrations")
       .retrieve()
-      .bodyToMono(CommunityApiRegistrationsDto::class.java)
+      .bodyToMono(Registrations::class.java)
       .block()?.registrations ?: listOf()
   }
 
@@ -92,7 +92,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()?.nsis ?: listOf()
   }
 
-  private fun getOffenderCall(crn: String): Offender {
+  private fun getOffenderCall(crn: String): Offender? {
     return webClient
       .get()
       .uri("/offenders/crn/$crn")
@@ -156,7 +156,7 @@ data class Conviction @JsonCreator constructor(
 
 data class Sentence @JsonCreator constructor(
   @JsonProperty("terminationDate")
-  var terminationDate: LocalDate?,
+  val terminationDate: LocalDate?,
 
   @JsonProperty("sentenceType")
   val sentenceType: SentenceType,
@@ -164,7 +164,7 @@ data class Sentence @JsonCreator constructor(
 
 data class SentenceType @JsonCreator constructor(
   @JsonProperty("code")
-  var code: String
+  val code: String
 )
 
 data class Offender @JsonCreator constructor(
@@ -187,7 +187,6 @@ data class KeyValue @JsonCreator constructor(
 )
 
 data class Registration @JsonCreator constructor(
-
   @JsonProperty("type")
   val type: KeyValue,
 
@@ -201,7 +200,7 @@ data class Registration @JsonCreator constructor(
   val startDate: LocalDate
 )
 
-private data class CommunityApiRegistrationsDto @JsonCreator constructor(
+private data class Registrations @JsonCreator constructor(
   @JsonProperty("registrations")
   val registrations: List<Registration>?
 )

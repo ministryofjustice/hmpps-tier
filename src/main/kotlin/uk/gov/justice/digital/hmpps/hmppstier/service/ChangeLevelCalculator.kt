@@ -7,13 +7,18 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.IOM
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.NEEDS
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.NO_MANDATE_FOR_CHANGE
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.NO_VALID_ASSESSMENT
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.OGRS
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ONE
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.THREE
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.TWO
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ZERO
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor.IOM_NOMINAL
 
 @Service
 class ChangeLevelCalculator(
@@ -25,28 +30,18 @@ class ChangeLevelCalculator(
     crn: String,
     offenderAssessment: OffenderAssessment?,
     deliusAssessments: DeliusAssessments?,
-    deliusRegistrations: Collection<Registration>,
+    registrations: Collection<Registration>,
     convictions: Collection<Conviction>
   ): TierLevel<ChangeLevel> {
-
-    val orderedRegistrations = deliusRegistrations
-      .filter { it.active }
-      .sortedByDescending { it.startDate }
-
     return when {
-      mandateForChange.hasNoMandate(crn, convictions) -> {
-        TierLevel(ZERO, 0, mapOf(CalculationRule.NO_MANDATE_FOR_CHANGE to 0))
-      }
-      offenderAssessment == null -> {
-        log.info("No valid assessment found for $crn")
-        TierLevel(TWO, 0, mapOf(CalculationRule.NO_VALID_ASSESSMENT to 0))
-      }
-      else -> {
+      mandateForChange.hasNoMandate(crn, convictions) -> TIER_NO_MANDATE
+      hasNoAssessment(crn, offenderAssessment) -> TIER_NO_ASSESSMENT
 
+      else -> {
         val points = mapOf(
-          CalculationRule.NEEDS to getAssessmentNeedsPoints(offenderAssessment),
-          CalculationRule.OGRS to getOgrsPoints(deliusAssessments),
-          CalculationRule.IOM to getIomNominalPoints(orderedRegistrations)
+          NEEDS to getAssessmentNeedsPoints(offenderAssessment),
+          OGRS to getOgrsPoints(deliusAssessments),
+          IOM to getIomNominalPoints(registrations)
         )
 
         val total = points.map { it.value }.sum()
@@ -59,6 +54,9 @@ class ChangeLevelCalculator(
       }
     }.also { log.debug("Calculated Change Level for $crn: $it") }
   }
+
+  private fun hasNoAssessment(crn: String, offenderAssessment: OffenderAssessment?): Boolean =
+    (offenderAssessment == null).also { log.info("Valid assessment found for $crn : $it") }
 
   private fun getAssessmentNeedsPoints(offenderAssessment: OffenderAssessment?): Int =
     (
@@ -77,13 +75,17 @@ class ChangeLevelCalculator(
       .also { log.debug("Ogrs Points: $it") }
 
   private fun getIomNominalPoints(registrations: Collection<Registration>): Int =
-    // We don't care about the full list, only if there is IOM Nominal
     when {
-      registrations.any { ComplexityFactor.from(it.type.code) == ComplexityFactor.IOM_NOMINAL } -> 2
+      registrations
+        .filter { it.active }
+        .sortedByDescending { it.startDate }
+        .any { ComplexityFactor.from(it.type.code) == IOM_NOMINAL } -> 2
       else -> 0
     }.also { log.debug("IOM Nominal Points: $it") }
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
+    private val TIER_NO_MANDATE = TierLevel(ZERO, 0, mapOf(NO_MANDATE_FOR_CHANGE to 0))
+    private val TIER_NO_ASSESSMENT = TierLevel(TWO, 0, mapOf(NO_VALID_ASSESSMENT to 0))
   }
 }
