@@ -38,14 +38,10 @@ class ChangeLevelCalculator(
       hasNoAssessment(crn, offenderAssessment) -> TIER_NO_ASSESSMENT
 
       else -> {
-        val orderedRegistrations = registrations
-          .filter { it.active }
-          .sortedByDescending { it.startDate }
-
         val points = mapOf(
           NEEDS to getAssessmentNeedsPoints(offenderAssessment),
           OGRS to getOgrsPoints(deliusAssessments),
-          IOM to getIomNominalPoints(orderedRegistrations)
+          IOM to getIomNominalPoints(registrations)
         )
 
         val total = points.map { it.value }.sum()
@@ -80,7 +76,10 @@ class ChangeLevelCalculator(
 
   private fun getIomNominalPoints(registrations: Collection<Registration>): Int =
     when {
-      registrations.any { ComplexityFactor.from(it.type.code) == IOM_NOMINAL } -> 2
+      registrations
+        .filter { it.active }
+        .sortedByDescending { it.startDate }
+        .any { ComplexityFactor.from(it.type.code) == IOM_NOMINAL } -> 2
       else -> 0
     }.also { log.debug("IOM Nominal Points: $it") }
 
