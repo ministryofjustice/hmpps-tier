@@ -77,7 +77,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun setUpNoSentence(crn: String) = setupActiveConvictions(crn, noSentenceConvictionResponse())
 
   fun setupRegistrations(registrationsResponse: HttpResponse, crn: String) =
-    communityApiResponse(registrationsResponse, "/secure/offenders/crn/$crn/registrations")
+    communityApiResponseWithQs(registrationsResponse, "/secure/offenders/crn/$crn/registrations", Parameter("activeOnly", "true"))
 
   fun setupEmptyNsisResponse(crn: String) =
     communityApiResponseWithQs(emptyNsisResponse(), "/secure/offenders/crn/$crn/convictions/2500222290/nsis", Parameter("nsiCodes", "BRE,BRES,REC,RECS"))
@@ -170,9 +170,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   private fun setupActiveConvictions(crn: String, response: HttpResponse) =
     communityApiResponseWithQs(response, "/secure/offenders/crn/$crn/convictions", Parameter("activeOnly", "true"))
 
-  fun calculateTierFor(crn: String) {
-    putMessageOnQueue(offenderEventsClient, eventQueueUrl, crn)
-  }
+  fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, eventQueueUrl, crn)
 
   fun expectNoTierCalculation() {
     // the message goes back on the queue but is not visible until after the test ends

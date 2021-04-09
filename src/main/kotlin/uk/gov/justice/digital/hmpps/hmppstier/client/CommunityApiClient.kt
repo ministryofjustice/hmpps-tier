@@ -58,7 +58,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   private fun getRegistrationsCall(crn: String): Collection<Registration> {
     return webClient
       .get()
-      .uri("/offenders/crn/$crn/registrations")
+      .uri("/offenders/crn/$crn/registrations?activeOnly=true")
       .retrieve()
       .bodyToMono(Registrations::class.java)
       .block()?.registrations ?: listOf()
