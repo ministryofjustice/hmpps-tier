@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
+import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
@@ -23,6 +24,7 @@ class TierCalculationService(
   private val communityApiClient: CommunityApiClient,
   private val successUpdater: SuccessUpdater,
   private val telemetryService: TelemetryService,
+  private val mandateForChange: MandateForChange,
   @Value("\${calculation.version}")private val version: String
 ) {
 
@@ -55,19 +57,26 @@ class TierCalculationService(
     val deliusRegistrations = communityApiClient.getRegistrations(crn)
     val deliusConvictions = communityApiClient.getConvictions(crn)
 
+    val hasNoAssessment = hasNoAssessment(crn, offenderAssessment)
+
+    val additionalFactors = hasNoAssessment.takeIf { false }?.let { isFemale(crn).takeIf { true }?.let { assessmentApiService.getAssessmentAnswers(offenderAssessment!!.assessmentId) }.orEmpty() }.orEmpty()
+
     val protectLevel = protectLevelCalculator.calculateProtectLevel(
       crn,
-      offenderAssessment,
       deliusAssessments,
       deliusRegistrations,
-      deliusConvictions
+      deliusConvictions,
+      isFemale(crn),
+      additionalFactors
     )
+
     val changeLevel = changeLevelCalculator.calculateChangeLevel(
       crn,
       offenderAssessment,
       deliusAssessments,
       deliusRegistrations,
-      deliusConvictions
+      mandateForChange.hasNoMandate(crn, deliusConvictions),
+      hasNoAssessment
     )
 
     return TierCalculationEntity(
@@ -76,6 +85,11 @@ class TierCalculationService(
       data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel, calculationVersion = version)
     )
   }
+
+  private fun hasNoAssessment(crn: String, offenderAssessment: OffenderAssessment?): Boolean =
+    (offenderAssessment == null).also { log.info("Valid assessment found for $crn : $it") }
+
+  private fun isFemale(crn: String) = communityApiClient.getOffender(crn)?.gender.equals("female", true)
 
   private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
     tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn).also {

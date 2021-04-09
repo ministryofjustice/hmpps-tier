@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
@@ -22,7 +21,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor.IOM_
 
 @Service
 class ChangeLevelCalculator(
-  private val mandateForChange: MandateForChange,
   private val assessmentApiService: AssessmentApiService,
 ) {
 
@@ -31,11 +29,12 @@ class ChangeLevelCalculator(
     offenderAssessment: OffenderAssessment?,
     deliusAssessments: DeliusAssessments?,
     registrations: Collection<Registration>,
-    convictions: Collection<Conviction>
+    noMandate: Boolean,
+    noAssessment: Boolean
   ): TierLevel<ChangeLevel> {
     return when {
-      mandateForChange.hasNoMandate(crn, convictions) -> TIER_NO_MANDATE
-      hasNoAssessment(crn, offenderAssessment) -> TIER_NO_ASSESSMENT
+      noMandate -> TIER_NO_MANDATE
+      noAssessment -> TIER_NO_ASSESSMENT
 
       else -> {
         val points = mapOf(
@@ -54,9 +53,6 @@ class ChangeLevelCalculator(
       }
     }.also { log.debug("Calculated Change Level for $crn: $it") }
   }
-
-  private fun hasNoAssessment(crn: String, offenderAssessment: OffenderAssessment?): Boolean =
-    (offenderAssessment == null).also { log.info("Valid assessment found for $crn : $it") }
 
   private fun getAssessmentNeedsPoints(offenderAssessment: OffenderAssessment?): Int =
     (

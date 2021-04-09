@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
-import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
@@ -23,16 +22,16 @@ import java.time.LocalDate
 @Service
 class ProtectLevelCalculator(
   private val clock: Clock,
-  private val communityApiClient: CommunityApiClient,
-  private val assessmentApiService: AssessmentApiService
+  private val communityApiClient: CommunityApiClient
 ) {
 
   fun calculateProtectLevel(
     crn: String,
-    offenderAssessment: OffenderAssessment?,
     deliusAssessments: DeliusAssessments?,
     registrations: Collection<Registration>,
-    convictions: Collection<Conviction>
+    convictions: Collection<Conviction>,
+    isFemale: Boolean,
+    additionalFactors: Map<AdditionalFactorForWomen?, String?>
   ): TierLevel<ProtectLevel> {
 
     val points = mapOf(
@@ -40,7 +39,12 @@ class ProtectLevelCalculator(
       CalculationRule.ROSH to getRoshPoints(registrations),
       CalculationRule.MAPPA to getMappaPoints(registrations),
       CalculationRule.COMPLEXITY to getComplexityPoints(registrations),
-      CalculationRule.ADDITIONAL_FACTORS_FOR_WOMEN to getAdditionalFactorsForWomen(crn, convictions, offenderAssessment)
+      CalculationRule.ADDITIONAL_FACTORS_FOR_WOMEN to getAdditionalFactorsForWomen(
+        crn,
+        convictions,
+        isFemale,
+        additionalFactors
+      )
     )
 
     val total = points.map { it.value }.sum().minus(minOf(points.getOrDefault(CalculationRule.RSR, 0), points.getOrDefault(CalculationRule.ROSH, 0)))
@@ -100,38 +104,38 @@ class ProtectLevelCalculator(
   private fun getAdditionalFactorsForWomen(
     crn: String,
     convictions: Collection<Conviction>,
-    offenderAssessment: OffenderAssessment?
+    isFemale: Boolean,
+    additionalFactors: Map<AdditionalFactorForWomen?, String?>
   ): Int =
     when {
-      isFemale(crn) -> {
-        (getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment) + getBreachRecallComplexityPoints(crn, convictions))
+      isFemale -> {
+        (
+          getAdditionalFactorsAssessmentComplexityPoints(
+            additionalFactors
+          ) + getBreachRecallComplexityPoints(crn, convictions)
+          )
           .times(2)
       }
       else -> 0
     }.also { log.debug("Additional Factors for Women for $crn : $it") }
 
-  private fun isFemale(crn: String) = communityApiClient.getOffender(crn)?.gender.equals("female", true)
-
-  private fun getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment: OffenderAssessment?): Int =
-    when (offenderAssessment) {
-      null -> 0
-      else -> {
-        assessmentApiService.getAssessmentAnswers(offenderAssessment.assessmentId)
-          .also { log.debug("Additional Factors for Women Assessment answers $it ") }
-          .let { answers ->
-            val parenting = when {
-              isYes(answers[AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES]) -> 1
-              else -> 0
-            }
-            // We dont take the cumulative score, just '1' if at least one of these two is present
-            val selfControl = when {
-              isAnswered(answers[AdditionalFactorForWomen.IMPULSIVITY]) || isAnswered(answers[AdditionalFactorForWomen.TEMPER_CONTROL]) -> 1
-              else -> 0
-            }
-            parenting + selfControl
-          }
-      }
-    }.also { log.debug("Additional Factors for Women Points $it") }
+  private fun getAdditionalFactorsAssessmentComplexityPoints(
+    additionalFactors: Map<AdditionalFactorForWomen?, String?>
+  ): Int =
+    additionalFactors
+      .also { log.debug("Additional Factors for Women Assessment answers $it ") }
+      .let { answers ->
+        val parenting = when {
+          isYes(answers[AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES]) -> 1
+          else -> 0
+        }
+        // We dont take the cumulative score, just '1' if at least one of these two is present
+        val selfControl = when {
+          isAnswered(answers[AdditionalFactorForWomen.IMPULSIVITY]) || isAnswered(answers[AdditionalFactorForWomen.TEMPER_CONTROL]) -> 1
+          else -> 0
+        }
+        parenting + selfControl
+      }.also { log.debug("Additional Factors for Women Points $it") }
 
   private fun getBreachRecallComplexityPoints(crn: String, convictions: Collection<Conviction>): Int =
     convictions
