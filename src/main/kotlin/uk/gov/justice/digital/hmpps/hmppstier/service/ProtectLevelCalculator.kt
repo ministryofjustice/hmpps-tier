@@ -31,19 +31,15 @@ class ProtectLevelCalculator(
     crn: String,
     offenderAssessment: OffenderAssessment?,
     deliusAssessments: DeliusAssessments?,
-    deliusRegistrations: Collection<Registration>,
+    registrations: Collection<Registration>,
     convictions: Collection<Conviction>
   ): TierLevel<ProtectLevel> {
 
-    val orderedRegistrations = deliusRegistrations
-      .filter { it.active }
-      .sortedByDescending { it.startDate }
-
     val points = mapOf(
       CalculationRule.RSR to getRsrPoints(deliusAssessments),
-      CalculationRule.ROSH to getRoshPoints(orderedRegistrations),
-      CalculationRule.MAPPA to getMappaPoints(orderedRegistrations),
-      CalculationRule.COMPLEXITY to getComplexityPoints(orderedRegistrations),
+      CalculationRule.ROSH to getRoshPoints(registrations),
+      CalculationRule.MAPPA to getMappaPoints(registrations),
+      CalculationRule.COMPLEXITY to getComplexityPoints(registrations),
       CalculationRule.ADDITIONAL_FACTORS_FOR_WOMEN to getAdditionalFactorsForWomen(crn, convictions, offenderAssessment)
     )
 
@@ -67,8 +63,8 @@ class ProtectLevelCalculator(
         }
       }.also { log.debug("RSR Points: $it") }
 
-  private fun getRoshPoints(deliusRegistrations: Collection<Registration>): Int =
-    deliusRegistrations
+  private fun getRoshPoints(registrations: Collection<Registration>): Int =
+    registrations
       .mapNotNull { Rosh.from(it.type.code) }
       .firstOrNull()
       .let { rosh ->
@@ -80,8 +76,8 @@ class ProtectLevelCalculator(
         }
       }.also { log.debug("ROSH Points: $it") }
 
-  private fun getMappaPoints(deliusRegistrations: Collection<Registration>): Int =
-    deliusRegistrations
+  private fun getMappaPoints(registrations: Collection<Registration>): Int =
+    registrations
       .mapNotNull { Mappa.from(it.registerLevel?.code) }
       .firstOrNull()
       .let { mappa ->
@@ -92,8 +88,8 @@ class ProtectLevelCalculator(
         }
       }.also { log.debug("MAPPA Points: $it") }
 
-  private fun getComplexityPoints(deliusRegistrations: Collection<Registration>): Int =
-    deliusRegistrations
+  private fun getComplexityPoints(registrations: Collection<Registration>): Int =
+    registrations
       .mapNotNull { ComplexityFactor.from(it.type.code) }
       .distinct()
       .filter { it != ComplexityFactor.IOM_NOMINAL }
