@@ -93,19 +93,31 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
 
   private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: HttpResponse) {
     communityApiResponse(communityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments")
-    communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
+    setupMaleOffender(crn)
 
     if (includeAssessmentApi) {
       setupCurrentAssessment(crn)
     }
-    assessmentApiResponse(needs, "/assessments/oasysSetId/1234/needs")
+    setupNeeds(needs)
+  }
+
+  fun setupMaleOffender(crn: String) {
+    communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
   }
 
   fun restOfSetupWithFemaleOffender(crn: String) {
-    communityApiResponse(emptyCommunityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments")
+    setupNoDeliusAssessment(crn)
     communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
     setupCurrentAssessment(crn)
-    assessmentApiResponse(notFoundResponse(), "/assessments/oasysSetId/1234/needs")
+    setupNeeds(notFoundResponse())
+  }
+
+  fun setupNoDeliusAssessment(crn: String) {
+    communityApiResponse(emptyCommunityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments")
+  }
+
+  fun setupNeeds(needs: HttpResponse) {
+    assessmentApiResponse(needs, "/assessments/oasysSetId/1234/needs")
   }
 
   fun setupCurrentAssessment(crn: String) = setupLatestAssessment(crn, LocalDate.now().year)

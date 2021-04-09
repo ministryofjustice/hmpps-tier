@@ -351,33 +351,6 @@ internal class ProtectLevelCalculatorTest {
     }
 
     @Test
-    fun `Should return latest RoSH`() {
-      setup()
-
-      val registrations =
-        listOf(
-          Registration(
-            KeyValue("RMRH", "Medium RoSH"),
-            KeyValue("Not", "Used"),
-            true,
-            LocalDate.now().minusDays(2)
-          ),
-          Registration(
-            KeyValue("RHRH", "High RoSH"),
-            KeyValue("Not", "Used"),
-            true,
-            LocalDate.now().minusDays(1)
-          ),
-        )
-
-      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
-
-      assertThat(result.points).isEqualTo(20)
-
-      validate()
-    }
-
-    @Test
     fun `Should ignore inactive RoSH`() {
       setup()
 
@@ -521,57 +494,6 @@ internal class ProtectLevelCalculatorTest {
       validate()
 
       assertThat(result.points).isEqualTo(30)
-    }
-
-    @Test
-    fun `Should return latest Mappa`() {
-      val registrations =
-        listOf(
-          Registration(
-            KeyValue("Not", "Used"),
-            KeyValue("M3", "One"),
-            true,
-            LocalDate.now()
-          ),
-          Registration(
-            KeyValue("Not", "Used"),
-            KeyValue("M1", "One"),
-            true,
-            LocalDate.now().plusDays(1)
-          ),
-        )
-
-      setup()
-      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
-      validate()
-
-      assertThat(result.points).isEqualTo(5)
-    }
-
-    @Test
-    fun `Should ignore inactive Mappa`() {
-
-      val registrations =
-        listOf(
-          Registration(
-            KeyValue("Not", "Used"),
-            KeyValue("M3", "One"),
-            false,
-            LocalDate.now().plusDays(1)
-          ),
-          Registration(
-            KeyValue("Not", "Used"),
-            KeyValue("M1", "One"),
-            true,
-            LocalDate.now()
-          ),
-        )
-
-      setup()
-      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
-      validate()
-
-      assertThat(result.points).isEqualTo(5)
     }
 
     @Test
@@ -743,32 +665,6 @@ internal class ProtectLevelCalculatorTest {
             LocalDate.now()
           ),
 
-        )
-
-      setup()
-      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
-      validate()
-
-      assertThat(result.points).isEqualTo(2)
-    }
-
-    @Test
-    fun `Should ignore inactive Complexity Factor`() {
-
-      val registrations =
-        listOf(
-          Registration(
-            KeyValue("RCHD", "RISK TO CHILDREN"),
-            KeyValue("Not", "Used"),
-            false,
-            LocalDate.now().plusDays(1)
-          ),
-          Registration(
-            KeyValue("RMDO", "Mental Health"),
-            KeyValue("Not", "Used"),
-            true,
-            LocalDate.now()
-          ),
         )
 
       setup()

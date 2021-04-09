@@ -14,7 +14,7 @@ import java.time.LocalDate
 class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val webClient: WebClient) {
 
   fun getRegistrations(crn: String): Collection<Registration> {
-    return getRegistrationsCall(crn)
+    return getRegistrationsCall(crn).sortedByDescending { it.startDate }
       .also {
         log.info("Fetched ${it.size} Registrations for $crn")
       }
