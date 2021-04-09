@@ -14,7 +14,7 @@ import java.time.LocalDate
 class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val webClient: WebClient) {
 
   fun getRegistrations(crn: String): Collection<Registration> {
-    return getRegistrationsCall(crn)
+    return getRegistrationsCall(crn).sortedByDescending { it.startDate }
       .also {
         log.info("Fetched ${it.size} Registrations for $crn")
       }
@@ -58,7 +58,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   private fun getRegistrationsCall(crn: String): Collection<Registration> {
     return webClient
       .get()
-      .uri("/offenders/crn/$crn/registrations")
+      .uri("/offenders/crn/$crn/registrations?activeOnly=true")
       .retrieve()
       .bodyToMono(Registrations::class.java)
       .block()?.registrations ?: listOf()
