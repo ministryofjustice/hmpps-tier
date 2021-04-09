@@ -1,7 +1,7 @@
 {
   "registrations": [
     {
-      "registrationId": 2500155757,
+      "registrationId": 2500155758,
       "offenderId": 2500342345,
       "register": {
         "code": "5",
@@ -12,9 +12,10 @@
         "description": "MAPPA"
       },
       "riskColour": "Red",
-      "startDate": "2021-02-01",
+      "startDate": "2020-02-01",
+      "nextReviewDate": "2021-05-01",
       "reviewPeriodMonths": 3,
-      "notes": "X320741 registered for MAPPA cat 1 level 1",
+      "notes": "X320741 older registration Mappa Level 1 which should be ignored",
       "registeringTeam": {
         "code": "N07CHT",
         "description": "Automation SPG"
@@ -34,30 +35,13 @@
         "description": "MAPPA Level 1"
       },
       "registerCategory": {
-        "code": "M1",
-        "description": "MAPPA Cat 1"
+        "code": "M2",
+        "description": "MAPPA Cat 2"
       },
       "warnUser": false,
-      "active": false,
-      "endDate": "2021-02-01",
-      "deregisteringTeam": {
-        "code": "N07CHT",
-        "description": "Automation SPG"
-      },
-      "deregisteringOfficer": {
-        "code": "N07A060",
-        "forenames": "NDelius26",
-        "surname": "NDelius26",
-        "unallocated": false
-      },
-      "deregisteringProbationArea": {
-        "code": "N07",
-        "description": "NPS London"
-      },
-      "deregisteringNotes": "Deregistering MAPP cat 1 level 1",
-      "numberOfPreviousDeregistrations": 1
-    },
-    {
+      "active": true,
+      "numberOfPreviousDeregistrations": 0
+    }, {
       "registrationId": 2500155758,
       "offenderId": 2500342345,
       "register": {

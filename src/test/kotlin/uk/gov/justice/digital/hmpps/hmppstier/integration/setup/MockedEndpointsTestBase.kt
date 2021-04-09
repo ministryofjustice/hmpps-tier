@@ -15,6 +15,7 @@ import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.notFoundResponse
 import org.mockserver.model.MediaType.APPLICATION_JSON
+import org.mockserver.model.Parameter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
@@ -76,15 +77,10 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   fun setUpNoSentence(crn: String) = setupActiveConvictions(crn, noSentenceConvictionResponse())
 
   fun setupRegistrations(registrationsResponse: HttpResponse, crn: String) =
-    communityApiResponse(registrationsResponse, "/secure/offenders/crn/$crn/registrations")
+    communityApiResponseWithQs(registrationsResponse, "/secure/offenders/crn/$crn/registrations", Parameter("activeOnly", "true"))
 
   fun setupEmptyNsisResponse(crn: String) =
-    communityApi.`when`(
-      request().withPath("/secure/offenders/crn/$crn/convictions/2500222290/nsis")
-        .withQueryStringParameter("nsiCodes", "BRE,BRES,REC,RECS")
-    ).respond(
-      emptyNsisResponse()
-    )
+    communityApiResponseWithQs(emptyNsisResponse(), "/secure/offenders/crn/$crn/convictions/2500222290/nsis", Parameter("nsiCodes", "BRE,BRES,REC,RECS"))
 
   fun restOfSetupWithMaleOffenderNoSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) =
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiNoSeverityNeedsResponse())
@@ -97,19 +93,31 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
 
   private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: HttpResponse) {
     communityApiResponse(communityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments")
-    communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
+    setupMaleOffender(crn)
 
     if (includeAssessmentApi) {
       setupCurrentAssessment(crn)
     }
-    assessmentApiResponse(needs, "/assessments/oasysSetId/1234/needs")
+    setupNeeds(needs)
+  }
+
+  fun setupMaleOffender(crn: String) {
+    communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
   }
 
   fun restOfSetupWithFemaleOffender(crn: String) {
-    communityApiResponse(emptyCommunityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments")
+    setupNoDeliusAssessment(crn)
     communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
     setupCurrentAssessment(crn)
-    assessmentApiResponse(notFoundResponse(), "/assessments/oasysSetId/1234/needs")
+    setupNeeds(notFoundResponse())
+  }
+
+  fun setupNoDeliusAssessment(crn: String) {
+    communityApiResponse(emptyCommunityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments")
+  }
+
+  fun setupNeeds(needs: HttpResponse) {
+    assessmentApiResponse(needs, "/assessments/oasysSetId/1234/needs")
   }
 
   fun setupCurrentAssessment(crn: String) = setupLatestAssessment(crn, LocalDate.now().year)
@@ -171,17 +179,10 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
 
   fun setupSCCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialSCConvictionResponse())
 
-  private fun setupActiveConvictions(crn: String, response: HttpResponse) {
-    communityApi.`when`(
-      request()
-        .withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
-    )
-      .respond(response)
-  }
+  private fun setupActiveConvictions(crn: String, response: HttpResponse) =
+    communityApiResponseWithQs(response, "/secure/offenders/crn/$crn/convictions", Parameter("activeOnly", "true"))
 
-  fun calculateTierFor(crn: String) {
-    putMessageOnQueue(offenderEventsClient, eventQueueUrl, crn)
-  }
+  fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, eventQueueUrl, crn)
 
   fun expectNoTierCalculation() {
     // the message goes back on the queue but is not visible until after the test ends
@@ -213,8 +214,14 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       .jsonPath("tierScore").isEqualTo(tierScore)
   }
 
+  private fun httpSetupWithQs(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer, qs: Parameter) =
+    clientAndServer.`when`(request().withPath(urlTemplate).withQueryStringParameter(qs)).respond(response)
+
   private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
     clientAndServer.`when`(request().withPath(urlTemplate)).respond(response)
+
+  private fun communityApiResponseWithQs(response: HttpResponse, urlTemplate: String, qs: Parameter) =
+    httpSetupWithQs(response, urlTemplate, communityApi, qs)
 
   private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
     httpSetup(response, urlTemplate, communityApi)

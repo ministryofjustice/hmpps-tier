@@ -76,10 +76,7 @@ class ChangeLevelCalculator(
 
   private fun getIomNominalPoints(registrations: Collection<Registration>): Int =
     when {
-      registrations
-        .filter { it.active }
-        .sortedByDescending { it.startDate }
-        .any { ComplexityFactor.from(it.type.code) == IOM_NOMINAL } -> 2
+      registrations.any { ComplexityFactor.from(it.type.code) == IOM_NOMINAL } -> 2
       else -> 0
     }.also { log.debug("IOM Nominal Points: $it") }
 
