@@ -56,9 +56,6 @@ fun restrictiveAndNonRestrictiveRequirementsResponse(): HttpResponse =
 fun nonRestrictiveRequirementsResponse(): HttpResponse =
   jsonResponseFromPath("$communityApiPath/requirements-non-restrictive.json")
 
-fun inactiveNonRestrictiveRequirementsResponse(): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/requirements-non-restrictive-inactive.json")
-
 fun unpaidWorkRequirementsResponse(): HttpResponse =
   jsonResponseFromPath("$communityApiPath/requirements-unpaid-work.json")
 

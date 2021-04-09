@@ -143,33 +143,27 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     setupActiveConvictions(crn, nonCustodialTerminatedConvictionResponse())
 
   fun setupRestrictiveRequirements(crn: String) =
-    communityApiResponse(restrictiveRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
+    communityApiResponseWithQs(restrictiveRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true"))
 
   fun setupUnpaidWorkRequirements(crn: String) =
-    communityApiResponse(unpaidWorkRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
+    communityApiResponseWithQs(unpaidWorkRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true"))
 
   fun setupAdditionalRequirements(crn: String) =
-    communityApiResponse(additionalRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
+    communityApiResponseWithQs(additionalRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true"))
 
   fun setupNoRequirements(crn: String) =
-    communityApiResponse(noRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements")
+    communityApiResponseWithQs(noRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true"))
 
   fun setupRestrictiveAndNonRestrictiveRequirements(crn: String) =
-    communityApiResponse(
+    communityApiResponseWithQs(
       restrictiveAndNonRestrictiveRequirementsResponse(),
-      "/secure/offenders/crn/$crn/convictions/\\d+/requirements"
+      "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true")
     )
 
   fun setupNonRestrictiveRequirements(crn: String) =
-    communityApiResponse(
+    communityApiResponseWithQs(
       nonRestrictiveRequirementsResponse(),
-      "/secure/offenders/crn/$crn/convictions/\\d+/requirements"
-    )
-
-  fun setupInactiveNonRestrictiveRequirements(crn: String) =
-    communityApiResponse(
-      inactiveNonRestrictiveRequirementsResponse(),
-      "/secure/offenders/crn/$crn/convictions/\\d+/requirements"
+      "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true")
     )
 
   fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true) {
