@@ -350,33 +350,6 @@ internal class ProtectLevelCalculatorTest {
       validate()
     }
 
-    @Test
-    fun `Should ignore inactive RoSH`() {
-      setup()
-
-      val registrations =
-        listOf(
-          Registration(
-            KeyValue("RLRH", "Low RoSH"),
-            KeyValue("Not", "Used"),
-            false,
-            LocalDate.now().plusDays(1)
-          ),
-          Registration(
-            KeyValue("RMRH", "Medium RoSH"),
-            KeyValue("Not", "Used"),
-            true,
-            LocalDate.now()
-          ),
-        )
-
-      val result = service.calculateProtectLevel(crn, null, null, registrations, listOf())
-
-      assertThat(result.points).isEqualTo(10)
-
-      validate()
-    }
-
     private fun getValidRegistrations(rosh: Rosh, active: Boolean = true): Collection<Registration> {
       return listOf(Registration(type = KeyValue(rosh.registerCode, "Not Used"), registerLevel = null, active = active, startDate = LocalDate.now(clock)))
     }
