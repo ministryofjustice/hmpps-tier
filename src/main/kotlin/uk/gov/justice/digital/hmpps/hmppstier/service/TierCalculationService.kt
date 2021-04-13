@@ -59,7 +59,13 @@ class TierCalculationService(
 
     val hasNoAssessment = hasNoAssessment(crn, offenderAssessment)
 
-    val additionalFactors = hasNoAssessment.takeIf { false }?.let { isFemale(crn).takeIf { true }?.let { assessmentApiService.getAssessmentAnswers(offenderAssessment!!.assessmentId) }.orEmpty() }.orEmpty()
+    val additionalFactors = hasNoAssessment.takeIf { !it }?.let {
+      isFemale(crn).takeIf { it }?.let { assessmentApiService.getAssessmentAnswers(offenderAssessment!!.assessmentId) }.orEmpty()
+    }.orEmpty()
+
+    val needs = hasNoAssessment.takeIf { !it }?.let {
+      assessmentApiService.getAssessmentNeeds(offenderAssessment!!.assessmentId)
+    }.orEmpty()
 
     val protectLevel = protectLevelCalculator.calculateProtectLevel(
       crn,
@@ -72,11 +78,11 @@ class TierCalculationService(
 
     val changeLevel = changeLevelCalculator.calculateChangeLevel(
       crn,
-      offenderAssessment,
       deliusAssessments,
       deliusRegistrations,
       mandateForChange.hasNoMandate(crn, deliusConvictions),
-      hasNoAssessment
+      hasNoAssessment,
+      needs
     )
 
     return TierCalculationEntity(
@@ -87,7 +93,7 @@ class TierCalculationService(
   }
 
   private fun hasNoAssessment(crn: String, offenderAssessment: OffenderAssessment?): Boolean =
-    (offenderAssessment == null).also { log.info("Valid assessment found for $crn : $it") }
+    (offenderAssessment == null).also { log.info("Valid assessment found for $crn : ${!it}") }
 
   private fun isFemale(crn: String) = communityApiClient.getOffender(crn)?.gender.equals("female", true)
 

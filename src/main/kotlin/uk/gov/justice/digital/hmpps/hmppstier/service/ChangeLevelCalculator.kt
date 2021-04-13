@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
-import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.IOM
@@ -18,19 +17,19 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.TWO
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ZERO
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor.IOM_NOMINAL
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 
 @Service
-class ChangeLevelCalculator(
-  private val assessmentApiService: AssessmentApiService,
-) {
+class ChangeLevelCalculator() {
 
   fun calculateChangeLevel(
     crn: String,
-    offenderAssessment: OffenderAssessment?,
     deliusAssessments: DeliusAssessments?,
     registrations: Collection<Registration>,
     noMandate: Boolean,
-    noAssessment: Boolean
+    noAssessment: Boolean,
+    needs: Map<Need, NeedSeverity?>
   ): TierLevel<ChangeLevel> {
     return when {
       noMandate -> TIER_NO_MANDATE
@@ -38,7 +37,7 @@ class ChangeLevelCalculator(
 
       else -> {
         val points = mapOf(
-          NEEDS to getAssessmentNeedsPoints(offenderAssessment),
+          NEEDS to getAssessmentNeedsPoints(needs),
           OGRS to getOgrsPoints(deliusAssessments),
           IOM to getIomNominalPoints(registrations)
         )
@@ -54,16 +53,14 @@ class ChangeLevelCalculator(
     }.also { log.debug("Calculated Change Level for $crn: $it") }
   }
 
-  private fun getAssessmentNeedsPoints(offenderAssessment: OffenderAssessment?): Int =
+  private fun getAssessmentNeedsPoints(needs: Map<Need, NeedSeverity?>): Int =
     (
-      offenderAssessment?.let { assessment ->
-        assessmentApiService.getAssessmentNeeds(assessment.assessmentId)
-          .let {
-            it.entries.sumBy { ent ->
-              ent.key.weighting.times(ent.value?.score ?: 0)
-            }
+      needs
+        .let {
+          it.entries.sumBy { ent ->
+            ent.key.weighting.times(ent.value?.score ?: 0)
           }
-      } ?: 0
+        }
       ).also { log.debug("Needs Points: $it") }
 
   private fun getOgrsPoints(deliusAssessments: DeliusAssessments?): Int =
