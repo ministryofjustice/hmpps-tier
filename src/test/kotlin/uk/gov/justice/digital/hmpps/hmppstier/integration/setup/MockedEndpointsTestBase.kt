@@ -53,9 +53,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     offenderEventsClient.purgeQueue(PurgeQueueRequest(eventQueueUrl))
     calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
 
-    val response = HttpResponse.response().withContentType(APPLICATION_JSON)
-      .withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
-    httpSetup(response, "/auth/oauth/token", oauthMock)
+    setupOauth()
   }
 
   @AfterEach
@@ -72,15 +70,29 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     oauthMock.stop()
   }
 
+  private fun setupOauth() {
+    val response = HttpResponse.response().withContentType(APPLICATION_JSON)
+      .withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
+    oauthMock.`when`(request().withPath("/auth/oauth/token").withBody("grant_type=client_credentials")).respond(response)
+  }
+
   fun setupNCCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialNCConvictionResponse())
 
   fun setUpNoSentence(crn: String) = setupActiveConvictions(crn, noSentenceConvictionResponse())
 
   fun setupRegistrations(registrationsResponse: HttpResponse, crn: String) =
-    communityApiResponseWithQs(registrationsResponse, "/secure/offenders/crn/$crn/registrations", Parameter("activeOnly", "true"))
+    communityApiResponseWithQs(
+      registrationsResponse,
+      "/secure/offenders/crn/$crn/registrations",
+      Parameter("activeOnly", "true")
+    )
 
   fun setupEmptyNsisResponse(crn: String) =
-    communityApiResponseWithQs(emptyNsisResponse(), "/secure/offenders/crn/$crn/convictions/2500222290/nsis", Parameter("nsiCodes", "BRE,BRES,REC,RECS"))
+    communityApiResponseWithQs(
+      emptyNsisResponse(),
+      "/secure/offenders/crn/$crn/convictions/2500222290/nsis",
+      Parameter("nsiCodes", "BRE,BRES,REC,RECS")
+    )
 
   fun restOfSetupWithMaleOffenderNoSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) =
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiNoSeverityNeedsResponse())
@@ -143,16 +155,32 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     setupActiveConvictions(crn, nonCustodialTerminatedConvictionResponse())
 
   fun setupRestrictiveRequirements(crn: String) =
-    communityApiResponseWithQs(restrictiveRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true"))
+    communityApiResponseWithQs(
+      restrictiveRequirementsResponse(),
+      "/secure/offenders/crn/$crn/convictions/\\d+/requirements",
+      Parameter("activeOnly", "true")
+    )
 
   fun setupUnpaidWorkRequirements(crn: String) =
-    communityApiResponseWithQs(unpaidWorkRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true"))
+    communityApiResponseWithQs(
+      unpaidWorkRequirementsResponse(),
+      "/secure/offenders/crn/$crn/convictions/\\d+/requirements",
+      Parameter("activeOnly", "true")
+    )
 
   fun setupAdditionalRequirements(crn: String) =
-    communityApiResponseWithQs(additionalRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true"))
+    communityApiResponseWithQs(
+      additionalRequirementsResponse(),
+      "/secure/offenders/crn/$crn/convictions/\\d+/requirements",
+      Parameter("activeOnly", "true")
+    )
 
   fun setupNoRequirements(crn: String) =
-    communityApiResponseWithQs(noRequirementsResponse(), "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true"))
+    communityApiResponseWithQs(
+      noRequirementsResponse(),
+      "/secure/offenders/crn/$crn/convictions/\\d+/requirements",
+      Parameter("activeOnly", "true")
+    )
 
   fun setupRestrictiveAndNonRestrictiveRequirements(crn: String) =
     communityApiResponseWithQs(
@@ -208,7 +236,12 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
       .jsonPath("tierScore").isEqualTo(tierScore)
   }
 
-  private fun httpSetupWithQs(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer, qs: Parameter) =
+  private fun httpSetupWithQs(
+    response: HttpResponse,
+    urlTemplate: String,
+    clientAndServer: ClientAndServer,
+    qs: Parameter
+  ) =
     clientAndServer.`when`(request().withPath(urlTemplate).withQueryStringParameter(qs)).respond(response)
 
   private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
@@ -226,9 +259,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   private fun setAuthorisation(): (HttpHeaders) -> Unit {
     val token = jwtHelper.createJwt(
       subject = "hmpps-tier",
-      scope = listOf("read"),
-      expiryTime = Duration.ofHours(1L),
-      roles = listOf("ROLE_HMPPS_TIER")
+      expiryTime = Duration.ofHours(1L)
     )
     return { it.set(AUTHORIZATION, "Bearer $token") }
   }

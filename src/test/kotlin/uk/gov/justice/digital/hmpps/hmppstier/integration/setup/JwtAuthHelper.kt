@@ -12,7 +12,6 @@ import java.security.interfaces.RSAPublicKey
 import java.time.Duration
 import java.util.Date
 import java.util.UUID
-import kotlin.collections.HashMap
 
 @Component
 class JwtAuthHelper {
@@ -29,20 +28,12 @@ class JwtAuthHelper {
 
   fun createJwt(
     subject: String,
-    scope: List<String>? = listOf(),
-    roles: List<String>? = listOf(),
     expiryTime: Duration = Duration.ofHours(1),
     jwtId: String = UUID.randomUUID().toString()
   ): String {
-    val claims = HashMap<String, Any>()
-    claims["user_name"] = subject
-    claims["client_id"] = "offender-assessment-api"
-    if (!roles.isNullOrEmpty()) claims["authorities"] = roles
-    if (!scope.isNullOrEmpty()) claims["scope"] = scope
     return Jwts.builder()
       .setId(jwtId)
       .setSubject(subject)
-      .addClaims(claims)
       .setExpiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
       .signWith(SignatureAlgorithm.RS256, keyPair.private)
       .compact()
