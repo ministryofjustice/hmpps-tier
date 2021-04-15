@@ -32,13 +32,11 @@ spring:
             client-id: ${oauth.client.id}
             client-secret: ${oauth.client.secret}
             authorization-grant-type: client_credentials
-            scope: read
           assessment-api:
             provider: hmpps-auth
             client-id: ${oauth.client.id}
             client-secret: ${oauth.client.secret}
             authorization-grant-type: client_credentials
-            scope: read
         provider:
           hmpps-auth:
             token-uri: ${oauth.endpoint.url}/oauth/token
