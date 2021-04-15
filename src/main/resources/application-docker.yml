@@ -8,10 +8,6 @@ spring:
 oauth:
   endpoint:
     url: localhost/auth
-  client:
-    id: my-diary
-    secret: clientsecret
-
 
 community:
   endpoint:
