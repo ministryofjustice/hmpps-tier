@@ -104,7 +104,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   private fun getRequirementsCall(crn: String, convictionId: Long): List<Requirement> {
     return webClient
       .get()
-      .uri("/offenders/crn/$crn/convictions/$convictionId/requirements")
+      .uri("/offenders/crn/$crn/convictions/$convictionId/requirements?activeOnly=true")
       .retrieve()
       .bodyToMono(Requirements::class.java)
       .block()?.requirements ?: listOf()
