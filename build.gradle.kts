@@ -102,7 +102,7 @@ tasks {
         }
         limit {
           counter = "COMPLEXITY"
-          minimum = BigDecimal(0.82)
+          minimum = BigDecimal(0.83)
         }
       }
     }
