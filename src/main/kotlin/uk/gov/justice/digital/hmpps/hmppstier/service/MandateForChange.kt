@@ -14,11 +14,9 @@ class MandateForChange(
   fun hasNoMandate(crn: String, convictions: Collection<Conviction>): Boolean =
     convictions
       .filter { currentSentence(it.sentence) }
-      .let { activeConvictions ->
-        activeConvictions.none {
+      .none {
           it.sentence != null && (isCustodial(it.sentence) || hasNonRestrictiveRequirements(crn, it.convictionId))
-        }
-      }.also { log.debug("Has no mandate for change: $it") }
+        }.also { log.debug("Has no mandate for change: $it") }
 
   private fun currentSentence(sentence: Sentence?) =
     sentence?.terminationDate == null
@@ -32,11 +30,12 @@ class MandateForChange(
       .any { it.restrictive != true }
       .also { log.debug("Has non-restrictive requirements: $it") }
 
-  private fun excludeUnpaidWork(it: Requirement) =
-    it.requirementTypeMainCategory?.code !in arrayOf("W", "W1")
+  private fun excludeUnpaidWork(it: Requirement): Boolean = it.requirementTypeMainCategory?.code !in unpaidWorkAndOrderExtended
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
     private val custodialSentences = arrayOf("NC", "SC")
+    private val unpaidWorkAndOrderExtended = arrayOf("W", "W1")
+
   }
 }
