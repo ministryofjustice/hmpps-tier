@@ -9,7 +9,7 @@ const val communityApiPath: String = "src/test/resources/fixtures/community-api"
 const val assessmentApiPath: String = "src/test/resources/fixtures/assessment-api"
 
 fun communityApiAssessmentsResponse(): HttpResponse =
-  jsonResponseOf(responseFrom("$communityApiPath/assessments.json"))
+  jsonResponseFromPath("$communityApiPath/assessments.json")
 
 fun emptyCommunityApiAssessmentsResponse(): HttpResponse = jsonResponseOf("{}")
 
@@ -58,6 +58,8 @@ fun nonRestrictiveRequirementsResponse(): HttpResponse =
 
 fun unpaidWorkRequirementsResponse(): HttpResponse =
   jsonResponseFromPath("$communityApiPath/requirements-unpaid-work.json")
+
+fun unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse(): HttpResponse = jsonResponseFromPath("$communityApiPath/requirements-unpaid-work-additional-hours-order-length-extended.json")
 
 fun noRequirementsResponse(): HttpResponse = jsonResponseOf(
   "{\n" +
