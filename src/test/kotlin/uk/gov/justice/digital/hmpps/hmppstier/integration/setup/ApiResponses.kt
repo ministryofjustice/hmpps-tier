@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 
 import org.mockserver.model.HttpResponse
+import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
 import java.nio.file.Files.readString
 import java.nio.file.Paths
@@ -65,22 +66,25 @@ fun assessmentsApiAssessmentsResponse(year: Int): HttpResponse = jsonResponseOf(
 )
 
 fun assessmentsApiNoSeverityNeedsResponse(): HttpResponse =
-  jsonResponseFromPath("$assessmentApiPath/no_severity_needs.json")
+  assessmentApiResponse("no_severity_needs.json")
 
 fun assessmentsApi8NeedsResponse(): HttpResponse =
-  jsonResponseFromPath("$assessmentApiPath/8_points_needs.json")
+  assessmentApiResponse("8_points_needs.json")
 
 fun assessmentsApiHighSeverityNeedsResponse(): HttpResponse =
-  jsonResponseFromPath("$assessmentApiPath/high_severity_needs_18_points.json")
+  assessmentApiResponse("high_severity_needs_18_points.json")
 
 private fun responseFrom(path: String) =
   readString(Paths.get(path))
 
 private fun jsonResponseOf(response: String): HttpResponse =
-  HttpResponse.response().withContentType(APPLICATION_JSON).withBody(response)
+  response().withContentType(APPLICATION_JSON).withBody(response)
 
 private fun jsonResponseFromPath(path: String): HttpResponse =
   jsonResponseOf(responseFrom(path))
 
 private fun communityApiResponse(path: String): HttpResponse =
   jsonResponseFromPath("$communityApiPath/$path")
+
+private fun assessmentApiResponse(path: String): HttpResponse =
+  jsonResponseFromPath("$assessmentApiPath/$path")
