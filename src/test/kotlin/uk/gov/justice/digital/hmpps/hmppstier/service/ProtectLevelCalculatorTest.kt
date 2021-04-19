@@ -103,7 +103,7 @@ internal class ProtectLevelCalculatorTest {
     }
 
     private fun getValidRegistrations(rosh: Rosh): Collection<Registration> {
-      return listOf(Registration(type = KeyValue(rosh.registerCode, "Not Used"), registerLevel = null, active = true, startDate = LocalDate.now(clock)))
+      return listOf(Registration(type = KeyValue(rosh.registerCode, "Not Used"), registerLevel = null, startDate = LocalDate.now(clock)))
     }
 
     private fun setup() {
@@ -250,7 +250,7 @@ internal class ProtectLevelCalculatorTest {
           Registration(
             KeyValue("RMRH", "Medium RoSH"),
             KeyValue("Not", "Used"),
-            true,
+
             LocalDate.now()
           )
         )
@@ -271,7 +271,7 @@ internal class ProtectLevelCalculatorTest {
           Registration(
             KeyValue("rmrh", "Medium RoSH"),
             KeyValue("Not", "Used"),
-            true,
+
             LocalDate.now()
           )
         )
@@ -292,19 +292,19 @@ internal class ProtectLevelCalculatorTest {
           Registration(
             KeyValue("RMRH", "Medium RoSH"),
             KeyValue("Not", "Used"),
-            true,
+
             LocalDate.now()
           ),
           Registration(
             KeyValue("AV2S", "Risk to Staff"),
             KeyValue("Not", "Used"),
-            true,
+
             LocalDate.now()
           ),
           Registration(
             KeyValue("AV2S", "Risk to Staff"),
             KeyValue("Not", "Used"),
-            true,
+
             LocalDate.now()
           ),
         )
@@ -325,19 +325,19 @@ internal class ProtectLevelCalculatorTest {
           Registration(
             KeyValue("AV2S", "Risk to Staff"),
             KeyValue("Not", "Used"),
-            true,
+
             LocalDate.now()
           ),
           Registration(
             KeyValue("RMRH", "Medium RoSH"),
             KeyValue("Not", "Used"),
-            true,
+
             LocalDate.now()
           ),
           Registration(
             KeyValue("AV2S", "Risk to Staff"),
             KeyValue("Not", "Used"),
-            true,
+
             LocalDate.now()
           ),
 
@@ -350,8 +350,8 @@ internal class ProtectLevelCalculatorTest {
       validate()
     }
 
-    private fun getValidRegistrations(rosh: Rosh, active: Boolean = true): Collection<Registration> {
-      return listOf(Registration(type = KeyValue(rosh.registerCode, "Not Used"), registerLevel = null, active = active, startDate = LocalDate.now(clock)))
+    private fun getValidRegistrations(rosh: Rosh): Collection<Registration> {
+      return listOf(Registration(type = KeyValue(rosh.registerCode, "Not Used"), registerLevel = null, startDate = LocalDate.now(clock)))
     }
 
     private fun setup() {
@@ -406,7 +406,7 @@ internal class ProtectLevelCalculatorTest {
           Registration(
             KeyValue("Not", "Used"),
             KeyValue("M3", "One"),
-            true,
+
             LocalDate.now()
           )
         )
@@ -425,7 +425,7 @@ internal class ProtectLevelCalculatorTest {
           Registration(
             KeyValue("Not", "Used"),
             KeyValue("m3", "One"),
-            true,
+
             LocalDate.now()
           )
         )
@@ -444,19 +444,19 @@ internal class ProtectLevelCalculatorTest {
           Registration(
             KeyValue("Not", "Used"),
             KeyValue("M3", "One"),
-            true,
+
             LocalDate.now()
           ),
           Registration(
             KeyValue("AV2S", "Risk to Staff"),
             KeyValue("BD", "OTHER"),
-            true,
+
             LocalDate.now()
           ),
           Registration(
             KeyValue("AV2S", "Risk to Staff"),
             KeyValue("12", "ANOTHER"),
-            true,
+
             LocalDate.now()
           ),
 
@@ -476,19 +476,19 @@ internal class ProtectLevelCalculatorTest {
           Registration(
             KeyValue("AV2S", "Risk to Staff"),
             KeyValue("Not", "Used"),
-            true,
+
             LocalDate.now()
           ),
           Registration(
             KeyValue("AV2S", "Risk to Staff"),
             KeyValue("Not", "Used"),
-            true,
+
             LocalDate.now()
           ),
           Registration(
             KeyValue("Not", "Used"),
             KeyValue("INVALID", "INVALID Mappa"),
-            true,
+
             LocalDate.now()
           ),
         )
@@ -500,8 +500,8 @@ internal class ProtectLevelCalculatorTest {
       assertThat(result.points).isEqualTo(0)
     }
 
-    private fun getValidRegistrations(mappa: Mappa, active: Boolean = true): Collection<Registration> {
-      return listOf(Registration(type = KeyValue("Not Used", "Not Used"), registerLevel = KeyValue(mappa.registerCode, "Not Used"), active = active, startDate = LocalDate.now(clock)))
+    private fun getValidRegistrations(mappa: Mappa): Collection<Registration> {
+      return listOf(Registration(type = KeyValue("Not Used", "Not Used"), registerLevel = KeyValue(mappa.registerCode, "Not Used"), startDate = LocalDate.now(clock)))
     }
 
     private fun setup() {
@@ -584,7 +584,7 @@ internal class ProtectLevelCalculatorTest {
           Registration(
             KeyValue("RMDO", "Mental Health"),
             KeyValue("Not", "Used"),
-            true,
+
             LocalDate.now()
           )
         )
@@ -603,7 +603,7 @@ internal class ProtectLevelCalculatorTest {
           Registration(
             KeyValue("rmdo", "Mental Health"),
             KeyValue("Not", "Used"),
-            true,
+
             LocalDate.now()
           )
         )
@@ -622,19 +622,19 @@ internal class ProtectLevelCalculatorTest {
           Registration(
             KeyValue("RMDO", "Mental Health"),
             KeyValue("Not", "Used"),
-            true,
+
             LocalDate.now()
           ),
           Registration(
             KeyValue("AV2S", "Risk to Staff"),
             KeyValue("BD", "OTHER"),
-            true,
+
             LocalDate.now()
           ),
           Registration(
             KeyValue("AV2S", "Risk to Staff"),
             KeyValue("12", "ANOTHER"),
-            true,
+
             LocalDate.now()
           ),
 
@@ -655,7 +655,7 @@ internal class ProtectLevelCalculatorTest {
           Registration(
             KeyValue("AV2S", "Risk to Staff"),
             KeyValue("Not", "Used"),
-            true,
+
             LocalDate.now()
           )
         )
@@ -669,7 +669,7 @@ internal class ProtectLevelCalculatorTest {
 
     private fun getValidRegistrations(factors: List<ComplexityFactor>): Collection<Registration> {
       return factors.map {
-        Registration(type = KeyValue(it.registerCode, "Not Used"), registerLevel = null, active = true, startDate = LocalDate.now(clock))
+        Registration(type = KeyValue(it.registerCode, "Not Used"), registerLevel = null, startDate = LocalDate.now(clock))
       }
     }
 

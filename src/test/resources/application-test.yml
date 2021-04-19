@@ -51,9 +51,6 @@ aws:
   offender:
     region: eu-west-2
 
-flags:
-  enableDeliusTierUpdates: true
-
 oauth:
   endpoint:
     url: http://localhost:9090/auth
