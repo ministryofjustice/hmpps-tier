@@ -172,8 +172,8 @@ class ProtectLevelCalculator(
     communityApiClient.getBreachRecallNsis(crn, convictionId)
       .any { NsiOutcome.from(it.status?.code) != null }
 
-  private fun qualifyingConvictions(sentence: Sentence?): Boolean =
-    sentence?.terminationDate == null ||
+  private fun qualifyingConvictions(sentence: Sentence): Boolean =
+    sentence.terminationDate == null ||
       sentence.terminationDate.isAfter(LocalDate.now(clock).minusYears(1).minusDays(1))
 
   companion object {
