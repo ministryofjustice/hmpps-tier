@@ -32,7 +32,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
     val sentences = convictions.mapNotNull { it.sentence }
     return convictions
       .filter { it.sentence in sentences }
-      .map { Conviction(it.convictionId, it.sentence!!) }
+      .map { Conviction(it.convictionId, it.sentence!!, it.offences.filterNotNull()) }
       .also {
         log.info("Fetched ${it.size} Convictions for $crn")
       }
@@ -155,12 +155,13 @@ private data class ConvictionDto @JsonCreator constructor(
   val sentence: Sentence?,
 
   @JsonProperty("offences")
-  val offences: List<Offence>
+  val offences: List<Offence?>
 )
 
 data class Conviction constructor(
   val convictionId: Long,
-  val sentence: Sentence
+  val sentence: Sentence,
+  val offences: List<Offence>
 )
 
 data class Sentence @JsonCreator constructor(

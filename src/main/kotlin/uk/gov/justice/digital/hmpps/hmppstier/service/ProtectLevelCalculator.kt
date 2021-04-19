@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NsiOutcome
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
@@ -111,12 +112,12 @@ class ProtectLevelCalculator(
         val breachRecallPoints = getBreachRecallComplexityPoints(crn, convictions)
 
         val violenceArson = when {
-          hasArsonOrViolence(convictions) -> if (enableFemaleArsonAndViolenceCheck) 1 else 0
+          hasArsonOrViolence(convictions) -> if (enableFemaleArsonAndViolenceCheck) 2 else 0
           else -> 0
         }
 
         val tenMonthsPlus = when {
-          hasTenMonthSentencePlus(convictions) -> if (enableFemaleTenMonthsPlusCheck) 1 else 0
+          hasTenMonthSentencePlus(convictions) -> if (enableFemaleTenMonthsPlusCheck) 2 else 0
           else -> 0
         }
 
@@ -148,9 +149,13 @@ class ProtectLevelCalculator(
       }
     }.also { log.debug("Additional Factors for Women Points $it") }
 
-  private fun hasArsonOrViolence(convictions: Collection<Conviction>): Boolean = true
+  private fun hasArsonOrViolence(convictions: Collection<Conviction>): Boolean =
+    convictions.flatMap { it.offences }
+      .map { it.offenceDetail }.any {
+        OFFENCE_CODES.contains(it.mainCategoryCode)
+      }
 
-  private fun hasTenMonthSentencePlus(convictions: Collection<Conviction>): Boolean = true
+  private fun hasTenMonthSentencePlus(convictions: Collection<Conviction>): Boolean = false
 
   private fun getBreachRecallComplexityPoints(crn: String, convictions: Collection<Conviction>): Int =
     convictions
@@ -177,6 +182,8 @@ class ProtectLevelCalculator(
       sentence.terminationDate.isAfter(LocalDate.now(clock).minusYears(1).minusDays(1))
 
   companion object {
+    val OFFENCE_CODES = OffenceCode.values().map { it.code }
+
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 }

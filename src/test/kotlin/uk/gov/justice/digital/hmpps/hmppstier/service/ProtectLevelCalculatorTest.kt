@@ -18,6 +18,8 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
 import uk.gov.justice.digital.hmpps.hmppstier.client.Nsi
+import uk.gov.justice.digital.hmpps.hmppstier.client.Offence
+import uk.gov.justice.digital.hmpps.hmppstier.client.OffenceDetail
 import uk.gov.justice.digital.hmpps.hmppstier.client.Offender
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
@@ -26,6 +28,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.SentenceType
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
 import java.math.BigDecimal
@@ -866,7 +869,7 @@ internal class ProtectLevelCalculatorTest {
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock)
       val sentence = Sentence(terminationDate, irrelevantSentenceType)
-      val conviction = Conviction(convictionId, sentence)
+      val conviction = Conviction(convictionId, sentence, listOf())
 
       val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
 
@@ -886,7 +889,7 @@ internal class ProtectLevelCalculatorTest {
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock).minusYears(1)
       val sentence = Sentence(terminationDate, irrelevantSentenceType)
-      val conviction = Conviction(convictionId, sentence)
+      val conviction = Conviction(convictionId, sentence, listOf())
 
       val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
 
@@ -906,7 +909,7 @@ internal class ProtectLevelCalculatorTest {
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock).minusYears(1).minusDays(1)
       val sentence = Sentence(terminationDate, irrelevantSentenceType)
-      val conviction = Conviction(convictionId, sentence)
+      val conviction = Conviction(convictionId, sentence, listOf())
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
 
@@ -921,7 +924,7 @@ internal class ProtectLevelCalculatorTest {
       val crn = "123"
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
-      val conviction = Conviction(convictionId, sentence)
+      val conviction = Conviction(convictionId, sentence, listOf())
 
       val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
 
@@ -940,9 +943,9 @@ internal class ProtectLevelCalculatorTest {
       val crn = "123"
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
-      val conviction = Conviction(convictionId, sentence)
+      val conviction = Conviction(convictionId, sentence, listOf())
 
-      val unrelatedConviction = Conviction(convictionId.plus(1), sentence)
+      val unrelatedConviction = Conviction(convictionId.plus(1), sentence, listOf())
       val unrelatedBreaches = listOf(Nsi(status = KeyValue("BRE99", "Unused")))
 
       val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
@@ -975,7 +978,7 @@ internal class ProtectLevelCalculatorTest {
       val crn = "123"
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
-      val conviction = Conviction(convictionId, sentence)
+      val conviction = Conviction(convictionId, sentence, listOf())
 
       val breaches = listOf(
         Nsi(status = KeyValue("BRE54", "Unused")),
@@ -997,7 +1000,7 @@ internal class ProtectLevelCalculatorTest {
       val crn = "123"
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
-      val conviction = Conviction(convictionId, sentence)
+      val conviction = Conviction(convictionId, sentence, listOf())
 
       val breaches = listOf(
         Nsi(status = KeyValue("BRE54", "Unused")),
@@ -1019,7 +1022,7 @@ internal class ProtectLevelCalculatorTest {
       val crn = "123"
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
-      val conviction = Conviction(convictionId, sentence)
+      val conviction = Conviction(convictionId, sentence, listOf())
 
       val breaches = listOf(
         Nsi(status = KeyValue("BRE09", "Unused")),
@@ -1041,7 +1044,7 @@ internal class ProtectLevelCalculatorTest {
       val crn = "123"
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
-      val conviction = Conviction(convictionId, sentence)
+      val conviction = Conviction(convictionId, sentence, listOf())
 
       val breaches = listOf(
         Nsi(status = KeyValue("BRE99", "Unused")),
@@ -1056,6 +1059,33 @@ internal class ProtectLevelCalculatorTest {
 
       verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
       verify { communityApiClient.getOffender(crn) }
+    }
+  }
+
+  @Nested
+  @DisplayName("Arson and Violence tests")
+  inner class ArsonViolenceTests {
+    @Test
+    fun `Should respect Arson & Violence Toggle`() {
+      val convictionId = 54321L
+
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
+
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
+
+      val result = service.calculateProtectLevel(crn, assessment, null, listOf(), getValidConviction())
+      assertThat(result.points).isEqualTo(0)
+
+      verify { communityApiClient.getOffender(crn) }
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+    }
+
+    private fun getValidConviction(): List<Conviction> {
+      val offence = Offence(OffenceDetail(OffenceCode._056.code))
+      return listOf(Conviction(54321L, Sentence(null, SentenceType("SC")), listOf(offence)))
     }
   }
 }
