@@ -13,10 +13,10 @@ class MandateForChange(
 ) {
   fun hasNoMandate(crn: String, convictions: Collection<Conviction>): Boolean =
     convictions
-      .filter { it.sentence?.terminationDate == null }
+      .filter { it.sentence.terminationDate == null }
       .let { activeConvictions ->
         activeConvictions.none {
-          it.sentence != null && (isCustodial(it.sentence) || hasNonRestrictiveRequirements(crn, it.convictionId))
+          (isCustodial(it.sentence) || hasNonRestrictiveRequirements(crn, it.convictionId))
         }
       }.also { log.debug("Has no mandate for change: $it") }
 
