@@ -34,6 +34,15 @@ env:
   - name: ASSESSMENT_ENDPOINT_URL
     value: "{{ .Values.env.ASSESSMENT_ENDPOINT_URL }}"
 
+  - name: CALCULATION_VERSION
+    value: "{{ .Values.env.CALCULATION_VERSION }}"
+
+  - name: FLAGS_ENABLEFEMALEARSONANDVIOLENCECHECK
+    value: "{{ .Values.env.FLAGS_ENABLEFEMALEARSONANDVIOLENCECHECK }}"
+
+  - name: FLAGS_ENABLEFEMALETENMONTHSPLUSCHECK
+    value: "{{ .Values.env.FLAGS_ENABLEFEMALETENMONTHSPLUSCHECK }}"
+
   - name: SPRING_PROFILES_ACTIVE
     value: "aws,logstash,stdout"
 

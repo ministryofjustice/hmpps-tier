@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
@@ -24,7 +25,9 @@ import java.time.LocalDate
 class ProtectLevelCalculator(
   private val clock: Clock,
   private val communityApiClient: CommunityApiClient,
-  private val assessmentApiService: AssessmentApiService
+  private val assessmentApiService: AssessmentApiService,
+  @Value("\${flags.enableFemaleArsonAndViolenceCheck}") private val enableFemaleArsonAndViolenceCheck: Boolean,
+  @Value("\${flags.enableFemaleTenMonthsPlusCheck}") private val enableFemaleTenMonthsPlusCheck: Boolean,
 ) {
 
   fun calculateProtectLevel(
@@ -104,8 +107,20 @@ class ProtectLevelCalculator(
   ): Int =
     when {
       isFemale(crn) -> {
-        (getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment) + getBreachRecallComplexityPoints(crn, convictions))
-          .times(2)
+        val additionalFactorsPoints = getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment)
+        val breachRecallPoints = getBreachRecallComplexityPoints(crn, convictions)
+
+        val violenceArson = when {
+          hasArsonOrViolence(convictions) -> if (enableFemaleArsonAndViolenceCheck) 1 else 0
+          else -> 0
+        }
+
+        val tenMonthsPlus = when {
+          hasTenMonthSentencePlus(convictions) -> if (enableFemaleTenMonthsPlusCheck) 1 else 0
+          else -> 0
+        }
+
+        additionalFactorsPoints + breachRecallPoints + violenceArson + tenMonthsPlus
       }
       else -> 0
     }.also { log.debug("Additional Factors for Women for $crn : $it") }
@@ -128,17 +143,21 @@ class ProtectLevelCalculator(
               isAnswered(answers[AdditionalFactorForWomen.IMPULSIVITY]) || isAnswered(answers[AdditionalFactorForWomen.TEMPER_CONTROL]) -> 1
               else -> 0
             }
-            parenting + selfControl
+            (parenting + selfControl).times(2)
           }
       }
     }.also { log.debug("Additional Factors for Women Points $it") }
+
+  private fun hasArsonOrViolence(convictions: Collection<Conviction>): Boolean = true
+
+  private fun hasTenMonthSentencePlus(convictions: Collection<Conviction>): Boolean = true
 
   private fun getBreachRecallComplexityPoints(crn: String, convictions: Collection<Conviction>): Int =
     convictions
       .filter { qualifyingConvictions(it.sentence) }
       .let {
         when {
-          it.any { conviction -> convictionHasBreachOrRecallNsis(crn, conviction.convictionId) } -> 1
+          it.any { conviction -> convictionHasBreachOrRecallNsis(crn, conviction.convictionId) } -> 2
           else -> 0
         }
       }.also { log.debug("Breach and Recall Complexity Points: $it") }
