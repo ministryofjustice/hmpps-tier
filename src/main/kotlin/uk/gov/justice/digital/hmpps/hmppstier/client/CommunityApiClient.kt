@@ -27,8 +27,12 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       }
   }
 
-  fun getConvictions(crn: String): List<Conviction> {
-    return getConvictionsCall(crn)
+  fun getConvictionsWithSentences(crn: String): List<Conviction> {
+    val convictions = getConvictionsCall(crn)
+    val sentences = convictions.mapNotNull { it.sentence }
+    return convictions
+      .filter { it.sentence in sentences }
+      .map { Conviction(it.convictionId, it.sentence!!) }
       .also {
         log.info("Fetched ${it.size} Convictions for $crn")
       }
@@ -73,8 +77,8 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()
   }
 
-  private fun getConvictionsCall(crn: String): List<Conviction> {
-    val responseType = object : ParameterizedTypeReference<List<Conviction>>() {}
+  private fun getConvictionsCall(crn: String): List<ConvictionDto> {
+    val responseType = object : ParameterizedTypeReference<List<ConvictionDto>>() {}
     return webClient
       .get()
       .uri("/offenders/crn/$crn/convictions?activeOnly=true")
@@ -143,12 +147,17 @@ data class Nsi @JsonCreator constructor(
   val status: KeyValue?
 )
 
-data class Conviction @JsonCreator constructor(
+private data class ConvictionDto @JsonCreator constructor(
   @JsonProperty("convictionId")
   val convictionId: Long,
 
   @JsonProperty("sentence")
   val sentence: Sentence?,
+)
+
+data class Conviction constructor(
+  val convictionId: Long,
+  val sentence: Sentence
 )
 
 data class Sentence @JsonCreator constructor(
