@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseMappaThirty
 
 class NoAssessmentFoundTest : MockedEndpointsTestBase() {
 
@@ -11,7 +11,7 @@ class NoAssessmentFoundTest : MockedEndpointsTestBase() {
     val crn = "X373878"
     setupNCCustodialSentence(crn)
     setupAssessmentNotFound(crn)
-    setupRegistrations(registrationsResponse(), crn)
+    setupRegistrations(registrationsResponseMappaThirty(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn)
     calculateTierFor(crn)
     expectTierCalculation("A2")

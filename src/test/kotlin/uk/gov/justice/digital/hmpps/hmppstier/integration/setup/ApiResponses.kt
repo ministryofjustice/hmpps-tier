@@ -3,19 +3,23 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
+import java.math.BigDecimal
 import java.nio.file.Files.readString
 import java.nio.file.Paths
 
 const val communityApiPath: String = "src/test/resources/fixtures/community-api"
 const val assessmentApiPath: String = "src/test/resources/fixtures/assessment-api"
 
-fun communityApiAssessmentsResponse(): HttpResponse = communityApiResponse("assessments.json")
+fun communityApiAssessmentsResponse(rsr: BigDecimal): HttpResponse = jsonResponseOf(
+  responseFrom("$communityApiPath/assessments.json")
+    .replace("rsrScoreToReplace", rsr.toPlainString())
+)
 
 fun emptyCommunityApiAssessmentsResponse(): HttpResponse = jsonResponseOf("{}")
 
 fun emptyNsisResponse(): HttpResponse = jsonResponseOf("{\"nsis\": []}")
 
-fun registrationsResponse(): HttpResponse = communityApiResponse("registrations.json")
+fun registrationsResponseMappaThirty(): HttpResponse = communityApiResponse("registrations.json")
 
 fun emptyRegistrationsResponse(): HttpResponse = jsonResponseOf("{}")
 

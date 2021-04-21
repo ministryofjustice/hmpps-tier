@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
+import java.math.BigDecimal
 import java.time.Duration
 import java.time.LocalDate
 
@@ -107,13 +108,17 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiHighSeverityNeedsResponse())
 
   private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: HttpResponse) {
-    communityApiResponse(communityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments")
+    setupCommunityApiAssessment(crn)
     setupMaleOffender(crn)
 
     if (includeAssessmentApi) {
       setupCurrentAssessment(crn)
     }
     setupNeeds(needs)
+  }
+
+  fun setupCommunityApiAssessment(crn: String, rsr: BigDecimal = BigDecimal(23.0)) {
+    communityApiResponse(communityApiAssessmentsResponse(rsr), "/secure/offenders/crn/$crn/assessments")
   }
 
   fun setupMaleOffender(crn: String) {
@@ -204,7 +209,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     )
 
   fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true) {
-    setupRegistrations(registrationsResponse(), crn)
+    setupRegistrations(registrationsResponseMappaThirty(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, includeAssessmentApi)
   }
 

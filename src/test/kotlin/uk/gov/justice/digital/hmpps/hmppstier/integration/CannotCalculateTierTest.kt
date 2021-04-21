@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
 
 class CannotCalculateTierTest : MockedEndpointsTestBase() {
 
@@ -10,7 +10,7 @@ class CannotCalculateTierTest : MockedEndpointsTestBase() {
   fun `Offender does not exist`() {
     val crn = "X123456"
     setupSCCustodialSentence(crn)
-    setupRegistrations(registrationsResponse(), crn)
+    setupRegistrations(emptyRegistrationsResponse(), crn)
     restOfSetupWithMaleOffenderAndSevereNeeds("NOTFOUND")
     calculateTierFor(crn)
     expectNoTierCalculation()

@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseMappaThirty
 
 class AdditionalRequirementsTest : MockedEndpointsTestBase() {
 
@@ -10,7 +10,7 @@ class AdditionalRequirementsTest : MockedEndpointsTestBase() {
   fun `Additional requirements do not cause a processing error`() {
     val crn = "X833444"
     setupNonCustodialSentence(crn)
-    setupRegistrations(registrationsResponse(), crn)
+    setupRegistrations(registrationsResponseMappaThirty(), crn)
     setupAdditionalRequirements(crn)
     restOfSetupWithMaleOffenderAndSevereNeeds(crn)
     calculateTierFor(crn)

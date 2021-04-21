@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseMappaThirty
 
 class NeedsTest : MockedEndpointsTestBase() {
 
@@ -10,7 +10,7 @@ class NeedsTest : MockedEndpointsTestBase() {
   fun `severe needs 18 points plus 2 OGRS make change level 3`() {
     val crn = "X333445"
     setupSCCustodialSentence(crn)
-    setupRegistrations(registrationsResponse(), crn)
+    setupRegistrations(registrationsResponseMappaThirty(), crn)
     restOfSetupWithMaleOffenderAndSevereNeeds(crn)
     calculateTierFor(crn)
     expectTierCalculation("A3")
