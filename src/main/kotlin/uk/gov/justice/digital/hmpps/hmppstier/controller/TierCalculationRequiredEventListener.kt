@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.controller
 
-import com.fasterxml.jackson.core.type.TypeReference
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.google.gson.Gson
 import org.slf4j.LoggerFactory
 import org.springframework.cloud.aws.messaging.listener.SqsMessageDeletionPolicy.ON_SUCCESS
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener
@@ -11,8 +10,8 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 
 @Service
 class TierCalculationRequiredEventListener(
-  private val objectMapper: ObjectMapper,
-  private val calculator: TierCalculationService
+  private val calculator: TierCalculationService,
+  private val gson: Gson
 ) {
 
   @MessageExceptionHandler()
@@ -27,15 +26,18 @@ class TierCalculationRequiredEventListener(
   }
 
   private fun getCrn(msg: String): String {
-    val message: String = objectMapper.readTree(msg)["Message"].asText()
-    return objectMapper.readValue(message, typeReference).crn
-      .also { log.info("Tier calculation message decoded for $it") }
+    val message = gson.fromJson(msg, SQSMessage::class.java).Message
+    return gson.fromJson(message, TierCalculationMessage::class.java).crn
   }
 
   companion object {
-    private val typeReference = object : TypeReference<TierCalculationMessage>() {}
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 }
 
 private data class TierCalculationMessage(val crn: String)
+
+private data class SQSMessage(
+  val Message: String,
+  val MessageId: String
+)
