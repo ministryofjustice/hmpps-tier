@@ -29,8 +29,9 @@ import java.time.ZoneId
 @DisplayName("Detail Service tests")
 internal class AssessmentApiServiceTest {
   private val assessmentApiClient: AssessmentApiClient = mockk(relaxUnitFun = true)
+  private val telemetryService: TelemetryService = mockk(relaxUnitFun = true)
   private val clock = Clock.fixed(LocalDate.of(2021, 1, 20).atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault())
-  private val assessmentService = AssessmentApiService(assessmentApiClient, clock)
+  private val assessmentService = AssessmentApiService(assessmentApiClient, telemetryService, clock)
 
   @BeforeEach
   fun resetAllMocks() {

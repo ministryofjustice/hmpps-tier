@@ -8,8 +8,8 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 @Component
 class TelemetryService(@Autowired private val telemetryClient: TelemetryClient) {
 
-  private fun trackEvent(eventType: TelemetryEventType, customDimensions: Map<String, String?>) {
-    telemetryClient.trackEvent(eventType.eventName, customDimensions, null)
+  fun trackEvent(eventType: TelemetryEventType, crn: String) {
+    trackEvent(eventType, mapOf("crn" to crn))
   }
 
   fun trackTierCalculated(crn: String, calculation: TierCalculationEntity, isUpdated: Boolean) {
@@ -25,5 +25,9 @@ class TelemetryService(@Autowired private val telemetryClient: TelemetryClient) 
         "version" to calculation.data.calculationVersion
       )
     )
+  }
+
+  private fun trackEvent(eventType: TelemetryEventType, customDimensions: Map<String, String?>) {
+    telemetryClient.trackEvent(eventType.eventName, customDimensions, null)
   }
 }
