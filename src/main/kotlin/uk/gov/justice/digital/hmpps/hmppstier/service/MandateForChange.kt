@@ -27,11 +27,11 @@ class MandateForChange(
   private fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
     communityApiClient.getRequirements(crn, convictionId)
       .filter { excludeUnpaidWork(it) }
-      .any { it.restrictive != true }
+      .any { !it.isRestrictive }
       .also { log.debug("Has non-restrictive requirements: $it") }
 
   private fun excludeUnpaidWork(it: Requirement): Boolean =
-    it.requirementTypeMainCategory?.code !in unpaidWorkAndOrderExtended
+    it.mainCategory !in unpaidWorkAndOrderExtended
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)

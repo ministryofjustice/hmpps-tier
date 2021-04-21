@@ -41,7 +41,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
     return getBreachRecallNsisCall(crn, convictionId)
       .also {
-        log.info("Fetched ${it.size} breacn/recall NSIs for $crn convictionId: $convictionId")
+        log.info("Fetched ${it.size} breach/recall NSIs for $crn convictionId: $convictionId")
       }
   }
 
@@ -54,6 +54,8 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
 
   fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
     return getRequirementsCall(crn, convictionId)
+      .filterNot { it.requirementTypeMainCategory == null && it.restrictive == null }
+      .map { Requirement(it.restrictive!!, it.requirementTypeMainCategory!!.code) }
       .also {
         log.info("Fetched Requirements for $crn convictionId: $convictionId")
       }
@@ -105,7 +107,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()
   }
 
-  private fun getRequirementsCall(crn: String, convictionId: Long): List<Requirement> {
+  private fun getRequirementsCall(crn: String, convictionId: Long): List<RequirementDto> {
     return webClient
       .get()
       .uri("/offenders/crn/$crn/convictions/$convictionId/requirements?activeOnly=true")
@@ -121,10 +123,10 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
 
 private data class Requirements @JsonCreator constructor(
   @JsonProperty("requirements")
-  val requirements: List<Requirement>
+  val requirements: List<RequirementDto>
 )
 
-data class Requirement @JsonCreator constructor(
+private data class RequirementDto @JsonCreator constructor(
   @JsonProperty("restrictive")
   val restrictive: Boolean?,
 
@@ -132,7 +134,13 @@ data class Requirement @JsonCreator constructor(
   val requirementTypeMainCategory: RequirementTypeMainCategory?
 )
 
-data class RequirementTypeMainCategory @JsonCreator constructor(
+data class Requirement @JsonCreator constructor(
+  val isRestrictive: Boolean,
+
+  val mainCategory: String
+)
+
+private data class RequirementTypeMainCategory @JsonCreator constructor(
   @JsonProperty("code")
   val code: String
 )
