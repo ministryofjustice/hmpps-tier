@@ -64,6 +64,7 @@
         "status": "string"
       }
     ],
+    "offences": [],
     "sentence": [
       {
         "activity": "string",
@@ -155,6 +156,7 @@
         "status": "string"
       }
     ],
+    "offences": [],
     "sentence": [
       {
         "activity": "string",
