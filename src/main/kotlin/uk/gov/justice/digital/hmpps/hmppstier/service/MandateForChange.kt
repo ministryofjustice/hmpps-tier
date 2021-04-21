@@ -18,9 +18,10 @@ class MandateForChange(
         isCustodial(it.sentence) || hasNonRestrictiveRequirements(crn, it.convictionId)
       }.also { log.debug("Has no mandate for change: $it") }
 
-  private fun isCurrent(sentence: Sentence) = sentence.terminationDate == null
+  private fun isCurrent(sentence: Sentence): Boolean =
+    sentence.terminationDate == null
 
-  private fun isCustodial(sentence: Sentence) =
+  private fun isCustodial(sentence: Sentence): Boolean =
     sentence.sentenceType.code in custodialSentences
 
   private fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
