@@ -55,7 +55,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
     return getRequirementsCall(crn, convictionId)
       .filterNot { it.requirementTypeMainCategory == null && it.restrictive == null }
-      .map { Requirement(it.restrictive!!, it.requirementTypeMainCategory!!) }
+      .map { Requirement(it.restrictive!!, it.requirementTypeMainCategory!!.code) }
       .also {
         log.info("Fetched Requirements for $crn convictionId: $convictionId")
       }
@@ -135,12 +135,12 @@ private data class RequirementDto @JsonCreator constructor(
 )
 
 data class Requirement @JsonCreator constructor(
-  val restrictive: Boolean,
+  val isRestrictive: Boolean,
 
-  val requirementTypeMainCategory: RequirementTypeMainCategory
+  val mainCategory: String
 )
 
-data class RequirementTypeMainCategory @JsonCreator constructor(
+private data class RequirementTypeMainCategory @JsonCreator constructor(
   @JsonProperty("code")
   val code: String
 )
