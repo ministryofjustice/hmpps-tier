@@ -13,16 +13,15 @@ class MandateForChange(
 ) {
   fun hasNoMandate(crn: String, convictions: Collection<Conviction>): Boolean =
     convictions
-      .filter { currentSentence(it.sentence) }
+      .filter { isCurrent(it.sentence) }
       .none {
         isCustodial(it.sentence) || hasNonRestrictiveRequirements(crn, it.convictionId)
       }.also { log.debug("Has no mandate for change: $it") }
 
-  private fun currentSentence(sentence: Sentence?) =
-    sentence != null && sentence.terminationDate == null
+  private fun isCurrent(sentence: Sentence) = sentence.terminationDate == null
 
-  private fun isCustodial(sentence: Sentence?) =
-    sentence?.sentenceType?.code in custodialSentences
+  private fun isCustodial(sentence: Sentence) =
+    sentence.sentenceType.code in custodialSentences
 
   private fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
     communityApiClient.getRequirements(crn, convictionId)
