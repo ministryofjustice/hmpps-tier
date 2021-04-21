@@ -28,6 +28,7 @@ class TierCalculationRequiredEventListener(
   private fun getCrn(msg: String): String {
     val message = gson.fromJson(msg, SQSMessage::class.java).Message
     return gson.fromJson(message, TierCalculationMessage::class.java).crn
+      .also { log.info("Tier calculation message decoded for $it") }
   }
 
   companion object {
