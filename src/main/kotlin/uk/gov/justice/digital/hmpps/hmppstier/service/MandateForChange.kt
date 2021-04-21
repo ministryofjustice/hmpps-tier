@@ -30,7 +30,7 @@ class MandateForChange(
       .also { log.debug("Has non-restrictive requirements: $it") }
 
   private fun excludeUnpaidWork(it: Requirement) =
-    it.requirementTypeMainCategory?.code != "W"
+    it.requirementTypeMainCategory.code != "W"
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
