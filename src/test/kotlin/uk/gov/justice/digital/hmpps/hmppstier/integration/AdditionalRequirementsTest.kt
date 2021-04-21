@@ -11,12 +11,12 @@ class AdditionalRequirementsTest : MockedEndpointsTestBase() {
 
   @Test
   fun `Additional requirements do not cause a processing error`() {
-    val crn = "X333444"
+    val crn = "X833444"
     setupNonCustodialSentence(crn)
     setupRegistrations(registrationsResponse(), crn)
     setupAdditionalRequirements(crn)
     restOfSetupWithMaleOffenderAndSevereNeeds(crn)
     calculateTierFor(crn)
-    expectTierCalculation("A3")
+    expectTierCalculation("A0")
   }
 }

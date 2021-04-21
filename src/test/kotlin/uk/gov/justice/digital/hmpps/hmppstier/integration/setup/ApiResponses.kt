@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 
 import org.mockserver.model.HttpResponse
+import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
 import java.nio.file.Files.readString
 import java.nio.file.Paths
@@ -8,56 +9,43 @@ import java.nio.file.Paths
 const val communityApiPath: String = "src/test/resources/fixtures/community-api"
 const val assessmentApiPath: String = "src/test/resources/fixtures/assessment-api"
 
-fun communityApiAssessmentsResponse(): HttpResponse =
-  jsonResponseOf(responseFrom("$communityApiPath/assessments.json"))
+fun communityApiAssessmentsResponse(): HttpResponse = communityApiResponse("assessments.json")
 
 fun emptyCommunityApiAssessmentsResponse(): HttpResponse = jsonResponseOf("{}")
 
 fun emptyNsisResponse(): HttpResponse = jsonResponseOf("{\"nsis\": []}")
 
-fun registrationsResponse(): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/registrations.json")
+fun registrationsResponse(): HttpResponse = communityApiResponse("registrations.json")
 
 fun emptyRegistrationsResponse(): HttpResponse = jsonResponseOf("{}")
 
-fun registrationsResponseWithNoLevel(): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/registrations-no-level.json")
+fun registrationsResponseWithNoLevel(): HttpResponse = communityApiResponse("registrations-no-level.json")
 
-fun custodialSCConvictionResponse(): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/convictions-custodial-sc.json")
+fun custodialSCConvictionResponse(): HttpResponse = communityApiResponse("convictions-custodial-sc.json")
 
-fun custodialNCConvictionResponse(): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/convictions-custodial-nc.json")
+fun custodialNCConvictionResponse(): HttpResponse = communityApiResponse("convictions-custodial-nc.json")
 
-fun custodialTerminatedConvictionResponse(): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/convictions-custodial-terminated.json")
+fun custodialTerminatedConvictionResponse(): HttpResponse = communityApiResponse("convictions-custodial-terminated.json")
 
-fun nonCustodialConvictionResponse(): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/convictions-non-custodial.json")
+fun nonCustodialConvictionResponse(): HttpResponse = communityApiResponse("convictions-non-custodial.json")
 
-fun noSentenceConvictionResponse(): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/convictions-no-sentence.json")
+fun noSentenceConvictionResponse(): HttpResponse = communityApiResponse("convictions-no-sentence.json")
 
-fun nonCustodialTerminatedConvictionResponse(): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/convictions-non-custodial-terminated.json")
+fun nonCustodialTerminatedConvictionResponse(): HttpResponse = communityApiResponse("convictions-non-custodial-terminated.json")
 
-fun maleOffenderResponse(): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/offender-male.json")
+fun maleOffenderResponse(): HttpResponse = communityApiResponse("offender-male.json")
 
-fun femaleOffenderResponse(): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/offender-female.json")
+fun femaleOffenderResponse(): HttpResponse = communityApiResponse("offender-female.json")
 
-fun restrictiveRequirementsResponse(): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/requirements-restrictive.json")
+fun restrictiveRequirementsResponse(): HttpResponse = communityApiResponse("requirements-restrictive.json")
 
-fun restrictiveAndNonRestrictiveRequirementsResponse(): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/requirements-restrictive-and-non-restrictive.json")
+fun restrictiveAndNonRestrictiveRequirementsResponse(): HttpResponse = communityApiResponse("requirements-restrictive-and-non-restrictive.json")
 
-fun nonRestrictiveRequirementsResponse(): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/requirements-non-restrictive.json")
+fun nonRestrictiveRequirementsResponse(): HttpResponse = communityApiResponse("requirements-non-restrictive.json")
 
-fun unpaidWorkRequirementsResponse(): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/requirements-unpaid-work.json")
+fun unpaidWorkRequirementsResponse(): HttpResponse = communityApiResponse("requirements-unpaid-work.json")
+
+fun unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse(): HttpResponse = communityApiResponse("requirements-unpaid-work-additional-hours-order-length-extended.json")
 
 fun noRequirementsResponse(): HttpResponse = jsonResponseOf(
   "{\n" +
@@ -65,13 +53,11 @@ fun noRequirementsResponse(): HttpResponse = jsonResponseOf(
     "}"
 )
 
-fun additionalRequirementsResponse(): HttpResponse = jsonResponseFromPath("$communityApiPath/requirements-additional.json")
+fun additionalRequirementsResponse(): HttpResponse = communityApiResponse("requirements-additional.json")
 
-fun custodialAndNonCustodialConvictions(): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/convictions-custodial-and-non-custodial.json")
+fun custodialAndNonCustodialConvictions(): HttpResponse = communityApiResponse("convictions-custodial-and-non-custodial.json")
 
-fun nonCustodialCurrentAndTerminatedConviction(): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/convictions-non-custodial-current-and-terminated.json")
+fun nonCustodialCurrentAndTerminatedConviction(): HttpResponse = communityApiResponse("convictions-non-custodial-current-and-terminated.json")
 
 fun assessmentsApiAssessmentsResponse(year: Int): HttpResponse = jsonResponseOf(
   responseFrom("$assessmentApiPath/assessments.json")
@@ -80,19 +66,25 @@ fun assessmentsApiAssessmentsResponse(year: Int): HttpResponse = jsonResponseOf(
 )
 
 fun assessmentsApiNoSeverityNeedsResponse(): HttpResponse =
-  jsonResponseFromPath("$assessmentApiPath/no_severity_needs.json")
+  assessmentApiResponse("no_severity_needs.json")
 
 fun assessmentsApi8NeedsResponse(): HttpResponse =
-  jsonResponseFromPath("$assessmentApiPath/8_points_needs.json")
+  assessmentApiResponse("8_points_needs.json")
 
 fun assessmentsApiHighSeverityNeedsResponse(): HttpResponse =
-  jsonResponseFromPath("$assessmentApiPath/high_severity_needs_18_points.json")
+  assessmentApiResponse("high_severity_needs_18_points.json")
 
 private fun responseFrom(path: String) =
   readString(Paths.get(path))
 
 private fun jsonResponseOf(response: String): HttpResponse =
-  HttpResponse.response().withContentType(APPLICATION_JSON).withBody(response)
+  response().withContentType(APPLICATION_JSON).withBody(response)
 
 private fun jsonResponseFromPath(path: String): HttpResponse =
   jsonResponseOf(responseFrom(path))
+
+private fun communityApiResponse(path: String): HttpResponse =
+  jsonResponseFromPath("$communityApiPath/$path")
+
+private fun assessmentApiResponse(path: String): HttpResponse =
+  jsonResponseFromPath("$assessmentApiPath/$path")
