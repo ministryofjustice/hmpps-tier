@@ -9,6 +9,8 @@ import org.awaitility.kotlin.untilCallTo
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.integration.ClientAndServer.startClientAndServer
 import org.mockserver.model.HttpRequest.request
@@ -24,6 +26,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import java.time.Duration
 import java.time.LocalDate
 
+@TestInstance(Lifecycle.PER_CLASS)
 abstract class MockedEndpointsTestBase : IntegrationTestBase() {
 
   @Autowired
