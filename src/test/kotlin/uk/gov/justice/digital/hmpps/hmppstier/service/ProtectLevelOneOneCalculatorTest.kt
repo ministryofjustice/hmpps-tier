@@ -15,14 +15,15 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
 import uk.gov.justice.digital.hmpps.hmppstier.client.Offence
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenceDetail
 import uk.gov.justice.digital.hmpps.hmppstier.client.Offender
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
-import uk.gov.justice.digital.hmpps.hmppstier.client.SentenceType
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import java.time.Clock
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -69,7 +70,7 @@ internal class ProtectLevelOneOneCalculatorTest {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       val offence = Offence(OffenceDetail(OffenceCode._056.code))
-      val convictions = listOf(Conviction(54321L, Sentence(null, SentenceType("SC")), listOf(offence)))
+      val convictions = listOf(Conviction(54321L, Sentence(null, KeyValue("SC", "AnyDescription"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101", "Any Description")), listOf(offence)))
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
@@ -89,7 +90,7 @@ internal class ProtectLevelOneOneCalculatorTest {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       val offence = Offence(OffenceDetail(OffenceCode._056.code))
-      val convictions = listOf(Conviction(54321L, Sentence(null, SentenceType("SC")), listOf(offence)))
+      val convictions = listOf(Conviction(54321L, Sentence(null, KeyValue("SC", "AnyDescription"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101", "Any Description")), listOf(offence)))
 
       every { communityApiClient.getOffender(crn) } returns Offender("Male")
 
@@ -106,7 +107,7 @@ internal class ProtectLevelOneOneCalculatorTest {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       val offence = Offence(OffenceDetail("Any Invalid Code"))
-      val convictions = listOf(Conviction(54321L, Sentence(null, SentenceType("SC")), listOf(offence)))
+      val convictions = listOf(Conviction(54321L, Sentence(null, KeyValue("SC", "AnyDescription"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101", "Any Description")), listOf(offence)))
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
