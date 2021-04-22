@@ -25,7 +25,7 @@ class AssessmentApiService(
         }
       }
       .filter {
-        it.assessmentStatus == "COMPLETE" &&
+        it.assessmentStatus in listOf("COMPLETE", "LOCKED_INCOMPLETE") &&
           it.voided == null
       }
       .also {
