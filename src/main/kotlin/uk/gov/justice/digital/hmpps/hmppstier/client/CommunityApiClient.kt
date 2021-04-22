@@ -213,9 +213,7 @@ data class DeliusAssessments @JsonCreator constructor(
 
 data class KeyValue @JsonCreator constructor(
   @JsonProperty("code")
-  val code: String,
-  @JsonProperty("description")
-  val description: String
+  val code: String
 )
 
 data class Registration @JsonCreator constructor(

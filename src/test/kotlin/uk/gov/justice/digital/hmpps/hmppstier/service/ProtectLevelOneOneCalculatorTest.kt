@@ -70,7 +70,7 @@ internal class ProtectLevelOneOneCalculatorTest {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       val offence = Offence(OffenceDetail(OffenceCode._056.code))
-      val convictions = listOf(Conviction(54321L, Sentence(null, KeyValue("SC", "AnyDescription"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101", "Any Description")), listOf(offence)))
+      val convictions = listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101")), listOf(offence)))
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
@@ -90,7 +90,7 @@ internal class ProtectLevelOneOneCalculatorTest {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       val offence = Offence(OffenceDetail(OffenceCode._056.code))
-      val convictions = listOf(Conviction(54321L, Sentence(null, KeyValue("SC", "AnyDescription"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101", "Any Description")), listOf(offence)))
+      val convictions = listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101")), listOf(offence)))
 
       every { communityApiClient.getOffender(crn) } returns Offender("Male")
 
@@ -107,7 +107,7 @@ internal class ProtectLevelOneOneCalculatorTest {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       val offence = Offence(OffenceDetail("Any Invalid Code"))
-      val convictions = listOf(Conviction(54321L, Sentence(null, KeyValue("SC", "AnyDescription"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101", "Any Description")), listOf(offence)))
+      val convictions = listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101")), listOf(offence)))
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()

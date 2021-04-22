@@ -107,7 +107,7 @@ internal class ProtectLevelCalculatorTest {
     }
 
     private fun getValidRegistrations(rosh: Rosh): Collection<Registration> {
-      return listOf(Registration(type = KeyValue(rosh.registerCode, "Not Used"), registerLevel = null, startDate = LocalDate.now(clock)))
+      return listOf(Registration(type = KeyValue(rosh.registerCode), registerLevel = null, startDate = LocalDate.now(clock)))
     }
 
     private fun setup() {
@@ -252,8 +252,8 @@ internal class ProtectLevelCalculatorTest {
       val registrations =
         listOf(
           Registration(
-            KeyValue("RMRH", "Medium RoSH"),
-            KeyValue("Not", "Used"),
+            KeyValue("RMRH"),
+            KeyValue("Not Used"),
 
             LocalDate.now()
           )
@@ -273,8 +273,8 @@ internal class ProtectLevelCalculatorTest {
       val registrations =
         listOf(
           Registration(
-            KeyValue("rmrh", "Medium RoSH"),
-            KeyValue("Not", "Used"),
+            KeyValue("rmrh"),
+            KeyValue("Not Used"),
 
             LocalDate.now()
           )
@@ -294,20 +294,20 @@ internal class ProtectLevelCalculatorTest {
       val registrations =
         listOf(
           Registration(
-            KeyValue("RMRH", "Medium RoSH"),
-            KeyValue("Not", "Used"),
+            KeyValue("RMRH"),
+            KeyValue("Not Used"),
 
             LocalDate.now()
           ),
           Registration(
-            KeyValue("AV2S", "Risk to Staff"),
-            KeyValue("Not", "Used"),
+            KeyValue("AV2S"),
+            KeyValue("Not Used"),
 
             LocalDate.now()
           ),
           Registration(
-            KeyValue("AV2S", "Risk to Staff"),
-            KeyValue("Not", "Used"),
+            KeyValue("AV2S"),
+            KeyValue("Not Used"),
 
             LocalDate.now()
           ),
@@ -327,20 +327,20 @@ internal class ProtectLevelCalculatorTest {
       val registrations =
         listOf(
           Registration(
-            KeyValue("AV2S", "Risk to Staff"),
-            KeyValue("Not", "Used"),
+            KeyValue("AV2S"),
+            KeyValue("Not Used"),
 
             LocalDate.now()
           ),
           Registration(
-            KeyValue("RMRH", "Medium RoSH"),
-            KeyValue("Not", "Used"),
+            KeyValue("RMRH"),
+            KeyValue("Not Used"),
 
             LocalDate.now()
           ),
           Registration(
-            KeyValue("AV2S", "Risk to Staff"),
-            KeyValue("Not", "Used"),
+            KeyValue("AV2S"),
+            KeyValue("Not Used"),
 
             LocalDate.now()
           ),
@@ -355,7 +355,7 @@ internal class ProtectLevelCalculatorTest {
     }
 
     private fun getValidRegistrations(rosh: Rosh): Collection<Registration> {
-      return listOf(Registration(type = KeyValue(rosh.registerCode, "Not Used"), registerLevel = null, startDate = LocalDate.now(clock)))
+      return listOf(Registration(type = KeyValue(rosh.registerCode), registerLevel = null, startDate = LocalDate.now(clock)))
     }
 
     private fun setup() {
@@ -408,8 +408,8 @@ internal class ProtectLevelCalculatorTest {
       val registrations =
         listOf(
           Registration(
-            KeyValue("Not", "Used"),
-            KeyValue("M3", "One"),
+            KeyValue("Not Used"),
+            KeyValue("M3"),
 
             LocalDate.now()
           )
@@ -427,8 +427,8 @@ internal class ProtectLevelCalculatorTest {
       val registrations =
         listOf(
           Registration(
-            KeyValue("Not", "Used"),
-            KeyValue("m3", "One"),
+            KeyValue("Not Used"),
+            KeyValue("m3"),
 
             LocalDate.now()
           )
@@ -446,20 +446,20 @@ internal class ProtectLevelCalculatorTest {
       val registrations =
         listOf(
           Registration(
-            KeyValue("Not", "Used"),
-            KeyValue("M3", "One"),
+            KeyValue("Not Used"),
+            KeyValue("M3"),
 
             LocalDate.now()
           ),
           Registration(
-            KeyValue("AV2S", "Risk to Staff"),
-            KeyValue("BD", "OTHER"),
+            KeyValue("AV2S"),
+            KeyValue("BD"),
 
             LocalDate.now()
           ),
           Registration(
-            KeyValue("AV2S", "Risk to Staff"),
-            KeyValue("12", "ANOTHER"),
+            KeyValue("AV2S"),
+            KeyValue("12"),
 
             LocalDate.now()
           ),
@@ -478,20 +478,20 @@ internal class ProtectLevelCalculatorTest {
       val registrations =
         listOf(
           Registration(
-            KeyValue("AV2S", "Risk to Staff"),
-            KeyValue("Not", "Used"),
+            KeyValue("AV2S"),
+            KeyValue("Not Used"),
 
             LocalDate.now()
           ),
           Registration(
-            KeyValue("AV2S", "Risk to Staff"),
-            KeyValue("Not", "Used"),
+            KeyValue("AV2S"),
+            KeyValue("Not Used"),
 
             LocalDate.now()
           ),
           Registration(
-            KeyValue("Not", "Used"),
-            KeyValue("INVALID", "INVALID Mappa"),
+            KeyValue("Not Used"),
+            KeyValue("INVALID"),
 
             LocalDate.now()
           ),
@@ -505,7 +505,7 @@ internal class ProtectLevelCalculatorTest {
     }
 
     private fun getValidRegistrations(mappa: Mappa): Collection<Registration> {
-      return listOf(Registration(type = KeyValue("Not Used", "Not Used"), registerLevel = KeyValue(mappa.registerCode, "Not Used"), startDate = LocalDate.now(clock)))
+      return listOf(Registration(type = KeyValue("Not Used"), registerLevel = KeyValue(mappa.registerCode), startDate = LocalDate.now(clock)))
     }
 
     private fun setup() {
@@ -586,8 +586,8 @@ internal class ProtectLevelCalculatorTest {
       val registrations =
         listOf(
           Registration(
-            KeyValue("RMDO", "Mental Health"),
-            KeyValue("Not", "Used"),
+            KeyValue("RMDO"),
+            KeyValue("Not Used"),
 
             LocalDate.now()
           )
@@ -605,8 +605,8 @@ internal class ProtectLevelCalculatorTest {
       val registrations =
         listOf(
           Registration(
-            KeyValue("rmdo", "Mental Health"),
-            KeyValue("Not", "Used"),
+            KeyValue("rmdo"),
+            KeyValue("Not Used"),
 
             LocalDate.now()
           )
@@ -624,20 +624,20 @@ internal class ProtectLevelCalculatorTest {
       val registrations =
         listOf(
           Registration(
-            KeyValue("RMDO", "Mental Health"),
-            KeyValue("Not", "Used"),
+            KeyValue("RMDO"),
+            KeyValue("Not Used"),
 
             LocalDate.now()
           ),
           Registration(
-            KeyValue("AV2S", "Risk to Staff"),
-            KeyValue("BD", "OTHER"),
+            KeyValue("AV2S"),
+            KeyValue("BD"),
 
             LocalDate.now()
           ),
           Registration(
-            KeyValue("AV2S", "Risk to Staff"),
-            KeyValue("12", "ANOTHER"),
+            KeyValue("AV2S"),
+            KeyValue("12"),
 
             LocalDate.now()
           ),
@@ -657,8 +657,8 @@ internal class ProtectLevelCalculatorTest {
       val registrations =
         listOf(
           Registration(
-            KeyValue("AV2S", "Risk to Staff"),
-            KeyValue("Not", "Used"),
+            KeyValue("AV2S"),
+            KeyValue("Not Used"),
 
             LocalDate.now()
           )
@@ -673,7 +673,7 @@ internal class ProtectLevelCalculatorTest {
 
     private fun getValidRegistrations(factors: List<ComplexityFactor>): Collection<Registration> {
       return factors.map {
-        Registration(type = KeyValue(it.registerCode, "Not Used"), registerLevel = null, startDate = LocalDate.now(clock))
+        Registration(type = KeyValue(it.registerCode), registerLevel = null, startDate = LocalDate.now(clock))
       }
     }
 
@@ -860,17 +860,17 @@ internal class ProtectLevelCalculatorTest {
   @Nested
   @DisplayName("Get Breach Recall Tests")
   inner class GetBreachRecallTests {
-    private val irrelevantSentenceType: KeyValue = KeyValue("irrelevant", "Any Description")
+    private val irrelevantSentenceType: KeyValue = KeyValue("irrelevant")
 
     @Test
     fun `Should return Breach true if present and valid terminationDate`() {
       val crn = "123"
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock)
-      val sentence = Sentence(terminationDate, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101", "Any Description"))
+      val sentence = Sentence(terminationDate, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
       val conviction = Conviction(convictionId, sentence, listOf())
 
-      val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
+      val breaches = listOf(Nsi(status = KeyValue("BRE08")))
 
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
@@ -887,10 +887,10 @@ internal class ProtectLevelCalculatorTest {
       val crn = "123"
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock).minusYears(1)
-      val sentence = Sentence(terminationDate, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101", "Any Description"))
+      val sentence = Sentence(terminationDate, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
       val conviction = Conviction(convictionId, sentence, listOf())
 
-      val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
+      val breaches = listOf(Nsi(status = KeyValue("BRE08")))
 
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
@@ -907,7 +907,7 @@ internal class ProtectLevelCalculatorTest {
       val crn = "123"
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock).minusYears(1).minusDays(1)
-      val sentence = Sentence(terminationDate, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101", "Any Description"))
+      val sentence = Sentence(terminationDate, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
       val conviction = Conviction(convictionId, sentence, listOf())
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
@@ -922,10 +922,10 @@ internal class ProtectLevelCalculatorTest {
     fun `Should return Breach true if present and valid not terminated`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101", "Any Description"))
+      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
       val conviction = Conviction(convictionId, sentence, listOf())
 
-      val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
+      val breaches = listOf(Nsi(status = KeyValue("BRE08")))
 
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
@@ -941,13 +941,13 @@ internal class ProtectLevelCalculatorTest {
     fun `Should return Breach true if multiple convictions, one valid`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101", "Any Description"))
+      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
       val conviction = Conviction(convictionId, sentence, listOf())
 
       val unrelatedConviction = Conviction(convictionId.plus(1), sentence, listOf())
-      val unrelatedBreaches = listOf(Nsi(status = KeyValue("BRE99", "Unused")))
+      val unrelatedBreaches = listOf(Nsi(status = KeyValue("BRE99")))
 
-      val breaches = listOf(Nsi(status = KeyValue("BRE08", "Unused")))
+      val breaches = listOf(Nsi(status = KeyValue("BRE08")))
 
       every { communityApiClient.getBreachRecallNsis(crn, convictionId.plus(1)) } returns unrelatedBreaches
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
@@ -976,12 +976,12 @@ internal class ProtectLevelCalculatorTest {
     fun `Should return Breach true if one conviction, multiple breaches, one valid`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101", "Any Description"))
+      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
       val conviction = Conviction(convictionId, sentence, listOf())
 
       val breaches = listOf(
-        Nsi(status = KeyValue("BRE54", "Unused")),
-        Nsi(status = KeyValue("BRE08", "Unused"))
+        Nsi(status = KeyValue("BRE54")),
+        Nsi(status = KeyValue("BRE08"))
       )
 
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
@@ -998,12 +998,12 @@ internal class ProtectLevelCalculatorTest {
     fun `Should return Breach true if one conviction, multiple breaches, one valid case insensitive`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101", "Any Description"))
+      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
       val conviction = Conviction(convictionId, sentence, listOf())
 
       val breaches = listOf(
-        Nsi(status = KeyValue("BRE54", "Unused")),
-        Nsi(status = KeyValue("bre08", "Unused"))
+        Nsi(status = KeyValue("BRE54")),
+        Nsi(status = KeyValue("bre08"))
       )
 
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
@@ -1020,12 +1020,12 @@ internal class ProtectLevelCalculatorTest {
     fun `Should return Breach true if one conviction, multiple breaches, multiple valid`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101", "Any Description"))
+      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
       val conviction = Conviction(convictionId, sentence, listOf())
 
       val breaches = listOf(
-        Nsi(status = KeyValue("BRE09", "Unused")),
-        Nsi(status = KeyValue("BRE08", "Unused"))
+        Nsi(status = KeyValue("BRE09")),
+        Nsi(status = KeyValue("BRE08"))
       )
 
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
@@ -1042,12 +1042,12 @@ internal class ProtectLevelCalculatorTest {
     fun `Should return Breach false if one conviction, multiple breaches, none valid`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101", "Any Description"))
+      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
       val conviction = Conviction(convictionId, sentence, listOf())
 
       val breaches = listOf(
-        Nsi(status = KeyValue("BRE99", "Unused")),
-        Nsi(status = KeyValue("BRE99", "Unused"))
+        Nsi(status = KeyValue("BRE99")),
+        Nsi(status = KeyValue("BRE99"))
       )
 
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
@@ -1084,7 +1084,7 @@ internal class ProtectLevelCalculatorTest {
 
     private fun getValidConviction(): List<Conviction> {
       val offence = Offence(OffenceDetail(OffenceCode._056.code))
-      return listOf(Conviction(54321L, Sentence(null, KeyValue("SC", "Any Description"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101", "Any Description")), listOf(offence)))
+      return listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101")), listOf(offence)))
     }
   }
 }
