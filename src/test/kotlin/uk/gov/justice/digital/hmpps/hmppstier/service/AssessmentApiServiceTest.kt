@@ -375,7 +375,7 @@ internal class AssessmentApiServiceTest {
     }
 
     @Test
-    fun `Should return latest two completed`() {
+    fun `Should return latest of two COMPLETED`() {
       val crn = "123"
       val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), null, "COMPLETE")
       // more recent
@@ -391,11 +391,11 @@ internal class AssessmentApiServiceTest {
     }
 
     @Test
-    fun `Should return latest two INCOMPLETE_LOCKED`() {
+    fun `Should return latest one LOCKED_INCOMPLETE`() {
       val crn = "123"
       val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), null, "COMPLETE")
       // more recent
-      val assessmentNewer = OffenderAssessment("4321", LocalDateTime.now(clock).minusWeeks(40), null, "INCOMPLETE_LOCKED")
+      val assessmentNewer = OffenderAssessment("4321", LocalDateTime.now(clock).minusWeeks(40), null, "LOCKED_INCOMPLETE")
 
       every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment, assessmentNewer)
       val returnValue = assessmentService.getRecentAssessment(crn)
