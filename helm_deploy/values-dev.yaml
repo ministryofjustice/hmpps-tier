@@ -20,7 +20,7 @@ env:
   JAVA_OPTS: "-Xmx512m"
   SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json
   OAUTH_ROOT_URL: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
-  COMMUNITY_ENDPOINT_URL: https://community-api-secure.test.delius.probation.hmpps.dsd.io/secure
+  COMMUNITY_ENDPOINT_URL: https://community-api.test.probation.service.justice.gov.uk/secure
   ASSESSMENT_ENDPOINT_URL: https://offender-dev.aks-dev-1.studio-hosting.service.justice.gov.uk
 
 whitelist:
