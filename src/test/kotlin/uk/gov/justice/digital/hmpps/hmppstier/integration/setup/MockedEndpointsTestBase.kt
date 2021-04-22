@@ -20,15 +20,24 @@ import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.mockserver.model.Parameter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import java.math.BigDecimal
 import java.time.Duration
 import java.time.LocalDate
 
 @TestInstance(Lifecycle.PER_CLASS)
-abstract class MockedEndpointsTestBase : IntegrationTestBase() {
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
+abstract class MockedEndpointsTestBase {
+
+  @Suppress("SpringJavaInjectionPointsAutowiringInspection")
+  @Autowired
+  lateinit var webTestClient: WebTestClient
 
   @Autowired
   lateinit var gson: Gson

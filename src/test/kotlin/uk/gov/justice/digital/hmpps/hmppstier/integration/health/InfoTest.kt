@@ -2,11 +2,10 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration.health
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class InfoTest : IntegrationTestBase() {
+class InfoTest : ApiTestBase() {
 
   @Test
   fun `Info page is accessible`() {
