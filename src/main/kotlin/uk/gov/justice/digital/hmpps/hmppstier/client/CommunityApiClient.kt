@@ -186,7 +186,7 @@ data class SentenceType @JsonCreator constructor(
 )
 
 data class Offence @JsonCreator constructor(
-  @JsonProperty("offenceDetail")
+  @JsonProperty("detail")
   val offenceDetail: OffenceDetail
 )
 
