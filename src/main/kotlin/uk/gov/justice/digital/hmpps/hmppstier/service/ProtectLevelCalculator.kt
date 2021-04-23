@@ -21,14 +21,14 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
 import java.time.Clock
 import java.time.LocalDate
+import java.time.Period
 
 @Service
 class ProtectLevelCalculator(
   private val clock: Clock,
   private val communityApiClient: CommunityApiClient,
   private val assessmentApiService: AssessmentApiService,
-  @Value("\${flags.enableFemaleArsonAndViolenceCheck}") private val enableFemaleArsonAndViolenceCheck: Boolean,
-  @Value("\${flags.enableFemaleTenMonthsPlusCheck}") private val enableFemaleTenMonthsPlusCheck: Boolean,
+  @Value("\${calculation.version}")private val calculationVersion: Float
 ) {
 
   fun calculateProtectLevel(
@@ -111,17 +111,11 @@ class ProtectLevelCalculator(
         val additionalFactorsPoints = getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment)
         val breachRecallPoints = getBreachRecallComplexityPoints(crn, convictions)
 
-        val violenceArson = when {
-          hasArsonOrViolence(convictions) -> if (enableFemaleArsonAndViolenceCheck) 2 else 0
-          else -> 0
-        }
+        val violenceArsonPoints = if (calculationVersion >= 1.1) getArsonOrViolencePoints(convictions) else 0
 
-        val tenMonthsPlus = when {
-          hasTenMonthSentencePlus(convictions) -> if (enableFemaleTenMonthsPlusCheck) 2 else 0
-          else -> 0
-        }
+        val tenMonthsPlusOrIndeterminatePoints = if (calculationVersion >= 1.1) getSentenceLengthPoints(convictions) else 0
 
-        additionalFactorsPoints + breachRecallPoints + violenceArson + tenMonthsPlus
+        additionalFactorsPoints + breachRecallPoints + violenceArsonPoints + tenMonthsPlusOrIndeterminatePoints
       }
       else -> 0
     }.also { log.debug("Additional Factors for Women for $crn : $it") }
@@ -149,13 +143,20 @@ class ProtectLevelCalculator(
       }
     }.also { log.debug("Additional Factors for Women Points $it") }
 
-  private fun hasArsonOrViolence(convictions: Collection<Conviction>): Boolean =
-    convictions.flatMap { it.offences }
+  private fun getArsonOrViolencePoints(convictions: Collection<Conviction>): Int =
+    if (convictions.flatMap { it.offences }
       .map { it.offenceDetail }.any {
         OFFENCE_CODES.contains(it.mainCategoryCode)
       }
+    ) 2 else 0
 
-  private fun hasTenMonthSentencePlus(convictions: Collection<Conviction>): Boolean = false
+  private fun getSentenceLengthPoints(convictions: Collection<Conviction>): Int {
+    val custodialSentences = convictions.map { it.sentence }.filter { MandateForChange.isCustodial(it) }
+    val longerThanTenMonths = custodialSentences.any { it.startDate != null && it.expectedSentenceEndDate != null && Period.between(it.startDate, it.expectedSentenceEndDate).months >= 10 }
+    val indeterminate = custodialSentences.any { it.latestCourtAppearanceOutcome?.code == "303" }
+
+    return if (longerThanTenMonths || indeterminate) 2 else 0
+  }
 
   private fun getBreachRecallComplexityPoints(crn: String, convictions: Collection<Conviction>): Int =
     convictions
