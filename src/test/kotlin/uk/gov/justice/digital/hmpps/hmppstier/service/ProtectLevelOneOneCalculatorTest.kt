@@ -120,4 +120,181 @@ internal class ProtectLevelOneOneCalculatorTest {
       verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
   }
+
+  @Nested
+  @DisplayName("Sentence Length tests")
+  inner class SentenceLengthTests {
+
+    @Test
+    fun `should count sentence longer than 10 months`() {
+
+      val assessment = getValidAssessment()
+
+      val convictionId = 54321L
+      val sentence = Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusMonths(11), KeyValue("Not Indeterminate"))
+      val convictions = getValidConviction(convictionId, sentence)
+
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
+
+      val result = service.calculateProtectLevel(crn, assessment, null, listOf(), convictions)
+      assertThat(result.points).isEqualTo(2)
+
+      verify { communityApiClient.getOffender(crn) }
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+    }
+
+    @Test
+    fun `should count sentence exactly 10 months`() {
+
+      val assessment = getValidAssessment()
+
+      val convictionId = 54321L
+      val sentence = Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusMonths(10), KeyValue("Not Indeterminate"))
+      val convictions = getValidConviction(convictionId, sentence)
+
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
+
+      val result = service.calculateProtectLevel(crn, assessment, null, listOf(), convictions)
+      assertThat(result.points).isEqualTo(2)
+
+      verify { communityApiClient.getOffender(crn) }
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+    }
+
+    @Test
+    fun `should not count sentence less than 10 months`() {
+
+      val assessment = getValidAssessment()
+
+      val convictionId = 54321L
+      val sentence = Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusMonths(9), KeyValue("Not Indeterminate"))
+      val convictions = getValidConviction(convictionId, sentence)
+
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
+
+      val result = service.calculateProtectLevel(crn, assessment, null, listOf(), convictions)
+      assertThat(result.points).isEqualTo(0)
+
+      verify { communityApiClient.getOffender(crn) }
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+    }
+
+    @Test
+    fun `should not count sentence null startDate`() {
+
+      val assessment = getValidAssessment()
+
+      val convictionId = 54321L
+      val sentence = Sentence(null, KeyValue("SC"), null, LocalDate.now(clock).plusMonths(10), KeyValue("Not Indeterminate"))
+      val convictions = getValidConviction(convictionId, sentence)
+
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
+
+      val result = service.calculateProtectLevel(crn, assessment, null, listOf(), convictions)
+      assertThat(result.points).isEqualTo(0)
+
+      verify { communityApiClient.getOffender(crn) }
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+    }
+
+    @Test
+    fun `should not count sentence null endDate`() {
+
+      val assessment = getValidAssessment()
+
+      val convictionId = 54321L
+      val sentence = Sentence(null, KeyValue("SC"), LocalDate.now(), null, KeyValue("Not Indeterminate"))
+      val convictions = getValidConviction(convictionId, sentence)
+
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
+
+      val result = service.calculateProtectLevel(crn, assessment, null, listOf(), convictions)
+      assertThat(result.points).isEqualTo(0)
+
+      verify { communityApiClient.getOffender(crn) }
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+    }
+
+    @Test
+    fun `should not count invalid sentence code`() {
+
+      val assessment = getValidAssessment()
+
+      val convictionId = 54321L
+      val sentence = Sentence(null, KeyValue("SC"), null, null, KeyValue("Not Indeterminate"))
+      val convictions = getValidConviction(convictionId, sentence)
+
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
+
+      val result = service.calculateProtectLevel(crn, assessment, null, listOf(), convictions)
+      assertThat(result.points).isEqualTo(0)
+
+      verify { communityApiClient.getOffender(crn) }
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+    }
+
+    @Test
+    fun `should count valid sentence code`() {
+
+      val assessment = getValidAssessment()
+
+      val convictionId = 54321L
+      val sentence = Sentence(null, KeyValue("SC"), null, null, KeyValue("303"))
+      val convictions = getValidConviction(convictionId, sentence)
+
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
+
+      val result = service.calculateProtectLevel(crn, assessment, null, listOf(), convictions)
+      assertThat(result.points).isEqualTo(2)
+
+      verify { communityApiClient.getOffender(crn) }
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+    }
+
+    @Test
+    fun `should not double count sentence longer than 10 months and indeterminate`() {
+
+      val assessment = getValidAssessment()
+
+      val convictionId = 54321L
+      val sentence = Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusMonths(11), KeyValue("303"))
+      val convictions = getValidConviction(convictionId, sentence)
+
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
+
+      val result = service.calculateProtectLevel(crn, assessment, null, listOf(), convictions)
+      assertThat(result.points).isEqualTo(2) // not 4
+
+      verify { communityApiClient.getOffender(crn) }
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+    }
+
+    private fun getValidAssessment() = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
+
+    private fun getValidConviction(convictionId: Long, sentence: Sentence) = listOf(Conviction(convictionId, sentence, listOf()))
+  }
 }

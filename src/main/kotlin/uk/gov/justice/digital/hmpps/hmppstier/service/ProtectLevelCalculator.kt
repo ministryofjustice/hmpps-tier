@@ -111,9 +111,9 @@ class ProtectLevelCalculator(
         val additionalFactorsPoints = getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment)
         val breachRecallPoints = getBreachRecallComplexityPoints(crn, convictions)
 
-        val violenceArsonPoints = if (calculationVersion >= 1.1) hasArsonOrViolence(convictions) else 0
+        val violenceArsonPoints = if (calculationVersion >= 1.1) getArsonOrViolencePoints(convictions) else 0
 
-        val tenMonthsPlusOrIndeterminatePoints = if (calculationVersion >= 1.1) hasTenMonthSentencePlusOrIndeterminate(convictions) else 0
+        val tenMonthsPlusOrIndeterminatePoints = if (calculationVersion >= 1.1) getSentenceLengthPoints(convictions) else 0
 
         additionalFactorsPoints + breachRecallPoints + violenceArsonPoints + tenMonthsPlusOrIndeterminatePoints
       }
@@ -143,16 +143,16 @@ class ProtectLevelCalculator(
       }
     }.also { log.debug("Additional Factors for Women Points $it") }
 
-  private fun hasArsonOrViolence(convictions: Collection<Conviction>): Int =
+  private fun getArsonOrViolencePoints(convictions: Collection<Conviction>): Int =
     if (convictions.flatMap { it.offences }
       .map { it.offenceDetail }.any {
         OFFENCE_CODES.contains(it.mainCategoryCode)
       }
     ) 2 else 0
 
-  private fun hasTenMonthSentencePlusOrIndeterminate(convictions: Collection<Conviction>): Int {
+  private fun getSentenceLengthPoints(convictions: Collection<Conviction>): Int {
     val sentences = convictions.map { it.sentence }
-    val longerThanTenMonths = sentences.any { Period.between(it.startDate, it.expectedSentenceEndDate).months > 10 }
+    val longerThanTenMonths = sentences.any { it.startDate != null && it.expectedSentenceEndDate != null && Period.between(it.startDate, it.expectedSentenceEndDate).months >= 10 }
     val indeterminateSentence = sentences.any { it.latestCourtAppearanceOutcome?.code == "303" }
 
     return if (longerThanTenMonths || indeterminateSentence) 2 else 0
