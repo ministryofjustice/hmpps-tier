@@ -28,8 +28,7 @@ class ProtectLevelCalculator(
   private val clock: Clock,
   private val communityApiClient: CommunityApiClient,
   private val assessmentApiService: AssessmentApiService,
-  @Value("\${flags.enableFemaleArsonAndViolenceCheck}") private val enableFemaleArsonAndViolenceCheck: Boolean,
-  @Value("\${flags.enableFemaleTenMonthsPlusCheck}") private val enableFemaleTenMonthsPlusCheck: Boolean,
+  @Value("\${calculation.version}")private val calculationVersion: Float
 ) {
 
   fun calculateProtectLevel(
@@ -112,9 +111,9 @@ class ProtectLevelCalculator(
         val additionalFactorsPoints = getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment)
         val breachRecallPoints = getBreachRecallComplexityPoints(crn, convictions)
 
-        val violenceArsonPoints = if (enableFemaleArsonAndViolenceCheck) hasArsonOrViolence(convictions) else 0
+        val violenceArsonPoints = if (calculationVersion >= 1.1) hasArsonOrViolence(convictions) else 0
 
-        val tenMonthsPlusOrIndeterminatePoints = if (enableFemaleTenMonthsPlusCheck) hasTenMonthSentencePlusOrIndeterminate(convictions) else 0
+        val tenMonthsPlusOrIndeterminatePoints = if (calculationVersion >= 1.1) hasTenMonthSentencePlusOrIndeterminate(convictions) else 0
 
         additionalFactorsPoints + breachRecallPoints + violenceArsonPoints + tenMonthsPlusOrIndeterminatePoints
       }

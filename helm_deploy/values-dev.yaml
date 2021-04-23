@@ -23,8 +23,6 @@ env:
   COMMUNITY_ENDPOINT_URL: https://community-api-secure.test.delius.probation.hmpps.dsd.io/secure
   ASSESSMENT_ENDPOINT_URL: https://offender-dev.aks-dev-1.studio-hosting.service.justice.gov.uk
   CALCULATION_VERSION: 1.1
-  FLAGS_ENABLEFEMALEARSONANDVIOLENCECHECK: true
-  FLAGS_ENABLEFEMALETENMONTHSPLUSCHECK: true
 
 whitelist:
   office: "217.33.148.210/32"
