@@ -151,11 +151,11 @@ class ProtectLevelCalculator(
     ) 2 else 0
 
   private fun getSentenceLengthPoints(convictions: Collection<Conviction>): Int {
-    val sentences = convictions.map { it.sentence }
-    val longerThanTenMonths = sentences.any { it.startDate != null && it.expectedSentenceEndDate != null && Period.between(it.startDate, it.expectedSentenceEndDate).months >= 10 }
-    val indeterminateSentence = sentences.any { it.latestCourtAppearanceOutcome?.code == "303" }
+    val custodialSentences = convictions.map { it.sentence }.filter { MandateForChange.isCustodial(it) }
+    val longerThanTenMonths = custodialSentences.any { it.startDate != null && it.expectedSentenceEndDate != null && Period.between(it.startDate, it.expectedSentenceEndDate).months >= 10 }
+    val indeterminate = custodialSentences.any { it.latestCourtAppearanceOutcome?.code == "303" }
 
-    return if (longerThanTenMonths || indeterminateSentence) 2 else 0
+    return if (longerThanTenMonths || indeterminate) 2 else 0
   }
 
   private fun getBreachRecallComplexityPoints(crn: String, convictions: Collection<Conviction>): Int =

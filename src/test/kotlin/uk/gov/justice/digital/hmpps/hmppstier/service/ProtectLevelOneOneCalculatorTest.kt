@@ -273,6 +273,27 @@ internal class ProtectLevelOneOneCalculatorTest {
     }
 
     @Test
+    fun `should not count non-custodial sentence`() {
+
+      val assessment = getValidAssessment()
+
+      val convictionId = 54321L
+      val sentence = Sentence(null, KeyValue("HG"), null, null, KeyValue("303"))
+      val convictions = getValidConviction(convictionId, sentence)
+
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
+
+      val result = service.calculateProtectLevel(crn, assessment, null, listOf(), convictions)
+      assertThat(result.points).isEqualTo(0)
+
+      verify { communityApiClient.getOffender(crn) }
+      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+    }
+
+    @Test
     fun `should not double count sentence longer than 10 months and indeterminate`() {
 
       val assessment = getValidAssessment()
