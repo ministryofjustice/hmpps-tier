@@ -273,6 +273,22 @@ internal class ProtectLevelOneOneCalculatorTest {
     }
 
     @Test
+    fun `should not count valid sentence code when male`() {
+
+      val assessment = getValidAssessment()
+
+      val convictionId = 54321L
+      val sentence = Sentence(null, KeyValue("SC"), null, null, KeyValue("303"))
+      val convictions = getValidConviction(convictionId, sentence)
+
+      every { communityApiClient.getOffender(crn) } returns Offender("Male")
+      val result = service.calculateProtectLevel(crn, assessment, null, listOf(), convictions)
+      assertThat(result.points).isEqualTo(0)
+
+      verify { communityApiClient.getOffender(crn) }
+    }
+
+    @Test
     fun `should not count non-custodial sentence`() {
 
       val assessment = getValidAssessment()
