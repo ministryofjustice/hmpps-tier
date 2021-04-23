@@ -41,7 +41,7 @@ internal class TierCalculationServiceTest {
   private val telemetryService: TelemetryService = mockk(relaxUnitFun = true)
   private val successUpdater: SuccessUpdater = mockk(relaxUnitFun = true)
 
-  private val version = "version"
+  private val version = 1.0F
 
   private val service = TierCalculationService(
     clock,
@@ -64,7 +64,7 @@ internal class TierCalculationServiceTest {
     calculationId,
     crn,
     LocalDateTime.now(clock),
-    TierCalculationResultEntity(protectLevelResult, changeLevelResult, version)
+    TierCalculationResultEntity(protectLevelResult, changeLevelResult, version.toString())
   )
 
   @BeforeEach

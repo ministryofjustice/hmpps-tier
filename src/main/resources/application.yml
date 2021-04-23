@@ -74,4 +74,8 @@ management:
         time-to-live: 2000ms
 
 calculation:
-  version:  1
+  version: 1.0
+
+flags:
+  enableFemaleArsonAndViolenceCheck: false
+  enableFemaleTenMonthsPlusCheck: false

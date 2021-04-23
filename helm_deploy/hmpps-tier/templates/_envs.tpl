@@ -34,6 +34,9 @@ env:
   - name: ASSESSMENT_ENDPOINT_URL
     value: "{{ .Values.env.ASSESSMENT_ENDPOINT_URL }}"
 
+  - name: CALCULATION_VERSION
+    value: "{{ .Values.env.CALCULATION_VERSION }}"
+
   - name: SPRING_PROFILES_ACTIVE
     value: "aws,logstash,stdout"
 

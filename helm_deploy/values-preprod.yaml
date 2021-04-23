@@ -22,6 +22,7 @@ env:
   OAUTH_ROOT_URL: https://sign-in-preprod.hmpps.service.justice.gov.uk/auth/
   COMMUNITY_ENDPOINT_URL: https://community-api.pre-prod.delius.probation.hmpps.dsd.io/secure
   ASSESSMENT_ENDPOINT_URL: https://offender-prprod.aks-live-1.studio-hosting.service.justice.gov.uk
+  CALCULATION_VERSION: 1.1
 
 whitelist:
   office: "217.33.148.210/32"

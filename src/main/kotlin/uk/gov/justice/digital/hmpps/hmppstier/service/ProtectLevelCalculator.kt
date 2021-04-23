@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
@@ -14,17 +15,20 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NsiOutcome
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
 import java.time.Clock
 import java.time.LocalDate
+import java.time.Period
 
 @Service
 class ProtectLevelCalculator(
   private val clock: Clock,
   private val communityApiClient: CommunityApiClient,
-  private val assessmentApiService: AssessmentApiService
+  private val assessmentApiService: AssessmentApiService,
+  @Value("\${calculation.version}")private val calculationVersion: Float
 ) {
 
   fun calculateProtectLevel(
@@ -104,8 +108,14 @@ class ProtectLevelCalculator(
   ): Int =
     when {
       isFemale(crn) -> {
-        (getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment) + getBreachRecallComplexityPoints(crn, convictions))
-          .times(2)
+        val additionalFactorsPoints = getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment)
+        val breachRecallPoints = getBreachRecallComplexityPoints(crn, convictions)
+
+        val violenceArsonPoints = if (calculationVersion >= 1.1) getArsonOrViolencePoints(convictions) else 0
+
+        val tenMonthsPlusOrIndeterminatePoints = if (calculationVersion >= 1.1) getSentenceLengthPoints(convictions) else 0
+
+        additionalFactorsPoints + breachRecallPoints + violenceArsonPoints + tenMonthsPlusOrIndeterminatePoints
       }
       else -> 0
     }.also { log.debug("Additional Factors for Women for $crn : $it") }
@@ -128,17 +138,32 @@ class ProtectLevelCalculator(
               isAnswered(answers[AdditionalFactorForWomen.IMPULSIVITY]) || isAnswered(answers[AdditionalFactorForWomen.TEMPER_CONTROL]) -> 1
               else -> 0
             }
-            parenting + selfControl
+            (parenting + selfControl).times(2)
           }
       }
     }.also { log.debug("Additional Factors for Women Points $it") }
+
+  private fun getArsonOrViolencePoints(convictions: Collection<Conviction>): Int =
+    if (convictions.flatMap { it.offences }
+      .map { it.offenceDetail }.any {
+        OFFENCE_CODES.contains(it.mainCategoryCode)
+      }
+    ) 2 else 0
+
+  private fun getSentenceLengthPoints(convictions: Collection<Conviction>): Int {
+    val custodialSentences = convictions.map { it.sentence }.filter { MandateForChange.isCustodial(it) }
+    val longerThanTenMonths = custodialSentences.any { it.startDate != null && it.expectedSentenceEndDate != null && Period.between(it.startDate, it.expectedSentenceEndDate).months >= 10 }
+    val indeterminate = custodialSentences.any { it.latestCourtAppearanceOutcome?.code == "303" }
+
+    return if (longerThanTenMonths || indeterminate) 2 else 0
+  }
 
   private fun getBreachRecallComplexityPoints(crn: String, convictions: Collection<Conviction>): Int =
     convictions
       .filter { qualifyingConvictions(it.sentence) }
       .let {
         when {
-          it.any { conviction -> convictionHasBreachOrRecallNsis(crn, conviction.convictionId) } -> 1
+          it.any { conviction -> convictionHasBreachOrRecallNsis(crn, conviction.convictionId) } -> 2
           else -> 0
         }
       }.also { log.debug("Breach and Recall Complexity Points: $it") }
@@ -158,6 +183,8 @@ class ProtectLevelCalculator(
       sentence.terminationDate.isAfter(LocalDate.now(clock).minusYears(1).minusDays(1))
 
   companion object {
+    val OFFENCE_CODES = OffenceCode.values().map { it.code }
+
     private val log = LoggerFactory.getLogger(this::class.java)
   }
 }
