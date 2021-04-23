@@ -177,16 +177,16 @@ data class Sentence @JsonCreator constructor(
   val terminationDate: LocalDate?,
 
   @JsonProperty("sentenceType")
-  val sentenceType: KeyValue,
+  val sentenceType: KeyValue?,
 
   @JsonProperty("startDate")
-  val startDate: LocalDate,
+  val startDate: LocalDate?,
 
   @JsonProperty("expectedSentenceEndDate")
-  val expectedSentenceEndDate: LocalDate,
+  val expectedSentenceEndDate: LocalDate?,
 
   @JsonProperty("latestCourtAppearanceOutcome")
-  val latestCourtAppearanceOutcome: KeyValue
+  val latestCourtAppearanceOutcome: KeyValue?
 )
 
 data class Offence @JsonCreator constructor(

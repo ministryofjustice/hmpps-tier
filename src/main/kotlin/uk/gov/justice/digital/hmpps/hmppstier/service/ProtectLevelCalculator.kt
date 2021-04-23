@@ -153,7 +153,7 @@ class ProtectLevelCalculator(
   private fun hasTenMonthSentencePlusOrIndeterminate(convictions: Collection<Conviction>): Int {
     val sentences = convictions.map { it.sentence }
     val longerThanTenMonths = sentences.any { Period.between(it.startDate, it.expectedSentenceEndDate).months > 10 }
-    val indeterminateSentence = sentences.any { it.latestCourtAppearanceOutcome.code == "303" }
+    val indeterminateSentence = sentences.any { it.latestCourtAppearanceOutcome?.code == "303" }
 
     return if (longerThanTenMonths || indeterminateSentence) 2 else 0
   }

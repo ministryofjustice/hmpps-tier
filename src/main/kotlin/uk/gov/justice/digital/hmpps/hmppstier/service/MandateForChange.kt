@@ -22,7 +22,7 @@ class MandateForChange(
     sentence.terminationDate == null
 
   private fun isCustodial(sentence: Sentence): Boolean =
-    sentence.sentenceType.code in custodialSentences
+    sentence.sentenceType?.code in custodialSentences
 
   private fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
     communityApiClient.getRequirements(crn, convictionId)
