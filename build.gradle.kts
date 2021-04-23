@@ -1,3 +1,4 @@
+val cucumberVersion = "6.10.3"
 
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.1.6"
@@ -5,6 +6,7 @@ plugins {
   kotlin("plugin.jpa") version "1.4.30"
   id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
   jacoco
+  java
 }
 
 configurations {
@@ -51,6 +53,10 @@ dependencies {
   testImplementation("org.assertj:assertj-core:3.18.0")
   testImplementation("org.awaitility:awaitility-kotlin:4.0.3")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
+  testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
+  testImplementation("io.cucumber:cucumber-junit:$cucumberVersion")
+  testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
+  testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
 }
 
 extra["springCloudVersion"] = "Hoxton.SR8"
@@ -90,9 +96,6 @@ tasks {
       )
     }
   }
-}
-
-tasks {
   getByName<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
     violationRules {
       rule {
@@ -117,6 +120,14 @@ tasks {
           }
         )
       )
+    }
+  }
+  getByName<Test>("test") {
+    systemProperties(System.getProperties().toMap() as Map<String, Any>)
+    systemProperty("cucumber.execution.parallel.enabled", System.getProperty("test.parallel"))
+    systemProperty("cucumber.filter.tags", "not @ignore")
+    useJUnitPlatform {
+      excludeTags("disabled")
     }
   }
 }
