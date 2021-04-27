@@ -82,18 +82,17 @@ class BddSteps : En {
       setupData.setRsr(rsr)
     }
     Given("a ROSH score of {string}") { rosh: String ->
-      var roshCode = "NO_ROSH";
-      try{
+      var roshCode = "NO_ROSH"
+      try {
         roshCode = Rosh.valueOf(rosh).registerCode
-      }catch(e: IllegalArgumentException){
-
+      } catch (e: IllegalArgumentException) {
       }
       setupData.setRosh(roshCode)
     }
     And("no ROSH score") {
       // Do nothing
     }
-    And("no RSR score"){
+    And("no RSR score") {
       setupData.setRsr("0")
     }
     When("a tier is calculated") {
@@ -125,8 +124,8 @@ class BddSteps : En {
     fun setRsr(rsr: String) {
       this.rsr = BigDecimal(rsr)
     }
-    
-    fun setRosh(rosh: String){
+
+    fun setRosh(rosh: String) {
       this.rosh = rosh
     }
 

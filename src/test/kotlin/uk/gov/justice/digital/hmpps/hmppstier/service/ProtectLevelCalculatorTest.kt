@@ -173,30 +173,6 @@ internal class ProtectLevelCalculatorTest {
   inner class SimpleRoshTests {
 
     @Test
-    fun `should return 30 for Very High Rosh`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, null, getValidRegistrations(Rosh.VERY_HIGH), listOf())
-      assertThat(result.points).isEqualTo(30)
-      validate()
-    }
-
-    @Test
-    fun `should return 30 for High Rosh`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, null, getValidRegistrations(Rosh.HIGH), listOf())
-      assertThat(result.points).isEqualTo(20)
-      validate()
-    }
-
-    @Test
-    fun `should return 10 for Medium Rosh`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, null, getValidRegistrations(Rosh.MEDIUM), listOf())
-      assertThat(result.points).isEqualTo(10)
-      validate()
-    }
-
-    @Test
     fun `should return 0 for No Rosh`() {
       setup()
       val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf())
@@ -311,10 +287,6 @@ internal class ProtectLevelCalculatorTest {
       assertThat(result.points).isEqualTo(10)
 
       validate()
-    }
-
-    private fun getValidRegistrations(rosh: Rosh): Collection<Registration> {
-      return listOf(Registration(type = KeyValue(rosh.registerCode), registerLevel = null, startDate = LocalDate.now(clock)))
     }
 
     private fun setup() {
