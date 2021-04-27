@@ -71,24 +71,6 @@ internal class ProtectLevelCalculatorTest {
   @DisplayName("Simple Risk tests")
   inner class SimpleRiskTests {
 
-    @Test // RsrThresholds.TIER_B_RSR
-    fun `should use RSR when higher than ROSH`() {
-      setup()
-      // rsr B+1 = 20 points, Rosh.Medium = 10 Points
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_B_RSR), getValidRegistrations(Rosh.MEDIUM), listOf())
-      assertThat(result.points).isEqualTo(20)
-      validate()
-    }
-
-    @Test
-    fun `should use ROSH when higher than RSR`() {
-      setup()
-      // rsr B+1 = 20 points, Rosh.VeryHigh = 30 Points
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_B_RSR), getValidRegistrations(Rosh.VERY_HIGH), listOf())
-      assertThat(result.points).isEqualTo(30)
-      validate()
-    }
-
     @Test
     fun `should use either when RSR is same as ROSH`() {
       setup()
