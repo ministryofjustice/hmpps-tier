@@ -21,6 +21,11 @@ fun emptyNsisResponse(): HttpResponse = jsonResponseOf("{\"nsis\": []}")
 
 fun registrationsResponseMappaThirty(): HttpResponse = communityApiResponse("registrations.json")
 
+fun registrationsResponseWithRosh(rosh: String): HttpResponse = jsonResponseOf(
+  responseFrom("$communityApiPath/registrations-rosh.json")
+    .replace("roshToReplace", rosh)
+)
+
 fun emptyRegistrationsResponse(): HttpResponse = jsonResponseOf("{}")
 
 fun registrationsResponseWithNoLevel(): HttpResponse = communityApiResponse("registrations-no-level.json")

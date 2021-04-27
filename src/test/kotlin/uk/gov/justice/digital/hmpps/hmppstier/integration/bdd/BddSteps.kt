@@ -16,13 +16,14 @@ import org.mockserver.model.MediaType
 import org.mockserver.model.Parameter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.communityApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialNCConvictionResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.getNumberOfMessagesCurrentlyOnQueue
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.maleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnQueue
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRosh
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
@@ -79,8 +80,14 @@ class BddSteps : En {
     Given("an RSR score of {string}") { rsr: String ->
       setupData.setRsr(rsr)
     }
+    Given("a ROSH score of {string}") { rosh: String ->
+      setupData.setRosh(Rosh.valueOf(rosh).registerCode)
+    }
     And("no ROSH score") {
       // Do nothing
+    }
+    And("no RSR score"){
+      setupData.setRsr("0")
     }
     When("a tier is calculated") {
       setupData.doSetup()
@@ -105,25 +112,27 @@ class BddSteps : En {
   }
 
   class SetupData constructor (val communityApi: ClientAndServer) {
+    private var rosh: String = "NO_ROSH"
     private var rsr: BigDecimal = BigDecimal(0)
 
     fun setRsr(rsr: String) {
       this.rsr = BigDecimal(rsr)
     }
+    
+    fun setRosh(rosh: String){
+      this.rosh = rosh
+    }
 
     fun doSetup() {
       // RSR BDD
       communityApiResponse(communityApiAssessmentsResponse(rsr), "/secure/offenders/crn/X12345/assessments")
-      // ROSH TODO
-      communityApiResponse(emptyRegistrationsResponse(), "/secure/offenders/crn/X12345/registrations")
+      // ROSH BDD
+      communityApiResponse(registrationsResponseWithRosh(rosh), "/secure/offenders/crn/X12345/registrations")
       // conviction TODO
       communityApiResponseWithQs(custodialNCConvictionResponse(), "/secure/offenders/crn/X12345/convictions", Parameter("activeOnly", "true"))
       // offender TODO
       communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/X12345")
     }
-    // a big object with all zero values
-    // which can be modified using setters?
-    // then a build method to set up all the expectations
 
     private fun httpSetupWithQs(
       response: HttpResponse,
