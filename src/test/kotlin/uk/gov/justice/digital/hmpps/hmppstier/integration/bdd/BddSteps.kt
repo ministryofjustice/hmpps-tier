@@ -27,6 +27,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsRes
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
+import java.lang.IllegalArgumentException
 import java.math.BigDecimal
 
 class BddSteps : En {
@@ -81,7 +82,13 @@ class BddSteps : En {
       setupData.setRsr(rsr)
     }
     Given("a ROSH score of {string}") { rosh: String ->
-      setupData.setRosh(Rosh.valueOf(rosh).registerCode)
+      var roshCode = "NO_ROSH";
+      try{
+        roshCode = Rosh.valueOf(rosh).registerCode
+      }catch(e: IllegalArgumentException){
+
+      }
+      setupData.setRosh(roshCode)
     }
     And("no ROSH score") {
       // Do nothing
