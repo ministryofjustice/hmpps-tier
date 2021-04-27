@@ -12,3 +12,28 @@ Feature:RSR scores
     And no ROSH score
     When a tier is calculated
     Then "20" points are scored
+
+  Scenario: RSR 6.9 No ROSH 10 points scored
+    Given an RSR score of "6.9"
+    And no ROSH score
+    When a tier is calculated
+    Then "10" points are scored
+
+  Scenario: RSR 3.1 No ROSH 10 points scored
+    Given an RSR score of "3.1"
+    And no ROSH score
+    When a tier is calculated
+    Then "10" points are scored
+
+  Scenario: RSR 3.0 No ROSH 10 points scored
+    Given an RSR score of "3.0"
+    And no ROSH score
+    When a tier is calculated
+    Then "10" points are scored
+
+  Scenario: RSR 2.9 No ROSH 0 points scored
+    Given an RSR score of "2.9"
+    And no ROSH score
+    When a tier is calculated
+    Then "0" points are scored
+
