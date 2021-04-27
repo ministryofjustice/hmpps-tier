@@ -123,46 +123,6 @@ internal class ProtectLevelCalculatorTest {
   inner class SimpleRSRTests {
 
     @Test
-    fun `should return 20 for RSR equal to tier B`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_B_RSR.num), listOf(), listOf())
-      assertThat(result.points).isEqualTo(20)
-      validate()
-    }
-
-    @Test
-    fun `should return 20 for RSR greater than tier B`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_B_RSR.num.plus(BigDecimal(1))), listOf(), listOf())
-      assertThat(result.points).isEqualTo(20)
-      validate()
-    }
-
-    @Test
-    fun `should return 10 for RSR equal to tier C`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_C_RSR.num), listOf(), listOf())
-      assertThat(result.points).isEqualTo(10)
-      validate()
-    }
-
-    @Test
-    fun `should return 10 for RSR greater than tier C`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_C_RSR.num.plus(BigDecimal(1))), listOf(), listOf())
-      assertThat(result.points).isEqualTo(10)
-      validate()
-    }
-
-    @Test
-    fun `should return 0 for RSR less than tier C`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_C_RSR.num.minus(BigDecimal(1))), listOf(), listOf())
-      assertThat(result.points).isEqualTo(0)
-      validate()
-    }
-
-    @Test
     fun `should return 0 for RSR null`() {
       setup()
       val result = service.calculateProtectLevel(crn, null, getValidAssessments(null), listOf(), listOf())
