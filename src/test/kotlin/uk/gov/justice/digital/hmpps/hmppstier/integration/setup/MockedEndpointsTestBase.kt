@@ -21,6 +21,7 @@ import org.mockserver.model.Parameter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.test.context.ActiveProfiles
@@ -31,7 +32,7 @@ import java.time.Duration
 import java.time.LocalDate
 
 @TestInstance(Lifecycle.PER_CLASS)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
 abstract class MockedEndpointsTestBase {
 
@@ -288,7 +289,7 @@ abstract class MockedEndpointsTestBase {
   }
 }
 
-private data class SQSMessage(
+data class SQSMessage(
   val Message: String,
   val MessageId: String
 )

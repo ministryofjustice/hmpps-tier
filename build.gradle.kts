@@ -10,7 +10,9 @@ plugins {
 }
 
 configurations {
-  testImplementation { exclude(group = "org.junit.vintage") }
+  testImplementation {
+    exclude(group = "org.junit.vintage")
+  }
 }
 
 dependencies {
@@ -54,9 +56,9 @@ dependencies {
   testImplementation("org.awaitility:awaitility-kotlin:4.0.3")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
-  testImplementation("io.cucumber:cucumber-junit:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
+  testImplementation("org.junit.platform:junit-platform-console:1.7.1")
 }
 
 extra["springCloudVersion"] = "Hoxton.SR8"
@@ -122,10 +124,23 @@ tasks {
       )
     }
   }
+
+  val cucumberTests by registering(JavaExec::class) {
+    dependsOn(testClasses)
+    val reportsDir = file("$buildDir/test-results")
+    outputs.dir(reportsDir)
+    classpath = sourceSets["test"].runtimeClasspath
+    main = "org.junit.platform.console.ConsoleLauncher"
+    args("--details", "tree")
+    args("--include-classname", ".*")
+    args("--select-class", "uk.gov.justice.digital.hmpps.hmppstier.integration.bdd.CucumberRunnerTest")
+    args("--exclude-tag", "exclude")
+    args("--reports-dir", reportsDir)
+  }
+
   getByName<Test>("test") {
-    systemProperties(System.getProperties().toMap() as Map<String, Any>)
-    systemProperty("cucumber.execution.parallel.enabled", System.getProperty("test.parallel"))
-    systemProperty("cucumber.filter.tags", "not @ignore")
+    dependsOn(cucumberTests)
+    exclude("**/CucumberRunnerTest")
     useJUnitPlatform {
       excludeTags("disabled")
     }
