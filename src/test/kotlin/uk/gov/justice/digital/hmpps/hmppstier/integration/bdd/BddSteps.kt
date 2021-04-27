@@ -68,6 +68,7 @@ class BddSteps : En {
 
       setupOauth()
       setupData = SetupData(communityApi)
+      tierCalculationRepository.deleteAll()
     }
 
     After { scenario: Scenario ->

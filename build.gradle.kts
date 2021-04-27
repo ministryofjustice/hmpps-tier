@@ -125,7 +125,7 @@ tasks {
     }
   }
 
-  val cucumberTests by registering(JavaExec::class) {
+  val cucumber by registering(JavaExec::class) {
     dependsOn(testClasses)
     val reportsDir = file("$buildDir/test-results")
     outputs.dir(reportsDir)
@@ -139,7 +139,7 @@ tasks {
   }
 
   getByName<Test>("test") {
-    dependsOn(cucumberTests)
+    dependsOn(cucumber)
     exclude("**/CucumberRunnerTest")
     useJUnitPlatform {
       excludeTags("disabled")

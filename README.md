@@ -67,7 +67,7 @@ Run tests, generate reports and fail build if coverage is below the threshold
 ##### Cucumber
 You cannot run cucumber tests directly from IntelliJ. See https://github.com/gradle/gradle/issues/4773
 Instead run
-```./gradlew check```
+```./gradlew cucumber```
 
 This service is built using Gradle. In order to build the project from the command line and run the tests, use:
 ```  
