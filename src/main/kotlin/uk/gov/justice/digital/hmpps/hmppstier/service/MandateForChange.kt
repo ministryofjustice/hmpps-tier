@@ -21,9 +21,6 @@ class MandateForChange(
   private fun isCurrent(sentence: Sentence): Boolean =
     sentence.terminationDate == null
 
-  private fun isCustodial(sentence: Sentence): Boolean =
-    sentence.sentenceType.code in custodialSentences
-
   private fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
     communityApiClient.getRequirements(crn, convictionId)
       .filter { excludeUnpaidWork(it) }
@@ -34,6 +31,9 @@ class MandateForChange(
     it.mainCategory !in unpaidWorkAndOrderExtended
 
   companion object {
+    fun isCustodial(sentence: Sentence): Boolean =
+      sentence.sentenceType.code in custodialSentences
+
     private val log = LoggerFactory.getLogger(this::class.java)
     private val custodialSentences = arrayOf("NC", "SC")
     private val unpaidWorkAndOrderExtended = arrayOf("W", "W1")

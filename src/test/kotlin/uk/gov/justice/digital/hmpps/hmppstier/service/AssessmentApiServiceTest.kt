@@ -365,11 +365,43 @@ internal class AssessmentApiServiceTest {
     @Test
     fun `Should return none if not complete status`() {
       val crn = "123"
-      val assessment = OffenderAssessment("1234", null, LocalDateTime.now(clock), "INCOMPLETE_LOCKED")
+      val assessment = OffenderAssessment("1234", null, LocalDateTime.now(clock), "OTHER_STATUS")
 
       every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
       val returnValue = assessmentService.getRecentAssessment(crn)
       assertThat(returnValue).isNull()
+
+      verify { assessmentApiClient.getAssessmentSummaries(crn) }
+    }
+
+    @Test
+    fun `Should return latest of two COMPLETED`() {
+      val crn = "123"
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), null, "COMPLETE")
+      // more recent
+      val assessmentNewer = OffenderAssessment("4321", LocalDateTime.now(clock).minusWeeks(40), null, "COMPLETE")
+
+      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment, assessmentNewer)
+      val returnValue = assessmentService.getRecentAssessment(crn)
+
+      assertThat(returnValue).isNotNull
+      assertThat(returnValue!!.assessmentId).isEqualTo(assessmentNewer.assessmentId)
+
+      verify { assessmentApiClient.getAssessmentSummaries(crn) }
+    }
+
+    @Test
+    fun `Should return latest one LOCKED_INCOMPLETE`() {
+      val crn = "123"
+      val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), null, "COMPLETE")
+      // more recent
+      val assessmentNewer = OffenderAssessment("4321", LocalDateTime.now(clock).minusWeeks(40), null, "LOCKED_INCOMPLETE")
+
+      every { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment, assessmentNewer)
+      val returnValue = assessmentService.getRecentAssessment(crn)
+
+      assertThat(returnValue).isNotNull
+      assertThat(returnValue!!.assessmentId).isEqualTo(assessmentNewer.assessmentId)
 
       verify { assessmentApiClient.getAssessmentSummaries(crn) }
     }

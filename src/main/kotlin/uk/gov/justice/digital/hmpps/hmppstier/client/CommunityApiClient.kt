@@ -32,7 +32,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
     val sentences = convictions.mapNotNull { it.sentence }
     return convictions
       .filter { it.sentence in sentences }
-      .map { Conviction(it.convictionId, it.sentence!!) }
+      .map { Conviction(it.convictionId, it.sentence!!, it.offences.filterNotNull()) }
       .also {
         log.info("Fetched ${it.size} Convictions for $crn")
       }
@@ -161,11 +161,15 @@ private data class ConvictionDto @JsonCreator constructor(
 
   @JsonProperty("sentence")
   val sentence: Sentence?,
+
+  @JsonProperty("offences")
+  val offences: List<Offence?>
 )
 
 data class Conviction constructor(
   val convictionId: Long,
-  val sentence: Sentence
+  val sentence: Sentence,
+  val offences: List<Offence>
 )
 
 data class Sentence @JsonCreator constructor(
@@ -173,12 +177,26 @@ data class Sentence @JsonCreator constructor(
   val terminationDate: LocalDate?,
 
   @JsonProperty("sentenceType")
-  val sentenceType: SentenceType,
+  val sentenceType: KeyValue,
+
+  @JsonProperty("startDate")
+  val startDate: LocalDate?,
+
+  @JsonProperty("expectedSentenceEndDate")
+  val expectedSentenceEndDate: LocalDate?,
+
+  @JsonProperty("latestCourtAppearanceOutcome")
+  val latestCourtAppearanceOutcome: KeyValue?
 )
 
-data class SentenceType @JsonCreator constructor(
-  @JsonProperty("code")
-  val code: String
+data class Offence @JsonCreator constructor(
+  @JsonProperty("detail")
+  val offenceDetail: OffenceDetail
+)
+
+data class OffenceDetail @JsonCreator constructor(
+  @JsonProperty("mainCategoryCode")
+  val mainCategoryCode: String
 )
 
 data class Offender @JsonCreator constructor(
@@ -195,9 +213,7 @@ data class DeliusAssessments @JsonCreator constructor(
 
 data class KeyValue @JsonCreator constructor(
   @JsonProperty("code")
-  val code: String,
-  @JsonProperty("description")
-  val description: String
+  val code: String
 )
 
 data class Registration @JsonCreator constructor(

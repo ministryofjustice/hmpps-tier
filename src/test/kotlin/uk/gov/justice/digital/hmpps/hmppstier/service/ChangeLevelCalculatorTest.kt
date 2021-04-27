@@ -16,12 +16,13 @@ import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
+import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
-import uk.gov.justice.digital.hmpps.hmppstier.client.SentenceType
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import java.time.Clock
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -130,7 +131,7 @@ internal class ChangeLevelCalculatorTest {
     }
 
     private fun getValidConviction(): List<Conviction> {
-      return listOf(Conviction(54321L, Sentence(null, SentenceType("SC"))))
+      return listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101")), listOf()))
     }
   }
 
@@ -200,7 +201,7 @@ internal class ChangeLevelCalculatorTest {
     }
 
     private fun getValidConviction(): List<Conviction> {
-      return listOf(Conviction(54321L, Sentence(null, SentenceType("SC"))))
+      return listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101")), listOf()))
     }
 
     private fun setup() {
