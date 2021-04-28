@@ -15,7 +15,6 @@ class RegistrationEdgeCasesTest : MockedEndpointsTestBase() {
     setupNCCustodialSentence(crn)
     setupRegistrations(emptyRegistrationsResponse(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn)
-
     calculateTierFor(crn)
     expectTierCalculation("B1")
   }
@@ -26,7 +25,6 @@ class RegistrationEdgeCasesTest : MockedEndpointsTestBase() {
     setupNCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithNoLevel(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn)
-
     calculateTierFor(crn)
     expectTierCalculation("B1")
   }

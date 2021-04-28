@@ -16,6 +16,7 @@ import org.mockserver.model.MediaType
 import org.mockserver.model.Parameter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.SQSMessage
@@ -25,6 +26,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistratio
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.getNumberOfMessagesCurrentlyOnQueue
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.maleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnQueue
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithAdditionalFactors
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRosh
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
@@ -103,6 +105,11 @@ class BddSteps : En {
     Given("no active MAPPA Registration") {
       // Do nothing
     }
+    Given("the following active registrations: {string} {string}") { _: String, additionalFactor: String ->
+      var registrationCode  = ComplexityFactor.from(additionalFactor)?.registerCode
+
+      setupData.setAdditionalFactors(registrationCode)
+    }
     And("no ROSH score") {
       // Do nothing
     }
@@ -110,7 +117,7 @@ class BddSteps : En {
       setupData.setRsr("0")
     }
     When("a tier is calculated") {
-      setupData.doSetup()
+      setupData.prepareResponses()
       putMessageOnQueue(offenderEventsClient, eventQueueUrl, "X12345")
     }
 
@@ -132,6 +139,7 @@ class BddSteps : En {
   }
 
   class SetupData constructor (private val communityApi: ClientAndServer) {
+    private var additionalFactors: String? = "NO_FACTORS"
     private var mappa: String = "NO_MAPPA"
     private var rosh: String = "NO_ROSH"
     private var rsr: BigDecimal = BigDecimal(0)
@@ -148,7 +156,11 @@ class BddSteps : En {
       this.mappa = mappa
     }
 
-    fun doSetup() {
+    fun setAdditionalFactors(additionalFactors: String?) {
+      this.additionalFactors = additionalFactors
+    }
+
+    fun prepareResponses() {
       // RSR BDD
       communityApiResponse(communityApiAssessmentsResponse(rsr), "/secure/offenders/crn/X12345/assessments")
 
@@ -162,6 +174,11 @@ class BddSteps : En {
         // MAPPA BDD
         mappa != "NO_MAPPA" -> communityApiResponseWithQs(
           registrationsResponseWithMappa(mappa),
+          "/secure/offenders/crn/X12345/registrations", Parameter("activeOnly", "true")
+        )
+        // additional factors BDD
+        additionalFactors != "NO_FACTORS" -> communityApiResponseWithQs(
+          registrationsResponseWithAdditionalFactors(additionalFactors!!),
           "/secure/offenders/crn/X12345/registrations", Parameter("activeOnly", "true")
         )
         else -> communityApiResponseWithQs(emptyRegistrationsResponse(), "/secure/offenders/crn/X12345/registrations", Parameter("activeOnly", "true"))
@@ -186,7 +203,7 @@ class BddSteps : En {
     private fun communityApiResponseWithQs(response: HttpResponse, urlTemplate: String, qs: Parameter) =
       httpSetupWithQs(response, urlTemplate, communityApi, qs)
 
-    fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
+    private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
       httpSetup(response, urlTemplate, communityApi)
   }
 }

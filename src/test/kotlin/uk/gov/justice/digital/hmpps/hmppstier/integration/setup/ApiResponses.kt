@@ -33,6 +33,11 @@ fun emptyRegistrationsResponse(): HttpResponse = jsonResponseOf("{}")
 
 fun registrationsResponseWithNoLevel(): HttpResponse = communityApiResponse("registrations-no-level.json")
 
+fun registrationsResponseWithAdditionalFactors(additionalFactors: String): HttpResponse = jsonResponseOf(
+  responseFrom("$communityApiPath/registrations-additional.json")
+    .replace("additionalFactorsToReplace", additionalFactors)
+)
+
 fun custodialSCConvictionResponse(): HttpResponse = communityApiResponse("convictions-custodial-sc.json")
 
 fun custodialNCConvictionResponse(): HttpResponse = communityApiResponse("convictions-custodial-nc.json")
