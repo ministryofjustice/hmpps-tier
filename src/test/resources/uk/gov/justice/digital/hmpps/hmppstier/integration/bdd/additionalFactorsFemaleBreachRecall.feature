@@ -7,11 +7,11 @@ Feature: Additional Factors (Female only) Breach and Recall
     When a tier is calculated
     Then "0" points are scored
 
-#  Scenario: Female offender with breach/recall on an active conviction scores 2 points
-#    Given an offender is "Female"
-#    And has an active conviction
-#    And the conviction has a relevant NSI Outcome code
-#    Then "2" points are scored
+  Scenario: Female offender with breach/recall on an active conviction scores 2 points
+    Given an offender is "Female"
+    And has an active conviction with NSI Outcome code "BRE02"
+    When a tier is calculated
+    Then "2" points are scored
 #
 #  Scenario: Female offender with breach/recall on two active conviction scores 2 points
 #    Given an offender is "Female"
