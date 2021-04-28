@@ -26,7 +26,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
@@ -285,30 +284,6 @@ internal class ProtectLevelCalculatorTest {
   inner class SimpleMappaTests {
 
     @Test
-    fun `should return 30 for Mappa level 3`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, null, getValidRegistrations(Mappa.M3), listOf())
-      assertThat(result.points).isEqualTo(30)
-      validate()
-    }
-
-    @Test
-    fun `should return 30 for Mappa level 2`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, null, getValidRegistrations(Mappa.M2), listOf())
-      assertThat(result.points).isEqualTo(30)
-      validate()
-    }
-
-    @Test
-    fun `should return 5 for Mappa level 1`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, null, getValidRegistrations(Mappa.M1), listOf())
-      assertThat(result.points).isEqualTo(5)
-      validate()
-    }
-
-    @Test
     fun `should return 0 for Mappa null`() {
       setup()
       val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf())
@@ -415,10 +390,6 @@ internal class ProtectLevelCalculatorTest {
       validate()
 
       assertThat(result.points).isEqualTo(0)
-    }
-
-    private fun getValidRegistrations(mappa: Mappa): Collection<Registration> {
-      return listOf(Registration(type = KeyValue("Not Used"), registerLevel = KeyValue(mappa.registerCode), startDate = LocalDate.now(clock)))
     }
 
     private fun setup() {
