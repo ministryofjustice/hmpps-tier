@@ -19,7 +19,11 @@ fun emptyCommunityApiAssessmentsResponse(): HttpResponse = jsonResponseOf("{}")
 
 fun emptyNsisResponse(): HttpResponse = jsonResponseOf("{\"nsis\": []}")
 
-fun registrationsResponseWithMappa(mappa: String? = "M2"): HttpResponse = jsonResponseOf(
+fun nsisResponse(outcome: String): HttpResponse = jsonResponseOf(
+  responseFrom("$communityApiPath/nsi-breach.json")
+    .replace("nsiOutcomeToReplace", outcome)
+
+)fun registrationsResponseWithMappa(mappa: String? = "M2"): HttpResponse = jsonResponseOf(
   responseFrom("$communityApiPath/registrations-mappa.json")
     .replace("mappaToReplace", mappa!!)
 )

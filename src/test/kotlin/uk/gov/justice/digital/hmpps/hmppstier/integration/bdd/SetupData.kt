@@ -7,13 +7,17 @@ import org.mockserver.model.Parameter
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.communityApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialNCConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.femaleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.maleOffenderResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nsisResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithAdditionalFactors
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRosh
 import java.math.BigDecimal
 
-class SetupData constructor (private val communityApi: ClientAndServer) {
+class SetupData constructor(private val communityApi: ClientAndServer) {
+  private var outcome: String = "NO_OUTCOME"
+  private var gender: String = "Male"
   private var additionalFactors: List<String> = emptyList()
   private var mappa: String = "NO_MAPPA"
   private var rosh: String = "NO_ROSH"
@@ -35,6 +39,14 @@ class SetupData constructor (private val communityApi: ClientAndServer) {
     this.additionalFactors = additionalFactors
   }
 
+  fun setGender(gender: String) {
+    this.gender = gender
+  }
+
+  fun setNsi(outcome: String) {
+    this.outcome = outcome
+  }
+
   fun prepareResponses() {
     communityApiResponse(communityApiAssessmentsResponse(rsr), "/secure/offenders/crn/X12345/assessments")
 
@@ -44,10 +56,26 @@ class SetupData constructor (private val communityApi: ClientAndServer) {
       additionalFactors.isNotEmpty() -> registrations(registrationsResponseWithAdditionalFactors(additionalFactors))
       else -> registrations(emptyRegistrationsResponse())
     }
+
     // conviction TODO
-    communityApiResponseWithQs(custodialNCConvictionResponse(), "/secure/offenders/crn/X12345/convictions", Parameter("activeOnly", "true"))
-    // offender TODO
-    communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/X12345")
+    communityApiResponseWithQs(
+      custodialNCConvictionResponse(),
+      "/secure/offenders/crn/X12345/convictions",
+      Parameter("activeOnly", "true")
+    )
+
+    if (gender.equals("Male")) {
+      communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/X12345")
+    } else {
+      communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/X12345")
+    }
+    if (outcome != "NO_OUTCOME") {
+      communityApiResponseWithQs(
+        nsisResponse(outcome),
+        "/secure/offenders/crn/X12345/convictions/\\d+/nsis",
+        Parameter("nsiCodes", "BRE,BRES,REC,RECS")
+      )
+    }
   }
 
   private fun registrations(response: HttpResponse) {

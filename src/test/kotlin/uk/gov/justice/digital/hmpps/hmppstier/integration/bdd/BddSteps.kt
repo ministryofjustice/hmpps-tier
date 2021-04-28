@@ -95,6 +95,12 @@ class BddSteps : En {
       val additionalFactors: List<String> = additionalFactor.split(",")
       setupData.setAdditionalFactors(additionalFactors)
     }
+    Given("an offender is {string}") { gender: String ->
+      setupData.setGender(gender)
+    }
+    And("has an active conviction with NSI Outcome code {string}") { outcome: String ->
+      setupData.setNsi(outcome)
+    }
     And("no ROSH score") {
       // Do nothing
     }
