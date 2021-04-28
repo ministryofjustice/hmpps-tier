@@ -40,8 +40,8 @@ fun registrationsResponseWithAdditionalFactors(additionalFactors: List<String>):
   }
   return jsonResponseOf(
     "{\"registrations\": [" +
-      factors.toTypedArray().joinToString(separator = ",")
-      + "]}"
+      factors.toTypedArray().joinToString(separator = ",") +
+      "]}"
   )
 }
 
@@ -118,4 +118,3 @@ private fun communityApiResponse(path: String): HttpResponse =
 
 private fun assessmentApiResponse(path: String): HttpResponse =
   jsonResponseFromPath("$assessmentApiPath/$path")
-

@@ -52,7 +52,7 @@ class SetupData constructor (private val communityApi: ClientAndServer) {
         "/secure/offenders/crn/X12345/registrations", Parameter("activeOnly", "true")
       )
       // additional factors BDD
-      additionalFactors.isNotEmpty()  -> communityApiResponseWithQs(
+      additionalFactors.isNotEmpty() -> communityApiResponseWithQs(
         registrationsResponseWithAdditionalFactors(additionalFactors),
         "/secure/offenders/crn/X12345/registrations", Parameter("activeOnly", "true")
       )
