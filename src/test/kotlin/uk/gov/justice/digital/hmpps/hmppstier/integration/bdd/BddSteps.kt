@@ -100,7 +100,9 @@ class BddSteps : En {
       }
       setupData.setMappa(mappaCode)
     }
-
+    Given("no active MAPPA Registration") {
+      // Do nothing
+    }
     And("no ROSH score") {
       // Do nothing
     }
