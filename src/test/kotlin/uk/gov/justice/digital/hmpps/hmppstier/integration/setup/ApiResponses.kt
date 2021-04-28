@@ -33,22 +33,31 @@ fun emptyRegistrationsResponse(): HttpResponse = jsonResponseOf("{}")
 
 fun registrationsResponseWithNoLevel(): HttpResponse = communityApiResponse("registrations-no-level.json")
 
-fun registrationsResponseWithAdditionalFactors(additionalFactors: String): HttpResponse = jsonResponseOf(
-  responseFrom("$communityApiPath/registrations-additional.json")
-    .replace("additionalFactorsToReplace", additionalFactors)
-)
+fun registrationsResponseWithAdditionalFactors(additionalFactors: List<String>): HttpResponse {
+  val factors: List<String> = additionalFactors.map {
+    responseFrom("$communityApiPath/registrations-additional.json")
+      .replace("additionalFactorsToReplace", it)
+  }
+  return jsonResponseOf(
+    "{\"registrations\": [" +
+      factors.toTypedArray().joinToString(separator = ",")
+      + "]}"
+  )
+}
 
 fun custodialSCConvictionResponse(): HttpResponse = communityApiResponse("convictions-custodial-sc.json")
 
 fun custodialNCConvictionResponse(): HttpResponse = communityApiResponse("convictions-custodial-nc.json")
 
-fun custodialTerminatedConvictionResponse(): HttpResponse = communityApiResponse("convictions-custodial-terminated.json")
+fun custodialTerminatedConvictionResponse(): HttpResponse =
+  communityApiResponse("convictions-custodial-terminated.json")
 
 fun nonCustodialConvictionResponse(): HttpResponse = communityApiResponse("convictions-non-custodial.json")
 
 fun noSentenceConvictionResponse(): HttpResponse = communityApiResponse("convictions-no-sentence.json")
 
-fun nonCustodialTerminatedConvictionResponse(): HttpResponse = communityApiResponse("convictions-non-custodial-terminated.json")
+fun nonCustodialTerminatedConvictionResponse(): HttpResponse =
+  communityApiResponse("convictions-non-custodial-terminated.json")
 
 fun maleOffenderResponse(): HttpResponse = communityApiResponse("offender-male.json")
 
@@ -56,13 +65,15 @@ fun femaleOffenderResponse(): HttpResponse = communityApiResponse("offender-fema
 
 fun restrictiveRequirementsResponse(): HttpResponse = communityApiResponse("requirements-restrictive.json")
 
-fun restrictiveAndNonRestrictiveRequirementsResponse(): HttpResponse = communityApiResponse("requirements-restrictive-and-non-restrictive.json")
+fun restrictiveAndNonRestrictiveRequirementsResponse(): HttpResponse =
+  communityApiResponse("requirements-restrictive-and-non-restrictive.json")
 
 fun nonRestrictiveRequirementsResponse(): HttpResponse = communityApiResponse("requirements-non-restrictive.json")
 
 fun unpaidWorkRequirementsResponse(): HttpResponse = communityApiResponse("requirements-unpaid-work.json")
 
-fun unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse(): HttpResponse = communityApiResponse("requirements-unpaid-work-additional-hours-order-length-extended.json")
+fun unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse(): HttpResponse =
+  communityApiResponse("requirements-unpaid-work-additional-hours-order-length-extended.json")
 
 fun noRequirementsResponse(): HttpResponse = jsonResponseOf(
   "{\n" +
@@ -72,9 +83,11 @@ fun noRequirementsResponse(): HttpResponse = jsonResponseOf(
 
 fun additionalRequirementsResponse(): HttpResponse = communityApiResponse("requirements-additional.json")
 
-fun custodialAndNonCustodialConvictions(): HttpResponse = communityApiResponse("convictions-custodial-and-non-custodial.json")
+fun custodialAndNonCustodialConvictions(): HttpResponse =
+  communityApiResponse("convictions-custodial-and-non-custodial.json")
 
-fun nonCustodialCurrentAndTerminatedConviction(): HttpResponse = communityApiResponse("convictions-non-custodial-current-and-terminated.json")
+fun nonCustodialCurrentAndTerminatedConviction(): HttpResponse =
+  communityApiResponse("convictions-non-custodial-current-and-terminated.json")
 
 fun assessmentsApiAssessmentsResponse(year: Int): HttpResponse = jsonResponseOf(
   responseFrom("$assessmentApiPath/assessments.json")
@@ -105,3 +118,4 @@ private fun communityApiResponse(path: String): HttpResponse =
 
 private fun assessmentApiResponse(path: String): HttpResponse =
   jsonResponseFromPath("$assessmentApiPath/$path")
+

@@ -50,3 +50,9 @@ Feature: Additional Factors (Male and Female)
     Given the following active registrations: "Vulnerability" "RVLN"
     When a tier is calculated
     Then "2" points are scored
+
+  Scenario: All additional factors score 20 points
+    Given the following active registrations: "All" "RCCO,RCPR,RCHD,RPIR,RTAO,RVAD,STRG,RMDO,ALSH,RVLN"
+    When a tier is calculated
+    Then "20" points are scored
+
