@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiNoSeverityNeedsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseMappaThirty
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithNoLevel
 
 class RegistrationEdgeCasesTest : MockedEndpointsTestBase() {
@@ -35,7 +35,7 @@ class RegistrationEdgeCasesTest : MockedEndpointsTestBase() {
   fun `uses latest registration - two mappa registrations present`() {
     val crn = "X445599"
     setupNCCustodialSentence(crn)
-    setupRegistrations(registrationsResponseMappaThirty(), crn)
+    setupRegistrations(registrationsResponseWithMappa(), crn)
     setupMaleOffender(crn)
     setupNeeds(assessmentsApiNoSeverityNeedsResponse())
     setupNoDeliusAssessment(crn)

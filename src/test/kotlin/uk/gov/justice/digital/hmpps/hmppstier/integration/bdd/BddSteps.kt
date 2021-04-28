@@ -16,13 +16,16 @@ import org.mockserver.model.MediaType
 import org.mockserver.model.Parameter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.communityApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialNCConvictionResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.getNumberOfMessagesCurrentlyOnQueue
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.maleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnQueue
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRosh
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
@@ -89,6 +92,15 @@ class BddSteps : En {
       }
       setupData.setRosh(roshCode)
     }
+    Given("an active MAPPA registration of M Level {string}") { mappa: String ->
+      var mappaCode = "NO_MAPPA"
+      try {
+        mappaCode = Mappa.valueOf("M$mappa").registerCode
+      } catch (e: IllegalArgumentException) {
+      }
+      setupData.setMappa(mappaCode)
+    }
+
     And("no ROSH score") {
       // Do nothing
     }
@@ -117,7 +129,8 @@ class BddSteps : En {
     }
   }
 
-  class SetupData constructor (val communityApi: ClientAndServer) {
+  class SetupData constructor (private val communityApi: ClientAndServer) {
+    private var mappa: String = "NO_MAPPA"
     private var rosh: String = "NO_ROSH"
     private var rsr: BigDecimal = BigDecimal(0)
 
@@ -129,11 +142,28 @@ class BddSteps : En {
       this.rosh = rosh
     }
 
+    fun setMappa(mappa: String) {
+      this.mappa = mappa
+    }
+
     fun doSetup() {
       // RSR BDD
       communityApiResponse(communityApiAssessmentsResponse(rsr), "/secure/offenders/crn/X12345/assessments")
-      // ROSH BDD
-      communityApiResponse(registrationsResponseWithRosh(rosh), "/secure/offenders/crn/X12345/registrations")
+
+      when {
+        // ROSH BDD
+        rosh != "NO_ROSH" -> communityApiResponseWithQs(
+          registrationsResponseWithRosh(rosh),
+          "/secure/offenders/crn/X12345/registrations", Parameter("activeOnly", "true")
+        )
+
+        // MAPPA BDD
+        mappa != "NO_MAPPA" -> communityApiResponseWithQs(
+          registrationsResponseWithMappa(mappa),
+          "/secure/offenders/crn/X12345/registrations", Parameter("activeOnly", "true")
+        )
+        else -> communityApiResponseWithQs(emptyRegistrationsResponse(), "/secure/offenders/crn/X12345/registrations", Parameter("activeOnly", "true"))
+      }
       // conviction TODO
       communityApiResponseWithQs(custodialNCConvictionResponse(), "/secure/offenders/crn/X12345/convictions", Parameter("activeOnly", "true"))
       // offender TODO

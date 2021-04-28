@@ -219,7 +219,7 @@ abstract class MockedEndpointsTestBase {
     )
 
   fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true) {
-    setupRegistrations(registrationsResponseMappaThirty(), crn)
+    setupRegistrations(registrationsResponseWithMappa(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, includeAssessmentApi)
   }
 

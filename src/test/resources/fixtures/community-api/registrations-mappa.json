@@ -72,7 +72,7 @@
         "description": "NPS London"
       },
       "registerLevel": {
-        "code": "M2",
+        "code": "mappaToReplace",
         "description": "MAPPA Level 2"
       },
       "registerCategory": {

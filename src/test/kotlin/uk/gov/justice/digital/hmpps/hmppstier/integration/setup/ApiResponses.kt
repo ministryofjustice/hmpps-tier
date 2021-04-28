@@ -19,7 +19,10 @@ fun emptyCommunityApiAssessmentsResponse(): HttpResponse = jsonResponseOf("{}")
 
 fun emptyNsisResponse(): HttpResponse = jsonResponseOf("{\"nsis\": []}")
 
-fun registrationsResponseMappaThirty(): HttpResponse = communityApiResponse("registrations.json")
+fun registrationsResponseWithMappa(mappa: String? = "M2"): HttpResponse = jsonResponseOf(
+  responseFrom("$communityApiPath/registrations-mappa.json")
+    .replace("mappaToReplace", mappa!!)
+)
 
 fun registrationsResponseWithRosh(rosh: String): HttpResponse = jsonResponseOf(
   responseFrom("$communityApiPath/registrations-rosh.json")
