@@ -36,32 +36,25 @@ class SetupData constructor (private val communityApi: ClientAndServer) {
   }
 
   fun prepareResponses() {
-    // RSR BDD
     communityApiResponse(communityApiAssessmentsResponse(rsr), "/secure/offenders/crn/X12345/assessments")
 
     when {
-      // ROSH BDD
-      rosh != "NO_ROSH" -> communityApiResponseWithQs(
-        registrationsResponseWithRosh(rosh),
-        "/secure/offenders/crn/X12345/registrations", Parameter("activeOnly", "true")
-      )
-
-      // MAPPA BDD
-      mappa != "NO_MAPPA" -> communityApiResponseWithQs(
-        registrationsResponseWithMappa(mappa),
-        "/secure/offenders/crn/X12345/registrations", Parameter("activeOnly", "true")
-      )
-      // additional factors BDD
-      additionalFactors.isNotEmpty() -> communityApiResponseWithQs(
-        registrationsResponseWithAdditionalFactors(additionalFactors),
-        "/secure/offenders/crn/X12345/registrations", Parameter("activeOnly", "true")
-      )
-      else -> communityApiResponseWithQs(emptyRegistrationsResponse(), "/secure/offenders/crn/X12345/registrations", Parameter("activeOnly", "true"))
+      rosh != "NO_ROSH" -> registrations(registrationsResponseWithRosh(rosh))
+      mappa != "NO_MAPPA" -> registrations(registrationsResponseWithMappa(mappa))
+      additionalFactors.isNotEmpty() -> registrations(registrationsResponseWithAdditionalFactors(additionalFactors))
+      else -> registrations(emptyRegistrationsResponse())
     }
     // conviction TODO
     communityApiResponseWithQs(custodialNCConvictionResponse(), "/secure/offenders/crn/X12345/convictions", Parameter("activeOnly", "true"))
     // offender TODO
     communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/X12345")
+  }
+
+  private fun registrations(response: HttpResponse) {
+    communityApiResponseWithQs(
+      response,
+      "/secure/offenders/crn/X12345/registrations", Parameter("activeOnly", "true")
+    )
   }
 
   private fun httpSetupWithQs(
