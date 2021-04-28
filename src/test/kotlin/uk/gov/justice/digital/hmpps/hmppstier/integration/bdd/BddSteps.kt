@@ -102,7 +102,7 @@ class BddSteps : En {
       // Do nothing
     }
     Given("the following active registrations: {string} {string}") { _: String, additionalFactor: String ->
-      var registrationCode  = ComplexityFactor.from(additionalFactor)?.registerCode
+      var registrationCode = ComplexityFactor.from(additionalFactor)?.registerCode
       setupData.setAdditionalFactors(registrationCode)
     }
     And("no ROSH score") {
