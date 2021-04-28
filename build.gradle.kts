@@ -140,7 +140,7 @@ tasks {
 
   getByName<Test>("test") {
     dependsOn(cucumber)
-    exclude("**/CucumberRunnerTest")
+    exclude("**/CucumberRunnerTest*")
     useJUnitPlatform {
       excludeTags("disabled")
     }
