@@ -95,19 +95,14 @@ class BddSteps : En {
       setupData.setRosh(roshCode)
     }
     Given("an active MAPPA registration of M Level {string}") { mappa: String ->
-      var mappaCode = "NO_MAPPA"
-      try {
-        mappaCode = Mappa.valueOf("M$mappa").registerCode
-      } catch (e: IllegalArgumentException) {
-      }
-      setupData.setMappa(mappaCode)
+      var mappaCode = Mappa.from("M$mappa")?.registerCode
+      setupData.setMappa(mappaCode!!)
     }
     Given("no active MAPPA Registration") {
       // Do nothing
     }
     Given("the following active registrations: {string} {string}") { _: String, additionalFactor: String ->
       var registrationCode  = ComplexityFactor.from(additionalFactor)?.registerCode
-
       setupData.setAdditionalFactors(registrationCode)
     }
     And("no ROSH score") {
