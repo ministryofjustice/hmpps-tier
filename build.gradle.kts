@@ -126,7 +126,7 @@ tasks {
 
   val cucumber by registering(JavaExec::class) {
     dependsOn(testClasses)
-    val reportsDir = file("$buildDir/reports/cucumber")
+    val reportsDir = file("$buildDir/test-results")
     outputs.dir(reportsDir)
     classpath = sourceSets["test"].runtimeClasspath
     main = "org.junit.platform.console.ConsoleLauncher"
@@ -134,6 +134,7 @@ tasks {
     args("--select-class", "uk.gov.justice.digital.hmpps.hmppstier.integration.bdd.CucumberRunnerTest")
     args("--exclude-tag", "exclude")
     args("--reports-dir", reportsDir)
+    systemProperty("cucumber.publish.quiet", true)
   }
 
   getByName<Test>("test") {
