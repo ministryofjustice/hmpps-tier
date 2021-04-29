@@ -127,11 +127,10 @@ tasks {
 
   val cucumber by registering(JavaExec::class) {
     dependsOn(testClasses)
-    val reportsDir = file("$buildDir/test-results")
+    val reportsDir = file("$buildDir/reports/cucumber")
     outputs.dir(reportsDir)
     classpath = sourceSets["test"].runtimeClasspath
     main = "org.junit.platform.console.ConsoleLauncher"
-    args("--details", "tree")
     args("--include-classname", ".*")
     args("--select-class", "uk.gov.justice.digital.hmpps.hmppstier.integration.bdd.CucumberRunnerTest")
     args("--exclude-tag", "exclude")
@@ -139,7 +138,7 @@ tasks {
   }
 
   getByName<Test>("test") {
-    dependsOn(cucumber)
+    finalizedBy(cucumber)
     exclude("**/CucumberRunnerTest*")
     useJUnitPlatform {
       excludeTags("disabled")
