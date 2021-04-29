@@ -74,7 +74,7 @@ internal class ProtectLevelCalculatorTest {
     fun `should use either when RSR is same as ROSH`() {
       setup()
       // rsr C+1 = 10 points, Rosh.Medium = 10 Points
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_C_RSR), getValidRegistrations(Rosh.MEDIUM), listOf())
+      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_C_RSR_LOWER), getValidRegistrations(Rosh.MEDIUM), listOf())
       assertThat(result.points).isEqualTo(10)
       validate()
     }
