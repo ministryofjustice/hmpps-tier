@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import java.math.BigDecimal
 import java.nio.file.Files.readString
 import java.nio.file.Paths
@@ -112,6 +113,14 @@ fun assessmentsApi8NeedsResponse(): HttpResponse =
 
 fun assessmentsApiHighSeverityNeedsResponse(): HttpResponse =
   assessmentApiResponse("high_severity_needs_18_points.json")
+
+fun assessmentsApiFemaleAnswersResponse(assessmentAnswers: Map<String, String>): HttpResponse =
+  jsonResponseOf(
+    responseFrom("$assessmentApiPath/female-answers.json")
+      .replace("6.9AnswerToReplace", assessmentAnswers[AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES.answerCode]!!)
+      .replace("11.2AnswerToReplace", assessmentAnswers[AdditionalFactorForWomen.IMPULSIVITY.answerCode]!!)
+      .replace("11.4AnswerToReplace", assessmentAnswers[AdditionalFactorForWomen.TEMPER_CONTROL.answerCode]!!)
+  )
 
 private fun responseFrom(path: String) =
   readString(Paths.get(path))

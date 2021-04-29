@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration.bdd
 
 import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.amazonaws.services.sqs.model.PurgeQueueRequest
-import com.google.common.collect.Lists
 import com.google.common.collect.Lists.newArrayList
 import com.google.gson.Gson
 import io.cucumber.java8.En
@@ -67,7 +66,7 @@ class BddSteps : En {
       calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
 
       setupOauth()
-      setupData = SetupData(communityApi)
+      setupData = SetupData(communityApi, assessmentApi)
       tierCalculationRepository.deleteAll()
     }
 
@@ -100,6 +99,10 @@ class BddSteps : En {
     }
     Given("an offender is {string}") { gender: String ->
       setupData.setGender(gender)
+    }
+    And("has the following OASys complexity answers: {string} {string} : {string}") { _: String, question: String, answer: String ->
+      setupData.setValidAssessment()
+      setupData.setAssessmentAnswer(question, answer)
     }
     And("has an active conviction with NSI Outcome code {string}") { outcome: String ->
       setupData.setNsiOutcomes(newArrayList(outcome))
