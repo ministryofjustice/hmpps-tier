@@ -31,19 +31,8 @@ Feature: Additional Factors (Female only) Breach and Recall
     When a tier is calculated
     Then "0" points are scored
 
-#  Scenario: Different types of breach/recall don't add together
-#    Given an offender is "Female"
-#    And has an active conviction with NSI Outcome code BRE01
-#    And has an(other) active conviction with NSI Outcome code REC01
-#    When a tier is calculated
-#    Then "2" points are scored
-#
-#  Scenario: The same type of breach/recall don't add together
-#    Given an offender is "Female"
-#    And has an active conviction with NSI Outcome code BRE01
-#    And has an(other) active conviction with NSI Outcome code BRE01
-#    When a tier is calculated
-#    Then "2" points are scored
-#
-
-# TODO update BDD document with this
+  Scenario: Different types of breach/recall don't add together
+    Given an offender is "Female"
+    And has two active convictions with NSI Outcome codes "BRE05" and "REC01"
+    When a tier is calculated
+    Then "2" points are scored

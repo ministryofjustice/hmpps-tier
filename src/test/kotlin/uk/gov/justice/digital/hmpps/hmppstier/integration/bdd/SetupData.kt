@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.bdd
 
 import org.mockserver.integration.ClientAndServer
+import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.Parameter
@@ -21,7 +22,7 @@ import java.time.LocalDate
 class SetupData constructor(private val communityApi: ClientAndServer) {
   private var convictionTerminated: LocalDate? = null
   private var activeConvictions: Int = 1
-  private var outcome: String = "NO_OUTCOME"
+  private var outcome: List<String> = emptyList()
   private var gender: String = "Male"
   private var additionalFactors: List<String> = emptyList()
   private var mappa: String = "NO_MAPPA"
@@ -48,7 +49,7 @@ class SetupData constructor(private val communityApi: ClientAndServer) {
     this.gender = gender
   }
 
-  fun setNsi(outcome: String) {
+  fun setNsiOutcomes(outcome: List<String>) {
     this.outcome = outcome
   }
 
@@ -98,12 +99,14 @@ class SetupData constructor(private val communityApi: ClientAndServer) {
       communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/X12345")
     }
 
-    if (outcome != "NO_OUTCOME") {
-      communityApiResponseWithQs(
-        nsisResponse(outcome),
-        "/secure/offenders/crn/X12345/convictions/\\d+/nsis",
-        Parameter("nsiCodes", "BRE,BRES,REC,RECS")
-      )
+    if (outcome.isNotEmpty()) {
+      outcome.forEach {
+        communityApiResponseWithQs(
+          nsisResponse(it),
+          "/secure/offenders/crn/X12345/convictions/\\d+/nsis",
+          Parameter("nsiCodes", "BRE,BRES,REC,RECS")
+        )
+      }
     }
   }
 
@@ -120,10 +123,10 @@ class SetupData constructor(private val communityApi: ClientAndServer) {
     clientAndServer: ClientAndServer,
     qs: Parameter
   ) =
-    clientAndServer.`when`(HttpRequest.request().withPath(urlTemplate).withQueryStringParameter(qs)).respond(response)
+    clientAndServer.`when`(HttpRequest.request().withPath(urlTemplate).withQueryStringParameter(qs), Times.exactly(1)).respond(response)
 
   private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
-    clientAndServer.`when`(HttpRequest.request().withPath(urlTemplate)).respond(response)
+    clientAndServer.`when`(HttpRequest.request().withPath(urlTemplate), Times.exactly(1)).respond(response)
 
   private fun communityApiResponseWithQs(response: HttpResponse, urlTemplate: String, qs: Parameter) =
     httpSetupWithQs(response, urlTemplate, communityApi, qs)
