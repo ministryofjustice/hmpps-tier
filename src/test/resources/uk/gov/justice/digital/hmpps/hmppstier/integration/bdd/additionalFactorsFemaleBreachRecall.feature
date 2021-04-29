@@ -19,22 +19,18 @@ Feature: Additional Factors (Female only) Breach and Recall
     When a tier is calculated
     Then "2" points are scored
 
-#  Scenario: Convictions up to 12 months old are counted
-#    Given an offender is "Female"
-#    And has a conviction terminated 02/01/2020
-#    And today is 02/01/2021 (terminated 365 days ago)
-#    And the conviction has a relevant NSI Outcome code
-#    When a tier is calculated
-#    Then "2" points are scored
-#
-#  Scenario: Convictions over 12 months old are not
-#    Given an offender is "Female"
-#    And has a conviction terminated 02/01/2020
-#    And today is 03/01/2021 (terminated 366 days ago)
-#    And the conviction has a relevant NSI Outcome code
-#    When a tier is calculated
-#    Then "0" points are scored
-#
+  Scenario: Convictions up to 12 months old are counted
+    Given an offender is "Female"
+    And has a conviction terminated 365 days ago with NSI Outcome code "BRE04"
+    When a tier is calculated
+    Then "2" points are scored
+
+  Scenario: Convictions over 12 months old are not counted
+    Given an offender is "Female"
+    And has a conviction terminated 366 days ago with NSI Outcome code "BRE04"
+    When a tier is calculated
+    Then "0" points are scored
+
 #  Scenario: Different types of breach/recall don't add together
 #    Given an offender is "Female"
 #    And has an active conviction with NSI Outcome code BRE01

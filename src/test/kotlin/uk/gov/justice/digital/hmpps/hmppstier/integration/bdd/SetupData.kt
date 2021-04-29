@@ -7,6 +7,7 @@ import org.mockserver.model.Parameter
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.communityApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialAndNonCustodialConvictions
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialNCConvictionResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialTerminatedConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.femaleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.maleOffenderResponse
@@ -15,8 +16,10 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsRes
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRosh
 import java.math.BigDecimal
+import java.time.LocalDate
 
 class SetupData constructor(private val communityApi: ClientAndServer) {
+  private var convictionTerminated: LocalDate? = null
   private var activeConvictions: Int = 1
   private var outcome: String = "NO_OUTCOME"
   private var gender: String = "Male"
@@ -53,6 +56,10 @@ class SetupData constructor(private val communityApi: ClientAndServer) {
     this.activeConvictions = 2
   }
 
+  fun setConvictionTerminatedDate(convictionTerminated: LocalDate) {
+    this.convictionTerminated = convictionTerminated
+  }
+
   fun prepareResponses() {
     communityApiResponse(communityApiAssessmentsResponse(rsr), "/secure/offenders/crn/X12345/assessments")
 
@@ -64,18 +71,25 @@ class SetupData constructor(private val communityApi: ClientAndServer) {
     }
 
     if (activeConvictions == 2) {
-      println("=============2 convictions============")
       communityApiResponseWithQs(
         custodialAndNonCustodialConvictions(),
         "/secure/offenders/crn/X12345/convictions",
         Parameter("activeOnly", "true")
       )
     } else {
-      communityApiResponseWithQs(
-        custodialNCConvictionResponse(),
-        "/secure/offenders/crn/X12345/convictions",
-        Parameter("activeOnly", "true")
-      )
+      if (null != convictionTerminated) {
+        communityApiResponseWithQs(
+          custodialTerminatedConvictionResponse(convictionTerminated!!),
+          "/secure/offenders/crn/X12345/convictions",
+          Parameter("activeOnly", "true")
+        )
+      } else {
+        communityApiResponseWithQs(
+          custodialNCConvictionResponse(),
+          "/secure/offenders/crn/X12345/convictions",
+          Parameter("activeOnly", "true")
+        )
+      }
     }
 
     if (gender == "Male") {
@@ -116,6 +130,4 @@ class SetupData constructor(private val communityApi: ClientAndServer) {
 
   private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
     httpSetup(response, urlTemplate, communityApi)
-
-
 }

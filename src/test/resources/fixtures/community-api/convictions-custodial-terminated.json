@@ -37,7 +37,7 @@
       "lengthInDays": 30,
       "expectedSentenceEndDate": "2018-08-12",
       "startDate": "2018-07-13",
-      "terminationDate": "2018-07-13",
+      "terminationDate": "terminationDateToReplace",
       "terminationReason": "Auto Terminated",
       "sentenceType": {
         "code": "NC",

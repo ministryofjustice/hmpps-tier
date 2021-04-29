@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import java.lang.IllegalArgumentException
+import java.time.LocalDate
 
 class BddSteps : En {
 
@@ -104,6 +105,14 @@ class BddSteps : En {
     And("has two active convictions with NSI Outcome code {string}") { outcome: String ->
       setupData.setNsi(outcome)
       setupData.setTwoActiveConvictions()
+    }
+    And("has a conviction terminated 365 days ago with NSI Outcome code {string}") { outcome: String ->
+      setupData.setConvictionTerminatedDate(LocalDate.now().minusYears(1))
+      setupData.setNsi(outcome)
+    }
+    And("has a conviction terminated 366 days ago with NSI Outcome code {string}") { outcome: String ->
+      setupData.setConvictionTerminatedDate(LocalDate.now().minusYears(1).minusDays(1))
+      setupData.setNsi(outcome)
     }
     And("no ROSH score") {
       // Do nothing

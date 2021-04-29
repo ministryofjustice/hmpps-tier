@@ -6,6 +6,8 @@ import org.mockserver.model.MediaType.APPLICATION_JSON
 import java.math.BigDecimal
 import java.nio.file.Files.readString
 import java.nio.file.Paths
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 const val communityApiPath: String = "src/test/resources/fixtures/community-api"
 const val assessmentApiPath: String = "src/test/resources/fixtures/assessment-api"
@@ -53,8 +55,11 @@ fun custodialSCConvictionResponse(): HttpResponse = communityApiResponse("convic
 
 fun custodialNCConvictionResponse(): HttpResponse = communityApiResponse("convictions-custodial-nc.json")
 
-fun custodialTerminatedConvictionResponse(): HttpResponse =
-  communityApiResponse("convictions-custodial-terminated.json")
+fun custodialTerminatedConvictionResponse(terminatedDate: LocalDate = LocalDate.now().minusDays(1)): HttpResponse =
+  jsonResponseOf(
+    responseFrom("$communityApiPath/convictions-custodial-terminated.json")
+      .replace("terminationDateToReplace", terminatedDate.format(DateTimeFormatter.ISO_DATE))
+  )
 
 fun nonCustodialConvictionResponse(): HttpResponse = communityApiResponse("convictions-non-custodial.json")
 
