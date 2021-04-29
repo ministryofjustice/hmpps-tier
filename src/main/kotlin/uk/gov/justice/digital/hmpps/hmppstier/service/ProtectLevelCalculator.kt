@@ -61,8 +61,8 @@ class ProtectLevelCalculator(
     deliusAssessments?.rsr
       .let { rsr ->
         when {
-          rsr != null && rsr != RsrThresholds.NO_RSR_MAGIC_NUMBER.num && rsr >= RsrThresholds.TIER_B_RSR.num -> 20
-          rsr != null && rsr != RsrThresholds.NO_RSR_MAGIC_NUMBER.num && rsr >= RsrThresholds.TIER_C_RSR.num -> 10
+          rsr != null && rsr >= RsrThresholds.TIER_B_RSR.num && rsr < RsrThresholds.NO_RSR_MAGIC_NUMBER.num -> 20
+          rsr != null && rsr >= RsrThresholds.TIER_C_RSR.num && rsr < RsrThresholds.TIER_B_RSR.num -> 10
           else -> 0
         }
       }.also { log.debug("RSR Points: $it") }
