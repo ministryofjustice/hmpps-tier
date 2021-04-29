@@ -5,6 +5,7 @@ import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.Parameter
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.communityApiAssessmentsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialAndNonCustodialConvictions
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialNCConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.femaleOffenderResponse
@@ -16,6 +17,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsRes
 import java.math.BigDecimal
 
 class SetupData constructor(private val communityApi: ClientAndServer) {
+  private var activeConvictions: Int = 1
   private var outcome: String = "NO_OUTCOME"
   private var gender: String = "Male"
   private var additionalFactors: List<String> = emptyList()
@@ -47,6 +49,10 @@ class SetupData constructor(private val communityApi: ClientAndServer) {
     this.outcome = outcome
   }
 
+  fun setTwoActiveConvictions() {
+    this.activeConvictions = 2
+  }
+
   fun prepareResponses() {
     communityApiResponse(communityApiAssessmentsResponse(rsr), "/secure/offenders/crn/X12345/assessments")
 
@@ -57,18 +63,27 @@ class SetupData constructor(private val communityApi: ClientAndServer) {
       else -> registrations(emptyRegistrationsResponse())
     }
 
-    // conviction TODO
-    communityApiResponseWithQs(
-      custodialNCConvictionResponse(),
-      "/secure/offenders/crn/X12345/convictions",
-      Parameter("activeOnly", "true")
-    )
+    if (activeConvictions == 2) {
+      println("=============2 convictions============")
+      communityApiResponseWithQs(
+        custodialAndNonCustodialConvictions(),
+        "/secure/offenders/crn/X12345/convictions",
+        Parameter("activeOnly", "true")
+      )
+    } else {
+      communityApiResponseWithQs(
+        custodialNCConvictionResponse(),
+        "/secure/offenders/crn/X12345/convictions",
+        Parameter("activeOnly", "true")
+      )
+    }
 
-    if (gender.equals("Male")) {
+    if (gender == "Male") {
       communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/X12345")
     } else {
       communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/X12345")
     }
+
     if (outcome != "NO_OUTCOME") {
       communityApiResponseWithQs(
         nsisResponse(outcome),
@@ -101,4 +116,6 @@ class SetupData constructor(private val communityApi: ClientAndServer) {
 
   private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
     httpSetup(response, urlTemplate, communityApi)
+
+
 }

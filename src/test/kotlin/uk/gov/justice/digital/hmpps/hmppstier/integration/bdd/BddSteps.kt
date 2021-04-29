@@ -101,6 +101,10 @@ class BddSteps : En {
     And("has an active conviction with NSI Outcome code {string}") { outcome: String ->
       setupData.setNsi(outcome)
     }
+    And("has two active convictions with NSI Outcome code {string}") { outcome: String ->
+      setupData.setNsi(outcome)
+      setupData.setTwoActiveConvictions()
+    }
     And("no ROSH score") {
       // Do nothing
     }
