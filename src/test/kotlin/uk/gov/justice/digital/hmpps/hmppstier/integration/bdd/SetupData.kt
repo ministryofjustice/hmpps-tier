@@ -71,6 +71,7 @@ class SetupData constructor(private val communityApi: ClientAndServer) {
       else -> registrations(emptyRegistrationsResponse())
     }
 
+
     if (activeConvictions == 2) {
       communityApiResponseWithQs(
         custodialAndNonCustodialConvictions(),

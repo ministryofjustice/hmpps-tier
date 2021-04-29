@@ -36,3 +36,4 @@ Feature: Additional Factors (Female only) Breach and Recall
     And has two active convictions with NSI Outcome codes "BRE05" and "REC01"
     When a tier is calculated
     Then "2" points are scored
+
