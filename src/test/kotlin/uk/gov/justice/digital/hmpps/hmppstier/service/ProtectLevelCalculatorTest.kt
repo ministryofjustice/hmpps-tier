@@ -26,7 +26,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
@@ -71,24 +70,6 @@ internal class ProtectLevelCalculatorTest {
   @DisplayName("Simple Risk tests")
   inner class SimpleRiskTests {
 
-    @Test // RsrThresholds.TIER_B_RSR
-    fun `should use RSR when higher than ROSH`() {
-      setup()
-      // rsr B+1 = 20 points, Rosh.Medium = 10 Points
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_B_RSR), getValidRegistrations(Rosh.MEDIUM), listOf())
-      assertThat(result.points).isEqualTo(20)
-      validate()
-    }
-
-    @Test
-    fun `should use ROSH when higher than RSR`() {
-      setup()
-      // rsr B+1 = 20 points, Rosh.VeryHigh = 30 Points
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_B_RSR), getValidRegistrations(Rosh.VERY_HIGH), listOf())
-      assertThat(result.points).isEqualTo(30)
-      validate()
-    }
-
     @Test
     fun `should use either when RSR is same as ROSH`() {
       setup()
@@ -121,46 +102,6 @@ internal class ProtectLevelCalculatorTest {
   @Nested
   @DisplayName("Simple RSR tests")
   inner class SimpleRSRTests {
-
-    @Test
-    fun `should return 20 for RSR equal to tier B`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_B_RSR.num), listOf(), listOf())
-      assertThat(result.points).isEqualTo(20)
-      validate()
-    }
-
-    @Test
-    fun `should return 20 for RSR greater than tier B`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_B_RSR.num.plus(BigDecimal(1))), listOf(), listOf())
-      assertThat(result.points).isEqualTo(20)
-      validate()
-    }
-
-    @Test
-    fun `should return 10 for RSR equal to tier C`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_C_RSR.num), listOf(), listOf())
-      assertThat(result.points).isEqualTo(10)
-      validate()
-    }
-
-    @Test
-    fun `should return 10 for RSR greater than tier C`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_C_RSR.num.plus(BigDecimal(1))), listOf(), listOf())
-      assertThat(result.points).isEqualTo(10)
-      validate()
-    }
-
-    @Test
-    fun `should return 0 for RSR less than tier C`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_C_RSR.num.minus(BigDecimal(1))), listOf(), listOf())
-      assertThat(result.points).isEqualTo(0)
-      validate()
-    }
 
     @Test
     fun `should return 0 for RSR null`() {
@@ -211,30 +152,6 @@ internal class ProtectLevelCalculatorTest {
   @Nested
   @DisplayName("Simple ROSH tests")
   inner class SimpleRoshTests {
-
-    @Test
-    fun `should return 30 for Very High Rosh`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, null, getValidRegistrations(Rosh.VERY_HIGH), listOf())
-      assertThat(result.points).isEqualTo(30)
-      validate()
-    }
-
-    @Test
-    fun `should return 30 for High Rosh`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, null, getValidRegistrations(Rosh.HIGH), listOf())
-      assertThat(result.points).isEqualTo(20)
-      validate()
-    }
-
-    @Test
-    fun `should return 10 for Medium Rosh`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, null, getValidRegistrations(Rosh.MEDIUM), listOf())
-      assertThat(result.points).isEqualTo(10)
-      validate()
-    }
 
     @Test
     fun `should return 0 for No Rosh`() {
@@ -353,10 +270,6 @@ internal class ProtectLevelCalculatorTest {
       validate()
     }
 
-    private fun getValidRegistrations(rosh: Rosh): Collection<Registration> {
-      return listOf(Registration(type = KeyValue(rosh.registerCode), registerLevel = null, startDate = LocalDate.now(clock)))
-    }
-
     private fun setup() {
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
     }
@@ -369,30 +282,6 @@ internal class ProtectLevelCalculatorTest {
   @Nested
   @DisplayName("Simple Mappa tests")
   inner class SimpleMappaTests {
-
-    @Test
-    fun `should return 30 for Mappa level 3`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, null, getValidRegistrations(Mappa.M3), listOf())
-      assertThat(result.points).isEqualTo(30)
-      validate()
-    }
-
-    @Test
-    fun `should return 30 for Mappa level 2`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, null, getValidRegistrations(Mappa.M2), listOf())
-      assertThat(result.points).isEqualTo(30)
-      validate()
-    }
-
-    @Test
-    fun `should return 5 for Mappa level 1`() {
-      setup()
-      val result = service.calculateProtectLevel(crn, null, null, getValidRegistrations(Mappa.M1), listOf())
-      assertThat(result.points).isEqualTo(5)
-      validate()
-    }
 
     @Test
     fun `should return 0 for Mappa null`() {
@@ -501,10 +390,6 @@ internal class ProtectLevelCalculatorTest {
       validate()
 
       assertThat(result.points).isEqualTo(0)
-    }
-
-    private fun getValidRegistrations(mappa: Mappa): Collection<Registration> {
-      return listOf(Registration(type = KeyValue("Not Used"), registerLevel = KeyValue(mappa.registerCode), startDate = LocalDate.now(clock)))
     }
 
     private fun setup() {

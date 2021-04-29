@@ -1,3 +1,4 @@
+val cucumberVersion = "6.10.3"
 
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.1.6"
@@ -5,10 +6,13 @@ plugins {
   kotlin("plugin.jpa") version "1.4.30"
   id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
   jacoco
+  java
 }
 
 configurations {
-  testImplementation { exclude(group = "org.junit.vintage") }
+  testImplementation {
+    exclude(group = "org.junit.vintage")
+  }
 }
 
 dependencies {
@@ -51,6 +55,10 @@ dependencies {
   testImplementation("org.assertj:assertj-core:3.18.0")
   testImplementation("org.awaitility:awaitility-kotlin:4.0.3")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
+  testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
+  testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
+  testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
+  testImplementation("org.junit.platform:junit-platform-console:1.7.1")
 }
 
 extra["springCloudVersion"] = "Hoxton.SR8"
@@ -65,12 +73,11 @@ jacoco {
   toolVersion = "0.8.6"
 }
 
-tasks.named("check") {
-  dependsOn(":ktlintCheck")
-  finalizedBy("jacocoTestCoverageVerification")
-}
-
 tasks {
+  getByName("check") {
+    dependsOn(":ktlintCheck")
+    finalizedBy("jacocoTestCoverageVerification")
+  }
   getByName<JacocoReport>("jacocoTestReport") {
     dependsOn("test")
     reports {
@@ -90,9 +97,6 @@ tasks {
       )
     }
   }
-}
-
-tasks {
   getByName<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
     violationRules {
       rule {
@@ -117,6 +121,27 @@ tasks {
           }
         )
       )
+    }
+  }
+
+  val cucumber by registering(JavaExec::class) {
+    dependsOn(testClasses)
+    val reportsDir = file("$buildDir/test-results")
+    outputs.dir(reportsDir)
+    classpath = sourceSets["test"].runtimeClasspath
+    main = "org.junit.platform.console.ConsoleLauncher"
+    args("--include-classname", ".*")
+    args("--select-class", "uk.gov.justice.digital.hmpps.hmppstier.integration.bdd.CucumberRunnerTest")
+    args("--exclude-tag", "exclude")
+    args("--reports-dir", reportsDir)
+    systemProperty("cucumber.publish.quiet", true)
+  }
+
+  getByName<Test>("test") {
+    finalizedBy(cucumber)
+    exclude("**/CucumberRunnerTest*")
+    useJUnitPlatform {
+      excludeTags("disabled")
     }
   }
 }

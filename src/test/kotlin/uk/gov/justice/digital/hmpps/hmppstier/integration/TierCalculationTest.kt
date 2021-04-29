@@ -2,13 +2,10 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 
-@TestInstance(PER_CLASS)
 class TierCalculationTest : MockedEndpointsTestBase() {
 
   @Nested
@@ -49,7 +46,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       val crn = "X432768"
 
       setupSCCustodialSentence(crn)
-      setupRegistrations(registrationsResponse(), crn)
+      setupRegistrations(registrationsResponseWithMappa(), crn)
       restOfSetupWithMaleOffenderAnd8PointNeeds(crn, true)
 
       calculateTierFor(crn)

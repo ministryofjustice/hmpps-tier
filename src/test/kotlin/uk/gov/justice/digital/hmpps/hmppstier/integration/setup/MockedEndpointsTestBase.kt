@@ -9,6 +9,8 @@ import org.awaitility.kotlin.untilCallTo
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.integration.ClientAndServer.startClientAndServer
 import org.mockserver.model.HttpRequest.request
@@ -18,13 +20,25 @@ import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.mockserver.model.Parameter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
+import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
+import java.math.BigDecimal
 import java.time.Duration
 import java.time.LocalDate
 
-abstract class MockedEndpointsTestBase : IntegrationTestBase() {
+@TestInstance(Lifecycle.PER_CLASS)
+@SpringBootTest(webEnvironment = RANDOM_PORT)
+@ActiveProfiles("test")
+abstract class MockedEndpointsTestBase {
+
+  @Suppress("SpringJavaInjectionPointsAutowiringInspection")
+  @Autowired
+  lateinit var webTestClient: WebTestClient
 
   @Autowired
   lateinit var gson: Gson
@@ -104,13 +118,17 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiHighSeverityNeedsResponse())
 
   private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: HttpResponse) {
-    communityApiResponse(communityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments")
+    setupCommunityApiAssessment(crn)
     setupMaleOffender(crn)
 
     if (includeAssessmentApi) {
       setupCurrentAssessment(crn)
     }
     setupNeeds(needs)
+  }
+
+  fun setupCommunityApiAssessment(crn: String, rsr: BigDecimal = BigDecimal(23.0)) {
+    communityApiResponse(communityApiAssessmentsResponse(rsr), "/secure/offenders/crn/$crn/assessments")
   }
 
   fun setupMaleOffender(crn: String) {
@@ -201,7 +219,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
     )
 
   fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true) {
-    setupRegistrations(registrationsResponse(), crn)
+    setupRegistrations(registrationsResponseWithMappa(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, includeAssessmentApi)
   }
 
@@ -271,7 +289,7 @@ abstract class MockedEndpointsTestBase : IntegrationTestBase() {
   }
 }
 
-private data class SQSMessage(
+data class SQSMessage(
   val Message: String,
   val MessageId: String
 )
