@@ -73,12 +73,11 @@ jacoco {
   toolVersion = "0.8.6"
 }
 
-tasks.named("check") {
-  dependsOn(":ktlintCheck")
-  finalizedBy("jacocoTestCoverageVerification")
-}
-
 tasks {
+  getByName("check") {
+    dependsOn(":ktlintCheck")
+    finalizedBy("jacocoTestCoverageVerification")
+  }
   getByName<JacocoReport>("jacocoTestReport") {
     dependsOn("test")
     reports {
