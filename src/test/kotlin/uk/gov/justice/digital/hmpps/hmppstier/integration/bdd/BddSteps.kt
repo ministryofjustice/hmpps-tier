@@ -142,6 +142,12 @@ class BddSteps : En {
     And("has a main offence of Abstracting Electricity") {
       setupData.setMainOffenceAbstractingElectricity()
     }
+    And("has a sentence length of {long} months") { months: Long ->
+      setupData.setSentenceLength(months)
+    }
+    And("has an indeterminate sentence length") {
+      setupData.setSentenceLengthIndeterminate()
+    }
 
     When("a tier is calculated") {
       setupData.prepareResponses()

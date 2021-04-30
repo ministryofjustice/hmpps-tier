@@ -96,10 +96,17 @@ fun additionalRequirementsResponse(): HttpResponse = communityApiResponse("requi
 fun custodialAndNonCustodialConvictions(): HttpResponse =
   communityApiResponse("convictions-custodial-and-non-custodial.json")
 
-fun custodialNCConvictionResponseWithMainOffence(mainOffence: String = "016"): HttpResponse =
+fun custodialNCConvictionResponse(
+  mainOffence: String = "016",
+  sentenceLength: Long = 1,
+  courtAppearanceOutcome: String = "428"
+): HttpResponse =
   jsonResponseOf(
     responseFrom("$communityApiPath/convictions-custodial-nc.json")
       .replace("mainOffenceToReplace", mainOffence)
+      .replace("startDateToReplace", LocalDate.of(2021, 4, 30).format(ISO_DATE))
+      .replace("expectedSentenceEndDateToReplace", LocalDate.of(2021, 4, 30).plusMonths(sentenceLength).format(ISO_DATE))
+      .replace("latestCourtAppearanceOutcomeToReplace", courtAppearanceOutcome)
   )
 
 fun nonCustodialCurrentAndTerminatedConviction(): HttpResponse =

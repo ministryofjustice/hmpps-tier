@@ -14,7 +14,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiFe
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiNoSeverityNeedsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.communityApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialAndNonCustodialConvictions
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialNCConvictionResponseWithMainOffence
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialNCConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialTerminatedConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyNsisResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
@@ -28,6 +28,8 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 class SetupData(private val communityApi: ClientAndServer, private val assessmentApi: ClientAndServer) {
+  private var sentenceLengthIndeterminate: Boolean = false
+  private var sentenceLength: Long = 1
   private var mainOffence: String = "016"
   private var hasValidAssessment: Boolean = false
   private var convictionTerminated: LocalDate? = null
@@ -95,6 +97,15 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   fun setMainOffenceAbstractingElectricity() {
     this.mainOffence = "043"
   }
+
+  fun setSentenceLength(months: Long) {
+    this.sentenceLength = months
+  }
+
+  fun setSentenceLengthIndeterminate() {
+    this.sentenceLengthIndeterminate = true
+  }
+
   fun prepareResponses() {
     communityApiResponse(communityApiAssessmentsResponse(rsr), "/secure/offenders/crn/X12345/assessments")
 
@@ -128,7 +139,11 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
       if (null != convictionTerminated) {
         convictions(custodialTerminatedConvictionResponse(convictionTerminated!!))
       } else {
-        convictions(custodialNCConvictionResponseWithMainOffence(mainOffence))
+        if (sentenceLengthIndeterminate) {
+          convictions(custodialNCConvictionResponse(mainOffence, courtAppearanceOutcome = "303"))
+        } else {
+          convictions(custodialNCConvictionResponse(mainOffence, sentenceLength))
+        }
       }
     }
 
