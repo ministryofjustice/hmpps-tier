@@ -49,6 +49,10 @@
         <appender-ref ref="consoleAppender"/>
     </logger>
 
+    <logger name="com.amazonaws.auth.profile.internal" additivity="false" level="ERROR">
+        <appender-ref ref="consoleAppender"/>
+    </logger>
+
     <logger name="org.mockserver.log" additivity="false" level="WARN">
         <appender-ref ref="consoleAppender"/>
     </logger>

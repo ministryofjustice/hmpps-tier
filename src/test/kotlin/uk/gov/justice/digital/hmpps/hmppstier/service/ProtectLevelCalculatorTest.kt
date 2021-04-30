@@ -728,18 +728,6 @@ internal class ProtectLevelCalculatorTest {
       verify { communityApiClient.getOffender(crn) }
       verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
-
-    @Test
-    fun `should not count female only if male`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
-
-      every { communityApiClient.getOffender(crn) } returns Offender("Male")
-
-      val result = service.calculateProtectLevel(crn, assessment, null, listOf(), listOf())
-      assertThat(result.points).isEqualTo(0)
-
-      verify { communityApiClient.getOffender(crn) }
-    }
   }
 
   @Nested

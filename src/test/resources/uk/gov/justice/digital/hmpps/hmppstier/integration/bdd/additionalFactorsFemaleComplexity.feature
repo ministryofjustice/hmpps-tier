@@ -60,6 +60,14 @@ Feature: Additional Factors (Female only) Self-Control / Temper and Parenting / 
     When a tier is calculated
     Then "4" points are scored
 
+  Scenario: Temper Control 0, Impulsivity 0 and Parenting Responsibilities No scores 0 points
+    Given an offender is "Female"
+    And has the following OASys complexity answer: "IMPULSIVITY" "11.2" : "0"
+    And has the following OASys complexity answer: "TEMPER_CONTROL" "11.4" : "0"
+    And has the following OASys complexity answer: "PARENTING_RESPONSIBILITIES" "6.9" : "NO"
+    When a tier is calculated
+    Then "0" points are scored
+
   Scenario: Male offender scores 0 points
     Given an offender is "Male"
     And has the following OASys complexity answer: "IMPULSIVITY" "11.2" : "1"
