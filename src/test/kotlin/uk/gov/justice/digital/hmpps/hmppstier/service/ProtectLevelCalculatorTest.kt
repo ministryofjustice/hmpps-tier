@@ -28,6 +28,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWo
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_RSR_LOWER
 import java.math.BigDecimal
 import java.time.Clock
