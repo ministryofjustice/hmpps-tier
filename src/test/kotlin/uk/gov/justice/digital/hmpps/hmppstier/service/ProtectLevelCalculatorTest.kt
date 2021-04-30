@@ -29,6 +29,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_RSR
 import java.math.BigDecimal
 import java.time.Clock
 import java.time.LocalDate
@@ -74,7 +75,7 @@ internal class ProtectLevelCalculatorTest {
     fun `should use either when RSR is same as ROSH`() {
       setup()
       // rsr C+1 = 10 points, Rosh.Medium = 10 Points
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_C_RSR), getValidRegistrations(Rosh.MEDIUM), listOf())
+      val result = service.calculateProtectLevel(crn, null, getValidAssessments(TIER_C_RSR), getValidRegistrations(Rosh.MEDIUM), listOf())
       assertThat(result.points).isEqualTo(10)
       validate()
     }
@@ -106,7 +107,7 @@ internal class ProtectLevelCalculatorTest {
     @Test
     fun `should return 0 for RSR null`() {
       setup()
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(null), listOf(), listOf())
+      val result = service.calculateProtectLevel(crn, null, getValidAssessments(), listOf(), listOf())
       assertThat(result.points).isEqualTo(0)
       validate()
     }
@@ -133,9 +134,9 @@ internal class ProtectLevelCalculatorTest {
       validate()
     }
 
-    private fun getValidAssessments(rsr: BigDecimal?): DeliusAssessments {
+    private fun getValidAssessments(): DeliusAssessments {
       return DeliusAssessments(
-        rsr = rsr,
+        rsr = null,
         ogrs = null
       )
     }
@@ -727,44 +728,12 @@ internal class ProtectLevelCalculatorTest {
       verify { communityApiClient.getOffender(crn) }
       verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
-
-    @Test
-    fun `should not count female only if male`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
-
-      every { communityApiClient.getOffender(crn) } returns Offender("Male")
-
-      val result = service.calculateProtectLevel(crn, assessment, null, listOf(), listOf())
-      assertThat(result.points).isEqualTo(0)
-
-      verify { communityApiClient.getOffender(crn) }
-    }
   }
 
   @Nested
   @DisplayName("Get Breach Recall Tests")
   inner class GetBreachRecallTests {
     private val irrelevantSentenceType: KeyValue = KeyValue("irrelevant")
-
-    @Test
-    fun `Should return Breach true if present and valid terminationDate`() {
-      val crn = "123"
-      val convictionId = 54321L
-      val terminationDate = LocalDate.now(clock)
-      val sentence = Sentence(terminationDate, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
-      val conviction = Conviction(convictionId, sentence, listOf())
-
-      val breaches = listOf(Nsi(status = KeyValue("BRE08")))
-
-      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
-
-      val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf(conviction))
-      assertThat(result.points).isEqualTo(2)
-
-      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
-      verify { communityApiClient.getOffender(crn) }
-    }
 
     @Test
     fun `Should return Breach true if present and valid terminationDate after cutoff`() {
@@ -888,28 +857,6 @@ internal class ProtectLevelCalculatorTest {
       val breaches = listOf(
         Nsi(status = KeyValue("BRE54")),
         Nsi(status = KeyValue("bre08"))
-      )
-
-      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
-
-      val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf(conviction))
-      assertThat(result.points).isEqualTo(2)
-
-      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
-      verify { communityApiClient.getOffender(crn) }
-    }
-
-    @Test
-    fun `Should return Breach true if one conviction, multiple breaches, multiple valid`() {
-      val crn = "123"
-      val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
-      val conviction = Conviction(convictionId, sentence, listOf())
-
-      val breaches = listOf(
-        Nsi(status = KeyValue("BRE09")),
-        Nsi(status = KeyValue("BRE08"))
       )
 
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
