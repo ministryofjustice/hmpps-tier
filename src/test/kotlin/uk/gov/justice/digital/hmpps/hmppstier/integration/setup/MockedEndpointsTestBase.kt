@@ -127,7 +127,7 @@ abstract class MockedEndpointsTestBase {
     setupNeeds(needs)
   }
 
-  fun setupCommunityApiAssessment(crn: String, rsr: BigDecimal = BigDecimal(23.0), ogrs: String = "16") {
+  fun setupCommunityApiAssessment(crn: String, rsr: BigDecimal = BigDecimal(23.0), ogrs: String = "21") {
     communityApiResponse(communityApiAssessmentsResponse(rsr, ogrs), "/secure/offenders/crn/$crn/assessments")
   }
 
