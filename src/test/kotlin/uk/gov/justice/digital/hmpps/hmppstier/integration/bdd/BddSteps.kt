@@ -80,11 +80,11 @@ class BddSteps : En {
       setupData.setRsr(rsr)
     }
     Given("a ROSH score of {string}") { rosh: String ->
-      var roshCode =
-        when {
-          (Rosh.from(rosh) != null) -> Rosh.from(rosh)?.registerCode
-          else -> "NO_ROSH"
-        }
+      var roshCode = "NO_ROSH"
+      try {
+        roshCode = Rosh.valueOf(rosh).registerCode
+      } catch (e: IllegalArgumentException) {
+      }
       setupData.setRosh(roshCode!!)
     }
     Given("an active MAPPA registration of M Level {string}") { mappa: String ->

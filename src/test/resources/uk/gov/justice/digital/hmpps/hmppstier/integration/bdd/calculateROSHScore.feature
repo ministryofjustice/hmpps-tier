@@ -1,4 +1,5 @@
 #lang: en
+  @single
 Feature: Calculate ROSH score
 
   Scenario: ROSH very high 30 points scored
