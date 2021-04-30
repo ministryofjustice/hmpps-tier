@@ -102,27 +102,60 @@ class BddSteps : En {
     }
 
     Given("an offender scores 21 points") {
-      setupData.setRsr("8") // RSR of 8 is 20 points
+      setupData.setOgrs("90") // 9 points
+      setupData.setNeeds(
+        mapOf(
+          "ACCOMMODATION" to "STANDARD_NEED",
+          "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "STANDARD_NEED",
+          "RELATIONSHIPS" to "STANDARD_NEED",
+          "LIFESTYLE_AND_ASSOCIATES" to "STANDARD_NEED",
+          "DRUG_MISUSE" to "STANDARD_NEED",
+          "ALCOHOL_MISUSE" to "STANDARD_NEED"
+        )
+      ) // 12 points
     }
 
     Given("an offender scores 20 points") {
-      setupData.setRsr("8") // RSR of 8 is 20 points
+      setupData.setOgrs("100") // 10 points
+      setupData.setNeeds(
+        mapOf(
+          "ACCOMMODATION" to "STANDARD_NEED",
+          "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "STANDARD_NEED",
+          "RELATIONSHIPS" to "STANDARD_NEED",
+          "LIFESTYLE_AND_ASSOCIATES" to "STANDARD_NEED",
+          "DRUG_MISUSE" to "STANDARD_NEED"
+        )
+      ) // 10 points
     }
 
     Given("an offender scores 19 points") {
-      setupData.setRsr("5") // RSR of 5 is 10 points
+      setupData.setOgrs("90") // 9 points
+      setupData.setNeeds(
+        mapOf(
+          "ACCOMMODATION" to "STANDARD_NEED",
+          "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "STANDARD_NEED",
+          "RELATIONSHIPS" to "STANDARD_NEED",
+          "LIFESTYLE_AND_ASSOCIATES" to "STANDARD_NEED",
+          "DRUG_MISUSE" to "STANDARD_NEED"
+        )
+      ) // 10 points
     }
 
     Given("an offender scores 11 points") {
-      setupData.setRsr("5") // RSR of 5 is 10 points
+      setupData.setOgrs("90") // 9 points
+      setupData.setNeeds(
+        mapOf(
+          "ACCOMMODATION" to "STANDARD_NEED",
+        )
+      ) // 2 points
     }
 
     Given("an offender scores 10 points") {
-      setupData.setRsr("5") // RSR of 5 is 10 points
+      setupData.setOgrs("100") // 10 points
     }
 
     Given("an offender scores 9 points") {
-      setupData.setMappa("1") // Mappa of 1 is 5 points
+      setupData.setOgrs("90") // 9 points
     }
 
     And("has the following OASys complexity answer: {string} {string} : {string}") { _: String, question: String, answer: String ->

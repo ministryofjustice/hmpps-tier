@@ -19,6 +19,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyNsisRespons
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.femaleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.maleOffenderResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.needsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nsisResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithAdditionalFactors
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
@@ -33,7 +34,9 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   private var outcome: List<String> = emptyList()
   private var gender: String = "Male"
   private var additionalFactors: List<String> = emptyList()
+  private var needs: Map<String, String> = emptyMap()
   private var mappa: String = "NO_MAPPA"
+  private var ogrs: String = "0"
   private var rosh: String = "NO_ROSH"
   private var rsr: BigDecimal = BigDecimal(0)
   private var assessmentAnswers: MutableMap<String, String> = mutableMapOf(
@@ -54,8 +57,16 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
     this.mappa = mappa
   }
 
+  fun setOgrs(ogrs: String) {
+    this.ogrs = ogrs
+  }
+
   fun setAdditionalFactors(additionalFactors: List<String>) {
     this.additionalFactors = additionalFactors
+  }
+
+  fun setNeeds(needs: Map<String, String>) {
+    this.needs = needs
   }
 
   fun setGender(gender: String) {
@@ -83,13 +94,19 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   }
 
   fun prepareResponses() {
-    communityApiResponse(communityApiAssessmentsResponse(rsr), "/secure/offenders/crn/X12345/assessments")
+    communityApiResponse(communityApiAssessmentsResponse(rsr, ogrs), "/secure/offenders/crn/X12345/assessments")
 
     when {
       rosh != "NO_ROSH" -> registrations(registrationsResponseWithRosh(rosh))
       mappa != "NO_MAPPA" -> registrations(registrationsResponseWithMappa(mappa))
       additionalFactors.isNotEmpty() -> registrations(registrationsResponseWithAdditionalFactors(additionalFactors))
       else -> registrations(emptyRegistrationsResponse())
+    }
+
+    if (needs.any()) {
+      needsResponse(
+        needs
+      )
     }
 
     if (hasValidAssessment) {

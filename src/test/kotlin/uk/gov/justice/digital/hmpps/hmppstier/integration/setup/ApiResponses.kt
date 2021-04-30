@@ -15,9 +15,10 @@ import java.time.format.DateTimeFormatter
 const val communityApiPath: String = "src/test/resources/fixtures/community-api"
 const val assessmentApiPath: String = "src/test/resources/fixtures/assessment-api"
 
-fun communityApiAssessmentsResponse(rsr: BigDecimal): HttpResponse = jsonResponseOf(
+fun communityApiAssessmentsResponse(rsr: BigDecimal, ogrs: String): HttpResponse = jsonResponseOf(
   responseFrom("$communityApiPath/assessments.json")
     .replace("rsrScoreToReplace", rsr.toPlainString())
+    .replace("ogrsScoreToReplace", ogrs)
 )
 
 fun emptyCommunityApiAssessmentsResponse(): HttpResponse = jsonResponseOf("{}")
@@ -38,6 +39,11 @@ fun registrationsResponseWithRosh(rosh: String): HttpResponse = jsonResponseOf(
     .replace("roshToReplace", rosh)
 )
 
+fun deliusAssessmentsResponse(ogrs: String): HttpResponse = jsonResponseOf(
+  responseFrom("$communityApiPath/assessments.json")
+    .replace("roshToReplace", ogrs)
+)
+
 fun emptyRegistrationsResponse(): HttpResponse = jsonResponseOf("{}")
 
 fun registrationsResponseWithNoLevel(): HttpResponse = communityApiResponse("registrations-no-level.json")
@@ -51,6 +57,19 @@ fun registrationsResponseWithAdditionalFactors(additionalFactors: List<String>):
     "{\"registrations\": [" +
       factors.toTypedArray().joinToString(separator = ",") +
       "]}"
+  )
+}
+
+fun needsResponse(needs: Map<String, String>): HttpResponse {
+  val needsResponse: List<String> = needs.map {
+    responseFrom("$assessmentApiPath/needs-additional.json")
+      .replace("needsToReplace", it.key)
+      .replace("severityToReplace", it.value)
+  }
+  return jsonResponseOf(
+    "[" +
+      needsResponse.toTypedArray().joinToString(separator = ",") +
+      "]"
   )
 }
 
