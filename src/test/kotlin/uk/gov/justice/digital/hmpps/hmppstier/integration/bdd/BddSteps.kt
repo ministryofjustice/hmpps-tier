@@ -106,12 +106,12 @@ class BddSteps : En {
       setupData.setOgrs("90") // 9 points
       setupData.setNeeds(
         mapOf(
-          "ACCOMMODATION" to "STANDARD_NEED",
-          "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "STANDARD_NEED",
-          "RELATIONSHIPS" to "STANDARD_NEED",
-          "LIFESTYLE_AND_ASSOCIATES" to "STANDARD_NEED",
-          "DRUG_MISUSE" to "STANDARD_NEED",
-          "ALCOHOL_MISUSE" to "STANDARD_NEED"
+          "ACCOMMODATION" to "SEVERE",
+          "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "SEVERE",
+          "RELATIONSHIPS" to "SEVERE",
+          "LIFESTYLE_AND_ASSOCIATES" to "SEVERE",
+          "DRUG_MISUSE" to "SEVERE",
+          "ALCOHOL_MISUSE" to "SEVERE"
         )
       ) // 12 points
     }
@@ -120,11 +120,11 @@ class BddSteps : En {
       setupData.setOgrs("100") // 10 points
       setupData.setNeeds(
         mapOf(
-          "ACCOMMODATION" to "STANDARD_NEED",
-          "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "STANDARD_NEED",
-          "RELATIONSHIPS" to "STANDARD_NEED",
-          "LIFESTYLE_AND_ASSOCIATES" to "STANDARD_NEED",
-          "DRUG_MISUSE" to "STANDARD_NEED"
+          "ACCOMMODATION" to "SEVERE",
+          "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "SEVERE",
+          "RELATIONSHIPS" to "SEVERE",
+          "LIFESTYLE_AND_ASSOCIATES" to "SEVERE",
+          "DRUG_MISUSE" to "SEVERE"
         )
       ) // 10 points
     }
@@ -133,11 +133,11 @@ class BddSteps : En {
       setupData.setOgrs("90") // 9 points
       setupData.setNeeds(
         mapOf(
-          "ACCOMMODATION" to "STANDARD_NEED",
-          "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "STANDARD_NEED",
-          "RELATIONSHIPS" to "STANDARD_NEED",
-          "LIFESTYLE_AND_ASSOCIATES" to "STANDARD_NEED",
-          "DRUG_MISUSE" to "STANDARD_NEED"
+          "ACCOMMODATION" to "SEVERE",
+          "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "SEVERE",
+          "RELATIONSHIPS" to "SEVERE",
+          "LIFESTYLE_AND_ASSOCIATES" to "SEVERE",
+          "DRUG_MISUSE" to "SEVERE"
         )
       ) // 10 points
     }
@@ -146,7 +146,7 @@ class BddSteps : En {
       setupData.setOgrs("90") // 9 points
       setupData.setNeeds(
         mapOf(
-          "ACCOMMODATION" to "STANDARD_NEED",
+          "ACCOMMODATION" to "SEVERE",
         )
       ) // 2 points
     }
@@ -242,8 +242,8 @@ class BddSteps : En {
       val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
 
       val calculation: TierCalculationEntity? = tierCalculationRepository.findByCrnAndUuid("X12345", changeEvent.calculationId)
-      assertThat(calculation?.data?.change?.tier?.value).isEqualTo(Integer.valueOf(changeLevel))
       assertThat(calculation?.data?.change?.points).isEqualTo(Integer.valueOf(points))
+      assertThat(calculation?.data?.change?.tier?.value).isEqualTo(Integer.valueOf(changeLevel))
     }
   }
 }
