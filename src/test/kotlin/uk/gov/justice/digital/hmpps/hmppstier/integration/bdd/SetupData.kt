@@ -8,12 +8,13 @@ import org.mockserver.model.Parameter
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.TEMPER_CONTROL
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiFemaleAnswersResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiNoSeverityNeedsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.communityApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialAndNonCustodialConvictions
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialNCConvictionResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialNCConvictionResponseWithMainOffence
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialTerminatedConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyNsisResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
@@ -27,6 +28,7 @@ import java.math.BigDecimal
 import java.time.LocalDate
 
 class SetupData(private val communityApi: ClientAndServer, private val assessmentApi: ClientAndServer) {
+  private var mainOffence: String = "016"
   private var hasValidAssessment: Boolean = false
   private var convictionTerminated: LocalDate? = null
   private var activeConvictions: Int = 1
@@ -82,6 +84,17 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
     this.assessmentAnswers[question] = answer
   }
 
+  fun setMainOffenceArson() {
+    this.mainOffence = OffenceCode._056.code
+  }
+
+  fun setMainOffenceViolence() {
+    this.mainOffence = OffenceCode._001.code
+  }
+
+  fun setMainOffenceAbstractingElectricity() {
+    this.mainOffence = "043"
+  }
   fun prepareResponses() {
     communityApiResponse(communityApiAssessmentsResponse(rsr), "/secure/offenders/crn/X12345/assessments")
 
@@ -115,7 +128,7 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
       if (null != convictionTerminated) {
         convictions(custodialTerminatedConvictionResponse(convictionTerminated!!))
       } else {
-        convictions(custodialNCConvictionResponse())
+        convictions(custodialNCConvictionResponseWithMainOffence(mainOffence))
       }
     }
 

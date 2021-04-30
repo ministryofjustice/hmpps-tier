@@ -10,7 +10,7 @@ import java.math.BigDecimal
 import java.nio.file.Files.readString
 import java.nio.file.Paths
 import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatter.ISO_DATE
 
 const val communityApiPath: String = "src/test/resources/fixtures/community-api"
 const val assessmentApiPath: String = "src/test/resources/fixtures/assessment-api"
@@ -56,12 +56,10 @@ fun registrationsResponseWithAdditionalFactors(additionalFactors: List<String>):
 
 fun custodialSCConvictionResponse(): HttpResponse = communityApiResponse("convictions-custodial-sc.json")
 
-fun custodialNCConvictionResponse(): HttpResponse = communityApiResponse("convictions-custodial-nc.json")
-
 fun custodialTerminatedConvictionResponse(terminatedDate: LocalDate = LocalDate.now().minusDays(1)): HttpResponse =
   jsonResponseOf(
     responseFrom("$communityApiPath/convictions-custodial-terminated.json")
-      .replace("terminationDateToReplace", terminatedDate.format(DateTimeFormatter.ISO_DATE))
+      .replace("terminationDateToReplace", terminatedDate.format(ISO_DATE))
   )
 
 fun nonCustodialConvictionResponse(): HttpResponse = communityApiResponse("convictions-non-custodial.json")
@@ -97,6 +95,12 @@ fun additionalRequirementsResponse(): HttpResponse = communityApiResponse("requi
 
 fun custodialAndNonCustodialConvictions(): HttpResponse =
   communityApiResponse("convictions-custodial-and-non-custodial.json")
+
+fun custodialNCConvictionResponseWithMainOffence(mainOffence: String = "016"): HttpResponse =
+  jsonResponseOf(
+    responseFrom("$communityApiPath/convictions-custodial-nc.json")
+      .replace("mainOffenceToReplace", mainOffence)
+  )
 
 fun nonCustodialCurrentAndTerminatedConviction(): HttpResponse =
   communityApiResponse("convictions-non-custodial-current-and-terminated.json")
