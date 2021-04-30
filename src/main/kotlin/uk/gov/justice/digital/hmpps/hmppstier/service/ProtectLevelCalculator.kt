@@ -18,7 +18,10 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NsiOutcome
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_B_RSR_LOWER
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_B_RSR_UPPER
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_RSR_LOWER
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_RSR_UPPER
 import java.time.Clock
 import java.time.LocalDate
 import java.time.Period
@@ -59,13 +62,14 @@ class ProtectLevelCalculator(
 
   private fun getRsrPoints(deliusAssessments: DeliusAssessments?): Int =
     deliusAssessments?.rsr
-      .let { rsr ->
-        when {
-          rsr != null && rsr >= RsrThresholds.TIER_B_RSR.num -> 20
-          rsr != null && rsr >= RsrThresholds.TIER_C_RSR.num -> 10
+      ?.let { rsr ->
+        when (rsr) {
+          in TIER_B_RSR_LOWER.num..TIER_B_RSR_UPPER.num -> 20
+          in TIER_C_RSR_LOWER.num..TIER_C_RSR_UPPER.num -> 10
           else -> 0
         }
-      }.also { log.debug("RSR Points: $it") }
+      } ?: 0
+      .also { log.debug("RSR Points: $it") }
 
   private fun getRoshPoints(registrations: Collection<Registration>): Int =
     registrations
