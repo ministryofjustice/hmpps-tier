@@ -100,6 +100,31 @@ class BddSteps : En {
     Given("an offender is {string}") { gender: String ->
       setupData.setGender(gender)
     }
+
+    Given("an offender scores 21 points") {
+      setupData.setRsr("8") // RSR of 8 is 20 points
+    }
+
+    Given("an offender scores 20 points") {
+      setupData.setRsr("8") // RSR of 8 is 20 points
+    }
+
+    Given("an offender scores 19 points") {
+      setupData.setRsr("5") // RSR of 5 is 10 points
+    }
+
+    Given("an offender scores 11 points") {
+      setupData.setRsr("5") // RSR of 5 is 10 points
+    }
+
+    Given("an offender scores 10 points") {
+      setupData.setRsr("5") // RSR of 5 is 10 points
+    }
+
+    Given("an offender scores 9 points") {
+      setupData.setMappa("1") // Mappa of 1 is 5 points
+    }
+
     And("has the following OASys complexity answer: {string} {string} : {string}") { _: String, question: String, answer: String ->
       setupData.setValidAssessment()
       setupData.setAssessmentAnswer(question, answer)
@@ -129,6 +154,7 @@ class BddSteps : En {
     And("no RSR score") {
       setupData.setRsr("0")
     }
+
     When("a tier is calculated") {
       setupData.prepareResponses()
       putMessageOnQueue(offenderEventsClient, eventQueueUrl, "X12345")
@@ -147,6 +173,22 @@ class BddSteps : En {
 
       val calculation: TierCalculationEntity? = tierCalculationRepository.findByCrnAndUuid("X12345", changeEvent.calculationId)
       assertThat(calculation?.data?.protect?.points).isEqualTo(Integer.valueOf(points))
+      // also check reason?
+    }
+
+    Then("a Change level of {string} is returned") { changeLevel: String ->
+      await untilCallTo {
+        getNumberOfMessagesCurrentlyOnQueue(
+          calculationCompleteClient,
+          calculationCompleteUrl
+        )
+      } matches { it == 1 }
+      val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
+      val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
+      val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
+
+      val calculation: TierCalculationEntity? = tierCalculationRepository.findByCrnAndUuid("X12345", changeEvent.calculationId)
+      assertThat(calculation?.data?.change?.tier?.value).isEqualTo(Integer.valueOf(changeLevel))
       // also check reason?
     }
   }
