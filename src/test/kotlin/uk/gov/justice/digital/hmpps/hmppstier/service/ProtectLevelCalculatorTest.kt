@@ -29,6 +29,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_RSR
 import java.math.BigDecimal
 import java.time.Clock
 import java.time.LocalDate
@@ -74,7 +75,7 @@ internal class ProtectLevelCalculatorTest {
     fun `should use either when RSR is same as ROSH`() {
       setup()
       // rsr C+1 = 10 points, Rosh.Medium = 10 Points
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(RsrThresholds.TIER_C_RSR), getValidRegistrations(Rosh.MEDIUM), listOf())
+      val result = service.calculateProtectLevel(crn, null, getValidAssessments(TIER_C_RSR), getValidRegistrations(Rosh.MEDIUM), listOf())
       assertThat(result.points).isEqualTo(10)
       validate()
     }
@@ -106,7 +107,7 @@ internal class ProtectLevelCalculatorTest {
     @Test
     fun `should return 0 for RSR null`() {
       setup()
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(null), listOf(), listOf())
+      val result = service.calculateProtectLevel(crn, null, getValidAssessments(), listOf(), listOf())
       assertThat(result.points).isEqualTo(0)
       validate()
     }
@@ -133,9 +134,9 @@ internal class ProtectLevelCalculatorTest {
       validate()
     }
 
-    private fun getValidAssessments(rsr: BigDecimal?): DeliusAssessments {
+    private fun getValidAssessments(): DeliusAssessments {
       return DeliusAssessments(
-        rsr = rsr,
+        rsr = null,
         ogrs = null
       )
     }
