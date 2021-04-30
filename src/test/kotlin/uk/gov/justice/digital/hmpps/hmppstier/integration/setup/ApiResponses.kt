@@ -3,9 +3,12 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import java.math.BigDecimal
 import java.nio.file.Files.readString
 import java.nio.file.Paths
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 const val communityApiPath: String = "src/test/resources/fixtures/community-api"
 const val assessmentApiPath: String = "src/test/resources/fixtures/assessment-api"
@@ -53,8 +56,11 @@ fun custodialSCConvictionResponse(): HttpResponse = communityApiResponse("convic
 
 fun custodialNCConvictionResponse(): HttpResponse = communityApiResponse("convictions-custodial-nc.json")
 
-fun custodialTerminatedConvictionResponse(): HttpResponse =
-  communityApiResponse("convictions-custodial-terminated.json")
+fun custodialTerminatedConvictionResponse(terminatedDate: LocalDate = LocalDate.now().minusDays(1)): HttpResponse =
+  jsonResponseOf(
+    responseFrom("$communityApiPath/convictions-custodial-terminated.json")
+      .replace("terminationDateToReplace", terminatedDate.format(DateTimeFormatter.ISO_DATE))
+  )
 
 fun nonCustodialConvictionResponse(): HttpResponse = communityApiResponse("convictions-non-custodial.json")
 
@@ -107,6 +113,14 @@ fun assessmentsApi8NeedsResponse(): HttpResponse =
 
 fun assessmentsApiHighSeverityNeedsResponse(): HttpResponse =
   assessmentApiResponse("high_severity_needs_18_points.json")
+
+fun assessmentsApiFemaleAnswersResponse(assessmentAnswers: Map<String, String>): HttpResponse =
+  jsonResponseOf(
+    responseFrom("$assessmentApiPath/female-answers.json")
+      .replace("6.9AnswerToReplace", assessmentAnswers[AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES.answerCode]!!)
+      .replace("11.2AnswerToReplace", assessmentAnswers[AdditionalFactorForWomen.IMPULSIVITY.answerCode]!!)
+      .replace("11.4AnswerToReplace", assessmentAnswers[AdditionalFactorForWomen.TEMPER_CONTROL.answerCode]!!)
+  )
 
 private fun responseFrom(path: String) =
   readString(Paths.get(path))

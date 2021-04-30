@@ -1,0 +1,60 @@
+{
+  "assessmentId": 134641395,
+  "questionAnswers": [
+    {
+      "refQuestionId": 1766,
+      "refQuestionCode": "11.2",
+      "oasysQuestionId": 38336258986,
+      "displayOrder": 590,
+      "questionText": "Impulsivity",
+      "currentlyHidden": false,
+      "disclosed": false,
+      "answers": [
+        {
+          "refAnswerCode": "11.2AnswerToReplace",
+          "oasysAnswerId": 31093923297,
+          "refAnswerId": 2006,
+          "displayOrder": 15,
+          "staticText": "2-Significant problems"
+        }
+      ]
+    },
+    {
+      "refQuestionId": 1768,
+      "refQuestionCode": "11.4",
+      "oasysQuestionId": 38336258988,
+      "displayOrder": 600,
+      "questionText": "Temper control",
+      "currentlyHidden": false,
+      "disclosed": false,
+      "answers": [
+        {
+          "refAnswerCode": "11.4AnswerToReplace",
+          "oasysAnswerId": 31093923299,
+          "refAnswerId": 2012,
+          "displayOrder": 15,
+          "staticText": "2-Significant problems",
+          "ovpScore": 2
+        }
+      ]
+    },
+    {
+      "refQuestionId": 1985,
+      "refQuestionCode": "6.9",
+      "oasysQuestionId": 38336173832,
+      "displayOrder": 80,
+      "questionText": "Parental responsibilities",
+      "currentlyHidden": false,
+      "disclosed": false,
+      "answers": [
+        {
+          "refAnswerCode": "6.9AnswerToReplace",
+          "oasysAnswerId": 31093861917,
+          "refAnswerId": 2318,
+          "displayOrder": 10,
+          "staticText": "No"
+        }
+      ]
+    }
+  ]
+}

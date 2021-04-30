@@ -1,11 +1,19 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.bdd
 
 import org.mockserver.integration.ClientAndServer
+import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.Parameter
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiAssessmentsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiFemaleAnswersResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiNoSeverityNeedsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.communityApiAssessmentsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialAndNonCustodialConvictions
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialNCConvictionResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialTerminatedConvictionResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyNsisResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.femaleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.maleOffenderResponse
@@ -14,14 +22,23 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsRes
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRosh
 import java.math.BigDecimal
+import java.time.LocalDate
 
-class SetupData constructor(private val communityApi: ClientAndServer) {
-  private var outcome: String = "NO_OUTCOME"
+class SetupData(private val communityApi: ClientAndServer, private val assessmentApi: ClientAndServer) {
+  private var hasValidAssessment: Boolean = false
+  private var convictionTerminated: LocalDate? = null
+  private var activeConvictions: Int = 1
+  private var outcome: List<String> = emptyList()
   private var gender: String = "Male"
   private var additionalFactors: List<String> = emptyList()
   private var mappa: String = "NO_MAPPA"
   private var rosh: String = "NO_ROSH"
   private var rsr: BigDecimal = BigDecimal(0)
+  private var assessmentAnswers: MutableMap<String, String> = mutableMapOf(
+    Pair(AdditionalFactorForWomen.IMPULSIVITY.answerCode, "0"),
+    Pair(AdditionalFactorForWomen.TEMPER_CONTROL.answerCode, "0"),
+    Pair(AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES.answerCode, "NO")
+  )
 
   fun setRsr(rsr: String) {
     this.rsr = BigDecimal(rsr)
@@ -43,8 +60,24 @@ class SetupData constructor(private val communityApi: ClientAndServer) {
     this.gender = gender
   }
 
-  fun setNsi(outcome: String) {
+  fun setNsiOutcomes(outcome: List<String>) {
     this.outcome = outcome
+  }
+
+  fun setTwoActiveConvictions() {
+    this.activeConvictions = 2
+  }
+
+  fun setConvictionTerminatedDate(convictionTerminated: LocalDate) {
+    this.convictionTerminated = convictionTerminated
+  }
+
+  fun setValidAssessment() {
+    this.hasValidAssessment = true
+  }
+
+  fun setAssessmentAnswer(question: String, answer: String) {
+    this.assessmentAnswers[question] = answer
   }
 
   fun prepareResponses() {
@@ -57,25 +90,71 @@ class SetupData constructor(private val communityApi: ClientAndServer) {
       else -> registrations(emptyRegistrationsResponse())
     }
 
-    // conviction TODO
-    communityApiResponseWithQs(
-      custodialNCConvictionResponse(),
-      "/secure/offenders/crn/X12345/convictions",
-      Parameter("activeOnly", "true")
-    )
-
-    if (gender.equals("Male")) {
-      communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/X12345")
-    } else {
-      communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/X12345")
-    }
-    if (outcome != "NO_OUTCOME") {
-      communityApiResponseWithQs(
-        nsisResponse(outcome),
-        "/secure/offenders/crn/X12345/convictions/\\d+/nsis",
-        Parameter("nsiCodes", "BRE,BRES,REC,RECS")
+    if (hasValidAssessment) {
+      assessmentApiResponse(
+        assessmentsApiAssessmentsResponse(LocalDate.now().year),
+        "/offenders/crn/X12345/assessments/summary"
+      )
+      if (gender == "Female") {
+        assessmentApiResponse(
+          assessmentsApiFemaleAnswersResponse(assessmentAnswers),
+          "/assessments/oasysSetId/1234/answers"
+        )
+      }
+      assessmentApiResponse(
+        assessmentsApiNoSeverityNeedsResponse(),
+        "/assessments/oasysSetId/1234/needs"
       )
     }
+
+    if (activeConvictions == 2) {
+      communityApiResponseWithQs(
+        custodialAndNonCustodialConvictions(),
+        "/secure/offenders/crn/X12345/convictions",
+        Parameter("activeOnly", "true")
+      )
+    } else {
+      if (null != convictionTerminated) {
+        communityApiResponseWithQs(
+          custodialTerminatedConvictionResponse(convictionTerminated!!),
+          "/secure/offenders/crn/X12345/convictions",
+          Parameter("activeOnly", "true")
+        )
+      } else {
+        communityApiResponseWithQs(
+          custodialNCConvictionResponse(),
+          "/secure/offenders/crn/X12345/convictions",
+          Parameter("activeOnly", "true")
+        )
+      }
+    }
+
+    when {
+      gender == "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/X12345")
+      else -> communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/X12345")
+    }
+
+    if (outcome.isNotEmpty()) {
+      outcome.forEach {
+        communityApiResponseWithQs(
+          nsisResponse(it),
+          "/secure/offenders/crn/X12345/convictions/\\d+/nsis",
+          Parameter("nsiCodes", "BRE,BRES,REC,RECS")
+        )
+      }
+    } else {
+      if (gender == "Female") {
+        communityApiResponseWithQs(
+          emptyNsisResponse(),
+          "/secure/offenders/crn/X12345/convictions/\\d+/nsis",
+          Parameter("nsiCodes", "BRE,BRES,REC,RECS")
+        )
+      }
+    }
+  }
+
+  private fun assessmentApiResponse(response: HttpResponse, urlTemplate: String) {
+    httpSetup(response, urlTemplate, assessmentApi)
   }
 
   private fun registrations(response: HttpResponse) {
@@ -91,10 +170,11 @@ class SetupData constructor(private val communityApi: ClientAndServer) {
     clientAndServer: ClientAndServer,
     qs: Parameter
   ) =
-    clientAndServer.`when`(HttpRequest.request().withPath(urlTemplate).withQueryStringParameter(qs)).respond(response)
+    clientAndServer.`when`(HttpRequest.request().withPath(urlTemplate).withQueryStringParameter(qs), Times.exactly(1))
+      .respond(response)
 
   private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
-    clientAndServer.`when`(HttpRequest.request().withPath(urlTemplate)).respond(response)
+    clientAndServer.`when`(HttpRequest.request().withPath(urlTemplate), Times.exactly(1)).respond(response)
 
   private fun communityApiResponseWithQs(response: HttpResponse, urlTemplate: String, qs: Parameter) =
     httpSetupWithQs(response, urlTemplate, communityApi, qs)

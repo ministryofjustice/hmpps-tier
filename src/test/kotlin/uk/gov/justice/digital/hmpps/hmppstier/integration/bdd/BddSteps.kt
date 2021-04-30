@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration.bdd
 
 import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.amazonaws.services.sqs.model.PurgeQueueRequest
+import com.google.common.collect.Lists.newArrayList
 import com.google.gson.Gson
 import io.cucumber.java8.En
 import io.cucumber.java8.Scenario
@@ -24,6 +25,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import java.lang.IllegalArgumentException
+import java.time.LocalDate
 
 class BddSteps : En {
 
@@ -64,7 +66,7 @@ class BddSteps : En {
       calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
 
       setupOauth()
-      setupData = SetupData(communityApi)
+      setupData = SetupData(communityApi, assessmentApi)
       tierCalculationRepository.deleteAll()
     }
 
@@ -98,8 +100,28 @@ class BddSteps : En {
     Given("an offender is {string}") { gender: String ->
       setupData.setGender(gender)
     }
+    And("has the following OASys complexity answers: {string} {string} : {string}") { _: String, question: String, answer: String ->
+      setupData.setValidAssessment()
+      setupData.setAssessmentAnswer(question, answer)
+    }
     And("has an active conviction with NSI Outcome code {string}") { outcome: String ->
-      setupData.setNsi(outcome)
+      setupData.setNsiOutcomes(newArrayList(outcome))
+    }
+    And("has two active convictions with NSI Outcome codes {string} and {string}") { outcome1: String, outcome2: String ->
+      setupData.setTwoActiveConvictions()
+      setupData.setNsiOutcomes(newArrayList(outcome1, outcome2))
+    }
+    And("has two active convictions with NSI Outcome code {string}") { outcome: String ->
+      setupData.setNsiOutcomes(newArrayList(outcome))
+      setupData.setTwoActiveConvictions()
+    }
+    And("has a conviction terminated 365 days ago with NSI Outcome code {string}") { outcome: String ->
+      setupData.setConvictionTerminatedDate(LocalDate.now().minusYears(1))
+      setupData.setNsiOutcomes(newArrayList(outcome))
+    }
+    And("has a conviction terminated 366 days ago with NSI Outcome code {string}") { outcome: String ->
+      setupData.setConvictionTerminatedDate(LocalDate.now().minusYears(1).minusDays(1))
+      setupData.setNsiOutcomes(newArrayList(outcome))
     }
     And("no ROSH score") {
       // Do nothing
