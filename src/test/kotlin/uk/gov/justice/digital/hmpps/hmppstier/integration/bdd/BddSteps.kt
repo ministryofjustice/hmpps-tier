@@ -85,7 +85,7 @@ class BddSteps : En {
         roshCode = Rosh.valueOf(rosh).registerCode
       } catch (e: IllegalArgumentException) {
       }
-      setupData.setRosh(roshCode!!)
+      setupData.setRosh(roshCode)
     }
     Given("an active MAPPA registration of M Level {string}") { mappa: String ->
       val mappaCode = Mappa.from("M$mappa")?.registerCode
