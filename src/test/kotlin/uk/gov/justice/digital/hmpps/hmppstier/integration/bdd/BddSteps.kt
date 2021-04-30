@@ -11,9 +11,10 @@ import org.awaitility.kotlin.await
 import org.awaitility.kotlin.matches
 import org.awaitility.kotlin.untilCallTo
 import org.mockserver.integration.ClientAndServer
+import org.mockserver.integration.ClientAndServer.startClientAndServer
 import org.mockserver.model.HttpRequest
-import org.mockserver.model.HttpResponse
-import org.mockserver.model.MediaType
+import org.mockserver.model.HttpResponse.response
+import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
@@ -24,7 +25,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnQueu
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
-import java.lang.IllegalArgumentException
 import java.time.LocalDate
 
 class BddSteps : En {
@@ -49,19 +49,20 @@ class BddSteps : En {
 
   private lateinit var setupData: SetupData
 
-  private var oauthMock: ClientAndServer = ClientAndServer.startClientAndServer(9090)
-  private var communityApi: ClientAndServer = ClientAndServer.startClientAndServer(8091)
-  private var assessmentApi: ClientAndServer = ClientAndServer.startClientAndServer(8092)
+  private var oauthMock: ClientAndServer = startClientAndServer(9090)
+  private var communityApi: ClientAndServer = startClientAndServer(8091)
+  private var assessmentApi: ClientAndServer = startClientAndServer(8092)
 
   private fun setupOauth() {
-    val response = HttpResponse.response().withContentType(MediaType.APPLICATION_JSON)
+    val response = response().withContentType(APPLICATION_JSON)
       .withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
-    oauthMock.`when`(HttpRequest.request().withPath("/auth/oauth/token").withBody("grant_type=client_credentials")).respond(response)
+    oauthMock.`when`(HttpRequest.request().withPath("/auth/oauth/token").withBody("grant_type=client_credentials"))
+      .respond(response)
   }
 
   init {
 
-    Before { scenario: Scenario ->
+    Before { _: Scenario ->
       offenderEventsClient.purgeQueue(PurgeQueueRequest(eventQueueUrl))
       calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
 
@@ -70,7 +71,7 @@ class BddSteps : En {
       tierCalculationRepository.deleteAll()
     }
 
-    After { scenario: Scenario ->
+    After { _: Scenario ->
       communityApi.stop()
       assessmentApi.stop()
       oauthMock.stop()
@@ -188,6 +189,25 @@ class BddSteps : En {
       setupData.setRsr("0")
     }
 
+    And("has a custodial sentence") {
+      // Do nothing
+    }
+    And("has a main offence of Arson") {
+      setupData.setMainOffenceArson()
+    }
+    And("has a main offence of Violence") {
+      setupData.setMainOffenceViolence()
+    }
+    And("has a main offence of Abstracting Electricity") {
+      setupData.setMainOffenceAbstractingElectricity()
+    }
+    And("has a sentence length of {long} months") { months: Long ->
+      setupData.setSentenceLength(months)
+    }
+    And("has an indeterminate sentence length") {
+      setupData.setSentenceLengthIndeterminate()
+    }
+
     When("a tier is calculated") {
       setupData.prepareResponses()
       putMessageOnQueue(offenderEventsClient, eventQueueUrl, "X12345")
@@ -204,7 +224,8 @@ class BddSteps : En {
       val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
       val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
 
-      val calculation: TierCalculationEntity? = tierCalculationRepository.findByCrnAndUuid("X12345", changeEvent.calculationId)
+      val calculation: TierCalculationEntity? =
+        tierCalculationRepository.findByCrnAndUuid("X12345", changeEvent.calculationId)
       assertThat(calculation?.data?.protect?.points).isEqualTo(Integer.valueOf(points))
       // also check reason?
     }

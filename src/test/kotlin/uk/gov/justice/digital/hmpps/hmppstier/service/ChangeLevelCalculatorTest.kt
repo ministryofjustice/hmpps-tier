@@ -131,7 +131,7 @@ internal class ChangeLevelCalculatorTest {
     }
 
     private fun getValidConviction(): List<Conviction> {
-      return listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101")), listOf()))
+      return listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(), "101"))
     }
   }
 
@@ -201,7 +201,7 @@ internal class ChangeLevelCalculatorTest {
     }
 
     private fun getValidConviction(): List<Conviction> {
-      return listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101")), listOf()))
+      return listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(), "101"))
     }
 
     private fun setup() {
