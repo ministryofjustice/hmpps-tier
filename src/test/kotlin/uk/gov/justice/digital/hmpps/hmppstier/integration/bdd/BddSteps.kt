@@ -230,7 +230,7 @@ class BddSteps : En {
       // also check reason?
     }
 
-    Then("a Change level of {string} is returned") { changeLevel: String ->
+    Then("a Change level of {string} is returned for {string} points") { changeLevel: String, points: String ->
       await untilCallTo {
         getNumberOfMessagesCurrentlyOnQueue(
           calculationCompleteClient,
@@ -243,7 +243,7 @@ class BddSteps : En {
 
       val calculation: TierCalculationEntity? = tierCalculationRepository.findByCrnAndUuid("X12345", changeEvent.calculationId)
       assertThat(calculation?.data?.change?.tier?.value).isEqualTo(Integer.valueOf(changeLevel))
-      // also check reason?
+      assertThat(calculation?.data?.change?.points).isEqualTo(Integer.valueOf(points))
     }
   }
 }
