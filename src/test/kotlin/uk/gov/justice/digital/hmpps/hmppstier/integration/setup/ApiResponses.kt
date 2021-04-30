@@ -3,7 +3,9 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.TEMPER_CONTROL
 import java.math.BigDecimal
 import java.nio.file.Files.readString
 import java.nio.file.Paths
@@ -117,9 +119,9 @@ fun assessmentsApiHighSeverityNeedsResponse(): HttpResponse =
 fun assessmentsApiFemaleAnswersResponse(assessmentAnswers: Map<String, String>): HttpResponse =
   jsonResponseOf(
     responseFrom("$assessmentApiPath/female-answers.json")
-      .replace("6.9AnswerToReplace", assessmentAnswers[AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES.answerCode]!!)
-      .replace("11.2AnswerToReplace", assessmentAnswers[AdditionalFactorForWomen.IMPULSIVITY.answerCode]!!)
-      .replace("11.4AnswerToReplace", assessmentAnswers[AdditionalFactorForWomen.TEMPER_CONTROL.answerCode]!!)
+      .replace("6.9AnswerToReplace", assessmentAnswers[PARENTING_RESPONSIBILITIES.answerCode]!!)
+      .replace("11.2AnswerToReplace", assessmentAnswers[IMPULSIVITY.answerCode]!!)
+      .replace("11.4AnswerToReplace", assessmentAnswers[TEMPER_CONTROL.answerCode]!!)
   )
 
 private fun responseFrom(path: String) =

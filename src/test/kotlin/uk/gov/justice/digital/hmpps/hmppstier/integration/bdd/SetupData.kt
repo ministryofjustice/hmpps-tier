@@ -5,7 +5,9 @@ import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.Parameter
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.TEMPER_CONTROL
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiFemaleAnswersResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiNoSeverityNeedsResponse
@@ -35,9 +37,9 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   private var rosh: String = "NO_ROSH"
   private var rsr: BigDecimal = BigDecimal(0)
   private var assessmentAnswers: MutableMap<String, String> = mutableMapOf(
-    Pair(AdditionalFactorForWomen.IMPULSIVITY.answerCode, "0"),
-    Pair(AdditionalFactorForWomen.TEMPER_CONTROL.answerCode, "0"),
-    Pair(AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES.answerCode, "NO")
+    Pair(IMPULSIVITY.answerCode, "0"),
+    Pair(TEMPER_CONTROL.answerCode, "0"),
+    Pair(PARENTING_RESPONSIBILITIES.answerCode, "NO")
   )
 
   fun setRsr(rsr: String) {
@@ -108,49 +110,45 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
     }
 
     if (activeConvictions == 2) {
-      communityApiResponseWithQs(
-        custodialAndNonCustodialConvictions(),
-        "/secure/offenders/crn/X12345/convictions",
-        Parameter("activeOnly", "true")
-      )
+      convictions(custodialAndNonCustodialConvictions())
     } else {
       if (null != convictionTerminated) {
-        communityApiResponseWithQs(
-          custodialTerminatedConvictionResponse(convictionTerminated!!),
-          "/secure/offenders/crn/X12345/convictions",
-          Parameter("activeOnly", "true")
-        )
+        convictions(custodialTerminatedConvictionResponse(convictionTerminated!!))
       } else {
-        communityApiResponseWithQs(
-          custodialNCConvictionResponse(),
-          "/secure/offenders/crn/X12345/convictions",
-          Parameter("activeOnly", "true")
-        )
+        convictions(custodialNCConvictionResponse())
       }
     }
 
-    when {
-      gender == "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/X12345")
+    when (gender) {
+      "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/X12345")
       else -> communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/X12345")
     }
 
-    if (outcome.isNotEmpty()) {
-      outcome.forEach {
-        communityApiResponseWithQs(
-          nsisResponse(it),
-          "/secure/offenders/crn/X12345/convictions/\\d+/nsis",
-          Parameter("nsiCodes", "BRE,BRES,REC,RECS")
-        )
-      }
-    } else {
-      if (gender == "Female") {
-        communityApiResponseWithQs(
-          emptyNsisResponse(),
-          "/secure/offenders/crn/X12345/convictions/\\d+/nsis",
-          Parameter("nsiCodes", "BRE,BRES,REC,RECS")
-        )
+    if (gender == "Female") {
+      if (outcome.isNotEmpty()) {
+        outcome.forEach {
+          breachAndRecall(nsisResponse(it))
+        }
+      } else {
+        breachAndRecall(emptyNsisResponse())
       }
     }
+  }
+
+  private fun breachAndRecall(response: HttpResponse) {
+    communityApiResponseWithQs(
+      response,
+      "/secure/offenders/crn/X12345/convictions/\\d+/nsis",
+      Parameter("nsiCodes", "BRE,BRES,REC,RECS")
+    )
+  }
+
+  private fun convictions(response: HttpResponse) {
+    communityApiResponseWithQs(
+      response,
+      "/secure/offenders/crn/X12345/convictions",
+      Parameter("activeOnly", "true")
+    )
   }
 
   private fun assessmentApiResponse(response: HttpResponse, urlTemplate: String) {
