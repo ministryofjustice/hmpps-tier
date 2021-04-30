@@ -108,49 +108,45 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
     }
 
     if (activeConvictions == 2) {
-      communityApiResponseWithQs(
-        custodialAndNonCustodialConvictions(),
-        "/secure/offenders/crn/X12345/convictions",
-        Parameter("activeOnly", "true")
-      )
+      convictions(custodialAndNonCustodialConvictions())
     } else {
       if (null != convictionTerminated) {
-        communityApiResponseWithQs(
-          custodialTerminatedConvictionResponse(convictionTerminated!!),
-          "/secure/offenders/crn/X12345/convictions",
-          Parameter("activeOnly", "true")
-        )
+        convictions(custodialTerminatedConvictionResponse(convictionTerminated!!))
       } else {
-        communityApiResponseWithQs(
-          custodialNCConvictionResponse(),
-          "/secure/offenders/crn/X12345/convictions",
-          Parameter("activeOnly", "true")
-        )
+        convictions(custodialNCConvictionResponse())
       }
     }
 
-    when {
-      gender == "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/X12345")
+    when (gender) {
+      "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/X12345")
       else -> communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/X12345")
     }
 
-    if (outcome.isNotEmpty()) {
-      outcome.forEach {
-        communityApiResponseWithQs(
-          nsisResponse(it),
-          "/secure/offenders/crn/X12345/convictions/\\d+/nsis",
-          Parameter("nsiCodes", "BRE,BRES,REC,RECS")
-        )
-      }
-    } else {
-      if (gender == "Female") {
-        communityApiResponseWithQs(
-          emptyNsisResponse(),
-          "/secure/offenders/crn/X12345/convictions/\\d+/nsis",
-          Parameter("nsiCodes", "BRE,BRES,REC,RECS")
-        )
+    if (gender == "Female") {
+      if (outcome.isNotEmpty()) {
+        outcome.forEach {
+          breachAndRecall(nsisResponse(it))
+        }
+      } else {
+        breachAndRecall(emptyNsisResponse())
       }
     }
+  }
+
+  private fun breachAndRecall(response: HttpResponse) {
+    communityApiResponseWithQs(
+      response,
+      "/secure/offenders/crn/X12345/convictions/\\d+/nsis",
+      Parameter("nsiCodes", "BRE,BRES,REC,RECS")
+    )
+  }
+
+  private fun convictions(response: HttpResponse) {
+    communityApiResponseWithQs(
+      response,
+      "/secure/offenders/crn/X12345/convictions",
+      Parameter("activeOnly", "true")
+    )
   }
 
   private fun assessmentApiResponse(response: HttpResponse, urlTemplate: String) {
