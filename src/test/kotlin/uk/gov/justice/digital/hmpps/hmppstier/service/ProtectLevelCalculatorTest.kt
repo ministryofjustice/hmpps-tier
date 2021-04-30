@@ -747,26 +747,6 @@ internal class ProtectLevelCalculatorTest {
     private val irrelevantSentenceType: KeyValue = KeyValue("irrelevant")
 
     @Test
-    fun `Should return Breach true if present and valid terminationDate`() {
-      val crn = "123"
-      val convictionId = 54321L
-      val terminationDate = LocalDate.now(clock)
-      val sentence = Sentence(terminationDate, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
-      val conviction = Conviction(convictionId, sentence, listOf())
-
-      val breaches = listOf(Nsi(status = KeyValue("BRE08")))
-
-      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
-
-      val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf(conviction))
-      assertThat(result.points).isEqualTo(2)
-
-      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
-      verify { communityApiClient.getOffender(crn) }
-    }
-
-    @Test
     fun `Should return Breach true if present and valid terminationDate after cutoff`() {
       val crn = "123"
       val convictionId = 54321L
@@ -888,28 +868,6 @@ internal class ProtectLevelCalculatorTest {
       val breaches = listOf(
         Nsi(status = KeyValue("BRE54")),
         Nsi(status = KeyValue("bre08"))
-      )
-
-      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
-
-      val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf(conviction))
-      assertThat(result.points).isEqualTo(2)
-
-      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
-      verify { communityApiClient.getOffender(crn) }
-    }
-
-    @Test
-    fun `Should return Breach true if one conviction, multiple breaches, multiple valid`() {
-      val crn = "123"
-      val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
-      val conviction = Conviction(convictionId, sentence, listOf())
-
-      val breaches = listOf(
-        Nsi(status = KeyValue("BRE09")),
-        Nsi(status = KeyValue("BRE08"))
       )
 
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches

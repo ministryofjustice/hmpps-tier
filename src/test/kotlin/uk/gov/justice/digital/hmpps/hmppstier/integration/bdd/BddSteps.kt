@@ -100,7 +100,7 @@ class BddSteps : En {
     Given("an offender is {string}") { gender: String ->
       setupData.setGender(gender)
     }
-    And("has the following OASys complexity answers: {string} {string} : {string}") { _: String, question: String, answer: String ->
+    And("has the following OASys complexity answer: {string} {string} : {string}") { _: String, question: String, answer: String ->
       setupData.setValidAssessment()
       setupData.setAssessmentAnswer(question, answer)
     }

@@ -5,7 +5,9 @@ import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.Parameter
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.TEMPER_CONTROL
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiFemaleAnswersResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiNoSeverityNeedsResponse
@@ -35,9 +37,9 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   private var rosh: String = "NO_ROSH"
   private var rsr: BigDecimal = BigDecimal(0)
   private var assessmentAnswers: MutableMap<String, String> = mutableMapOf(
-    Pair(AdditionalFactorForWomen.IMPULSIVITY.answerCode, "0"),
-    Pair(AdditionalFactorForWomen.TEMPER_CONTROL.answerCode, "0"),
-    Pair(AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES.answerCode, "NO")
+    Pair(IMPULSIVITY.answerCode, "0"),
+    Pair(TEMPER_CONTROL.answerCode, "0"),
+    Pair(PARENTING_RESPONSIBILITIES.answerCode, "NO")
   )
 
   fun setRsr(rsr: String) {
