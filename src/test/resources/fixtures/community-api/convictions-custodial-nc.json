@@ -13,7 +13,7 @@
         "detail": {
           "code": "01600",
           "description": "(Buggery and attempted buggery - 01600)",
-          "mainCategoryCode": "016",
+          "mainCategoryCode": "mainOffenceToReplace",
           "mainCategoryDescription": "Buggery and attempted buggery",
           "mainCategoryAbbreviation": "Buggery and attempted buggery",
           "ogrsOffenceCategory": "Sexual (not against child)",
@@ -35,15 +35,15 @@
       "originalLengthUnits": "Months",
       "defaultLength": 1,
       "lengthInDays": 30,
-      "expectedSentenceEndDate": "2018-08-12",
-      "startDate": "2018-07-13",
+      "expectedSentenceEndDate": "expectedSentenceEndDateToReplace",
+      "startDate": "startDateToReplace",
       "sentenceType": {
         "code": "NC",
         "description": "Imprisonment - Fine Default"
       }
     },
     "latestCourtAppearanceOutcome": {
-      "code": "428",
+      "code": "latestCourtAppearanceOutcomeToReplace",
       "description": "Imprisonment - Fine Default"
     },
     "custody": {

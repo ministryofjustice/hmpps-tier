@@ -740,8 +740,8 @@ internal class ProtectLevelCalculatorTest {
       val crn = "123"
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock).minusYears(1)
-      val sentence = Sentence(terminationDate, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
-      val conviction = Conviction(convictionId, sentence, listOf())
+      val sentence = Sentence(terminationDate, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1))
+      val conviction = Conviction(convictionId, sentence, listOf(), "101")
 
       val breaches = listOf(Nsi(status = KeyValue("BRE08")))
 
@@ -760,8 +760,8 @@ internal class ProtectLevelCalculatorTest {
       val crn = "123"
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock).minusYears(1).minusDays(1)
-      val sentence = Sentence(terminationDate, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
-      val conviction = Conviction(convictionId, sentence, listOf())
+      val sentence = Sentence(terminationDate, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1))
+      val conviction = Conviction(convictionId, sentence, listOf(), "101")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
 
@@ -775,8 +775,8 @@ internal class ProtectLevelCalculatorTest {
     fun `Should return Breach true if present and valid not terminated`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
-      val conviction = Conviction(convictionId, sentence, listOf())
+      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1))
+      val conviction = Conviction(convictionId, sentence, listOf(), "101")
 
       val breaches = listOf(Nsi(status = KeyValue("BRE08")))
 
@@ -794,10 +794,10 @@ internal class ProtectLevelCalculatorTest {
     fun `Should return Breach true if multiple convictions, one valid`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
-      val conviction = Conviction(convictionId, sentence, listOf())
+      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1))
+      val conviction = Conviction(convictionId, sentence, listOf(), "101")
 
-      val unrelatedConviction = Conviction(convictionId.plus(1), sentence, listOf())
+      val unrelatedConviction = Conviction(convictionId.plus(1), sentence, listOf(), "101")
       val unrelatedBreaches = listOf(Nsi(status = KeyValue("BRE99")))
 
       val breaches = listOf(Nsi(status = KeyValue("BRE08")))
@@ -829,8 +829,8 @@ internal class ProtectLevelCalculatorTest {
     fun `Should return Breach true if one conviction, multiple breaches, one valid`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
-      val conviction = Conviction(convictionId, sentence, listOf())
+      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1))
+      val conviction = Conviction(convictionId, sentence, listOf(), "101")
 
       val breaches = listOf(
         Nsi(status = KeyValue("BRE54")),
@@ -851,8 +851,8 @@ internal class ProtectLevelCalculatorTest {
     fun `Should return Breach true if one conviction, multiple breaches, one valid case insensitive`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
-      val conviction = Conviction(convictionId, sentence, listOf())
+      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1))
+      val conviction = Conviction(convictionId, sentence, listOf(), "101")
 
       val breaches = listOf(
         Nsi(status = KeyValue("BRE54")),
@@ -873,8 +873,8 @@ internal class ProtectLevelCalculatorTest {
     fun `Should return Breach false if one conviction, multiple breaches, none valid`() {
       val crn = "123"
       val convictionId = 54321L
-      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101"))
-      val conviction = Conviction(convictionId, sentence, listOf())
+      val sentence = Sentence(null, irrelevantSentenceType, LocalDate.now(clock), LocalDate.now(clock).plusDays(1))
+      val conviction = Conviction(convictionId, sentence, listOf(), "101")
 
       val breaches = listOf(
         Nsi(status = KeyValue("BRE99")),
@@ -915,7 +915,7 @@ internal class ProtectLevelCalculatorTest {
 
     private fun getValidConviction(): List<Conviction> {
       val offence = Offence(OffenceDetail(OffenceCode._056.code))
-      return listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1), KeyValue("101")), listOf(offence)))
+      return listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(offence), "101"))
     }
   }
 }
