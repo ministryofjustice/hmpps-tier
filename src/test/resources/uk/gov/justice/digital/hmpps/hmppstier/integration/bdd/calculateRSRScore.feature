@@ -37,3 +37,8 @@ Feature: Calculate RSR score
     When a tier is calculated
     Then "0" points are scored
 
+  Scenario: RSR 999.99 No ROSH 0 points scored
+    Given an RSR score of "999.99"
+    And no ROSH score
+    When a tier is calculated
+    Then "0" points are scored

@@ -29,7 +29,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_RSR
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_RSR_LOWER
 import java.math.BigDecimal
 import java.time.Clock
 import java.time.LocalDate
@@ -75,7 +75,7 @@ internal class ProtectLevelCalculatorTest {
     fun `should use either when RSR is same as ROSH`() {
       setup()
       // rsr C+1 = 10 points, Rosh.Medium = 10 Points
-      val result = service.calculateProtectLevel(crn, null, getValidAssessments(TIER_C_RSR), getValidRegistrations(Rosh.MEDIUM), listOf())
+      val result = service.calculateProtectLevel(crn, null, getValidAssessments(TIER_C_RSR_LOWER), getValidRegistrations(Rosh.MEDIUM), listOf())
       assertThat(result.points).isEqualTo(10)
       validate()
     }
