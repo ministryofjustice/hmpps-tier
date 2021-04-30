@@ -69,6 +69,9 @@ You cannot run cucumber tests directly from IntelliJ. See https://github.com/gra
 Instead run
 ```./gradlew cucumber```
 
+If you want to run a single feature/scenario, tag it @single and add this to the cucumber task definition in build.gradle.kts 
+```args("--include-tag", "single")```
+
 This service is built using Gradle. In order to build the project from the command line and run the tests, use:
 ```  
 ./gradlew clean build  
