@@ -43,7 +43,13 @@ fun registrationsResponseWithRoshMappaAndAdditionalFactors(rosh: String, mappa: 
   registrations(
     responseFrom("$communityApiPath/registrations-rosh.json")
       .replace("roshToReplace", rosh) + "," + responseFrom("$communityApiPath/registrations-mappa.json")
-      .replace("mappaToReplace", mappa!!) + "," + additionalFactors(factors)
+      .replace("mappaToReplace", mappa) + "," + additionalFactors(factors)
+  )
+
+fun registrationsResponseWithMappaAndAdditionalFactors(mappa: String, factors: List<String>) =
+  registrations(
+    responseFrom("$communityApiPath/registrations-mappa.json")
+      .replace("mappaToReplace", mappa) + "," + additionalFactors(factors)
   )
 
 fun emptyRegistrationsResponse(): HttpResponse = jsonResponseOf("{}")
