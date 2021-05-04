@@ -72,6 +72,7 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   }
 
   fun setNeeds(needs: Map<String, String>) {
+    this.hasValidAssessment = true // There needs to be a valid assessment to access needs
     this.needs = needs
   }
 
@@ -158,7 +159,6 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
       }
       assessmentApiResponse(
         if (needs.any()) {
-          setValidAssessment()
           needsResponse(needs)
         } else {
           assessmentsApiNoSeverityNeedsResponse()
