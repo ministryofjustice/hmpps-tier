@@ -7,6 +7,7 @@ plugins {
   id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
   jacoco
   java
+  id("io.gitlab.arturbosch.detekt").version("1.17.0-RC2")
 }
 
 configurations {
@@ -59,6 +60,7 @@ dependencies {
   testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
   testImplementation("org.junit.platform:junit-platform-console:1.7.1")
+
 }
 
 extra["springCloudVersion"] = "Hoxton.SR8"
@@ -71,6 +73,21 @@ dependencyManagement {
 
 jacoco {
   toolVersion = "0.8.6"
+}
+
+detekt {
+
+  // Define the detekt configuration(s) you want to use.
+  // Defaults to the default detekt configuration.
+  config = files("src/test/resources/detekt-config.yml")
+
+  // Applies the config files on top of detekt's default config file. `false` by default.
+  buildUponDefaultConfig = true
+
+  // If set to `true` the build does not fail when the
+  // maxIssues count was reached. Defaults to `false`.
+  ignoreFailures = true
+
 }
 
 tasks {
