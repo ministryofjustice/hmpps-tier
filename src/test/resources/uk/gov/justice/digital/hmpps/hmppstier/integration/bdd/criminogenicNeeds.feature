@@ -151,5 +151,20 @@ Given the following assessment needs:
 When a tier is calculated
 Then 0 change points are scored
 
+Given the following assessment needs:
+|ACCOMMODATION|STANDARD|
+|ALCOHOL_MISUSE|NO_NEED|
+When a tier is calculated
+Then 2 change points are scored
 
+Given the following assessment needs:
+|ACCOMMODATION|STANDARD|
+|ALCOHOL_MISUSE|STANDARD|
+When a tier is calculated
+Then 2 change points are scored
 
+Given the following assessment needs:
+|ACCOMMODATION|STANDARD|
+|ALCOHOL_MISUSE|SEVERE|
+When a tier is calculated
+Then 3 change points are scored
