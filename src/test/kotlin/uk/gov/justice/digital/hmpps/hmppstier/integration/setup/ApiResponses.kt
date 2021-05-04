@@ -15,9 +15,10 @@ import java.time.format.DateTimeFormatter.ISO_DATE
 const val communityApiPath: String = "src/test/resources/fixtures/community-api"
 const val assessmentApiPath: String = "src/test/resources/fixtures/assessment-api"
 
-fun communityApiAssessmentsResponse(rsr: BigDecimal): HttpResponse = jsonResponseOf(
+fun communityApiAssessmentsResponse(rsr: BigDecimal, ogrs: String): HttpResponse = jsonResponseOf(
   responseFrom("$communityApiPath/assessments.json")
     .replace("rsrScoreToReplace", rsr.toPlainString())
+    .replace("ogrsScoreToReplace", ogrs)
 )
 
 fun emptyCommunityApiAssessmentsResponse(): HttpResponse = jsonResponseOf("{}")
@@ -60,6 +61,19 @@ fun registrationsResponseWithNoLevel(): HttpResponse =
 fun registrationsResponseWithAdditionalFactors(additionalFactors: List<String>): HttpResponse {
   val factors: String = additionalFactors(additionalFactors)
   return registrations(factors)
+}
+
+fun needsResponse(needs: Map<String, String>): HttpResponse {
+  val needsResponse: List<String> = needs.map {
+    responseFrom("$assessmentApiPath/needs-additional.json")
+      .replace("needToReplace", it.key)
+      .replace("severityToReplace", it.value)
+  }
+  return jsonResponseOf(
+    "[" +
+      needsResponse.toTypedArray().joinToString(separator = ",") +
+      "]"
+  )
 }
 
 private fun additionalFactors(additionalFactors: List<String>): String = additionalFactors.map {
