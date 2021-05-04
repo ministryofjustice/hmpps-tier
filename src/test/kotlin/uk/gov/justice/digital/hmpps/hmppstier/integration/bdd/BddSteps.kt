@@ -101,6 +101,11 @@ class BddSteps : En {
     Given("an offender is {string}") { gender: String ->
       setupData.setGender(gender)
     }
+    Given("an offender scores 31 protect points") {
+      setupData.setMappa(Mappa.M1.registerCode) // 5
+      setupData.setRosh(Rosh.HIGH.registerCode) // 20
+      setupData.setAdditionalFactors(listOf("RCCO,RCPR,RCHD"))
+    }
     And("has the following OASys complexity answer: {string} {string} : {string}") { _: String, question: String, answer: String ->
       setupData.setValidAssessment()
       setupData.setAssessmentAnswer(question, answer)
@@ -155,20 +160,31 @@ class BddSteps : En {
     }
 
     Then("{string} points are scored") { points: String ->
-      await untilCallTo {
-        getNumberOfMessagesCurrentlyOnQueue(
-          calculationCompleteClient,
-          calculationCompleteUrl
-        )
-      } matches { it == 1 }
-      val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
-      val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
-      val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
-
-      val calculation: TierCalculationEntity? =
-        tierCalculationRepository.findByCrnAndUuid("X12345", changeEvent.calculationId)
+      val calculation: TierCalculationEntity? = getTier()
       assertThat(calculation?.data?.protect?.points).isEqualTo(Integer.valueOf(points))
-      // also check reason?
     }
+
+    Then("a protect level of {string} is returned") { protectLevel: String ->
+      val calculation: TierCalculationEntity? = getTier()
+      println("=======================")
+      println(calculation?.data?.protect?.pointsBreakdown)
+      assertThat(calculation?.data?.protect?.tier).isEqualTo(protectLevel)
+    }
+  }
+
+  private fun getTier(): TierCalculationEntity? {
+    await untilCallTo {
+      getNumberOfMessagesCurrentlyOnQueue(
+        calculationCompleteClient,
+        calculationCompleteUrl
+      )
+    } matches { it == 1 }
+    val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
+    val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
+    val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
+
+    val calculation: TierCalculationEntity? =
+      tierCalculationRepository.findByCrnAndUuid("X12345", changeEvent.calculationId)
+    return calculation
   }
 }

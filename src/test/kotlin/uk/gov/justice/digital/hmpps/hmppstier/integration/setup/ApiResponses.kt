@@ -27,32 +27,35 @@ fun emptyNsisResponse(): HttpResponse = jsonResponseOf("{\"nsis\": []}")
 fun nsisResponse(outcome: String): HttpResponse = jsonResponseOf(
   responseFrom("$communityApiPath/nsi-breach.json")
     .replace("nsiOutcomeToReplace", outcome)
+)
 
-)fun registrationsResponseWithMappa(mappa: String? = "M2"): HttpResponse = jsonResponseOf(
+fun registrationsResponseWithMappa(mappa: String? = "M2"): HttpResponse = registrations(
   responseFrom("$communityApiPath/registrations-mappa.json")
     .replace("mappaToReplace", mappa!!)
 )
 
-fun registrationsResponseWithRosh(rosh: String): HttpResponse = jsonResponseOf(
+fun registrationsResponseWithRosh(rosh: String): HttpResponse = registrations(
   responseFrom("$communityApiPath/registrations-rosh.json")
     .replace("roshToReplace", rosh)
 )
 
 fun emptyRegistrationsResponse(): HttpResponse = jsonResponseOf("{}")
 
-fun registrationsResponseWithNoLevel(): HttpResponse = communityApiResponse("registrations-no-level.json")
+fun registrationsResponseWithNoLevel(): HttpResponse = registrations(responseFrom("$communityApiPath/registrations-no-level.json"))
 
 fun registrationsResponseWithAdditionalFactors(additionalFactors: List<String>): HttpResponse {
   val factors: List<String> = additionalFactors.map {
     responseFrom("$communityApiPath/registrations-additional.json")
       .replace("additionalFactorsToReplace", it)
   }
-  return jsonResponseOf(
-    "{\"registrations\": [" +
-      factors.toTypedArray().joinToString(separator = ",") +
-      "]}"
-  )
+  return registrations(factors.toTypedArray().joinToString(separator = ","))
 }
+
+private fun registrations(registrations: String) = jsonResponseOf(
+  "{\"registrations\": [" +
+    registrations +
+    "]}"
+)
 
 fun custodialSCConvictionResponse(): HttpResponse = communityApiResponse("convictions-custodial-sc.json")
 
