@@ -157,7 +157,12 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
         )
       }
       assessmentApiResponse(
-        if (needs.any()) { needsResponse(needs) } else { assessmentsApiNoSeverityNeedsResponse() },
+        if (needs.any()) {
+          setValidAssessment()
+          needsResponse(needs)
+        } else {
+          assessmentsApiNoSeverityNeedsResponse()
+        },
         "/assessments/oasysSetId/1234/needs"
       )
     }

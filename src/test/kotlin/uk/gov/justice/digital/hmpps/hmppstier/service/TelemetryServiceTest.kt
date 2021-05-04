@@ -91,20 +91,4 @@ internal class TelemetryServiceTest {
       )
     }
   }
-
-  @Test
-  fun `Should map CRN to customEvents `() {
-
-    service.trackEvent(TelemetryEventType.NO_ASSESSMENT_IN_DATE, crn)
-
-    verify {
-      client.trackEvent(
-        TelemetryEventType.NO_ASSESSMENT_IN_DATE.eventName,
-        mapOf(
-          "crn" to crn,
-        ),
-        null
-      )
-    }
-  }
 }

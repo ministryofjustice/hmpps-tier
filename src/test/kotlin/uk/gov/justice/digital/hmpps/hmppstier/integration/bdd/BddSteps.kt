@@ -106,8 +106,7 @@ class BddSteps : En {
       setupData.setGender(gender)
     }
 
-    Given("an offender scores 21 points") {
-      setupData.setValidAssessment()
+    Given("an offender scores 21 change points") {
       setupData.setOgrs("90") // 9 points
       setupData.setNeeds(
         mapOf(
@@ -121,8 +120,7 @@ class BddSteps : En {
       ) // 12 points
     }
 
-    Given("an offender scores 20 points") {
-      setupData.setValidAssessment()
+    Given("an offender scores 20 change points") {
       setupData.setOgrs("100") // 10 points
       setupData.setNeeds(
         mapOf(
@@ -135,8 +133,7 @@ class BddSteps : En {
       ) // 10 points
     }
 
-    Given("an offender scores 19 points") {
-      setupData.setValidAssessment()
+    Given("an offender scores 19 change points") {
       setupData.setOgrs("90") // 9 points
       setupData.setNeeds(
         mapOf(
@@ -149,8 +146,7 @@ class BddSteps : En {
       ) // 10 points
     }
 
-    Given("an offender scores 11 points") {
-      setupData.setValidAssessment()
+    Given("an offender scores 11 change points") {
       setupData.setOgrs("90") // 9 points
       setupData.setNeeds(
         mapOf(
@@ -159,14 +155,28 @@ class BddSteps : En {
       ) // 2 points
     }
 
-    Given("an offender scores 10 points") {
-      setupData.setValidAssessment()
-      setupData.setOgrs("100") // 10 points
+    Given("an offender scores 10 change points") {
+      setupData.setNeeds(
+        mapOf(
+          "ACCOMMODATION" to "SEVERE",
+          "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "SEVERE",
+          "RELATIONSHIPS" to "SEVERE",
+          "LIFESTYLE_AND_ASSOCIATES" to "SEVERE",
+          "DRUG_MISUSE" to "SEVERE"
+        )
+      ) // 10 points
     }
 
-    Given("an offender scores 9 points") {
-      setupData.setValidAssessment()
-      setupData.setOgrs("90") // 9 points
+    Given("an offender scores 9 change points") {
+      setupData.setNeeds(
+        mapOf(
+          "ACCOMMODATION" to "SEVERE",
+          "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "SEVERE",
+          "RELATIONSHIPS" to "SEVERE",
+          "LIFESTYLE_AND_ASSOCIATES" to "SEVERE",
+          "DRUG_MISUSE" to "STANDARD"
+        )
+      ) // 9 points
     }
 
     Given("an offender scores 31 protect points") {
@@ -270,19 +280,9 @@ class BddSteps : En {
     }
 
     Then("a Change level of {string} is returned for {string} points") { changeLevel: String, points: String ->
-      await untilCallTo {
-        getNumberOfMessagesCurrentlyOnQueue(
-          calculationCompleteClient,
-          calculationCompleteUrl
-        )
-      } matches { it == 1 }
-      val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
-      val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
-      val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
-
-      val calculation: TierCalculationEntity? = tierCalculationRepository.findByCrnAndUuid("X12345", changeEvent.calculationId)
-      assertThat(calculation?.data?.change?.points).isEqualTo(Integer.valueOf(points))
-      assertThat(calculation?.data?.change?.tier?.value).isEqualTo(Integer.valueOf(changeLevel))
+      val calculation: TierCalculationEntity = getTier()
+      assertThat(calculation.data.change.points).isEqualTo(Integer.valueOf(points))
+      assertThat(calculation.data.change.tier.value).isEqualTo(Integer.valueOf(changeLevel))
     }
 
     Then("a protect level of {string} is returned and {string} points are scored") { protectLevel: String, points: String ->
