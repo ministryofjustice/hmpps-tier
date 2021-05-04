@@ -64,6 +64,7 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   }
 
   fun setOgrs(ogrs: String) {
+    this.hasValidAssessment = true // There needs to be a valid assessment to access ogrs code path
     this.ogrs = ogrs
   }
 
@@ -72,7 +73,7 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   }
 
   fun setNeeds(needs: Map<String, String>) {
-    this.hasValidAssessment = true // There needs to be a valid assessment to access needs
+    this.hasValidAssessment = true // There needs to be a valid assessment to access needs code path
     this.needs = needs
   }
 
