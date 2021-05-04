@@ -103,6 +103,7 @@ class BddSteps : En {
     }
 
     Given("an offender scores 21 points") {
+      setupData.setValidAssessment()
       setupData.setOgrs("90") // 9 points
       setupData.setNeeds(
         mapOf(
@@ -117,6 +118,7 @@ class BddSteps : En {
     }
 
     Given("an offender scores 20 points") {
+      setupData.setValidAssessment()
       setupData.setOgrs("100") // 10 points
       setupData.setNeeds(
         mapOf(
@@ -130,6 +132,7 @@ class BddSteps : En {
     }
 
     Given("an offender scores 19 points") {
+      setupData.setValidAssessment()
       setupData.setOgrs("90") // 9 points
       setupData.setNeeds(
         mapOf(
@@ -143,6 +146,7 @@ class BddSteps : En {
     }
 
     Given("an offender scores 11 points") {
+      setupData.setValidAssessment()
       setupData.setOgrs("90") // 9 points
       setupData.setNeeds(
         mapOf(
@@ -152,10 +156,12 @@ class BddSteps : En {
     }
 
     Given("an offender scores 10 points") {
+      setupData.setValidAssessment()
       setupData.setOgrs("100") // 10 points
     }
 
     Given("an offender scores 9 points") {
+      setupData.setValidAssessment()
       setupData.setOgrs("90") // 9 points
     }
 

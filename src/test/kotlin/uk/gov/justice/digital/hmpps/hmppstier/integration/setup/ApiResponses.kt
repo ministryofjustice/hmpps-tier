@@ -58,7 +58,7 @@ fun registrationsResponseWithAdditionalFactors(additionalFactors: List<String>):
 fun needsResponse(needs: Map<String, String>): HttpResponse {
   val needsResponse: List<String> = needs.map {
     responseFrom("$assessmentApiPath/needs-additional.json")
-      .replace("needsToReplace", it.key)
+      .replace("needToReplace", it.key)
       .replace("severityToReplace", it.value)
   }
   return jsonResponseOf(

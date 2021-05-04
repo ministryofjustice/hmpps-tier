@@ -22,6 +22,7 @@ class AssessmentApiService(
       .also {
         if (it.isEmpty()) {
           telemetryService.trackEvent(TelemetryEventType.NO_ASSESSMENT_RETURNED, crn)
+          return null
         }
       }
       .filter {
@@ -31,6 +32,7 @@ class AssessmentApiService(
       .also {
         if (it.isEmpty()) {
           telemetryService.trackEvent(TelemetryEventType.NO_ASSESSMENT_OF_CORRECT_STATUS, crn)
+          return null
         }
       }
       .filter {
@@ -40,6 +42,7 @@ class AssessmentApiService(
       .also {
         if (it.isEmpty()) {
           telemetryService.trackEvent(TelemetryEventType.NO_ASSESSMENT_IN_DATE, crn)
+          return null
         }
       }
 
