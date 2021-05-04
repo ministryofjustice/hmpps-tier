@@ -122,10 +122,12 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
         )
       )
       mappa != "NO_MAPPA" &&
-        additionalFactors.isNotEmpty() -> registrations(registrationsResponseWithMappaAndAdditionalFactors(
-        mappa,
-        additionalFactors
-      ))
+        additionalFactors.isNotEmpty() -> registrations(
+        registrationsResponseWithMappaAndAdditionalFactors(
+          mappa,
+          additionalFactors
+        )
+      )
       rosh != "NO_ROSH" -> registrations(registrationsResponseWithRosh(rosh))
       mappa != "NO_MAPPA" -> registrations(registrationsResponseWithMappa(mappa))
       additionalFactors.isNotEmpty() -> registrations(registrationsResponseWithAdditionalFactors(additionalFactors))
