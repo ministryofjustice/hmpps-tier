@@ -106,6 +106,10 @@ class BddSteps : En {
       setupData.setGender(gender)
     }
 
+    Given("an OGRS score of {string}%") { ogrs: String ->
+      setupData.setOgrs(ogrs)
+    }
+
     Given("an offender scores 21 change points") {
       setupData.setOgrs("90") // 9 points
       setupData.setNeeds(
