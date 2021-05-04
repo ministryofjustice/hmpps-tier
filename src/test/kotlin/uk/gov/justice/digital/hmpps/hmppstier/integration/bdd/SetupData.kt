@@ -127,12 +127,6 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
       else -> registrations(emptyRegistrationsResponse())
     }
 
-    if (needs.any()) {
-      needsResponse(
-        needs
-      )
-    }
-
     if (hasValidAssessment) {
       assessmentApiResponse(
         assessmentsApiAssessmentsResponse(LocalDate.now().year),
@@ -145,7 +139,7 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
         )
       }
       assessmentApiResponse(
-        assessmentsApiNoSeverityNeedsResponse(),
+        if (needs.any()) { needsResponse(needs) } else { assessmentsApiNoSeverityNeedsResponse() },
         "/assessments/oasysSetId/1234/needs"
       )
     }
