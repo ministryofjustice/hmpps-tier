@@ -19,8 +19,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -66,66 +64,6 @@ internal class ChangeLevelCalculatorTest {
 
       val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction())
       assertThat(result.points).isEqualTo(0)
-
-      verify { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) }
-    }
-
-    @Test
-    fun `should add Oasys Needs no need`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
-
-      every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf(
-        Need.ACCOMMODATION to NeedSeverity.NO_NEED, // 0
-      )
-
-      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction())
-      assertThat(result.points).isEqualTo(0)
-
-      verify { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) }
-    }
-
-    @Test
-    fun `should add Oasys Needs standard need`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
-
-      every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf(
-        Need.ACCOMMODATION to NeedSeverity.STANDARD, // 1
-      )
-
-      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction())
-      assertThat(result.points).isEqualTo(1)
-
-      verify { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) }
-    }
-
-    @Test
-    fun `should add Oasys Needs severe need`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
-
-      every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf(
-        Need.ACCOMMODATION to NeedSeverity.SEVERE, // 2
-      )
-
-      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction())
-      assertThat(result.points).isEqualTo(2)
-
-      verify { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) }
-    }
-
-    @Test
-    fun `should add multiple Oasys Needs`() {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
-
-      every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf(
-        Need.ACCOMMODATION to NeedSeverity.SEVERE, // 2
-        Need.EDUCATION_TRAINING_AND_EMPLOYABILITY to NeedSeverity.SEVERE, // 2
-        Need.RELATIONSHIPS to NeedSeverity.SEVERE, // 2
-        Need.LIFESTYLE_AND_ASSOCIATES to NeedSeverity.SEVERE, // 2
-        Need.DRUG_MISUSE to NeedSeverity.SEVERE, // 2
-      )
-
-      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction())
-      assertThat(result.points).isEqualTo(10)
 
       verify { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) }
     }
