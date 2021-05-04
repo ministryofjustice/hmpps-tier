@@ -105,7 +105,15 @@ class BddSteps : En {
     Given("an offender scores 31 protect points") {
       setupData.setMappa(Mappa.M1.registerCode) // 5
       setupData.setRosh(Rosh.HIGH.registerCode) // 20
-      setupData.setAdditionalFactors(listOf("RCCO", "RCPR", "RCHD"))
+      setupData.setAdditionalFactors(listOf("RCCO", "RCPR", "RCHD")) // 6
+    }
+    Given("an offender scores 30 protect points") {
+      setupData.setMappa(Mappa.M3.registerCode)
+    }
+    Given("an offender scores 29 protect points") {
+      setupData.setMappa(Mappa.M1.registerCode) // 5
+      setupData.setRosh(Rosh.HIGH.registerCode) // 20
+      setupData.setAdditionalFactors(listOf("RCCO", "RCPR")) // 4
     }
     And("has the following OASys complexity answer: {string} {string} : {string}") { _: String, question: String, answer: String ->
       setupData.setValidAssessment()
@@ -165,9 +173,10 @@ class BddSteps : En {
       assertThat(calculation?.data?.protect?.points).isEqualTo(Integer.valueOf(points))
     }
 
-    Then("a protect level of {string} is returned") { protectLevel: String ->
+    Then("a protect level of {string} is returned and {string} points are scored") { protectLevel: String, points: String ->
       val calculation: TierCalculationEntity? = getTier()
-      assertThat(calculation?.data?.protect?.tier).isEqualTo(ProtectLevel.A)
+      assertThat(calculation?.data?.protect?.tier).isEqualTo(ProtectLevel.valueOf(protectLevel))
+      assertThat(calculation?.data?.protect?.points).isEqualTo(points.toInt())
     }
   }
 
