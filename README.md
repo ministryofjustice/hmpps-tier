@@ -54,6 +54,7 @@ Fix kotlin linting errors
 ```./gradlew fix```
 
 Run lint and test
+```docker-compose-up localstack```
 ```./gradlew check```
 
 Run tests and generate a coverage report in build/reports/coverage/index.html
@@ -65,19 +66,21 @@ Run tests, generate reports and fail build if coverage is below the threshold
 ```
 
 ##### Cucumber
+
 You cannot run cucumber tests directly from IntelliJ. See https://github.com/gradle/gradle/issues/4773
 Instead run
+```docker-compose-up localstack```
 ```./gradlew cucumber```
 
 If you want to run a single feature/scenario, tag it @single and add this to the cucumber task definition in build.gradle.kts 
 ```args("--include-tag", "single")```
 
 This service is built using Gradle. In order to build the project from the command line and run the tests, use:
-```  
+```
+docker-compose-up localstack  
 ./gradlew clean build  
 ```  
 The created JAR file will be named "`probation-tiering<yyyy-mm-dd>.jar`", using the date that the build takes place in the format `yyyy-mm-dd`. 
-
 
 ### Additional configuration  
 The application is configurable with conventional Spring parameters.  

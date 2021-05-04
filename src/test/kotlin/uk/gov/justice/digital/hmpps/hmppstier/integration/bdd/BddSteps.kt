@@ -18,7 +18,11 @@ import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M1
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.HIGH
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.MEDIUM
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.getNumberOfMessagesCurrentlyOnQueue
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnQueue
@@ -165,6 +169,47 @@ class BddSteps : En {
       setupData.setOgrs("90") // 9 points
     }
 
+    Given("an offender scores 31 protect points") {
+      setupData.setMappa(M1.registerCode) // 5
+      setupData.setRosh(HIGH.registerCode) // 20
+      setupData.setAdditionalFactors(listOf("RCCO", "RCPR", "RCHD")) // 6
+    }
+    Given("an offender scores 30 protect points") {
+      setupData.setMappa(Mappa.M3.registerCode)
+    }
+    Given("an offender scores 29 protect points") {
+      setupData.setMappa(M1.registerCode) // 5
+      setupData.setRosh(HIGH.registerCode) // 20
+      setupData.setAdditionalFactors(listOf("RPIR", "RTAO")) // 4
+    }
+    Given("an offender scores 21 protect points") {
+      setupData.setMappa(M1.registerCode) // 5
+      setupData.setRosh(MEDIUM.registerCode) // 10
+      setupData.setAdditionalFactors(listOf("RVAD", "STRG", "RMDO")) // 6
+    }
+    Given("an offender scores 20 protect points") {
+      setupData.setRosh(HIGH.registerCode)
+    }
+    Given("an offender scores 19 protect points") {
+      setupData.setMappa(M1.registerCode) // 5
+      setupData.setRosh(MEDIUM.registerCode) // 10
+      setupData.setAdditionalFactors(listOf("ALSH", "RVLN")) // 4
+    }
+    Given("an offender scores 11 protect points") {
+      setupData.setMappa(M1.registerCode) // 5
+      setupData.setAdditionalFactors(listOf("RVAD", "ALSH", "RVLN")) // 6
+    }
+    Given("an offender scores 10 protect points") {
+      setupData.setRosh(MEDIUM.registerCode) // 10
+    }
+    Given("an offender scores 9 protect points") {
+      setupData.setMappa(M1.registerCode) // 5
+      setupData.setAdditionalFactors(listOf("ALSH", "RVLN")) // 4
+    }
+    Given("an offender scores 0 protect points") {
+      // do nothing
+    }
+
     And("has the following OASys complexity answer: {string} {string} : {string}") { _: String, question: String, answer: String ->
       setupData.setValidAssessment()
       setupData.setAssessmentAnswer(question, answer)
@@ -220,20 +265,8 @@ class BddSteps : En {
     }
 
     Then("{string} points are scored") { points: String ->
-      await untilCallTo {
-        getNumberOfMessagesCurrentlyOnQueue(
-          calculationCompleteClient,
-          calculationCompleteUrl
-        )
-      } matches { it == 1 }
-      val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
-      val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
-      val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
-
-      val calculation: TierCalculationEntity? =
-        tierCalculationRepository.findByCrnAndUuid("X12345", changeEvent.calculationId)
-      assertThat(calculation?.data?.protect?.points).isEqualTo(Integer.valueOf(points))
-      // also check reason?
+      val calculation: TierCalculationEntity = getTier()
+      assertThat(calculation.data.protect.points).isEqualTo(points.toInt())
     }
 
     Then("a Change level of {string} is returned for {string} points") { changeLevel: String, points: String ->
@@ -251,5 +284,25 @@ class BddSteps : En {
       assertThat(calculation?.data?.change?.points).isEqualTo(Integer.valueOf(points))
       assertThat(calculation?.data?.change?.tier?.value).isEqualTo(Integer.valueOf(changeLevel))
     }
+
+    Then("a protect level of {string} is returned and {string} points are scored") { protectLevel: String, points: String ->
+      val calculation: TierCalculationEntity = getTier()
+      assertThat(calculation.data.protect.tier).isEqualTo(ProtectLevel.valueOf(protectLevel))
+      assertThat(calculation.data.protect.points).isEqualTo(points.toInt())
+    }
+  }
+
+  private fun getTier(): TierCalculationEntity {
+    await untilCallTo {
+      getNumberOfMessagesCurrentlyOnQueue(
+        calculationCompleteClient,
+        calculationCompleteUrl
+      )
+    } matches { it == 1 }
+    val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
+    val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
+    val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
+
+    return tierCalculationRepository.findByCrnAndUuid("X12345", changeEvent.calculationId)!!
   }
 }

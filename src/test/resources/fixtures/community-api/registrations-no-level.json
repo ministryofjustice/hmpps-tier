@@ -1,37 +1,33 @@
 {
-  "registrations": [
-    {
-      "registrationId": 2500175266,
-      "offenderId": 2500487101,
-      "register": {
-        "code": "5",
-        "description": "Public Protection"
-      },
-      "type": {
-        "code": "STRG",
-        "description": "Street Gangs"
-      },
-      "riskColour": "Amber",
-      "startDate": "2021-02-18",
-      "nextReviewDate": "2021-05-18",
-      "reviewPeriodMonths": 3,
-      "registeringTeam": {
-        "code": "N03UAT",
-        "description": "Unallocated Team(N03)"
-      },
-      "registeringOfficer": {
-        "code": "N03UATU",
-        "forenames": "Unallocated Staff(N03)",
-        "surname": "Staff",
-        "unallocated": true
-      },
-      "registeringProbationArea": {
-        "code": "N03",
-        "description": "NPS Wales"
-      },
-      "warnUser": false,
-      "active": true,
-      "numberOfPreviousDeregistrations": 0
-    }
-  ]
+  "registrationId": 2500175266,
+  "offenderId": 2500487101,
+  "register": {
+    "code": "5",
+    "description": "Public Protection"
+  },
+  "type": {
+    "code": "STRG",
+    "description": "Street Gangs"
+  },
+  "riskColour": "Amber",
+  "startDate": "2021-02-18",
+  "nextReviewDate": "2021-05-18",
+  "reviewPeriodMonths": 3,
+  "registeringTeam": {
+    "code": "N03UAT",
+    "description": "Unallocated Team(N03)"
+  },
+  "registeringOfficer": {
+    "code": "N03UATU",
+    "forenames": "Unallocated Staff(N03)",
+    "surname": "Staff",
+    "unallocated": true
+  },
+  "registeringProbationArea": {
+    "code": "N03",
+    "description": "NPS Wales"
+  },
+  "warnUser": false,
+  "active": true,
+  "numberOfPreviousDeregistrations": 0
 }

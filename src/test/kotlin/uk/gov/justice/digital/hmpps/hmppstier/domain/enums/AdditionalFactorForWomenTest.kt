@@ -15,7 +15,7 @@ class AdditionalFactorForWomenTest {
   inner class SectionsTest {
 
     @Test
-    fun `PARENTING_RESPONSIBILITIES should be in section 13`() {
+    fun `PARENTING_RESPONSIBILITIES should be in section 6`() {
       assertThat(PARENTING_RESPONSIBILITIES.section).isEqualTo("6")
     }
 
