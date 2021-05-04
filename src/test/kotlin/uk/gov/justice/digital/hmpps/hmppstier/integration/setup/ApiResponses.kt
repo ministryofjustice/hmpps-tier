@@ -39,11 +39,6 @@ fun registrationsResponseWithRosh(rosh: String): HttpResponse = jsonResponseOf(
     .replace("roshToReplace", rosh)
 )
 
-fun deliusAssessmentsResponse(ogrs: String): HttpResponse = jsonResponseOf(
-  responseFrom("$communityApiPath/assessments.json")
-    .replace("roshToReplace", ogrs)
-)
-
 fun emptyRegistrationsResponse(): HttpResponse = jsonResponseOf("{}")
 
 fun registrationsResponseWithNoLevel(): HttpResponse = communityApiResponse("registrations-no-level.json")
