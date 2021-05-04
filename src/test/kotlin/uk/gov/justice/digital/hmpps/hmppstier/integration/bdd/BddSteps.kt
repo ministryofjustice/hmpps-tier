@@ -18,6 +18,7 @@ import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.getNumberOfMessagesCurrentlyOnQueue
@@ -104,7 +105,7 @@ class BddSteps : En {
     Given("an offender scores 31 protect points") {
       setupData.setMappa(Mappa.M1.registerCode) // 5
       setupData.setRosh(Rosh.HIGH.registerCode) // 20
-      setupData.setAdditionalFactors(listOf("RCCO,RCPR,RCHD"))
+      setupData.setAdditionalFactors(listOf("RCCO", "RCPR", "RCHD"))
     }
     And("has the following OASys complexity answer: {string} {string} : {string}") { _: String, question: String, answer: String ->
       setupData.setValidAssessment()
@@ -166,9 +167,7 @@ class BddSteps : En {
 
     Then("a protect level of {string} is returned") { protectLevel: String ->
       val calculation: TierCalculationEntity? = getTier()
-      println("=======================")
-      println(calculation?.data?.protect?.pointsBreakdown)
-      assertThat(calculation?.data?.protect?.tier).isEqualTo(protectLevel)
+      assertThat(calculation?.data?.protect?.tier).isEqualTo(ProtectLevel.A)
     }
   }
 

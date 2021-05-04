@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nsisResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithAdditionalFactors
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRosh
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRoshMappaAndAdditionalFactors
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -110,6 +111,15 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
     communityApiResponse(communityApiAssessmentsResponse(rsr), "/secure/offenders/crn/X12345/assessments")
 
     when {
+      rosh != "NO_ROSH" &&
+        mappa != "NO_MAPPA" &&
+        additionalFactors.isNotEmpty() -> registrations(
+        registrationsResponseWithRoshMappaAndAdditionalFactors(
+          rosh,
+          mappa,
+          additionalFactors
+        )
+      )
       rosh != "NO_ROSH" -> registrations(registrationsResponseWithRosh(rosh))
       mappa != "NO_MAPPA" -> registrations(registrationsResponseWithMappa(mappa))
       additionalFactors.isNotEmpty() -> registrations(registrationsResponseWithAdditionalFactors(additionalFactors))

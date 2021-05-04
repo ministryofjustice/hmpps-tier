@@ -39,17 +39,27 @@ fun registrationsResponseWithRosh(rosh: String): HttpResponse = registrations(
     .replace("roshToReplace", rosh)
 )
 
+fun registrationsResponseWithRoshMappaAndAdditionalFactors(rosh: String, mappa: String, factors: List<String>) =
+  registrations(
+    responseFrom("$communityApiPath/registrations-rosh.json")
+      .replace("roshToReplace", rosh) + "," + responseFrom("$communityApiPath/registrations-mappa.json")
+      .replace("mappaToReplace", mappa!!) + "," + additionalFactors(factors)
+  )
+
 fun emptyRegistrationsResponse(): HttpResponse = jsonResponseOf("{}")
 
-fun registrationsResponseWithNoLevel(): HttpResponse = registrations(responseFrom("$communityApiPath/registrations-no-level.json"))
+fun registrationsResponseWithNoLevel(): HttpResponse =
+  registrations(responseFrom("$communityApiPath/registrations-no-level.json"))
 
 fun registrationsResponseWithAdditionalFactors(additionalFactors: List<String>): HttpResponse {
-  val factors: List<String> = additionalFactors.map {
-    responseFrom("$communityApiPath/registrations-additional.json")
-      .replace("additionalFactorsToReplace", it)
-  }
-  return registrations(factors.toTypedArray().joinToString(separator = ","))
+  val factors: String = additionalFactors(additionalFactors)
+  return registrations(factors)
 }
+
+private fun additionalFactors(additionalFactors: List<String>): String = additionalFactors.map {
+  responseFrom("$communityApiPath/registrations-additional.json")
+    .replace("additionalFactorsToReplace", it)
+}.toTypedArray().joinToString(separator = ",")
 
 private fun registrations(registrations: String) = jsonResponseOf(
   "{\"registrations\": [" +
@@ -108,7 +118,10 @@ fun custodialNCConvictionResponse(
     responseFrom("$communityApiPath/convictions-custodial-nc.json")
       .replace("mainOffenceToReplace", mainOffence)
       .replace("startDateToReplace", LocalDate.of(2021, 4, 30).format(ISO_DATE))
-      .replace("expectedSentenceEndDateToReplace", LocalDate.of(2021, 4, 30).plusMonths(sentenceLength).format(ISO_DATE))
+      .replace(
+        "expectedSentenceEndDateToReplace",
+        LocalDate.of(2021, 4, 30).plusMonths(sentenceLength).format(ISO_DATE)
+      )
       .replace("latestCourtAppearanceOutcomeToReplace", courtAppearanceOutcome)
   )
 
