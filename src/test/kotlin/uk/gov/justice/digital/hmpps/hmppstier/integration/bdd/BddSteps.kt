@@ -4,6 +4,7 @@ import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.amazonaws.services.sqs.model.PurgeQueueRequest
 import com.google.common.collect.Lists.newArrayList
 import com.google.gson.Gson
+import io.cucumber.datatable.DataTable
 import io.cucumber.java8.En
 import io.cucumber.java8.Scenario
 import org.assertj.core.api.Assertions.assertThat
@@ -108,6 +109,10 @@ class BddSteps : En {
 
     Given("an OGRS score of {string}%") { ogrs: String ->
       setupData.setOgrs(ogrs)
+    }
+
+    Given("the following assessment needs:") { data: DataTable ->
+      setupData.setNeeds(data.asMap(String.javaClass, String.javaClass))
     }
 
     Given("an offender scores 21 change points") {

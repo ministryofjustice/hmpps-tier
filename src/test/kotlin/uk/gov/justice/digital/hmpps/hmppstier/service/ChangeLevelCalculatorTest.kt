@@ -157,42 +157,6 @@ internal class ChangeLevelCalculatorTest {
       validate()
     }
 
-    @Test
-    fun `should calculate Ogrs take 10s 50`() {
-      setup()
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
-      val result = service.calculateChangeLevel(crn, assessment, getValidAssessments(50), listOf(), getValidConviction())
-      assertThat(result.points).isEqualTo(5)
-      validate()
-    }
-
-    @Test
-    fun `should calculate Ogrs take 10s 51`() {
-      setup()
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
-      val result = service.calculateChangeLevel(crn, assessment, getValidAssessments(51), listOf(), getValidConviction())
-      assertThat(result.points).isEqualTo(5)
-      validate()
-    }
-
-    @Test
-    fun `should calculate Ogrs take 10s 59`() {
-      setup()
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
-      val result = service.calculateChangeLevel(crn, assessment, getValidAssessments(59), listOf(), getValidConviction())
-      assertThat(result.points).isEqualTo(5)
-      validate()
-    }
-
-    @Test
-    fun `should calculate Ogrs take 10s 100`() {
-      setup()
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
-      val result = service.calculateChangeLevel(crn, assessment, getValidAssessments(100), listOf(), getValidConviction())
-      assertThat(result.points).isEqualTo(10)
-      validate()
-    }
-
     private fun getValidAssessments(ogrs: Int?): DeliusAssessments {
       return DeliusAssessments(
         rsr = null,
