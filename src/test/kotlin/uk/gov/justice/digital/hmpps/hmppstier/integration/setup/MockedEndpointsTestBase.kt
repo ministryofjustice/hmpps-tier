@@ -6,13 +6,11 @@ import com.google.gson.Gson
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.matches
 import org.awaitility.kotlin.untilCallTo
-import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.mockserver.integration.ClientAndServer
-import org.mockserver.integration.ClientAndServer.startClientAndServer
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.notFoundResponse
@@ -58,9 +56,12 @@ abstract class MockedEndpointsTestBase {
   @Autowired
   internal lateinit var jwtHelper: JwtAuthHelper
 
-  private var oauthMock: ClientAndServer = startClientAndServer(9090)
-  private var communityApi: ClientAndServer = startClientAndServer(8091)
-  private var assessmentApi: ClientAndServer = startClientAndServer(8092)
+  @Autowired
+  lateinit var oauthMock: ClientAndServer
+  @Autowired
+  lateinit var communityApi: ClientAndServer
+  @Autowired
+  lateinit var assessmentApi: ClientAndServer
 
   @BeforeEach
   fun `purge Queues`() {
@@ -75,13 +76,6 @@ abstract class MockedEndpointsTestBase {
     communityApi.reset()
     assessmentApi.reset()
     oauthMock.reset()
-  }
-
-  @AfterAll
-  fun tearDownServer() {
-    communityApi.stop()
-    assessmentApi.stop()
-    oauthMock.stop()
   }
 
   private fun setupOauth() {
