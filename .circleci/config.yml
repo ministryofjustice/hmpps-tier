@@ -67,6 +67,9 @@ workflows:
             branches:
               only:
                 - main
+        - requires:
+            - helm_lint
+            - validate
       - hmpps/deploy_env:
           name: deploy_dev
           env: "dev"
