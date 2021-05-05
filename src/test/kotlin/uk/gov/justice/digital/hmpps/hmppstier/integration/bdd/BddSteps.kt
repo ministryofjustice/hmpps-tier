@@ -54,6 +54,8 @@ class BddSteps : En {
 
   private lateinit var crn: String
 
+  private val charPool: List<Char> = ('A'..'Z') + ('0'..'9')
+
   @Autowired
   lateinit var oauthMock: ClientAndServer
   @Autowired
@@ -76,8 +78,10 @@ class BddSteps : En {
       calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
 
       setupOauth()
-      val re = Regex("[^A-Za-z0-9]")
-      crn = re.replace(scenario.name, "").replace(" ", "")
+      crn = (1..7)
+        .map { kotlin.random.Random.nextInt(0, charPool.size) }
+        .map(charPool::get)
+        .joinToString("")
       setupData = SetupData(communityApi, assessmentApi, crn)
       tierCalculationRepository.deleteAll()
     }
