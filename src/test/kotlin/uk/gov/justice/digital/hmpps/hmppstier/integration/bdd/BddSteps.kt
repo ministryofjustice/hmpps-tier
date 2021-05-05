@@ -53,6 +53,7 @@ class BddSteps : En {
 
   private lateinit var setupData: SetupData
 
+  private lateinit var crn: String
   private var oauthMock: ClientAndServer = startClientAndServer(9090)
   private var communityApi: ClientAndServer = startClientAndServer(8091)
   private var assessmentApi: ClientAndServer = startClientAndServer(8092)
@@ -66,12 +67,14 @@ class BddSteps : En {
 
   init {
 
-    Before { _: Scenario ->
+    Before { scenario: Scenario ->
       offenderEventsClient.purgeQueue(PurgeQueueRequest(eventQueueUrl))
       calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
 
       setupOauth()
-      setupData = SetupData(communityApi, assessmentApi)
+      val re = Regex("[^A-Za-z0-9]")
+      crn = re.replace(scenario.name, "").replace(" ","")
+      setupData = SetupData(communityApi, assessmentApi, crn)
       tierCalculationRepository.deleteAll()
     }
 
@@ -195,7 +198,7 @@ class BddSteps : En {
 
     When("a tier is calculated") {
       setupData.prepareResponses()
-      putMessageOnQueue(offenderEventsClient, eventQueueUrl, "X12345")
+      putMessageOnQueue(offenderEventsClient, eventQueueUrl, crn)
     }
 
     Then("{string} points are scored") { points: String ->
@@ -220,6 +223,6 @@ class BddSteps : En {
     val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
     val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
 
-    return tierCalculationRepository.findByCrnAndUuid("X12345", changeEvent.calculationId)!!
+    return tierCalculationRepository.findByCrnAndUuid(crn, changeEvent.calculationId)!!
   }
 }
