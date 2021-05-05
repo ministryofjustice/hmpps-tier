@@ -40,7 +40,7 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   private var outcome: List<String> = emptyList()
   private var gender: String = "Male"
   private var additionalFactors: List<String> = emptyList()
-  private var needs: Map<String, String> = emptyMap()
+  private var needs: MutableMap<String, String> = mutableMapOf()
   private var mappa: String = "NO_MAPPA"
   private var ogrs: String = "0"
   private var rosh: String = "NO_ROSH"
@@ -64,6 +64,7 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   }
 
   fun setOgrs(ogrs: String) {
+    this.hasValidAssessment = true // There needs to be a valid assessment to access ogrs code path
     this.ogrs = ogrs
   }
 
@@ -72,8 +73,13 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   }
 
   fun setNeeds(needs: Map<String, String>) {
-    this.hasValidAssessment = true // There needs to be a valid assessment to access needs
-    this.needs = needs
+    this.hasValidAssessment = true // There needs to be a valid assessment to access needs code path
+    this.needs.putAll(needs)
+  }
+
+  fun addNeed(need: String, severity: String) {
+    this.hasValidAssessment = true // There needs to be a valid assessment to access needs code path
+    this.needs[need] = severity
   }
 
   fun setGender(gender: String) {
