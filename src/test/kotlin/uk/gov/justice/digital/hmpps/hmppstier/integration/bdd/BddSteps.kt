@@ -105,6 +105,80 @@ class BddSteps : En {
     Given("an offender is {string}") { gender: String ->
       setupData.setGender(gender)
     }
+
+    Given("an offender scores 21 change points") {
+      setupData.setOgrs("90") // 9 points
+      setupData.setNeeds(
+        mapOf(
+          "ACCOMMODATION" to "SEVERE",
+          "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "SEVERE",
+          "RELATIONSHIPS" to "SEVERE",
+          "LIFESTYLE_AND_ASSOCIATES" to "SEVERE",
+          "DRUG_MISUSE" to "SEVERE",
+          "ALCOHOL_MISUSE" to "SEVERE"
+        )
+      ) // 12 points
+    }
+
+    Given("an offender scores 20 change points") {
+      setupData.setOgrs("100") // 10 points
+      setupData.setNeeds(
+        mapOf(
+          "ACCOMMODATION" to "SEVERE",
+          "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "SEVERE",
+          "RELATIONSHIPS" to "SEVERE",
+          "LIFESTYLE_AND_ASSOCIATES" to "SEVERE",
+          "DRUG_MISUSE" to "SEVERE"
+        )
+      ) // 10 points
+    }
+
+    Given("an offender scores 19 change points") {
+      setupData.setOgrs("90") // 9 points
+      setupData.setNeeds(
+        mapOf(
+          "ACCOMMODATION" to "SEVERE",
+          "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "SEVERE",
+          "RELATIONSHIPS" to "SEVERE",
+          "LIFESTYLE_AND_ASSOCIATES" to "SEVERE",
+          "DRUG_MISUSE" to "SEVERE"
+        )
+      ) // 10 points
+    }
+
+    Given("an offender scores 11 change points") {
+      setupData.setOgrs("90") // 9 points
+      setupData.setNeeds(
+        mapOf(
+          "ACCOMMODATION" to "SEVERE",
+        )
+      ) // 2 points
+    }
+
+    Given("an offender scores 10 change points") {
+      setupData.setNeeds(
+        mapOf(
+          "ACCOMMODATION" to "SEVERE",
+          "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "SEVERE",
+          "RELATIONSHIPS" to "SEVERE",
+          "LIFESTYLE_AND_ASSOCIATES" to "SEVERE",
+          "DRUG_MISUSE" to "SEVERE"
+        )
+      ) // 10 points
+    }
+
+    Given("an offender scores 9 change points") {
+      setupData.setNeeds(
+        mapOf(
+          "ACCOMMODATION" to "SEVERE",
+          "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "SEVERE",
+          "RELATIONSHIPS" to "SEVERE",
+          "LIFESTYLE_AND_ASSOCIATES" to "SEVERE",
+          "DRUG_MISUSE" to "STANDARD"
+        )
+      ) // 9 points
+    }
+
     Given("an offender scores 31 protect points") {
       setupData.setMappa(M1.registerCode) // 5
       setupData.setRosh(HIGH.registerCode) // 20
@@ -145,6 +219,7 @@ class BddSteps : En {
     Given("an offender scores 0 protect points") {
       // do nothing
     }
+
     And("has the following OASys complexity answer: {string} {string} : {string}") { _: String, question: String, answer: String ->
       setupData.setValidAssessment()
       setupData.setAssessmentAnswer(question, answer)
@@ -174,6 +249,7 @@ class BddSteps : En {
     And("no RSR score") {
       setupData.setRsr("0")
     }
+
     And("has a custodial sentence") {
       // Do nothing
     }
@@ -202,6 +278,13 @@ class BddSteps : En {
       val calculation: TierCalculationEntity = getTier()
       assertThat(calculation.data.protect.points).isEqualTo(points.toInt())
     }
+
+    Then("a Change level of {string} is returned for {string} points") { changeLevel: String, points: String ->
+      val calculation: TierCalculationEntity = getTier()
+      assertThat(calculation.data.change.points).isEqualTo(Integer.valueOf(points))
+      assertThat(calculation.data.change.tier.value).isEqualTo(Integer.valueOf(changeLevel))
+    }
+
     Then("a protect level of {string} is returned and {string} points are scored") { protectLevel: String, points: String ->
       val calculation: TierCalculationEntity = getTier()
       assertThat(calculation.data.protect.tier).isEqualTo(ProtectLevel.valueOf(protectLevel))

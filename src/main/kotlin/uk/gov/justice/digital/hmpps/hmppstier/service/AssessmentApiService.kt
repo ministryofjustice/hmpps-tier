@@ -13,37 +13,17 @@ import java.time.LocalDate
 @Service
 class AssessmentApiService(
   private val assessmentApiClient: AssessmentApiClient,
-  private val telemetryService: TelemetryService,
   private val clock: Clock
 ) {
 
-  fun getRecentAssessment(crn: String): OffenderAssessment? {
-    val assessments = assessmentApiClient.getAssessmentSummaries(crn)
-      .also {
-        if (it.isEmpty()) {
-          telemetryService.trackEvent(TelemetryEventType.NO_ASSESSMENT_RETURNED, crn)
-        }
-      }
+  fun getRecentAssessment(crn: String): OffenderAssessment? =
+    assessmentApiClient.getAssessmentSummaries(crn)
       .filter {
-        it.assessmentStatus in listOf("COMPLETE", "LOCKED_INCOMPLETE") &&
-          it.voided == null
-      }
-      .also {
-        if (it.isEmpty()) {
-          telemetryService.trackEvent(TelemetryEventType.NO_ASSESSMENT_OF_CORRECT_STATUS, crn)
-        }
-      }
-      .filter {
-        it.completed != null &&
+        it.assessmentStatus in COMPLETE_STATUSES &&
+          it.voided == null &&
+          it.completed != null &&
           it.completed.toLocalDate().isAfter(LocalDate.now(clock).minusWeeks(55).minusDays(1))
       }
-      .also {
-        if (it.isEmpty()) {
-          telemetryService.trackEvent(TelemetryEventType.NO_ASSESSMENT_IN_DATE, crn)
-        }
-      }
-
-    return assessments
       .maxByOrNull { it.completed!! }
       .also {
         when (it) {
@@ -51,7 +31,6 @@ class AssessmentApiService(
           else -> log.info("Found valid Assessment ${it.assessmentId} for $crn")
         }
       }
-  }
 
   fun getAssessmentAnswers(assessmentId: String): Map<AdditionalFactorForWomen?, String?> =
     assessmentApiClient.getAssessmentAnswers(assessmentId).associateBy(
@@ -66,5 +45,6 @@ class AssessmentApiService(
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
+    private val COMPLETE_STATUSES = listOf("COMPLETE", "LOCKED_INCOMPLETE")
   }
 }
