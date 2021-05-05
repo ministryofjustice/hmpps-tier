@@ -147,6 +147,7 @@ tasks {
   }
 
   getByName<Test>("test") {
+    dependsOn(detekt)
     finalizedBy(cucumber)
     exclude("**/CucumberRunnerTest*")
   }
