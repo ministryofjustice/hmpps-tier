@@ -7,6 +7,7 @@ plugins {
   id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
   jacoco
   java
+  id("io.gitlab.arturbosch.detekt").version("1.17.0-RC2")
 }
 
 configurations {
@@ -73,6 +74,12 @@ jacoco {
   toolVersion = "0.8.6"
 }
 
+detekt {
+  config = files("src/test/resources/detekt-config.yml")
+  buildUponDefaultConfig = true
+  ignoreFailures = true
+}
+
 tasks {
   getByName("check") {
     dependsOn(":ktlintCheck")
@@ -133,6 +140,7 @@ tasks {
     args("--include-classname", ".*")
     args("--select-class", "uk.gov.justice.digital.hmpps.hmppstier.integration.bdd.CucumberRunnerTest")
     args("--exclude-tag", "disabled")
+
     // if you want to run one feature/scenario, tag it @single and uncomment
     // args("--include-tag", "single")
     args("--reports-dir", reportsDir)
@@ -140,6 +148,7 @@ tasks {
   }
 
   getByName<Test>("test") {
+    dependsOn(detekt)
     finalizedBy(cucumber)
     exclude("**/CucumberRunnerTest*")
   }

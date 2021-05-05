@@ -30,7 +30,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsRes
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class SetupData(private val communityApi: ClientAndServer, private val assessmentApi: ClientAndServer) {
+class SetupData(private val communityApi: ClientAndServer, private val assessmentApi: ClientAndServer, val crn: String) {
   private var sentenceLengthIndeterminate: Boolean = false
   private var sentenceLength: Long = 1
   private var mainOffence: String = "016"
@@ -122,7 +122,7 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   }
 
   fun prepareResponses() {
-    communityApiResponse(communityApiAssessmentsResponse(rsr, ogrs), "/secure/offenders/crn/X12345/assessments")
+    communityApiResponse(communityApiAssessmentsResponse(rsr, ogrs), "/secure/offenders/crn/$crn/assessments")
 
     when {
       rosh != "NO_ROSH" &&
@@ -150,12 +150,12 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
     if (hasValidAssessment) {
       assessmentApiResponse(
         assessmentsApiAssessmentsResponse(LocalDate.now().year),
-        "/offenders/crn/X12345/assessments/summary"
+        "/offenders/crn/$crn/assessments/summary"
       )
       if (gender == "Female") {
         assessmentApiResponse(
           assessmentsApiFemaleAnswersResponse(assessmentAnswers),
-          "/assessments/oasysSetId/1234/answers"
+          "/assessments/oasysSetId/1234/answers" // possibly also a problem
         )
       }
       assessmentApiResponse(
@@ -183,8 +183,8 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
     }
 
     when (gender) {
-      "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/X12345")
-      else -> communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/X12345")
+      "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
+      else -> communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
     }
 
     if (gender == "Female") {
@@ -201,7 +201,7 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   private fun breachAndRecall(response: HttpResponse) {
     communityApiResponseWithQs(
       response,
-      "/secure/offenders/crn/X12345/convictions/\\d+/nsis",
+      "/secure/offenders/crn/$crn/convictions/\\d+/nsis",
       Parameter("nsiCodes", "BRE,BRES,REC,RECS")
     )
   }
@@ -209,7 +209,7 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   private fun convictions(response: HttpResponse) {
     communityApiResponseWithQs(
       response,
-      "/secure/offenders/crn/X12345/convictions",
+      "/secure/offenders/crn/$crn/convictions",
       Parameter("activeOnly", "true")
     )
   }
@@ -221,7 +221,7 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   private fun registrations(response: HttpResponse) {
     communityApiResponseWithQs(
       response,
-      "/secure/offenders/crn/X12345/registrations", Parameter("activeOnly", "true")
+      "/secure/offenders/crn/$crn/registrations", Parameter("activeOnly", "true")
     )
   }
 
