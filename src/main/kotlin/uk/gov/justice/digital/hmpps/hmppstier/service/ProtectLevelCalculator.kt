@@ -115,9 +115,9 @@ class ProtectLevelCalculator(
         val additionalFactorsPoints = getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment)
         val breachRecallPoints = getBreachRecallComplexityPoints(crn, convictions)
 
-        val violenceArsonPoints = if (calculationVersion >= 1.1) getArsonOrViolencePoints(convictions) else 0
+        val violenceArsonPoints = if (calculationVersion >= 2.0) getArsonOrViolencePoints(convictions) else 0
 
-        val tenMonthsPlusOrIndeterminatePoints = if (calculationVersion >= 1.1) getSentenceLengthPoints(convictions) else 0
+        val tenMonthsPlusOrIndeterminatePoints = if (calculationVersion >= 2.0) getSentenceLengthPoints(convictions) else 0
 
         additionalFactorsPoints + breachRecallPoints + violenceArsonPoints + tenMonthsPlusOrIndeterminatePoints
       }
