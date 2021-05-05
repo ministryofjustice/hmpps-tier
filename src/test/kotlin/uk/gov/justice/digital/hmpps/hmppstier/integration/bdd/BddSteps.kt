@@ -29,6 +29,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import java.time.LocalDate
+import java.util.UUID
 
 class BddSteps : En {
 
@@ -78,10 +79,7 @@ class BddSteps : En {
       calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
 
       setupOauth()
-      crn = (1..7)
-        .map { kotlin.random.Random.nextInt(0, charPool.size) }
-        .map(charPool::get)
-        .joinToString("")
+      crn = UUID.randomUUID().toString().replace("-", "").substring(0, 7)
       setupData = SetupData(communityApi, assessmentApi, crn)
       tierCalculationRepository.deleteAll()
     }
