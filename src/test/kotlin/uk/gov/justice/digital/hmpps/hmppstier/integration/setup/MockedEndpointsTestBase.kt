@@ -6,7 +6,6 @@ import com.google.gson.Gson
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.matches
 import org.awaitility.kotlin.untilCallTo
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
@@ -71,13 +70,6 @@ abstract class MockedEndpointsTestBase {
     setupOauth()
   }
 
-  @AfterEach
-  fun reset() {
-    communityApi.reset()
-    assessmentApi.reset()
-    oauthMock.reset()
-  }
-
   private fun setupOauth() {
     val response = HttpResponse.response().withContentType(APPLICATION_JSON)
       .withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
@@ -118,7 +110,7 @@ abstract class MockedEndpointsTestBase {
     if (includeAssessmentApi) {
       setupCurrentAssessment(crn)
     }
-    setupNeeds(needs)
+    setupNeeds(needs, crn)
   }
 
   fun setupCommunityApiAssessment(crn: String, rsr: BigDecimal = BigDecimal(23.0), ogrs: String = "21") {
@@ -133,21 +125,21 @@ abstract class MockedEndpointsTestBase {
     setupNoDeliusAssessment(crn)
     communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
     setupCurrentAssessment(crn)
-    setupNeeds(notFoundResponse())
+    setupNeeds(notFoundResponse(), crn)
   }
 
   fun setupNoDeliusAssessment(crn: String) {
     communityApiResponse(emptyCommunityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments")
   }
 
-  fun setupNeeds(needs: HttpResponse) {
-    assessmentApiResponse(needs, "/assessments/oasysSetId/1234/needs")
+  fun setupNeeds(needs: HttpResponse, crn: String) {
+    assessmentApiResponse(needs, "/assessments/oasysSetId/$crn/needs")
   }
 
   fun setupCurrentAssessment(crn: String) = setupLatestAssessment(crn, LocalDate.now().year)
 
   fun setupLatestAssessment(crn: String, year: Int) =
-    assessmentApiResponse(assessmentsApiAssessmentsResponse(year), "/offenders/crn/$crn/assessments/summary")
+    assessmentApiResponse(assessmentsApiAssessmentsResponse(year, crn), "/offenders/crn/$crn/assessments/summary")
 
   fun setupAssessmentNotFound(crn: String) =
     assessmentApiResponse(notFoundResponse(), "/offenders/crn/$crn/assessments/summary")

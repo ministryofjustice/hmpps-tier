@@ -154,13 +154,13 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
 
     if (hasValidAssessment) {
       assessmentApiResponse(
-        assessmentsApiAssessmentsResponse(LocalDate.now().year),
+        assessmentsApiAssessmentsResponse(LocalDate.now().year, crn),
         "/offenders/crn/$crn/assessments/summary"
       )
       if (gender == "Female") {
         assessmentApiResponse(
           assessmentsApiFemaleAnswersResponse(assessmentAnswers),
-          "/assessments/oasysSetId/1234/answers" // possibly also a problem
+          "/assessments/oasysSetId/$crn/answers"
         )
       }
       assessmentApiResponse(
@@ -169,7 +169,7 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
         } else {
           assessmentsApiNoSeverityNeedsResponse()
         },
-        "/assessments/oasysSetId/1234/needs"
+        "/assessments/oasysSetId/$crn/needs"
       )
     }
 

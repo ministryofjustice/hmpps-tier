@@ -148,10 +148,11 @@ fun custodialNCConvictionResponse(
 fun nonCustodialCurrentAndTerminatedConviction(): HttpResponse =
   communityApiResponse("convictions-non-custodial-current-and-terminated.json")
 
-fun assessmentsApiAssessmentsResponse(year: Int): HttpResponse = jsonResponseOf(
+fun assessmentsApiAssessmentsResponse(year: Int, crn: String): HttpResponse = jsonResponseOf(
   responseFrom("$assessmentApiPath/assessments.json")
     .replace("completedDate", "$year-01-01T00:00:00")
     .replace("voidedDate", "")
+    .replace("assessmentIdToReplace", crn)
 )
 
 fun assessmentsApiNoSeverityNeedsResponse(): HttpResponse =

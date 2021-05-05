@@ -8,7 +8,7 @@ class NoAssessmentFoundTest : MockedEndpointsTestBase() {
 
   @Test
   fun `changeLevel should be 2 if assessment returns 404`() {
-    val crn = "X373878"
+    val crn = "X273878"
     setupNCCustodialSentence(crn)
     setupAssessmentNotFound(crn)
     setupRegistrations(registrationsResponseWithMappa(), crn)

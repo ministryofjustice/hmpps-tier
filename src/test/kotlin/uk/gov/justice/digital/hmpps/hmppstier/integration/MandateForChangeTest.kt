@@ -45,7 +45,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
 
   @Test
   fun `do not calculate change for terminated custodial sentence`() {
-    val crn = "X373878"
+    val crn = "X173878"
     setupTerminatedCustodialSentence(crn)
     setupMaleOffenderWithRegistrations(crn)
     calculateTierFor(crn)

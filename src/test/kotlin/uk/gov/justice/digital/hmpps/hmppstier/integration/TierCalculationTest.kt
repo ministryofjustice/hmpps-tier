@@ -31,7 +31,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
 
     @Test
     fun `default change to '2' for non recent assessment`() {
-      val crn = "X432768"
+      val crn = "X432767"
 
       setupSCCustodialSentence(crn)
       setupMaleOffenderWithRegistrations(crn, includeAssessmentApi = false)
