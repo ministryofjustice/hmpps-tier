@@ -80,7 +80,7 @@ class BddSteps : En {
 
       setupOauth()
       crn = UUID.randomUUID().toString().replace("-", "").substring(0, 7)
-      setupData = SetupData(communityApi, assessmentApi, crn)
+      setupData = SetupData(communityApi, assessmentApi, mapOf("crn" to crn))
       tierCalculationRepository.deleteAll()
     }
 

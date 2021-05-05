@@ -30,7 +30,8 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsRes
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class SetupData(private val communityApi: ClientAndServer, private val assessmentApi: ClientAndServer, val crn: String) {
+class SetupData(private val communityApi: ClientAndServer, private val assessmentApi: ClientAndServer, ids: Map<String,String>) {
+  var crn: String = ids["crn"]!!
   private var sentenceLengthIndeterminate: Boolean = false
   private var sentenceLength: Long = 1
   private var mainOffence: String = "016"
