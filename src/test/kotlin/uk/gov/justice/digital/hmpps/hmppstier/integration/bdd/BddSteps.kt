@@ -11,7 +11,6 @@ import org.awaitility.kotlin.await
 import org.awaitility.kotlin.matches
 import org.awaitility.kotlin.untilCallTo
 import org.mockserver.integration.ClientAndServer
-import org.mockserver.integration.ClientAndServer.startClientAndServer
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
@@ -54,9 +53,13 @@ class BddSteps : En {
   private lateinit var setupData: SetupData
 
   private lateinit var crn: String
-  private var oauthMock: ClientAndServer = startClientAndServer(9090)
-  private var communityApi: ClientAndServer = startClientAndServer(8091)
-  private var assessmentApi: ClientAndServer = startClientAndServer(8092)
+
+  @Autowired
+  lateinit var oauthMock: ClientAndServer
+  @Autowired
+  private lateinit var communityApi: ClientAndServer
+  @Autowired
+  private lateinit var assessmentApi: ClientAndServer
 
   private fun setupOauth() {
     val response = response().withContentType(APPLICATION_JSON)
@@ -68,21 +71,17 @@ class BddSteps : En {
   init {
 
     Before { scenario: Scenario ->
+
       offenderEventsClient.purgeQueue(PurgeQueueRequest(eventQueueUrl))
       calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
 
       setupOauth()
       val re = Regex("[^A-Za-z0-9]")
-      crn = re.replace(scenario.name, "").replace(" ","")
+      crn = re.replace(scenario.name, "").replace(" ", "")
       setupData = SetupData(communityApi, assessmentApi, crn)
       tierCalculationRepository.deleteAll()
     }
 
-    After { _: Scenario ->
-      communityApi.stop()
-      assessmentApi.stop()
-      oauthMock.stop()
-    }
     Given("an RSR score of {string}") { rsr: String ->
       setupData.setRsr(rsr)
     }
