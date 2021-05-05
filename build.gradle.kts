@@ -7,6 +7,7 @@ plugins {
   id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
   jacoco
   java
+  id("io.gitlab.arturbosch.detekt").version("1.17.0-RC2")
 }
 
 configurations {
@@ -71,6 +72,12 @@ dependencyManagement {
 
 jacoco {
   toolVersion = "0.8.6"
+}
+
+detekt {
+  config = files("src/test/resources/detekt-config.yml")
+  buildUponDefaultConfig = true
+  ignoreFailures = true
 }
 
 tasks {
@@ -141,6 +148,7 @@ tasks {
   }
 
   getByName<Test>("test") {
+    dependsOn(detekt)
     finalizedBy(cucumber)
     exclude("**/CucumberRunnerTest*")
   }
