@@ -108,6 +108,14 @@ class BddSteps : En {
       setupData.setGender(gender)
     }
 
+    Given("an OGRS score of {string}%") { ogrs: String ->
+      setupData.setOgrs(ogrs)
+    }
+
+    Given("the assessment need {string} with severity {string}") { need: String, severity: String ->
+      setupData.addNeed(need, severity)
+    }
+
     Given("an offender scores 21 change points") {
       setupData.setOgrs("90") // 9 points
       setupData.setNeeds(
@@ -279,6 +287,11 @@ class BddSteps : En {
     Then("{string} points are scored") { points: String ->
       val calculation: TierCalculationEntity = getTier()
       assertThat(calculation.data.protect.points).isEqualTo(points.toInt())
+    }
+
+    Then("{string} change points are scored") { points: String ->
+      val calculation: TierCalculationEntity = getTier()
+      assertThat(calculation.data.change.points).isEqualTo(points.toInt())
     }
 
     Then("a Change level of {string} is returned for {string} points") { changeLevel: String, points: String ->
