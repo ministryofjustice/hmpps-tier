@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.controller
 
 import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import org.slf4j.LoggerFactory
 import org.springframework.cloud.aws.messaging.listener.SqsMessageDeletionPolicy.ON_SUCCESS
 import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener
@@ -26,7 +27,7 @@ class TierCalculationRequiredEventListener(
   }
 
   private fun getCrn(msg: String): String {
-    val message = gson.fromJson(msg, SQSMessage::class.java).Message
+    val message = gson.fromJson(msg, SQSMessage::class.java).message
     return gson.fromJson(message, TierCalculationMessage::class.java).crn
       .also { log.info("Tier calculation message decoded for $it") }
   }
@@ -38,7 +39,4 @@ class TierCalculationRequiredEventListener(
 
 private data class TierCalculationMessage(val crn: String)
 
-private data class SQSMessage(
-  val Message: String,
-  val MessageId: String
-)
+private data class SQSMessage(@SerializedName("Message") val message: String)
