@@ -58,8 +58,10 @@ class BddSteps : En {
 
   @Autowired
   lateinit var oauthMock: ClientAndServer
+
   @Autowired
   private lateinit var communityApi: ClientAndServer
+
   @Autowired
   private lateinit var assessmentApi: ClientAndServer
 
@@ -88,12 +90,10 @@ class BddSteps : En {
       setupData.setRsr(rsr)
     }
     Given("a ROSH score of {string}") { rosh: String ->
-      var roshCode: String
-      try {
-        roshCode = Rosh.valueOf(rosh).registerCode
-      } catch (e: IllegalArgumentException) {
-        roshCode = "NO_ROSH"
-      }
+      var roshCode: String =
+        if (Rosh.values().any { it.name == rosh }) Rosh.valueOf(rosh).registerCode
+        else "NO_ROSH"
+
       setupData.setRosh(roshCode)
     }
     Given("an active MAPPA registration of M Level {string}") { mappa: String ->
