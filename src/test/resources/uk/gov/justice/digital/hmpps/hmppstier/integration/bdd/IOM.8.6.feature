@@ -1,5 +1,4 @@
 #lang: en
-@single
 Feature: Integrated Offender Management
 
   Scenario: IOM scores 2 points
