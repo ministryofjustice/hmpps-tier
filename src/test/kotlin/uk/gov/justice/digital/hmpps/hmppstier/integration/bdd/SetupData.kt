@@ -1,8 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.bdd
 
 import org.mockserver.integration.ClientAndServer
-import org.mockserver.matchers.Times
-import org.mockserver.model.HttpRequest
+import org.mockserver.matchers.Times.exactly
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.Parameter
@@ -237,11 +236,11 @@ class SetupData(
     )
   }
 
-  private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
-    clientAndServer.`when`(request().withPath(urlTemplate), Times.exactly(1)).respond(response)
+  private fun httpSetup(response: HttpResponse, urlTemplate: String, api: ClientAndServer) =
+    api.`when`(request().withPath(urlTemplate), exactly(1)).respond(response)
 
   private fun communityApiResponseWithQs(response: HttpResponse, urlTemplate: String, qs: Parameter) =
-    communityApi.`when`(request().withPath(urlTemplate).withQueryStringParameter(qs), Times.exactly(1))
+    communityApi.`when`(request().withPath(urlTemplate).withQueryStringParameter(qs), exactly(1))
       .respond(response)
 
   private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
