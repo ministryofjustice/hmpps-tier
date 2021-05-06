@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration.bdd
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest
+import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.Parameter
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
@@ -30,7 +31,11 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsRes
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class SetupData(private val communityApi: ClientAndServer, private val assessmentApi: ClientAndServer, ids: Map<String, String>) {
+class SetupData(
+  private val communityApi: ClientAndServer,
+  private val assessmentApi: ClientAndServer,
+  ids: Map<String, String>
+) {
   var crn: String = ids["crn"]!!
   var assessmentId: String = ids["assessmentId"]!!
   private var sentenceLengthIndeterminate: Boolean = false
@@ -232,20 +237,12 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
     )
   }
 
-  private fun httpSetupWithQs(
-    response: HttpResponse,
-    urlTemplate: String,
-    clientAndServer: ClientAndServer,
-    qs: Parameter
-  ) =
-    clientAndServer.`when`(HttpRequest.request().withPath(urlTemplate).withQueryStringParameter(qs), Times.exactly(1))
-      .respond(response)
-
   private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
-    clientAndServer.`when`(HttpRequest.request().withPath(urlTemplate), Times.exactly(1)).respond(response)
+    clientAndServer.`when`(request().withPath(urlTemplate), Times.exactly(1)).respond(response)
 
   private fun communityApiResponseWithQs(response: HttpResponse, urlTemplate: String, qs: Parameter) =
-    httpSetupWithQs(response, urlTemplate, communityApi, qs)
+    communityApi.`when`(request().withPath(urlTemplate).withQueryStringParameter(qs), Times.exactly(1))
+      .respond(response)
 
   private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
     httpSetup(response, urlTemplate, communityApi)
