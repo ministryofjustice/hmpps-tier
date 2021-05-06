@@ -71,6 +71,7 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   }
 
   fun setAdditionalFactors(additionalFactors: List<String>) {
+    this.hasValidAssessment = true // for IOM
     this.additionalFactors = additionalFactors
   }
 
@@ -80,8 +81,7 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   }
 
   fun addNeed(need: String, severity: String) {
-    this.hasValidAssessment = true // There needs to be a valid assessment to access needs code path
-    this.needs[need] = severity
+    setNeeds(mapOf(need to severity))
   }
 
   fun setGender(gender: String) {
