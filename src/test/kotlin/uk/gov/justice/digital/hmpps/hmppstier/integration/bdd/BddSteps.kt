@@ -54,8 +54,7 @@ class BddSteps : En {
   private lateinit var setupData: SetupData
 
   private lateinit var crn: String
-
-  private val charPool: List<Char> = ('A'..'Z') + ('0'..'9')
+  private lateinit var assessmentId: String
 
   @Autowired
   lateinit var oauthMock: ClientAndServer
@@ -73,14 +72,15 @@ class BddSteps : En {
 
   init {
 
-    Before { scenario: Scenario ->
+    Before { _: Scenario ->
 
       offenderEventsClient.purgeQueue(PurgeQueueRequest(eventQueueUrl))
       calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
 
       setupOauth()
       crn = UUID.randomUUID().toString().replace("-", "").substring(0, 7)
-      setupData = SetupData(communityApi, assessmentApi, mapOf("crn" to crn))
+      assessmentId = UUID.randomUUID().toString().replace("\\D+".toRegex(), "").substring(0, 11)
+      setupData = SetupData(communityApi, assessmentApi, mapOf("crn" to crn, "assessmentId" to "1$assessmentId"))
       tierCalculationRepository.deleteAll()
     }
 

@@ -30,8 +30,9 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsRes
 import java.math.BigDecimal
 import java.time.LocalDate
 
-class SetupData(private val communityApi: ClientAndServer, private val assessmentApi: ClientAndServer, ids: Map<String,String>) {
+class SetupData(private val communityApi: ClientAndServer, private val assessmentApi: ClientAndServer, ids: Map<String, String>) {
   var crn: String = ids["crn"]!!
+  var assessmentId: String = ids["assessmentId"]!!
   private var sentenceLengthIndeterminate: Boolean = false
   private var sentenceLength: Long = 1
   private var mainOffence: String = "016"
@@ -155,13 +156,13 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
 
     if (hasValidAssessment) {
       assessmentApiResponse(
-        assessmentsApiAssessmentsResponse(LocalDate.now().year, crn),
+        assessmentsApiAssessmentsResponse(LocalDate.now().year, assessmentId),
         "/offenders/crn/$crn/assessments/summary"
       )
       if (gender == "Female") {
         assessmentApiResponse(
-          assessmentsApiFemaleAnswersResponse(assessmentAnswers),
-          "/assessments/oasysSetId/$crn/answers"
+          assessmentsApiFemaleAnswersResponse(assessmentAnswers, assessmentId),
+          "/assessments/oasysSetId/$assessmentId/answers"
         )
       }
       assessmentApiResponse(
@@ -170,7 +171,7 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
         } else {
           assessmentsApiNoSeverityNeedsResponse()
         },
-        "/assessments/oasysSetId/$crn/needs"
+        "/assessments/oasysSetId/$assessmentId/needs"
       )
     }
 
@@ -207,7 +208,7 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
   private fun breachAndRecall(response: HttpResponse) {
     communityApiResponseWithQs(
       response,
-      "/secure/offenders/crn/$crn/convictions/\\d+/nsis",
+      "/secure/offenders/crn/$crn/convictions/\\d+/nsis", // should supply the actual convictionID here?
       Parameter("nsiCodes", "BRE,BRES,REC,RECS")
     )
   }

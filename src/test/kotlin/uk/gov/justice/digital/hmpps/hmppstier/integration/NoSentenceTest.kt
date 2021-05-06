@@ -11,7 +11,7 @@ class NoSentenceTest : MockedEndpointsTestBase() {
     val crn = "X333444"
     setUpNoSentence(crn)
     setupRegistrations(registrationsResponseWithMappa(), crn)
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn)
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "5234567890")
     calculateTierFor(crn)
     expectTierCalculation("A0")
   }

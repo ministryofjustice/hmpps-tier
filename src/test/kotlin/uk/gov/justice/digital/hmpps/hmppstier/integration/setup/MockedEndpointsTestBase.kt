@@ -94,23 +94,23 @@ abstract class MockedEndpointsTestBase {
       Parameter("nsiCodes", "BRE,BRES,REC,RECS")
     )
 
-  fun restOfSetupWithMaleOffenderNoSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) =
-    restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiNoSeverityNeedsResponse())
+  fun restOfSetupWithMaleOffenderNoSevereNeeds(crn: String, includeAssessmentApi: Boolean = true, assessmentId: String) =
+    restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiNoSeverityNeedsResponse(), assessmentId)
 
-  fun restOfSetupWithMaleOffenderAnd8PointNeeds(crn: String, includeAssessmentApi: Boolean = true) =
-    restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApi8NeedsResponse())
+  fun restOfSetupWithMaleOffenderAnd8PointNeeds(crn: String, includeAssessmentApi: Boolean = true, assessmentId: String) =
+    restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApi8NeedsResponse(), assessmentId)
 
-  fun restOfSetupWithMaleOffenderAndSevereNeeds(crn: String, includeAssessmentApi: Boolean = true) =
-    restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiHighSeverityNeedsResponse())
+  fun restOfSetupWithMaleOffenderAndSevereNeeds(crn: String, includeAssessmentApi: Boolean = true, assessmentId: String) =
+    restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiHighSeverityNeedsResponse(), assessmentId)
 
-  private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: HttpResponse) {
+  private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: HttpResponse, assessmentId: String) {
     setupCommunityApiAssessment(crn)
     setupMaleOffender(crn)
 
     if (includeAssessmentApi) {
-      setupCurrentAssessment(crn)
+      setupCurrentAssessment(crn, assessmentId)
     }
-    setupNeeds(needs, crn)
+    setupNeeds(needs, assessmentId)
   }
 
   fun setupCommunityApiAssessment(crn: String, rsr: BigDecimal = BigDecimal(23.0), ogrs: String = "21") {
@@ -121,25 +121,25 @@ abstract class MockedEndpointsTestBase {
     communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
   }
 
-  fun restOfSetupWithFemaleOffender(crn: String) {
+  fun restOfSetupWithFemaleOffender(crn: String, assessmentId: String) {
     setupNoDeliusAssessment(crn)
     communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
-    setupCurrentAssessment(crn)
-    setupNeeds(notFoundResponse(), crn)
+    setupCurrentAssessment(crn, assessmentId)
+    setupNeeds(notFoundResponse(), assessmentId)
   }
 
   fun setupNoDeliusAssessment(crn: String) {
     communityApiResponse(emptyCommunityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments")
   }
 
-  fun setupNeeds(needs: HttpResponse, crn: String) {
-    assessmentApiResponse(needs, "/assessments/oasysSetId/$crn/needs")
+  fun setupNeeds(needs: HttpResponse, assessmentId: String) {
+    assessmentApiResponse(needs, "/assessments/oasysSetId/$assessmentId/needs")
   }
 
-  fun setupCurrentAssessment(crn: String) = setupLatestAssessment(crn, LocalDate.now().year)
+  fun setupCurrentAssessment(crn: String, assessmentId: String) = setupLatestAssessment(crn, LocalDate.now().year, assessmentId)
 
-  fun setupLatestAssessment(crn: String, year: Int) =
-    assessmentApiResponse(assessmentsApiAssessmentsResponse(year, crn), "/offenders/crn/$crn/assessments/summary")
+  fun setupLatestAssessment(crn: String, year: Int, assessmentId: String) =
+    assessmentApiResponse(assessmentsApiAssessmentsResponse(year, assessmentId), "/offenders/crn/$crn/assessments/summary")
 
   fun setupAssessmentNotFound(crn: String) =
     assessmentApiResponse(notFoundResponse(), "/offenders/crn/$crn/assessments/summary")
@@ -204,9 +204,9 @@ abstract class MockedEndpointsTestBase {
       "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true")
     )
 
-  fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true) {
+  fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true, assessmentId: String) {
     setupRegistrations(registrationsResponseWithMappa(), crn)
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, includeAssessmentApi)
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, includeAssessmentApi, assessmentId)
   }
 
   fun setupSCCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialSCConvictionResponse())

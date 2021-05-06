@@ -14,7 +14,7 @@ class RegistrationEdgeCasesTest : MockedEndpointsTestBase() {
     val crn = "X473878"
     setupNCCustodialSentence(crn)
     setupRegistrations(emptyRegistrationsResponse(), crn)
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn)
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "7234567890")
     calculateTierFor(crn)
     expectTierCalculation("B1")
   }
@@ -24,7 +24,7 @@ class RegistrationEdgeCasesTest : MockedEndpointsTestBase() {
     val crn = "X445509"
     setupNCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithNoLevel(), crn)
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn)
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "6234567890")
     calculateTierFor(crn)
     expectTierCalculation("B1")
   }
@@ -35,7 +35,7 @@ class RegistrationEdgeCasesTest : MockedEndpointsTestBase() {
     setupNCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithMappa(), crn)
     setupMaleOffender(crn)
-    setupNeeds(assessmentsApiNoSeverityNeedsResponse(), crn)
+    setupNeeds(assessmentsApiNoSeverityNeedsResponse(), "6234507890")
     setupNoDeliusAssessment(crn)
     calculateTierFor(crn)
     expectTierCalculation("A2")

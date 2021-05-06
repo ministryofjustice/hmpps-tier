@@ -12,7 +12,7 @@ class NoAssessmentFoundTest : MockedEndpointsTestBase() {
     setupNCCustodialSentence(crn)
     setupAssessmentNotFound(crn)
     setupRegistrations(registrationsResponseWithMappa(), crn)
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn)
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "8234567890")
     calculateTierFor(crn)
     expectTierCalculation("A2")
   }
