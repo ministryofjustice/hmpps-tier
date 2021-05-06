@@ -287,7 +287,7 @@ class BddSteps : En {
       putMessageOnQueue(offenderEventsClient, eventQueueUrl, crn)
     }
 
-    Then("{string} points are scored") { points: String ->
+    Then("{string} protect points are scored") { points: String ->
       val calculation: TierCalculationEntity = getTier()
       assertThat(calculation.data.protect.points).isEqualTo(points.toInt())
     }
