@@ -20,7 +20,7 @@ Feature: Additional Factors (Female only) Self-Control / Temper and Parenting / 
     When a tier is calculated
     Then "2" points are scored
 
-  Scenario: Implsivity 1 scores 2 points
+  Scenario: Impulsivity 1 scores 2 points
     Given an offender is "Female"
     And has the following OASys complexity answer: "IMPULSIVITY" "11.2" : "1"
     When a tier is calculated

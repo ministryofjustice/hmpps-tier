@@ -88,10 +88,11 @@ class BddSteps : En {
       setupData.setRsr(rsr)
     }
     Given("a ROSH score of {string}") { rosh: String ->
-      var roshCode = "NO_ROSH"
+      var roshCode: String
       try {
         roshCode = Rosh.valueOf(rosh).registerCode
       } catch (e: IllegalArgumentException) {
+        roshCode = "NO_ROSH"
       }
       setupData.setRosh(roshCode)
     }
