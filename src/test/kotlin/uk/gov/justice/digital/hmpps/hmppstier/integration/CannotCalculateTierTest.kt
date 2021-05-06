@@ -11,7 +11,7 @@ class CannotCalculateTierTest : MockedEndpointsTestBase() {
     val crn = "X123456"
     setupSCCustodialSentence(crn)
     setupRegistrations(emptyRegistrationsResponse(), crn)
-    restOfSetupWithMaleOffenderAndSevereNeeds("NOTFOUND")
+    restOfSetupWithMaleOffenderAndSevereNeeds("NOTFOUND", assessmentId = "NOTUSED")
     calculateTierFor(crn)
     expectNoTierCalculation()
   }

@@ -10,7 +10,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     val crn = "X232323"
     setupNonCustodialSentence(crn)
     setupRestrictiveRequirements(crn)
-    setupMaleOffenderWithRegistrations(crn)
+    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567891")
     calculateTierFor(crn)
     expectTierCalculation("A0")
   }
@@ -20,7 +20,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     val crn = "X676767"
     setupConcurrentCustodialAndNonCustodialSentence(crn)
     setupRestrictiveRequirements(crn)
-    setupMaleOffenderWithRegistrations(crn)
+    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567892")
     calculateTierFor(crn)
     expectTierCalculation("A1")
   }
@@ -29,7 +29,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
   fun `calculate change and protect for SC custodial sentence`() {
     val crn = "X373878"
     setupSCCustodialSentence(crn)
-    setupMaleOffenderWithRegistrations(crn)
+    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567893")
     calculateTierFor(crn)
     expectTierCalculation("A1")
   }
@@ -38,16 +38,16 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
   fun `calculate change and protect for NC custodial sentence`() {
     val crn = "123"
     setupNCCustodialSentence(crn)
-    setupMaleOffenderWithRegistrations(crn)
+    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567894")
     calculateTierFor(crn)
     expectTierCalculation("A1")
   }
 
   @Test
   fun `do not calculate change for terminated custodial sentence`() {
-    val crn = "X373878"
+    val crn = "X173878"
     setupTerminatedCustodialSentence(crn)
-    setupMaleOffenderWithRegistrations(crn)
+    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567895")
     calculateTierFor(crn)
     expectTierCalculation("A0")
   }
@@ -57,7 +57,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     val crn = "X505050"
     setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn)
     setupNonRestrictiveRequirements(crn)
-    setupMaleOffenderWithRegistrations(crn)
+    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567896")
     calculateTierFor(crn)
     expectTierCalculation("A1")
   }
@@ -67,7 +67,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     val crn = "X222222"
     setupNonCustodialSentence(crn)
     setupNonRestrictiveRequirements(crn)
-    setupMaleOffenderWithRegistrations(crn)
+    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567897")
     calculateTierFor(crn)
     expectTierCalculation("A1")
   }
@@ -77,7 +77,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     val crn = "X888888"
     setupTerminatedNonCustodialSentence(crn)
     setupNonRestrictiveRequirements(crn)
-    setupMaleOffenderWithRegistrations(crn)
+    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567898")
     calculateTierFor(crn)
     expectTierCalculation("A0")
   }
@@ -87,7 +87,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     val crn = "X888866"
     setupNonCustodialSentence(crn)
     setupRestrictiveRequirements(crn)
-    setupMaleOffenderWithRegistrations(crn)
+    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567899")
     calculateTierFor(crn)
     expectTierCalculation("A0")
   }
@@ -97,7 +97,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     val crn = "X888855"
     setupNonCustodialSentence(crn)
     setupRestrictiveAndNonRestrictiveRequirements(crn)
-    setupMaleOffenderWithRegistrations(crn)
+    setupMaleOffenderWithRegistrations(crn, assessmentId = "4134567890")
     calculateTierFor(crn)
     expectTierCalculation("A1")
   }
@@ -107,7 +107,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     val crn = "X888844"
     setupNonCustodialSentence(crn)
     setupNoRequirements(crn)
-    setupMaleOffenderWithRegistrations(crn)
+    setupMaleOffenderWithRegistrations(crn, assessmentId = "4334567890")
     calculateTierFor(crn)
     expectTierCalculation("A0")
   }
@@ -117,7 +117,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     val crn = "X252525"
     setupNonCustodialSentence(crn)
     setupUnpaidWorkRequirements(crn)
-    setupMaleOffenderWithRegistrations(crn)
+    setupMaleOffenderWithRegistrations(crn, assessmentId = "4434567890")
     calculateTierFor(crn)
     expectTierCalculation("A0")
   }
@@ -127,7 +127,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     val crn = "X252526"
     setupNonCustodialSentence(crn)
     setupUnpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirements(crn)
-    setupMaleOffenderWithRegistrations(crn)
+    setupMaleOffenderWithRegistrations(crn, assessmentId = "4534567890")
     calculateTierFor(crn)
     expectTierCalculation("A0")
   }

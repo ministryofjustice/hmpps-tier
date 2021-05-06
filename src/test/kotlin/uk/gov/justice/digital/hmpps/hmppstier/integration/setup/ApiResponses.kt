@@ -148,10 +148,11 @@ fun custodialNCConvictionResponse(
 fun nonCustodialCurrentAndTerminatedConviction(): HttpResponse =
   communityApiResponse("convictions-non-custodial-current-and-terminated.json")
 
-fun assessmentsApiAssessmentsResponse(year: Int): HttpResponse = jsonResponseOf(
+fun assessmentsApiAssessmentsResponse(year: Int, assessmentId: String): HttpResponse = jsonResponseOf(
   responseFrom("$assessmentApiPath/assessments.json")
     .replace("completedDate", "$year-01-01T00:00:00")
     .replace("voidedDate", "")
+    .replace("\"assessmentIdToReplace\"", assessmentId)
 )
 
 fun assessmentsApiNoSeverityNeedsResponse(): HttpResponse =
@@ -163,12 +164,14 @@ fun assessmentsApi8NeedsResponse(): HttpResponse =
 fun assessmentsApiHighSeverityNeedsResponse(): HttpResponse =
   assessmentApiResponse("high_severity_needs_18_points.json")
 
-fun assessmentsApiFemaleAnswersResponse(assessmentAnswers: Map<String, String>): HttpResponse =
+fun assessmentsApiFemaleAnswersResponse(assessmentAnswers: Map<String, String>, assessmentId: String): HttpResponse =
   jsonResponseOf(
     responseFrom("$assessmentApiPath/female-answers.json")
       .replace("6.9AnswerToReplace", assessmentAnswers[PARENTING_RESPONSIBILITIES.answerCode]!!)
       .replace("11.2AnswerToReplace", assessmentAnswers[IMPULSIVITY.answerCode]!!)
       .replace("11.4AnswerToReplace", assessmentAnswers[TEMPER_CONTROL.answerCode]!!)
+      .replace("\"assessmentIdToReplace\"", assessmentId)
+
   )
 
 private fun responseFrom(path: String) =

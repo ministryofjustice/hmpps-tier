@@ -18,7 +18,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupNCCustodialSentence(crn)
       setupRegistrations(emptyRegistrationsResponse(), crn)
 
-      restOfSetupWithFemaleOffender(crn)
+      restOfSetupWithFemaleOffender(crn, "2234567890")
       setupEmptyNsisResponse(crn)
 
       calculateTierFor(crn)
@@ -31,11 +31,11 @@ class TierCalculationTest : MockedEndpointsTestBase() {
 
     @Test
     fun `default change to '2' for non recent assessment`() {
-      val crn = "X432768"
+      val crn = "X432767"
 
       setupSCCustodialSentence(crn)
-      setupMaleOffenderWithRegistrations(crn, includeAssessmentApi = false)
-      setupLatestAssessment(crn, 2018)
+      setupMaleOffenderWithRegistrations(crn, false, "4234568890")
+      setupLatestAssessment(crn, 2018, "1234567890")
 
       calculateTierFor(crn)
       expectTierCalculation("A2")
@@ -47,7 +47,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
 
       setupSCCustodialSentence(crn)
       setupRegistrations(registrationsResponseWithMappa(), crn)
-      restOfSetupWithMaleOffenderAnd8PointNeeds(crn, true)
+      restOfSetupWithMaleOffenderAnd8PointNeeds(crn, true, "3234567890")
 
       calculateTierFor(crn)
       expectTierCalculation("A2")

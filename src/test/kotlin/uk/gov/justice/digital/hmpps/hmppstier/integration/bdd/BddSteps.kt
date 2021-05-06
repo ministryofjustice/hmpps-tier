@@ -29,6 +29,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import java.time.LocalDate
+import java.util.UUID
 
 class BddSteps : En {
 
@@ -53,6 +54,7 @@ class BddSteps : En {
   private lateinit var setupData: SetupData
 
   private lateinit var crn: String
+  private lateinit var assessmentId: String
 
   @Autowired
   lateinit var oauthMock: ClientAndServer
@@ -70,15 +72,15 @@ class BddSteps : En {
 
   init {
 
-    Before { scenario: Scenario ->
+    Before { _: Scenario ->
 
       offenderEventsClient.purgeQueue(PurgeQueueRequest(eventQueueUrl))
       calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
 
       setupOauth()
-      val re = Regex("[^A-Za-z0-9]")
-      crn = re.replace(scenario.name, "").replace(" ", "")
-      setupData = SetupData(communityApi, assessmentApi, crn)
+      crn = UUID.randomUUID().toString().replace("-", "").substring(0, 7)
+      assessmentId = UUID.randomUUID().toString().replace("\\D+".toRegex(), "").substring(0, 11)
+      setupData = SetupData(communityApi, assessmentApi, mapOf("crn" to crn, "assessmentId" to "1$assessmentId"))
       tierCalculationRepository.deleteAll()
     }
 
