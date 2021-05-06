@@ -1,5 +1,4 @@
 #lang: en
-@single
 Feature: Assess and Protect Axis Calculation
 
   Scenario: 31 points scored Protect Level A
