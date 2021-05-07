@@ -232,6 +232,9 @@ class BddSteps : En {
     Given("an offender scores 0 protect points") {
       // do nothing
     }
+    Given("an offender with a current sentence of type {string}") { sentenceType: String ->
+      setupData.setSentenceType(sentenceType)
+    }
 
     And("has the following OASys complexity answer: {string} {string} : {string}") { _: String, question: String, answer: String ->
       setupData.setValidAssessment()
@@ -295,6 +298,12 @@ class BddSteps : En {
     Then("{string} change points are scored") { points: String ->
       val calculation: TierCalculationEntity = getTier()
       assertThat(calculation.data.change.points).isEqualTo(points.toInt())
+    }
+
+    Then("there is a mandate for change and a change level of {string} is returned for {string} points") { changeLevel: String, points: String ->
+      val calculation: TierCalculationEntity = getTier()
+      assertThat(calculation.data.change.points).isEqualTo(Integer.valueOf(points))
+      assertThat(calculation.data.change.tier.value).isEqualTo(Integer.valueOf(changeLevel))
     }
 
     Then("a change level of {string} is returned for {string} points") { changeLevel: String, points: String ->

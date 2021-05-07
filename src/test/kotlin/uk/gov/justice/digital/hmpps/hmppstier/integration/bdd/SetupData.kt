@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiNo
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.communityApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialAndNonCustodialConvictions
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialNCConvictionResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialSCConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialTerminatedConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyNsisResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
@@ -35,6 +36,7 @@ class SetupData(
   private val assessmentApi: ClientAndServer,
   ids: Map<String, String>
 ) {
+  private var sentenceType: String = "NC"
   var crn: String = ids["crn"]!!
   var assessmentId: String = ids["assessmentId"]!!
   private var sentenceLengthIndeterminate: Boolean = false
@@ -132,6 +134,11 @@ class SetupData(
     this.sentenceLengthIndeterminate = true
   }
 
+  fun setSentenceType(sentenceType: String) {
+    this.sentenceType = sentenceType
+  }
+
+
   fun prepareResponses() {
     communityApiResponse(communityApiAssessmentsResponse(rsr, ogrs), "/secure/offenders/crn/$crn/assessments")
 
@@ -188,7 +195,11 @@ class SetupData(
         if (sentenceLengthIndeterminate) {
           convictions(custodialNCConvictionResponse(mainOffence, courtAppearanceOutcome = "303"))
         } else {
-          convictions(custodialNCConvictionResponse(mainOffence, sentenceLength))
+          if (sentenceType == "SC") {
+            convictions(custodialSCConvictionResponse())
+          } else {
+            convictions(custodialNCConvictionResponse(mainOffence, sentenceLength))
+          }
         }
       }
     }
@@ -245,4 +256,5 @@ class SetupData(
 
   private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
     httpSetup(response, urlTemplate, communityApi)
+
 }
