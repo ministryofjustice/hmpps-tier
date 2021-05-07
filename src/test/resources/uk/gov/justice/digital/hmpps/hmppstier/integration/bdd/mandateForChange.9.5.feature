@@ -1,4 +1,5 @@
 #lang: en
+@single
 Feature: Mandate for change
 
   Scenario: Custodial sentence of type SC has mandate for change
@@ -13,41 +14,40 @@ Feature: Mandate for change
     When a tier is calculated
     Then there is a mandate for change and a change level of "1" is returned for "5" points
 
-#    Given an Offender with a current sentence not of type 'SC' or 'NC'
-#    And an OGRS score of "50"%
-#    And the offender has a restrictive requirement on that conviction
-#    When a tier is calculated
-#    Then there is a mandate for change and a change level of "1" is returned for "5" points
+  Scenario: Non-custodial sentence with only unpaid work has no mandate for change
+    Given an offender with a current non-custodial sentence
+    And unpaid work
+    And an OGRS score of "50"%
+    When a tier is calculated
+    Then there is no mandate for change
 
-#
-#    Given an Offender with a current sentence not of type 'SC' or 'NC'
-#    And the offender has unpaid work on that conviction
-#    And no other non-restrictive requirements exist
-#    When a tier is calculated
-#    Then there is a mandate for change
-#    And the change level calculation continues
-#
-#    Given an Offender with a current sentence not of type 'SC' or 'NC'
-#    And the offender has no restrictive requirement on that conviction
-#    And the offender has no unpaid work on that conviction
-#    When a tier is calculated
-#    Then there is not a mandate for change
-#    And a Change level of '0' is returned
-#    And 0 points are scored
-#    And no further factors are considered towards the change level calculation
-#
-#    Given an Offender with a Completed Layer 3 assessment dated 01/01/2020
-#    And today is 20/01/2021 (55 weeks)
-#    And the change level calculation continues
-#
-#    Given an Offender with a Completed Layer 3 assessment dated 01/01/2020
-#    And today is 21/01/2021 (55 weeks + 1 day)
-#    Then a Change level of '2' is returned
-#    And 0 points are scored
-#    And no further factors are considered towards the change level calculation
-#
-#    Given an Offender has no OASys Layer 3 assessment recorded
-#    Then a Change Needs Axis level of 2 is returned
+  Scenario: Non-custodial sentence with order extended and unpaid work has no mandate for change
+    Given an offender with a current non-custodial sentence
+    And unpaid work
+    And order extended
+    And an OGRS score of "50"%
+    When a tier is calculated
+    Then there is no mandate for change
+
+  Scenario: Non-custodial sentence with non-restrictive requirements has a mandate for change
+    Given an offender with a current non-custodial sentence
+    And a non restrictive requirement
+    And an OGRS score of "50"%
+    When a tier is calculated
+    Then there is a mandate for change and a change level of "1" is returned for "5" points
+
+  Scenario: Sentence with no assessment has change level 2
+    Given an offender with a current sentence of type 'NC'
+    And no completed Layer 3 assessment
+    When a tier is calculated
+    Then a change level of "2" is returned for "0" points
+
+  Scenario: Sentence with out of date assessment has change level 2
+    Given an offender with a current sentence of type 'NC'
+    And a completed Layer 3 assessment dated 55 weeks and one day ago
+    When a tier is calculated
+    Then a change level of "2" is returned for "0" points
+
 
 
 

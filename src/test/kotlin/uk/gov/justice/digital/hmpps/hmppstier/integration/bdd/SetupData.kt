@@ -22,20 +22,29 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistratio
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.femaleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.maleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.needsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nonCustodialConvictionResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nsisResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithAdditionalFactors
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappaAndAdditionalFactors
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRosh
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRoshMappaAndAdditionalFactors
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.unpaidWorkRequirementsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class SetupData(
   private val communityApi: ClientAndServer,
   private val assessmentApi: ClientAndServer,
   ids: Map<String, String>
 ) {
+  private var assessmentDate: LocalDateTime = LocalDateTime.now()
+  private var hasNonRestrictiveRequirement: Boolean = false
+  private var hasOrderExtended: Boolean = false
+  private var hasUnpaidWork: Boolean = false
   private var sentenceType: String = "NC"
   var crn: String = ids["crn"]!!
   var assessmentId: String = ids["assessmentId"]!!
@@ -138,6 +147,21 @@ class SetupData(
     this.sentenceType = sentenceType
   }
 
+  fun setUnpaidWork() {
+    this.hasUnpaidWork = true
+  }
+
+  fun setOrderExtended() {
+    this.hasOrderExtended = true
+  }
+
+  fun setNonRestrictiveRequirement() {
+    this.hasNonRestrictiveRequirement = true
+  }
+
+  fun setAssessmentDate(date: LocalDateTime) {
+    this.assessmentDate = date
+  }
 
   fun prepareResponses() {
     communityApiResponse(communityApiAssessmentsResponse(rsr, ogrs), "/secure/offenders/crn/$crn/assessments")
@@ -167,7 +191,7 @@ class SetupData(
 
     if (hasValidAssessment) {
       assessmentApiResponse(
-        assessmentsApiAssessmentsResponse(LocalDate.now().year, assessmentId),
+        assessmentsApiAssessmentsResponse(assessmentDate, assessmentId),
         "/offenders/crn/$crn/assessments/summary"
       )
       if (gender == "Female") {
@@ -197,11 +221,21 @@ class SetupData(
         } else {
           if (sentenceType == "SC") {
             convictions(custodialSCConvictionResponse())
-          } else {
+          } else if (sentenceType == "NC") {
             convictions(custodialNCConvictionResponse(mainOffence, sentenceLength))
+          } else {
+            convictions(nonCustodialConvictionResponse())
           }
         }
       }
+    }
+
+    if (hasOrderExtended && hasUnpaidWork) {
+      requirements(unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse())
+    } else if (hasUnpaidWork) {
+      requirements(unpaidWorkRequirementsResponse())
+    } else if (hasNonRestrictiveRequirement) {
+      requirements(nonRestrictiveRequirementsResponse())
     }
 
     when (gender) {
@@ -247,6 +281,13 @@ class SetupData(
     )
   }
 
+  private fun requirements(response: HttpResponse) {
+    communityApiResponseWithQs(
+      response,
+      "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true")
+    )
+  }
+
   private fun httpSetup(response: HttpResponse, urlTemplate: String, api: ClientAndServer) =
     api.`when`(request().withPath(urlTemplate), exactly(1)).respond(response)
 
@@ -256,5 +297,4 @@ class SetupData(
 
   private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
     httpSetup(response, urlTemplate, communityApi)
-
 }

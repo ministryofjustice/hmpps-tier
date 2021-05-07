@@ -29,6 +29,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 class BddSteps : En {
@@ -235,6 +236,25 @@ class BddSteps : En {
     Given("an offender with a current sentence of type {string}") { sentenceType: String ->
       setupData.setSentenceType(sentenceType)
     }
+    Given("an offender with a current non-custodial sentence") {
+      setupData.setSentenceType("SP")
+    }
+    And("unpaid work") {
+      setupData.setUnpaidWork()
+    }
+    And("order extended") {
+      setupData.setOrderExtended()
+    }
+    And("a non restrictive requirement") {
+      setupData.setNonRestrictiveRequirement()
+    }
+    And("no completed Layer 3 assessment") {
+      // do nothing - maybe should be a 404 from assessments API?
+    }
+
+    And("a completed Layer 3 assessment dated 55 weeks and one day ago") {
+      setupData.setAssessmentDate(LocalDateTime.now().minusWeeks(55).minusDays(1))
+    }
 
     And("has the following OASys complexity answer: {string} {string} : {string}") { _: String, question: String, answer: String ->
       setupData.setValidAssessment()
@@ -316,6 +336,12 @@ class BddSteps : En {
       val calculation: TierCalculationEntity = getTier()
       assertThat(calculation.data.protect.tier).isEqualTo(ProtectLevel.valueOf(protectLevel))
       assertThat(calculation.data.protect.points).isEqualTo(points.toInt())
+    }
+
+    Then("there is no mandate for change") {
+      val calculation: TierCalculationEntity = getTier()
+      assertThat(calculation.data.change.tier.value).isEqualTo(0)
+      assertThat(calculation.data.change.points).isEqualTo(0)
     }
   }
 
