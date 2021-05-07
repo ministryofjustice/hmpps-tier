@@ -8,7 +8,7 @@ import java.util.UUID
 @Repository
 interface TierCalculationRepository : CrudRepository<TierCalculationEntity, Long> {
 
-  fun findFirstByCrnOrderByCreatedDesc(crn: String): TierCalculationEntity?
+  fun findFirstByCrnOrderByEventDesc(crn: String): TierCalculationEntity?
 
   fun findByCrnAndUuid(crn: String, calculationId: UUID): TierCalculationEntity?
 }

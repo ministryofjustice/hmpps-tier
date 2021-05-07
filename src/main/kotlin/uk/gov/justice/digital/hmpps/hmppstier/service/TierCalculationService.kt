@@ -37,18 +37,26 @@ class TierCalculationService(
     }
 
   @Transactional
-  fun calculateTierForCrn(crn: String) =
+  fun calculateTierForCrn(crn: String, eventDateTime: LocalDateTime = LocalDateTime.now()) {
     calculateTier(crn).let {
-      val isUpdated = it.data != getLatestTierCalculation(crn)?.data
-      tierCalculationRepository.save(it)
+      val isUpdated = it != getLatestTierCalculation(crn)?.data
+
+      val newEntity = TierCalculationEntity(
+        crn = crn,
+        event = eventDateTime,
+        created = LocalDateTime.now(),
+        data = it
+      )
+      tierCalculationRepository.save(newEntity)
       when {
-        isUpdated -> successUpdater.update(crn, it.uuid)
+        isUpdated -> successUpdater.update(crn, newEntity.uuid)
       }
       log.info("Tier calculated for $crn. Different from previous tier: $isUpdated")
-      telemetryService.trackTierCalculated(crn, it, isUpdated)
+      telemetryService.trackTierCalculated(crn, newEntity, isUpdated)
     }
+  }
 
-  private fun calculateTier(crn: String): TierCalculationEntity {
+  private fun calculateTier(crn: String): TierCalculationResultEntity {
 
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
     val deliusAssessments = communityApiClient.getDeliusAssessments(crn)
@@ -70,15 +78,11 @@ class TierCalculationService(
       deliusConvictions
     )
 
-    return TierCalculationEntity(
-      crn = crn,
-      created = LocalDateTime.now(clock),
-      data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel, calculationVersion = calculationVersion.toString())
-    )
+    return TierCalculationResultEntity(change = changeLevel, protect = protectLevel, calculationVersion = calculationVersion.toString())
   }
 
   private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
-    tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn).also {
+    tierCalculationRepository.findFirstByCrnOrderByEventDesc(crn).also {
       when (it) {
         null -> log.info("No tier calculation found for $crn")
         else -> log.info("Found latest tier calculation for $crn")

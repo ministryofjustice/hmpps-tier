@@ -15,10 +15,11 @@ internal class TierCalculationEntityTest {
   fun `Should Construct TierCalculationEntity`() {
     val crn = "Any CRN"
     val created = LocalDateTime.now()
+    val event = created.minusSeconds(5)
     val data = data
     val calculationId = UUID.randomUUID()
 
-    val tierCalculationResultEntity = TierCalculationEntity(crn = crn, created = created, data = data, uuid = calculationId)
+    val tierCalculationResultEntity = TierCalculationEntity(crn = crn, event = event, created = created, data = data, uuid = calculationId)
 
     assertThat(tierCalculationResultEntity.crn).isEqualTo(crn)
     assertThat(tierCalculationResultEntity.created).isEqualTo(created)

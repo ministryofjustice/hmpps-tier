@@ -34,6 +34,9 @@ data class TierCalculationEntity(
   val crn: String,
 
   @Column
+  val event: LocalDateTime,
+
+  @Column
   val created: LocalDateTime,
 
   @Type(type = "json")

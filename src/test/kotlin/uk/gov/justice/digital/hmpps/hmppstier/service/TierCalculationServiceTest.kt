@@ -63,6 +63,7 @@ internal class TierCalculationServiceTest {
     0,
     calculationId,
     crn,
+    LocalDateTime.now(clock).minusSeconds(5),
     LocalDateTime.now(clock),
     TierCalculationResultEntity(protectLevelResult, changeLevelResult, version.toString())
   )
@@ -94,23 +95,23 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `Should Call Collaborators Test - Existing found`() {
-      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns validTierCalculationEntity
+      every { tierCalculationRepository.findFirstByCrnOrderByEventDesc(crn) } returns validTierCalculationEntity
       val result = service.getLatestTierByCrn(crn)
 
       assertThat(result?.tierScore).isEqualTo(validTierCalculationEntity.data.protect.tier.value.plus(validTierCalculationEntity.data.change.tier.value))
       assertThat(result?.calculationId).isEqualTo(validTierCalculationEntity.uuid)
 
-      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
+      verify { tierCalculationRepository.findFirstByCrnOrderByEventDesc(crn) }
     }
 
     @Test
     fun `Should Call Collaborators Test - Existing Not found`() {
-      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
+      every { tierCalculationRepository.findFirstByCrnOrderByEventDesc(crn) } returns null
       val result = service.getLatestTierByCrn(crn)
 
       assertThat(result).isNull()
 
-      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
+      verify { tierCalculationRepository.findFirstByCrnOrderByEventDesc(crn) }
     }
   }
 
@@ -154,7 +155,7 @@ internal class TierCalculationServiceTest {
       every { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) } returns protectLevelResult
       every { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) } returns changeLevelResult
 
-      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns validTierCalculationEntity
+      every { tierCalculationRepository.findFirstByCrnOrderByEventDesc(crn) } returns validTierCalculationEntity
 
       val slot = slot<TierCalculationEntity>()
       every { tierCalculationRepository.save(capture(slot)) } answers { slot.captured }
@@ -171,7 +172,7 @@ internal class TierCalculationServiceTest {
       verify { communityApiClient.getConvictionsWithSentences(crn) }
       verify { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) }
       verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) }
-      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
+      verify { tierCalculationRepository.findFirstByCrnOrderByEventDesc(crn) }
       verify { tierCalculationRepository.save(capture(slot)) }
     }
 
@@ -185,7 +186,7 @@ internal class TierCalculationServiceTest {
       every { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) } returns protectLevelResult
       every { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) } returns changeLevelResult
 
-      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
+      every { tierCalculationRepository.findFirstByCrnOrderByEventDesc(crn) } returns null
 
       val slot = slot<TierCalculationEntity>()
       every { tierCalculationRepository.save(capture(slot)) } answers { slot.captured }
@@ -202,7 +203,7 @@ internal class TierCalculationServiceTest {
       verify { communityApiClient.getConvictionsWithSentences(crn) }
       verify { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) }
       verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) }
-      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
+      verify { tierCalculationRepository.findFirstByCrnOrderByEventDesc(crn) }
       verify { tierCalculationRepository.save(capture(slot)) }
     }
   }

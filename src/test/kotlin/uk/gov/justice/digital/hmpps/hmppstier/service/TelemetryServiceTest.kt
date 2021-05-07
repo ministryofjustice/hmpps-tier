@@ -31,6 +31,7 @@ internal class TelemetryServiceTest {
     0,
     UUID.randomUUID(),
     crn,
+    LocalDateTime.now().minusSeconds(5),
     LocalDateTime.now(),
     TierCalculationResultEntity(
       TierLevel(

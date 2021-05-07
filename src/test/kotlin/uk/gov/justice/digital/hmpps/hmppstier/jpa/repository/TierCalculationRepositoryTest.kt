@@ -38,36 +38,60 @@ class TierCalculationRepositoryTest(
     fun `Should return latest calculation when only one`() {
 
       val created = LocalDateTime.now()
-      val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data, uuid = UUID.randomUUID())
+      val event = created.minusSeconds(5)
+      val firstTierCalculation = TierCalculationEntity(crn = crn, event = event, created = created, data = data, uuid = UUID.randomUUID())
 
       repository.save(firstTierCalculation)
 
-      val calculation = repository.findFirstByCrnOrderByCreatedDesc(crn)
+      val calculation = repository.findFirstByCrnOrderByEventDesc(crn)
       assertThat(calculation).isNotNull
       assertThat(calculation?.crn).isEqualTo(firstTierCalculation.crn)
+      assertThat(calculation?.event).isEqualToIgnoringNanos(firstTierCalculation.event)
       assertThat(calculation?.created).isEqualToIgnoringNanos(firstTierCalculation.created)
       assertThat(calculation?.data).isEqualTo(firstTierCalculation.data)
     }
 
     @Test
     fun `Should return latest calculation none`() {
-      val calculation = repository.findFirstByCrnOrderByCreatedDesc(crn)
+      val calculation = repository.findFirstByCrnOrderByEventDesc(crn)
       assertThat(calculation).isNull()
     }
 
     @Test
-    fun `Should return latest calculation when multiple`() {
-
+    fun `Should return latest calculation`() {
       val created = LocalDateTime.now()
-      val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data, uuid = UUID.randomUUID())
-      val secondTierCalculation = TierCalculationEntity(crn = crn, created = created.minusSeconds(1), data = data, uuid = UUID.randomUUID())
+      val event = created.minusSeconds(5)
+
+      val firstTierCalculation = TierCalculationEntity(crn = crn, event = event, created = created, data = data, uuid = UUID.randomUUID())
+      val secondTierCalculation = TierCalculationEntity(crn = crn, event = event.plusSeconds(4), created = created.plusSeconds(5), data = data, uuid = UUID.randomUUID())
 
       repository.save(firstTierCalculation)
       repository.save(secondTierCalculation)
 
-      val calculation = repository.findFirstByCrnOrderByCreatedDesc(crn)
+      val calculation = repository.findFirstByCrnOrderByEventDesc(crn)
+      assertThat(calculation).isNotNull
+      assertThat(calculation?.crn).isEqualTo(secondTierCalculation.crn)
+      assertThat(calculation?.event).isEqualToIgnoringNanos(secondTierCalculation.event)
+      assertThat(calculation?.created).isEqualToIgnoringNanos(secondTierCalculation.created)
+      assertThat(calculation?.data).isEqualTo(secondTierCalculation.data)
+    }
+
+    @Test
+    fun `Should return latest calculation when saved out of order`() {
+
+      val created = LocalDateTime.now()
+      val event = created.minusSeconds(5)
+      // Event occurred in Delius 4 seconds after but calculation took less time
+      val firstTierCalculation = TierCalculationEntity(crn = crn, event = event.plusSeconds(4), created = created.plusSeconds(5), data = data, uuid = UUID.randomUUID())
+      val secondTierCalculation = TierCalculationEntity(crn = crn, event = event, created = created, data = data, uuid = UUID.randomUUID())
+
+      repository.save(firstTierCalculation)
+      repository.save(secondTierCalculation)
+
+      val calculation = repository.findFirstByCrnOrderByEventDesc(crn)
       assertThat(calculation).isNotNull
       assertThat(calculation?.crn).isEqualTo(firstTierCalculation.crn)
+      assertThat(calculation?.event).isEqualToIgnoringNanos(firstTierCalculation.event)
       assertThat(calculation?.created).isEqualToIgnoringNanos(firstTierCalculation.created)
       assertThat(calculation?.data).isEqualTo(firstTierCalculation.data)
     }
@@ -82,7 +106,8 @@ class TierCalculationRepositoryTest(
 
       val calculationId = UUID.randomUUID()
       val created = LocalDateTime.now()
-      val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data, uuid = calculationId)
+      val event = created.minusSeconds(5)
+      val firstTierCalculation = TierCalculationEntity(crn = crn, event = event, created = created, data = data, uuid = calculationId)
 
       repository.save(firstTierCalculation)
 
@@ -106,13 +131,14 @@ class TierCalculationRepositoryTest(
 
       val calculationId = UUID.randomUUID()
       val created = LocalDateTime.now()
-      val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data, uuid = calculationId)
-      val secondTierCalculation = TierCalculationEntity(crn = crn, created = created.minusSeconds(1), data = data, uuid = UUID.randomUUID())
+      val event = created.minusSeconds(5)
+      val firstTierCalculation = TierCalculationEntity(crn = crn, event = event, created = created, data = data, uuid = calculationId)
+      val secondTierCalculation = TierCalculationEntity(crn = crn, event = event, created = created, data = data, uuid = UUID.randomUUID())
 
       repository.save(firstTierCalculation)
       repository.save(secondTierCalculation)
 
-      val calculation = repository.findFirstByCrnOrderByCreatedDesc(crn)
+      val calculation = repository.findFirstByCrnOrderByEventDesc(crn)
       assertThat(calculation).isNotNull
       assertThat(calculation?.crn).isEqualTo(firstTierCalculation.crn)
       assertThat(calculation?.created).isEqualToIgnoringNanos(firstTierCalculation.created)

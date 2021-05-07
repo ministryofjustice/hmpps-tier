@@ -19,6 +19,10 @@ data class TierDto @JsonCreator constructor(
   @JsonProperty("calculationId")
   val calculationId: UUID,
 
+  @ApiModelProperty(value = "Event Date Time", example = "2021-04-23T18:25:43.511Z")
+  @JsonProperty("eventDate")
+  val eventDate: LocalDateTime,
+
   @ApiModelProperty(value = "Calculation Date Time", example = "2021-04-23T18:25:43.511Z")
   @JsonProperty("calculationDate")
   val calculationDate: LocalDateTime,
@@ -30,6 +34,7 @@ data class TierDto @JsonCreator constructor(
       return TierDto(
         calculation.data.protect.tier.value.plus(calculation.data.change.tier.value),
         calculation.uuid,
+        calculation.event,
         calculation.created
       )
     }
