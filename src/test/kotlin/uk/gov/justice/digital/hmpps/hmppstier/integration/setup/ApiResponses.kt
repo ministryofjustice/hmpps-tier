@@ -158,9 +158,6 @@ fun assessmentsApiAssessmentsResponse(year: Int, assessmentId: String): HttpResp
 fun assessmentsApiNoSeverityNeedsResponse(): HttpResponse =
   assessmentApiResponse("no_severity_needs.json")
 
-fun assessmentsApi8NeedsResponse(): HttpResponse =
-  assessmentApiResponse("8_points_needs.json")
-
 fun assessmentsApiHighSeverityNeedsResponse(): HttpResponse =
   assessmentApiResponse("high_severity_needs_18_points.json")
 

@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 
 class TierCalculationTest : MockedEndpointsTestBase() {
 
@@ -36,18 +35,6 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupSCCustodialSentence(crn)
       setupMaleOffenderWithRegistrations(crn, false, "4234568890")
       setupLatestAssessment(crn, 2018, "1234567890")
-
-      calculateTierFor(crn)
-      expectTierCalculation("A2")
-    }
-
-    @Test
-    fun `change score 2 for 10 points`() {
-      val crn = "X432768"
-
-      setupSCCustodialSentence(crn)
-      setupRegistrations(registrationsResponseWithMappa(), crn)
-      restOfSetupWithMaleOffenderAnd8PointNeeds(crn, true, "3234567890")
 
       calculateTierFor(crn)
       expectTierCalculation("A2")

@@ -51,11 +51,6 @@ class BddSteps : En {
   @Autowired
   lateinit var tierCalculationRepository: TierCalculationRepository
 
-  private lateinit var setupData: SetupData
-
-  private lateinit var crn: String
-  private lateinit var assessmentId: String
-
   @Autowired
   lateinit var oauthMock: ClientAndServer
 
@@ -64,6 +59,11 @@ class BddSteps : En {
 
   @Autowired
   private lateinit var assessmentApi: ClientAndServer
+
+  private lateinit var setupData: SetupData
+
+  private lateinit var crn: String
+  private lateinit var assessmentId: String
 
   private fun setupOauth() {
     val response = response().withContentType(APPLICATION_JSON)
