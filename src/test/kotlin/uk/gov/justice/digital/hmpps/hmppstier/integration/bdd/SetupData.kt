@@ -1,8 +1,8 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.bdd
 
 import org.mockserver.integration.ClientAndServer
-import org.mockserver.matchers.Times
-import org.mockserver.model.HttpRequest
+import org.mockserver.matchers.Times.exactly
+import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.Parameter
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
@@ -15,22 +15,37 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiNo
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.communityApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialAndNonCustodialConvictions
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialNCConvictionResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialSCConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialTerminatedConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyNsisResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.femaleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.maleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.needsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nonCustodialConvictionResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nsisResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithAdditionalFactors
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappaAndAdditionalFactors
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRosh
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRoshMappaAndAdditionalFactors
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.unpaidWorkRequirementsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 
-class SetupData(private val communityApi: ClientAndServer, private val assessmentApi: ClientAndServer, ids: Map<String, String>) {
+class SetupData(
+  private val communityApi: ClientAndServer,
+  private val assessmentApi: ClientAndServer,
+  ids: Map<String, String>
+) {
+  private var assessmentDate: LocalDateTime = LocalDateTime.now()
+  private var hasNonRestrictiveRequirement: Boolean = false
+  private var hasOrderExtended: Boolean = false
+  private var hasUnpaidWork: Boolean = false
+  private var sentenceType: String = "NC"
   var crn: String = ids["crn"]!!
   var assessmentId: String = ids["assessmentId"]!!
   private var sentenceLengthIndeterminate: Boolean = false
@@ -128,6 +143,26 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
     this.sentenceLengthIndeterminate = true
   }
 
+  fun setSentenceType(sentenceType: String) {
+    this.sentenceType = sentenceType
+  }
+
+  fun setUnpaidWork() {
+    this.hasUnpaidWork = true
+  }
+
+  fun setOrderExtended() {
+    this.hasOrderExtended = true
+  }
+
+  fun setNonRestrictiveRequirement() {
+    this.hasNonRestrictiveRequirement = true
+  }
+
+  fun setAssessmentDate(date: LocalDateTime) {
+    this.assessmentDate = date
+  }
+
   fun prepareResponses() {
     communityApiResponse(communityApiAssessmentsResponse(rsr, ogrs), "/secure/offenders/crn/$crn/assessments")
 
@@ -156,7 +191,7 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
 
     if (hasValidAssessment) {
       assessmentApiResponse(
-        assessmentsApiAssessmentsResponse(LocalDate.now().year, assessmentId),
+        assessmentsApiAssessmentsResponse(assessmentDate, assessmentId),
         "/offenders/crn/$crn/assessments/summary"
       )
       if (gender == "Female") {
@@ -184,9 +219,23 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
         if (sentenceLengthIndeterminate) {
           convictions(custodialNCConvictionResponse(mainOffence, courtAppearanceOutcome = "303"))
         } else {
-          convictions(custodialNCConvictionResponse(mainOffence, sentenceLength))
+          if (sentenceType == "SC") {
+            convictions(custodialSCConvictionResponse())
+          } else if (sentenceType == "NC") {
+            convictions(custodialNCConvictionResponse(mainOffence, sentenceLength))
+          } else {
+            convictions(nonCustodialConvictionResponse())
+          }
         }
       }
+    }
+
+    if (hasOrderExtended && hasUnpaidWork) {
+      requirements(unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse())
+    } else if (hasUnpaidWork) {
+      requirements(unpaidWorkRequirementsResponse())
+    } else if (hasNonRestrictiveRequirement) {
+      requirements(nonRestrictiveRequirementsResponse())
     }
 
     when (gender) {
@@ -232,20 +281,19 @@ class SetupData(private val communityApi: ClientAndServer, private val assessmen
     )
   }
 
-  private fun httpSetupWithQs(
-    response: HttpResponse,
-    urlTemplate: String,
-    clientAndServer: ClientAndServer,
-    qs: Parameter
-  ) =
-    clientAndServer.`when`(HttpRequest.request().withPath(urlTemplate).withQueryStringParameter(qs), Times.exactly(1))
-      .respond(response)
+  private fun requirements(response: HttpResponse) {
+    communityApiResponseWithQs(
+      response,
+      "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true")
+    )
+  }
 
-  private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
-    clientAndServer.`when`(HttpRequest.request().withPath(urlTemplate), Times.exactly(1)).respond(response)
+  private fun httpSetup(response: HttpResponse, urlTemplate: String, api: ClientAndServer) =
+    api.`when`(request().withPath(urlTemplate), exactly(1)).respond(response)
 
   private fun communityApiResponseWithQs(response: HttpResponse, urlTemplate: String, qs: Parameter) =
-    httpSetupWithQs(response, urlTemplate, communityApi, qs)
+    communityApi.`when`(request().withPath(urlTemplate).withQueryStringParameter(qs), exactly(1))
+      .respond(response)
 
   private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
     httpSetup(response, urlTemplate, communityApi)

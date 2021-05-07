@@ -10,7 +10,9 @@ import java.math.BigDecimal
 import java.nio.file.Files.readString
 import java.nio.file.Paths
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter.ISO_DATE
+import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 
 const val communityApiPath: String = "src/test/resources/fixtures/community-api"
 const val assessmentApiPath: String = "src/test/resources/fixtures/assessment-api"
@@ -148,18 +150,15 @@ fun custodialNCConvictionResponse(
 fun nonCustodialCurrentAndTerminatedConviction(): HttpResponse =
   communityApiResponse("convictions-non-custodial-current-and-terminated.json")
 
-fun assessmentsApiAssessmentsResponse(year: Int, assessmentId: String): HttpResponse = jsonResponseOf(
+fun assessmentsApiAssessmentsResponse(assessmentDate: LocalDateTime, assessmentId: String): HttpResponse = jsonResponseOf(
   responseFrom("$assessmentApiPath/assessments.json")
-    .replace("completedDate", "$year-01-01T00:00:00")
+    .replace("completedDate", assessmentDate.format(ISO_DATE_TIME))
     .replace("voidedDate", "")
     .replace("\"assessmentIdToReplace\"", assessmentId)
 )
 
 fun assessmentsApiNoSeverityNeedsResponse(): HttpResponse =
   assessmentApiResponse("no_severity_needs.json")
-
-fun assessmentsApi8NeedsResponse(): HttpResponse =
-  assessmentApiResponse("8_points_needs.json")
 
 fun assessmentsApiHighSeverityNeedsResponse(): HttpResponse =
   assessmentApiResponse("high_severity_needs_18_points.json")

@@ -29,6 +29,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 class BddSteps : En {
@@ -51,17 +52,19 @@ class BddSteps : En {
   @Autowired
   lateinit var tierCalculationRepository: TierCalculationRepository
 
+  @Autowired
+  lateinit var oauthMock: ClientAndServer
+
+  @Autowired
+  private lateinit var communityApi: ClientAndServer
+
+  @Autowired
+  private lateinit var assessmentApi: ClientAndServer
+
   private lateinit var setupData: SetupData
 
   private lateinit var crn: String
   private lateinit var assessmentId: String
-
-  @Autowired
-  lateinit var oauthMock: ClientAndServer
-  @Autowired
-  private lateinit var communityApi: ClientAndServer
-  @Autowired
-  private lateinit var assessmentApi: ClientAndServer
 
   private fun setupOauth() {
     val response = response().withContentType(APPLICATION_JSON)
@@ -88,11 +91,10 @@ class BddSteps : En {
       setupData.setRsr(rsr)
     }
     Given("a ROSH score of {string}") { rosh: String ->
-      var roshCode = "NO_ROSH"
-      try {
-        roshCode = Rosh.valueOf(rosh).registerCode
-      } catch (e: IllegalArgumentException) {
-      }
+      var roshCode: String =
+        if (Rosh.values().any { it.name == rosh }) Rosh.valueOf(rosh).registerCode
+        else "NO_ROSH"
+
       setupData.setRosh(roshCode)
     }
     Given("an active MAPPA registration of M Level {string}") { mappa: String ->
@@ -231,6 +233,28 @@ class BddSteps : En {
     Given("an offender scores 0 protect points") {
       // do nothing
     }
+    Given("an offender with a current sentence of type {string}") { sentenceType: String ->
+      setupData.setSentenceType(sentenceType)
+    }
+    Given("an offender with a current non-custodial sentence") {
+      setupData.setSentenceType("SP")
+    }
+    And("unpaid work") {
+      setupData.setUnpaidWork()
+    }
+    And("order extended") {
+      setupData.setOrderExtended()
+    }
+    And("a non restrictive requirement") {
+      setupData.setNonRestrictiveRequirement()
+    }
+    And("no completed Layer 3 assessment") {
+      // do nothing - maybe should be a 404 from assessments API?
+    }
+
+    And("a completed Layer 3 assessment dated 55 weeks and one day ago") {
+      setupData.setAssessmentDate(LocalDateTime.now().minusWeeks(55).minusDays(1))
+    }
 
     And("has the following OASys complexity answer: {string} {string} : {string}") { _: String, question: String, answer: String ->
       setupData.setValidAssessment()
@@ -286,7 +310,7 @@ class BddSteps : En {
       putMessageOnQueue(offenderEventsClient, eventQueueUrl, crn)
     }
 
-    Then("{string} points are scored") { points: String ->
+    Then("{string} protect points are scored") { points: String ->
       val calculation: TierCalculationEntity = getTier()
       assertThat(calculation.data.protect.points).isEqualTo(points.toInt())
     }
@@ -296,7 +320,13 @@ class BddSteps : En {
       assertThat(calculation.data.change.points).isEqualTo(points.toInt())
     }
 
-    Then("a Change level of {string} is returned for {string} points") { changeLevel: String, points: String ->
+    Then("there is a mandate for change and a change level of {string} is returned for {string} points") { changeLevel: String, points: String ->
+      val calculation: TierCalculationEntity = getTier()
+      assertThat(calculation.data.change.points).isEqualTo(Integer.valueOf(points))
+      assertThat(calculation.data.change.tier.value).isEqualTo(Integer.valueOf(changeLevel))
+    }
+
+    Then("a change level of {string} is returned for {string} points") { changeLevel: String, points: String ->
       val calculation: TierCalculationEntity = getTier()
       assertThat(calculation.data.change.points).isEqualTo(Integer.valueOf(points))
       assertThat(calculation.data.change.tier.value).isEqualTo(Integer.valueOf(changeLevel))
@@ -306,6 +336,12 @@ class BddSteps : En {
       val calculation: TierCalculationEntity = getTier()
       assertThat(calculation.data.protect.tier).isEqualTo(ProtectLevel.valueOf(protectLevel))
       assertThat(calculation.data.protect.points).isEqualTo(points.toInt())
+    }
+
+    Then("there is no mandate for change") {
+      val calculation: TierCalculationEntity = getTier()
+      assertThat(calculation.data.change.tier.value).isEqualTo(0)
+      assertThat(calculation.data.change.points).isEqualTo(0)
     }
   }
 

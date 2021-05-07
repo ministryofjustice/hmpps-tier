@@ -27,6 +27,8 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import java.math.BigDecimal
 import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.Month
 
 @TestInstance(Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -97,9 +99,6 @@ abstract class MockedEndpointsTestBase {
   fun restOfSetupWithMaleOffenderNoSevereNeeds(crn: String, includeAssessmentApi: Boolean = true, assessmentId: String) =
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiNoSeverityNeedsResponse(), assessmentId)
 
-  fun restOfSetupWithMaleOffenderAnd8PointNeeds(crn: String, includeAssessmentApi: Boolean = true, assessmentId: String) =
-    restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApi8NeedsResponse(), assessmentId)
-
   fun restOfSetupWithMaleOffenderAndSevereNeeds(crn: String, includeAssessmentApi: Boolean = true, assessmentId: String) =
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiHighSeverityNeedsResponse(), assessmentId)
 
@@ -139,7 +138,7 @@ abstract class MockedEndpointsTestBase {
   fun setupCurrentAssessment(crn: String, assessmentId: String) = setupLatestAssessment(crn, LocalDate.now().year, assessmentId)
 
   fun setupLatestAssessment(crn: String, year: Int, assessmentId: String) =
-    assessmentApiResponse(assessmentsApiAssessmentsResponse(year, assessmentId), "/offenders/crn/$crn/assessments/summary")
+    assessmentApiResponse(assessmentsApiAssessmentsResponse(LocalDateTime.of(year, Month.JANUARY, 1, 0, 0)!!, assessmentId), "/offenders/crn/$crn/assessments/summary")
 
   fun setupAssessmentNotFound(crn: String) =
     assessmentApiResponse(notFoundResponse(), "/offenders/crn/$crn/assessments/summary")
