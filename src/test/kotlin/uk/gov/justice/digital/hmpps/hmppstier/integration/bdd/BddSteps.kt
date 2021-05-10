@@ -248,6 +248,9 @@ class BddSteps : En {
     And("a non restrictive requirement") {
       setupData.setNonRestrictiveRequirement()
     }
+    And("a valid assessment") {
+      setupData.setValidAssessment()
+    }
     And("no completed Layer 3 assessment") {
       // do nothing - maybe should be a 404 from assessments API?
     }
@@ -310,32 +313,31 @@ class BddSteps : En {
       putMessageOnQueue(offenderEventsClient, eventQueueUrl, crn)
     }
 
-    Then("{string} protect points are scored") { points: String ->
+    Then("{int} protect points are scored") { points: Int ->
       val calculation: TierCalculationEntity = getTier()
-      assertThat(calculation.data.protect.points).isEqualTo(points.toInt())
+      assertThat(calculation.data.protect.points).isEqualTo(points)
     }
 
-    Then("{string} change points are scored") { points: String ->
+    Then("{int} change points are scored") { points: Int ->
       val calculation: TierCalculationEntity = getTier()
-      assertThat(calculation.data.change.points).isEqualTo(points.toInt())
+      assertThat(calculation.data.change.points).isEqualTo(points)
     }
 
-    Then("there is a mandate for change and a change level of {string} is returned for {string} points") { changeLevel: String, points: String ->
+    Then("there is a mandate for change") {
       val calculation: TierCalculationEntity = getTier()
-      assertThat(calculation.data.change.points).isEqualTo(Integer.valueOf(points))
-      assertThat(calculation.data.change.tier.value).isEqualTo(Integer.valueOf(changeLevel))
+      assertThat(calculation.data.change.tier.value).isEqualTo(1)
     }
 
-    Then("a change level of {string} is returned for {string} points") { changeLevel: String, points: String ->
+    Then("a change level of {int} is returned and {int} points are scored") { changeLevel: Int, points: Int ->
       val calculation: TierCalculationEntity = getTier()
-      assertThat(calculation.data.change.points).isEqualTo(Integer.valueOf(points))
-      assertThat(calculation.data.change.tier.value).isEqualTo(Integer.valueOf(changeLevel))
+      assertThat(calculation.data.change.points).isEqualTo(points)
+      assertThat(calculation.data.change.tier.value).isEqualTo(changeLevel)
     }
 
-    Then("a protect level of {string} is returned and {string} points are scored") { protectLevel: String, points: String ->
+    Then("a protect level of {string} is returned and {int} points are scored") { protectLevel: String, points: Int ->
       val calculation: TierCalculationEntity = getTier()
       assertThat(calculation.data.protect.tier).isEqualTo(ProtectLevel.valueOf(protectLevel))
-      assertThat(calculation.data.protect.points).isEqualTo(points.toInt())
+      assertThat(calculation.data.protect.points).isEqualTo(points)
     }
 
     Then("there is no mandate for change") {

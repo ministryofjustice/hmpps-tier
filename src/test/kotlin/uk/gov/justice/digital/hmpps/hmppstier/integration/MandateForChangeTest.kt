@@ -6,39 +6,11 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsT
 class MandateForChangeTest : MockedEndpointsTestBase() {
 
   @Test
-  fun `do not calculate change for a non-custodial sentence with only restrictive requirements`() {
-    val crn = "X232323"
-    setupNonCustodialSentence(crn)
-    setupRestrictiveRequirements(crn)
-    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567891")
-    calculateTierFor(crn)
-    expectTierCalculation("A0")
-  }
-
-  @Test
   fun `calculate change for concurrent custodial and non-custodial sentence`() {
     val crn = "X676767"
     setupConcurrentCustodialAndNonCustodialSentence(crn)
     setupRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567892")
-    calculateTierFor(crn)
-    expectTierCalculation("A1")
-  }
-
-  @Test
-  fun `calculate change and protect for SC custodial sentence`() {
-    val crn = "X373878"
-    setupSCCustodialSentence(crn)
-    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567893")
-    calculateTierFor(crn)
-    expectTierCalculation("A1")
-  }
-
-  @Test
-  fun `calculate change and protect for NC custodial sentence`() {
-    val crn = "123"
-    setupNCCustodialSentence(crn)
-    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567894")
     calculateTierFor(crn)
     expectTierCalculation("A1")
   }
@@ -58,16 +30,6 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn)
     setupNonRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567896")
-    calculateTierFor(crn)
-    expectTierCalculation("A1")
-  }
-
-  @Test
-  fun `calculate change and protect for non-custodial sentence with non-restrictive requirements`() {
-    val crn = "X222222"
-    setupNonCustodialSentence(crn)
-    setupNonRestrictiveRequirements(crn)
-    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567897")
     calculateTierFor(crn)
     expectTierCalculation("A1")
   }
@@ -108,26 +70,6 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupNonCustodialSentence(crn)
     setupNoRequirements(crn)
     setupMaleOffenderWithRegistrations(crn, assessmentId = "4334567890")
-    calculateTierFor(crn)
-    expectTierCalculation("A0")
-  }
-
-  @Test
-  fun `do not calculate change for non-custodial sentence where the only non-restrictive requirement is unpaid work`() {
-    val crn = "X252525"
-    setupNonCustodialSentence(crn)
-    setupUnpaidWorkRequirements(crn)
-    setupMaleOffenderWithRegistrations(crn, assessmentId = "4434567890")
-    calculateTierFor(crn)
-    expectTierCalculation("A0")
-  }
-
-  @Test
-  fun `do not calculate change for non-custodial sentence where the only non-restrictive requirements are unpaid work, order length extended and additional hours`() {
-    val crn = "X252526"
-    setupNonCustodialSentence(crn)
-    setupUnpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirements(crn)
-    setupMaleOffenderWithRegistrations(crn, assessmentId = "4534567890")
     calculateTierFor(crn)
     expectTierCalculation("A0")
   }
