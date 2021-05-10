@@ -6,13 +6,13 @@ Feature: Mandate for change
     Given an offender with a current sentence of type 'SC'
     And an OGRS score of "50"%
     When a tier is calculated
-    Then there is a mandate for change and a change level of 1 is returned for 5 points
+    Then there is a mandate for change and a change level of 1 is returned and 5 points are scored
 
   Scenario: Custodial sentence of type NC has mandate for change
     Given an offender with a current sentence of type 'NC'
     And an OGRS score of "50"%
     When a tier is calculated
-    Then there is a mandate for change and a change level of 1 is returned for 5 points
+    Then there is a mandate for change and a change level of 1 is returned and 5 points are scored
 
   Scenario: Non-custodial sentence with only unpaid work has no mandate for change
     Given an offender with a current non-custodial sentence
@@ -34,7 +34,7 @@ Feature: Mandate for change
     And a non restrictive requirement
     And an OGRS score of "50"%
     When a tier is calculated
-    Then there is a mandate for change and a change level of 1 is returned for 5 points
+    Then there is a mandate for change and a change level of 1 is returned and 5 points are scored
 
   Scenario: Sentence with no assessment has change level 2
     Given an offender with a current sentence of type 'NC'
