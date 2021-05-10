@@ -248,6 +248,9 @@ class BddSteps : En {
     And("a non restrictive requirement") {
       setupData.setNonRestrictiveRequirement()
     }
+    And("a valid assessment") {
+      setupData.setValidAssessment()
+    }
     And("no completed Layer 3 assessment") {
       // do nothing - maybe should be a 404 from assessments API?
     }
@@ -320,10 +323,9 @@ class BddSteps : En {
       assertThat(calculation.data.change.points).isEqualTo(points)
     }
 
-    Then("there is a mandate for change and a change level of {int} is returned and {int} points are scored") { changeLevel: Int, points: Int ->
+    Then("there is a mandate for change") {
       val calculation: TierCalculationEntity = getTier()
-      assertThat(calculation.data.change.points).isEqualTo(points)
-      assertThat(calculation.data.change.tier.value).isEqualTo(changeLevel)
+      assertThat(calculation.data.change.tier.value).isEqualTo(1)
     }
 
     Then("a change level of {int} is returned and {int} points are scored") { changeLevel: Int, points: Int ->
