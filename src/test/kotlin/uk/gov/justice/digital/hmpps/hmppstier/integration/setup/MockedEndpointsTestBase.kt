@@ -164,19 +164,6 @@ abstract class MockedEndpointsTestBase {
       Parameter("activeOnly", "true")
     )
 
-  fun setupUnpaidWorkRequirements(crn: String) =
-    communityApiResponseWithQs(
-      unpaidWorkRequirementsResponse(),
-      "/secure/offenders/crn/$crn/convictions/\\d+/requirements",
-      Parameter("activeOnly", "true")
-    )
-
-  fun setupUnpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirements(crn: String) = communityApiResponseWithQs(
-    unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse(),
-    "/secure/offenders/crn/$crn/convictions/\\d+/requirements",
-    Parameter("activeOnly", "true")
-  )
-
   fun setupAdditionalRequirements(crn: String) =
     communityApiResponseWithQs(
       additionalRequirementsResponse(),
