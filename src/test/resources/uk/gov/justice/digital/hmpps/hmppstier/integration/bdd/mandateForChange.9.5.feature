@@ -40,13 +40,13 @@ Feature: Mandate for change
     Given an offender with a current sentence of type 'NC'
     And no completed Layer 3 assessment
     When a tier is calculated
-    Then a change level of "2" is returned and 0 points are scored
+    Then a change level of 2 is returned and 0 points are scored
 
   Scenario: Sentence with out of date assessment has change level 2
     Given an offender with a current sentence of type 'NC'
     And a completed Layer 3 assessment dated 55 weeks and one day ago
     When a tier is calculated
-    Then a change level of "2" is returned and 0 points are scored
+    Then a change level of 2 is returned and 0 points are scored
 
 
 
