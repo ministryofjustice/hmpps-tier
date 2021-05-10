@@ -332,10 +332,10 @@ class BddSteps : En {
       assertThat(calculation.data.change.tier.value).isEqualTo(changeLevel)
     }
 
-    Then("a protect level of {string} is returned and {string} points are scored") { protectLevel: String, points: String ->
+    Then("a protect level of {string} is returned and {int} points are scored") { protectLevel: String, points: Int ->
       val calculation: TierCalculationEntity = getTier()
       assertThat(calculation.data.protect.tier).isEqualTo(ProtectLevel.valueOf(protectLevel))
-      assertThat(calculation.data.protect.points).isEqualTo(points.toInt())
+      assertThat(calculation.data.protect.points).isEqualTo(points)
     }
 
     Then("there is no mandate for change") {
