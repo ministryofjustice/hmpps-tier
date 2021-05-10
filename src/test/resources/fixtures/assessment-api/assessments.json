@@ -1,6 +1,6 @@
 [
   {
-    "assessmentId": 1234,
+    "assessmentId": "assessmentIdToReplace",
     "assessmentStatus": "COMPLETE",
     "assessmentType": "LAYER_3",
     "assessorName": "Layer 3",

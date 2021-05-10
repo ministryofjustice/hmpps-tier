@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 
 class TierCalculationTest : MockedEndpointsTestBase() {
 
@@ -18,7 +17,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupNCCustodialSentence(crn)
       setupRegistrations(emptyRegistrationsResponse(), crn)
 
-      restOfSetupWithFemaleOffender(crn)
+      restOfSetupWithFemaleOffender(crn, "2234567890")
       setupEmptyNsisResponse(crn)
 
       calculateTierFor(crn)
@@ -31,23 +30,11 @@ class TierCalculationTest : MockedEndpointsTestBase() {
 
     @Test
     fun `default change to '2' for non recent assessment`() {
-      val crn = "X432768"
+      val crn = "X432767"
 
       setupSCCustodialSentence(crn)
-      setupMaleOffenderWithRegistrations(crn, includeAssessmentApi = false)
-      setupLatestAssessment(crn, 2018)
-
-      calculateTierFor(crn)
-      expectTierCalculation("A2")
-    }
-
-    @Test
-    fun `change score 2 for 10 points`() {
-      val crn = "X432768"
-
-      setupSCCustodialSentence(crn)
-      setupRegistrations(registrationsResponseWithMappa(), crn)
-      restOfSetupWithMaleOffenderAnd8PointNeeds(crn, true)
+      setupMaleOffenderWithRegistrations(crn, false, "4234568890")
+      setupLatestAssessment(crn, 2018, "1234567890")
 
       calculateTierFor(crn)
       expectTierCalculation("A2")
