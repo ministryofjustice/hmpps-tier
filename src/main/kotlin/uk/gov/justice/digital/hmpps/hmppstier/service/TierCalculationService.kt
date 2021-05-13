@@ -28,11 +28,13 @@ class TierCalculationService(
 
   fun getLatestTierByCrn(crn: String): TierDto? =
     getLatestTierCalculation(crn)?.let {
+      log.info("Found latest tier calculation for $crn")
       TierDto.from(it)
     }
 
   fun getTierByCalculationId(crn: String, calculationId: UUID): TierDto? =
-    getTierCalculationById(crn, calculationId)?.let {
+    tierCalculationRepository.findByCrnAndUuid(crn, calculationId)?.let {
+      log.info("Found tier for $crn and $calculationId")
       TierDto.from(it)
     }
 
@@ -78,20 +80,7 @@ class TierCalculationService(
   }
 
   private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
-    tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn).also {
-      when (it) {
-        null -> log.info("No tier calculation found for $crn")
-        else -> log.info("Found latest tier calculation for $crn")
-      }
-    }
-
-  private fun getTierCalculationById(crn: String, calculationId: UUID): TierCalculationEntity? =
-    tierCalculationRepository.findByCrnAndUuid(crn, calculationId).also {
-      when (it) {
-        null -> log.info("No tier calculation found for $crn and $calculationId")
-        else -> log.info("Found tier for $crn and $calculationId")
-      }
-    }
+    tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)

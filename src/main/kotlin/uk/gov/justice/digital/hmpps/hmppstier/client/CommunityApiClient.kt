@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.client
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.stereotype.Component
@@ -20,10 +19,12 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .partition { ComplexityFactor.from(it.type.code) == IOM_NOMINAL }
 
   fun getDeliusAssessments(crn: String): DeliusAssessments? {
-    return getAssessmentsCall(crn)
-      .also {
-        log.info("Fetched Delius Assessment scores for $crn")
-      }
+    return webClient
+      .get()
+      .uri("/offenders/crn/$crn/assessments")
+      .retrieve()
+      .bodyToMono(DeliusAssessments::class.java)
+      .block()
   }
 
   fun getConvictionsWithSentences(crn: String): List<Conviction> {
@@ -39,32 +40,30 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
           it.latestCourtAppearanceOutcome?.code
         )
       }
-      .also {
-        log.info("Fetched ${it.size} Convictions for $crn")
-      }
   }
 
   fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
-    return getBreachRecallNsisCall(crn, convictionId)
-      .also {
-        log.info("Fetched ${it.size} breach/recall NSIs for $crn convictionId: $convictionId")
-      }
+    return webClient
+      .get()
+      .uri("/offenders/crn/$crn/convictions/$convictionId/nsis?nsiCodes=BRE,BRES,REC,RECS")
+      .retrieve()
+      .bodyToMono(NsiWrapper::class.java)
+      .block()?.nsis ?: listOf()
   }
 
   fun getOffender(crn: String): Offender? {
-    return getOffenderCall(crn)
-      .also {
-        log.info("Fetched Offender record for $crn")
-      }
+    return webClient
+      .get()
+      .uri("/offenders/crn/$crn")
+      .retrieve()
+      .bodyToMono(Offender::class.java)
+      .block()
   }
 
   fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
     return getRequirementsCall(crn, convictionId)
       .filterNot { it.requirementTypeMainCategory == null && it.restrictive == null }
       .map { Requirement(it.restrictive!!, it.requirementTypeMainCategory!!.code) }
-      .also {
-        log.info("Fetched Requirements for $crn convictionId: $convictionId")
-      }
   }
 
   private fun getRegistrationsCall(crn: String): Collection<Registration> {
@@ -74,15 +73,6 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .retrieve()
       .bodyToMono(Registrations::class.java)
       .block()?.registrations ?: listOf()
-  }
-
-  private fun getAssessmentsCall(crn: String): DeliusAssessments? {
-    return webClient
-      .get()
-      .uri("/offenders/crn/$crn/assessments")
-      .retrieve()
-      .bodyToMono(DeliusAssessments::class.java)
-      .block()
   }
 
   private fun getConvictionsCall(crn: String): List<ConvictionDto> {
@@ -95,24 +85,6 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block() ?: listOf()
   }
 
-  private fun getBreachRecallNsisCall(crn: String, convictionId: Long): List<Nsi> {
-    return webClient
-      .get()
-      .uri("/offenders/crn/$crn/convictions/$convictionId/nsis?nsiCodes=BRE,BRES,REC,RECS")
-      .retrieve()
-      .bodyToMono(NsiWrapper::class.java)
-      .block()?.nsis ?: listOf()
-  }
-
-  private fun getOffenderCall(crn: String): Offender? {
-    return webClient
-      .get()
-      .uri("/offenders/crn/$crn")
-      .retrieve()
-      .bodyToMono(Offender::class.java)
-      .block()
-  }
-
   private fun getRequirementsCall(crn: String, convictionId: Long): List<RequirementDto> {
     return webClient
       .get()
@@ -120,10 +92,6 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .retrieve()
       .bodyToMono(Requirements::class.java)
       .block()?.requirements ?: listOf()
-  }
-
-  companion object {
-    private val log = LoggerFactory.getLogger(this::class.java)
   }
 }
 

@@ -27,8 +27,8 @@ class AssessmentApiService(
       .maxByOrNull { it.completed!! }
       .also {
         when (it) {
-          null -> log.info("No valid Assessment found for $crn")
-          else -> log.info("Found valid Assessment ${it.assessmentId} for $crn")
+          null -> log.debug("No valid Assessment found for $crn")
+          else -> log.debug("Found valid Assessment ${it.assessmentId} for $crn")
         }
       }
 
