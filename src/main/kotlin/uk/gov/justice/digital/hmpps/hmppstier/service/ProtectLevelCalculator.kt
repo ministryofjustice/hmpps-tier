@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
+import isCustodial
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -156,7 +157,7 @@ class ProtectLevelCalculator(
 
   private fun getSentenceLengthPoints(convictions: Collection<Conviction>): Int {
 
-    val custodialSentences = convictions.map { it.sentence }.filter { MandateForChange.isCustodial(it) }
+    val custodialSentences = convictions.map { it.sentence }.filter { isCustodial(it) }
     val custodialConvictions = convictions.filter { it.sentence in custodialSentences }
     val longerThanTenMonths = custodialSentences.any { it.startDate != null && it.expectedSentenceEndDate != null && Period.between(it.startDate, it.expectedSentenceEndDate).months >= 10 }
     val indeterminate = custodialConvictions.any { "303" == it.latestCourtAppearanceOutcome }
