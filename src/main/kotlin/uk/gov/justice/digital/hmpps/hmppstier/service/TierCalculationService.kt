@@ -80,7 +80,7 @@ class TierCalculationService(
   private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
     tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn).also {
       when (it) {
-        null -> log.info("No tier calculation found for $crn")
+        null -> log.warn("No tier calculation found for $crn")
         else -> log.info("Found latest tier calculation for $crn")
       }
     }
@@ -88,7 +88,7 @@ class TierCalculationService(
   private fun getTierCalculationById(crn: String, calculationId: UUID): TierCalculationEntity? =
     tierCalculationRepository.findByCrnAndUuid(crn, calculationId).also {
       when (it) {
-        null -> log.info("No tier calculation found for $crn and $calculationId")
+        null -> log.warn("No tier calculation found for $crn and $calculationId")
         else -> log.info("Found tier for $crn and $calculationId")
       }
     }
