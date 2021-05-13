@@ -17,7 +17,7 @@ class TierCalculationRequiredEventListener(
 
   @MessageExceptionHandler()
   fun errorHandler(e: Exception, msg: String) {
-    log.info("Failed to calculate tier for CRN ${getCrn(msg)} with error: ${e.message}")
+    log.warn("Failed to calculate tier for CRN ${getCrn(msg)} with error: ${e.message}")
     throw e
   }
 
@@ -29,7 +29,7 @@ class TierCalculationRequiredEventListener(
   private fun getCrn(msg: String): String {
     val message = gson.fromJson(msg, SQSMessage::class.java).message
     return gson.fromJson(message, TierCalculationMessage::class.java).crn
-      .also { log.info("Tier calculation message decoded for $it") }
+      .also { log.debug("Tier calculation message decoded for $it") }
   }
 
   companion object {

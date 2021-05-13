@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
@@ -33,7 +32,7 @@ class ChangeLevelCalculator(
   ): TierLevel<ChangeLevel> {
     return when {
       mandateForChange.hasNoMandate(crn, convictions) -> TIER_NO_MANDATE
-      hasNoAssessment(crn, offenderAssessment) -> TIER_NO_ASSESSMENT
+      hasNoAssessment(offenderAssessment) -> TIER_NO_ASSESSMENT
 
       else -> {
         val points = mapOf(
@@ -50,11 +49,11 @@ class ChangeLevelCalculator(
           else -> TierLevel(ONE, total, points)
         }
       }
-    }.also { log.debug("Calculated Change Level for $crn: $it") }
+    }
   }
 
-  private fun hasNoAssessment(crn: String, offenderAssessment: OffenderAssessment?): Boolean =
-    (offenderAssessment == null).also { log.info("No valid assessment found for $crn : $it") }
+  private fun hasNoAssessment(offenderAssessment: OffenderAssessment?): Boolean =
+    (offenderAssessment == null)
 
   private fun getAssessmentNeedsPoints(assessmentId: String): Int =
     (
@@ -64,20 +63,18 @@ class ChangeLevelCalculator(
             ent.key.weighting.times(ent.value.score)
           }
         }
-      ).also { log.debug("Needs Points: $it") }
+      )
 
   private fun getOgrsPoints(deliusAssessments: DeliusAssessments?): Int =
     (deliusAssessments?.ogrs?.div(10) ?: 0)
-      .also { log.debug("Ogrs Points: $it") }
 
   private fun getIomNominalPoints(registrations: Collection<Registration>): Int =
     when {
       registrations.any() -> 2
       else -> 0
-    }.also { log.debug("IOM Nominal Points: $it") }
+    }
 
   companion object {
-    private val log = LoggerFactory.getLogger(this::class.java)
     private val TIER_NO_MANDATE = TierLevel(ZERO, 0, mapOf(NO_MANDATE_FOR_CHANGE to 0))
     private val TIER_NO_ASSESSMENT = TierLevel(TWO, 0, mapOf(NO_VALID_ASSESSMENT to 0))
   }
