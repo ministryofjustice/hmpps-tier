@@ -21,9 +21,6 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
 
   fun getDeliusAssessments(crn: String): DeliusAssessments? {
     return getAssessmentsCall(crn)
-      .also {
-        log.info("Fetched Delius Assessment scores for $crn")
-      }
   }
 
   fun getConvictionsWithSentences(crn: String): List<Conviction> {
@@ -39,32 +36,20 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
           it.latestCourtAppearanceOutcome?.code
         )
       }
-      .also {
-        log.info("Fetched ${it.size} Convictions for $crn")
-      }
   }
 
   fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
     return getBreachRecallNsisCall(crn, convictionId)
-      .also {
-        log.info("Fetched ${it.size} breach/recall NSIs for $crn convictionId: $convictionId")
-      }
   }
 
   fun getOffender(crn: String): Offender? {
     return getOffenderCall(crn)
-      .also {
-        log.info("Fetched Offender record for $crn")
-      }
   }
 
   fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
     return getRequirementsCall(crn, convictionId)
       .filterNot { it.requirementTypeMainCategory == null && it.restrictive == null }
       .map { Requirement(it.restrictive!!, it.requirementTypeMainCategory!!.code) }
-      .also {
-        log.info("Fetched Requirements for $crn convictionId: $convictionId")
-      }
   }
 
   private fun getRegistrationsCall(crn: String): Collection<Registration> {

@@ -23,14 +23,14 @@ class ControllerAdvice {
   @ExceptionHandler(EntityNotFoundException::class)
   @ResponseStatus(HttpStatus.NOT_FOUND)
   fun handle(e: EntityNotFoundException): ResponseEntity<ErrorResponse?> {
-    log.info("EntityNotFoundException: {}", e.message)
+    log.error("EntityNotFoundException: {}", e.message)
     return ResponseEntity(ErrorResponse(status = 404, developerMessage = e.message), HttpStatus.NOT_FOUND)
   }
 
   @ExceptionHandler(MethodArgumentNotValidException::class)
   @ResponseStatus(HttpStatus.BAD_REQUEST)
   fun handle(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse?> {
-    log.info("MethodArgumentNotValidException: {}", e.message)
+    log.error("MethodArgumentNotValidException: {}", e.message)
     return ResponseEntity(ErrorResponse(status = 400, developerMessage = e.message), HttpStatus.BAD_REQUEST)
   }
 

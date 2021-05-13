@@ -20,16 +20,11 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
   fun getAssessmentAnswers(assessmentId: String?): Collection<Question> {
     return assessmentId?.let {
       getAssessmentAnswersCall(assessmentId)
-        .also {
-          log.info("Fetched ${it.size} Questions for $assessmentId")
-        }
     } ?: listOf()
   }
 
   fun getAssessmentNeeds(assessmentId: String): Collection<AssessmentNeed> {
-    return getAssessmentNeedsCall(assessmentId).also {
-      log.info("Fetched ${it.size} Assessment needs for $assessmentId")
-    }
+    return getAssessmentNeedsCall(assessmentId)
   }
 
   fun getAssessmentSummaries(crn: String): Collection<OffenderAssessment> {
@@ -49,9 +44,7 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
           else -> Mono.error(ex)
         }
       }
-      .block().also {
-        log.info("Fetched ${it?.size ?: 0} Assessments for $crn")
-      } ?: emptyList()
+      .block() ?: emptyList()
   }
 
   private fun getAssessmentAnswersCall(assessmentId: String): Collection<Question> {
