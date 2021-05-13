@@ -17,7 +17,7 @@ class MandateForChange(
       .filter { isCurrent(it.sentence) }
       .none {
         isCustodial(it.sentence) || hasNonRestrictiveRequirements(crn, it.convictionId)
-      }.also { log.debug("Has no mandate for change: $it") }
+      }
 
   private fun isCurrent(sentence: Sentence): Boolean =
     sentence.terminationDate == null
@@ -26,7 +26,6 @@ class MandateForChange(
     communityApiClient.getRequirements(crn, convictionId)
       .filter { excludeUnpaidWork(it) }
       .any { isNonRestrictive(it) }
-      .also { log.debug("Has non-restrictive requirements: $it") }
 
   private fun isNonRestrictive(it: Requirement) = !it.isRestrictive
 

@@ -50,7 +50,7 @@ class ChangeLevelCalculator(
           else -> TierLevel(ONE, total, points)
         }
       }
-    }.also { log.debug("Calculated Change Level for $crn: $it") }
+    }
   }
 
   private fun hasNoAssessment(offenderAssessment: OffenderAssessment?): Boolean =
@@ -64,17 +64,16 @@ class ChangeLevelCalculator(
             ent.key.weighting.times(ent.value.score)
           }
         }
-      ).also { log.debug("Needs Points: $it") }
+      )
 
   private fun getOgrsPoints(deliusAssessments: DeliusAssessments?): Int =
     (deliusAssessments?.ogrs?.div(10) ?: 0)
-      .also { log.debug("Ogrs Points: $it") }
 
   private fun getIomNominalPoints(registrations: Collection<Registration>): Int =
     when {
       registrations.any() -> 2
       else -> 0
-    }.also { log.debug("IOM Nominal Points: $it") }
+    }
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)

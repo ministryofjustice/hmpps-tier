@@ -58,7 +58,7 @@ class ProtectLevelCalculator(
       total in 20..29 -> TierLevel(ProtectLevel.B, total, points)
       total in 10..19 -> TierLevel(ProtectLevel.C, total, points)
       else -> TierLevel(ProtectLevel.D, total, points)
-    }.also { log.debug("Calculated Protect Level for $crn: $it") }
+    }
   }
 
   private fun getRsrPoints(deliusAssessments: DeliusAssessments?): Int =
@@ -70,7 +70,6 @@ class ProtectLevelCalculator(
           else -> 0
         }
       } ?: 0
-      .also { log.debug("RSR Points: $it") }
 
   private fun getRoshPoints(registrations: Collection<Registration>): Int =
     registrations
@@ -83,7 +82,7 @@ class ProtectLevelCalculator(
           Rosh.MEDIUM -> 10
           else -> 0
         }
-      }.also { log.debug("ROSH Points: $it") }
+      }
 
   private fun getMappaPoints(registrations: Collection<Registration>): Int =
     registrations
@@ -95,7 +94,7 @@ class ProtectLevelCalculator(
           Mappa.M1 -> 5
           else -> 0
         }
-      }.also { log.debug("MAPPA Points: $it") }
+      }
 
   private fun getComplexityPoints(registrations: Collection<Registration>): Int =
     registrations
@@ -103,7 +102,6 @@ class ProtectLevelCalculator(
       .distinct()
       .count()
       .times(2)
-      .also { log.debug("Complexity factor size: $it") }
 
   private fun getAdditionalFactorsForWomen(
     crn: String,
@@ -122,7 +120,7 @@ class ProtectLevelCalculator(
         additionalFactorsPoints + breachRecallPoints + violenceArsonPoints + tenMonthsPlusOrIndeterminatePoints
       }
       else -> 0
-    }.also { log.debug("Additional Factors for Women for $crn : $it") }
+    }
 
   private fun isFemale(crn: String) = communityApiClient.getOffender(crn)?.gender.equals("female", true)
 
@@ -131,7 +129,6 @@ class ProtectLevelCalculator(
       null -> 0
       else -> {
         assessmentApiService.getAssessmentAnswers(offenderAssessment.assessmentId)
-          .also { log.debug("Additional Factors for Women Assessment answers $it ") }
           .let { answers ->
             val parenting = when {
               isYes(answers[AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES]) -> 1
@@ -145,7 +142,7 @@ class ProtectLevelCalculator(
             (parenting + selfControl).times(2)
           }
       }
-    }.also { log.debug("Additional Factors for Women Points $it") }
+    }
 
   private fun getArsonOrViolencePoints(convictions: Collection<Conviction>): Int =
     if (convictions.flatMap { it.offences }
@@ -171,7 +168,7 @@ class ProtectLevelCalculator(
           it.any { conviction -> convictionHasBreachOrRecallNsis(crn, conviction.convictionId) } -> 2
           else -> 0
         }
-      }.also { log.debug("Breach and Recall Complexity Points: $it") }
+      }
 
   private fun isYes(value: String?): Boolean =
     value.equals("YES", true) || value.equals("Y", true)
