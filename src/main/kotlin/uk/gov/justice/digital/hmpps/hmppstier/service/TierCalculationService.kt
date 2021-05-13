@@ -5,6 +5,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor.IOM_NOMINAL
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
@@ -52,21 +54,21 @@ class TierCalculationService(
 
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
     val deliusAssessments = communityApiClient.getDeliusAssessments(crn)
-    val deliusRegistrations = communityApiClient.getRegistrations(crn)
+    val (iomNominal, otherRegistrations) = communityApiClient.getRegistrations(crn).partition { ComplexityFactor.from(it.type.code) == IOM_NOMINAL }
     val deliusConvictions = communityApiClient.getConvictionsWithSentences(crn)
 
     val protectLevel = protectLevelCalculator.calculateProtectLevel(
       crn,
       offenderAssessment,
       deliusAssessments,
-      deliusRegistrations,
+      otherRegistrations,
       deliusConvictions
     )
     val changeLevel = changeLevelCalculator.calculateChangeLevel(
       crn,
       offenderAssessment,
       deliusAssessments,
-      deliusRegistrations,
+      iomNominal,
       deliusConvictions
     )
 
