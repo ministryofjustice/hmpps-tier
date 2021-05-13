@@ -33,7 +33,7 @@ class ChangeLevelCalculator(
   ): TierLevel<ChangeLevel> {
     return when {
       mandateForChange.hasNoMandate(crn, convictions) -> TIER_NO_MANDATE
-      hasNoAssessment(crn, offenderAssessment) -> TIER_NO_ASSESSMENT
+      hasNoAssessment(offenderAssessment) -> TIER_NO_ASSESSMENT
 
       else -> {
         val points = mapOf(
@@ -53,8 +53,8 @@ class ChangeLevelCalculator(
     }.also { log.debug("Calculated Change Level for $crn: $it") }
   }
 
-  private fun hasNoAssessment(crn: String, offenderAssessment: OffenderAssessment?): Boolean =
-    (offenderAssessment == null).also { log.debug("No valid assessment found for $crn : $it") }
+  private fun hasNoAssessment(offenderAssessment: OffenderAssessment?): Boolean =
+    (offenderAssessment == null)
 
   private fun getAssessmentNeedsPoints(assessmentId: String): Int =
     (
