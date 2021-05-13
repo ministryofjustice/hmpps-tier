@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.client
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpStatus.NOT_FOUND
@@ -24,7 +23,13 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
   }
 
   fun getAssessmentNeeds(assessmentId: String): Collection<AssessmentNeed> {
-    return getAssessmentNeedsCall(assessmentId)
+    val responseType = object : ParameterizedTypeReference<Collection<AssessmentNeed>>() {}
+    return webClient
+      .get()
+      .uri("/assessments/oasysSetId/$assessmentId/needs")
+      .retrieve()
+      .bodyToMono(responseType)
+      .block() ?: emptyList()
   }
 
   fun getAssessmentSummaries(crn: String): Collection<OffenderAssessment> {
@@ -58,20 +63,6 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
       .retrieve()
       .bodyToMono(Answers::class.java)
       .block()?.questionAnswers ?: emptyList()
-  }
-
-  private fun getAssessmentNeedsCall(assessmentId: String): Collection<AssessmentNeed> {
-    val responseType = object : ParameterizedTypeReference<Collection<AssessmentNeed>>() {}
-    return webClient
-      .get()
-      .uri("/assessments/oasysSetId/$assessmentId/needs")
-      .retrieve()
-      .bodyToMono(responseType)
-      .block() ?: emptyList()
-  }
-
-  companion object {
-    private val log = LoggerFactory.getLogger(this::class.java)
   }
 }
 

@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import isCustodial
-import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
@@ -186,7 +185,5 @@ class ProtectLevelCalculator(
 
   companion object {
     val OFFENCE_CODES = OffenceCode.values().map { it.code }
-
-    private val log = LoggerFactory.getLogger(this::class.java)
   }
 }

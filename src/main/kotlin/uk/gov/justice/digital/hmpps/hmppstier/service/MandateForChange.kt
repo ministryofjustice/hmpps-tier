@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import isCustodial
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
@@ -33,7 +32,6 @@ class MandateForChange(
     it.mainCategory !in unpaidWorkAndOrderExtended
 
   companion object {
-    private val log = LoggerFactory.getLogger(this::class.java)
     private val unpaidWorkAndOrderExtended = arrayOf("W", "W1")
   }
 }
