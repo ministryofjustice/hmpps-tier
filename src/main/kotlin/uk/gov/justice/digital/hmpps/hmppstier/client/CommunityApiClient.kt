@@ -7,18 +7,17 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor.IOM_NOMINAL
 import java.math.BigDecimal
 import java.time.LocalDate
 
 @Component
 class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val webClient: WebClient) {
 
-  fun getRegistrations(crn: String): Collection<Registration> {
-    return getRegistrationsCall(crn).sortedByDescending { it.startDate }
-      .also {
-        log.info("Fetched ${it.size} Registrations for $crn")
-      }
-  }
+  fun getRegistrations(crn: String): Pair<List<Registration>, List<Registration>> =
+    getRegistrationsCall(crn).sortedByDescending { it.startDate }
+      .partition { ComplexityFactor.from(it.type.code) == IOM_NOMINAL }
 
   fun getDeliusAssessments(crn: String): DeliusAssessments? {
     return getAssessmentsCall(crn)
@@ -32,7 +31,14 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
     val sentences = convictions.mapNotNull { it.sentence }
     return convictions
       .filter { it.sentence in sentences }
-      .map { Conviction(it.convictionId, it.sentence!!, it.offences.filterNotNull(), it.latestCourtAppearanceOutcome?.code) }
+      .map {
+        Conviction(
+          it.convictionId,
+          it.sentence!!,
+          it.offences.filterNotNull(),
+          it.latestCourtAppearanceOutcome?.code
+        )
+      }
       .also {
         log.info("Fetched ${it.size} Convictions for $crn")
       }

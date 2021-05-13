@@ -442,23 +442,6 @@ internal class ProtectLevelCalculatorTest {
     }
 
     @Test
-    fun `should not count complexity IOM_NOMINAL`() {
-      setup()
-      val result = service.calculateProtectLevel(
-        crn, null, null,
-        getValidRegistrations(
-          listOf(
-            ComplexityFactor.VULNERABILITY_ISSUE,
-            ComplexityFactor.IOM_NOMINAL,
-          )
-        ),
-        listOf()
-      )
-      assertThat(result.points).isEqualTo(2)
-      validate()
-    }
-
-    @Test
     fun `should not count complexity factors none`() {
       setup()
       val result = service.calculateProtectLevel(crn, null, null, listOf(), listOf())
