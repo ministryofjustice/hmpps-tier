@@ -160,6 +160,7 @@ class SetupData(
   }
 
   fun setAssessmentDate(date: LocalDateTime) {
+    this.hasValidAssessment = true
     this.assessmentDate = date
   }
 
@@ -233,7 +234,7 @@ class SetupData(
     when {
       hasOrderExtended && hasUnpaidWork -> requirements(unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse())
       hasUnpaidWork -> requirements(unpaidWorkRequirementsResponse())
-      hasNonRestrictiveRequirement-> requirements(nonRestrictiveRequirementsResponse())
+      hasNonRestrictiveRequirement -> requirements(nonRestrictiveRequirementsResponse())
     }
 
     when (gender) {
