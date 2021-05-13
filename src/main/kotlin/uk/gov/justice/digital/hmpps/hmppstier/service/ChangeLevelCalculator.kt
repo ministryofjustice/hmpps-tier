@@ -62,8 +62,8 @@ class ChangeLevelCalculator(
     (
       assessmentApiService.getAssessmentNeeds(assessmentId)
         .let {
-          it.entries.sumBy { ent ->
-            ent.key.weighting.times(ent.value?.score ?: 0)
+          it.entries.sumOf { ent ->
+            ent.key.weighting.times(ent.value.score)
           }
         }
       ).also { log.debug("Needs Points: $it") }

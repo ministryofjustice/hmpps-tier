@@ -52,7 +52,7 @@ class SetupData(
   private var sentenceLength: Long = 1
   private var mainOffence: String = "016"
   private var hasValidAssessment: Boolean = false
-  private var convictionTerminated: LocalDate? = null
+  private var convictionTerminatedDate: LocalDate? = null
   private var activeConvictions: Int = 1
   private var outcome: List<String> = emptyList()
   private var gender: String = "Male"
@@ -112,7 +112,7 @@ class SetupData(
   }
 
   fun setConvictionTerminatedDate(convictionTerminated: LocalDate) {
-    this.convictionTerminated = convictionTerminated
+    this.convictionTerminatedDate = convictionTerminated
   }
 
   fun setValidAssessment() {
@@ -160,6 +160,7 @@ class SetupData(
   }
 
   fun setAssessmentDate(date: LocalDateTime) {
+    this.hasValidAssessment = true
     this.assessmentDate = date
   }
 
@@ -213,8 +214,8 @@ class SetupData(
     if (activeConvictions == 2) {
       convictions(custodialAndNonCustodialConvictions())
     } else {
-      if (null != convictionTerminated) {
-        convictions(custodialTerminatedConvictionResponse(convictionTerminated!!))
+      if (null != convictionTerminatedDate) {
+        convictions(custodialTerminatedConvictionResponse(convictionTerminatedDate!!))
       } else {
         if (sentenceLengthIndeterminate) {
           convictions(custodialNCConvictionResponse(mainOffence, courtAppearanceOutcome = "303"))
@@ -230,26 +231,23 @@ class SetupData(
       }
     }
 
-    if (hasOrderExtended && hasUnpaidWork) {
-      requirements(unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse())
-    } else if (hasUnpaidWork) {
-      requirements(unpaidWorkRequirementsResponse())
-    } else if (hasNonRestrictiveRequirement) {
-      requirements(nonRestrictiveRequirementsResponse())
+    when {
+      hasOrderExtended && hasUnpaidWork -> requirements(unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse())
+      hasUnpaidWork -> requirements(unpaidWorkRequirementsResponse())
+      hasNonRestrictiveRequirement -> requirements(nonRestrictiveRequirementsResponse())
     }
 
     when (gender) {
       "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
-      else -> communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
-    }
-
-    if (gender == "Female") {
-      if (outcome.isNotEmpty()) {
-        outcome.forEach {
-          breachAndRecall(nsisResponse(it))
+      else -> {
+        communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
+        if (outcome.isNotEmpty()) {
+          outcome.forEach {
+            breachAndRecall(nsisResponse(it))
+          }
+        } else {
+          breachAndRecall(emptyNsisResponse())
         }
-      } else {
-        breachAndRecall(emptyNsisResponse())
       }
     }
   }

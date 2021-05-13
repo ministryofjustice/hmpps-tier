@@ -62,7 +62,6 @@ class BddSteps : En {
   private lateinit var assessmentApi: ClientAndServer
 
   private lateinit var setupData: SetupData
-
   private lateinit var crn: String
   private lateinit var assessmentId: String
 
@@ -84,7 +83,6 @@ class BddSteps : En {
       crn = UUID.randomUUID().toString().replace("-", "").substring(0, 7)
       assessmentId = UUID.randomUUID().toString().replace("\\D+".toRegex(), "").substring(0, 11)
       setupData = SetupData(communityApi, assessmentApi, mapOf("crn" to crn, "assessmentId" to "1$assessmentId"))
-      tierCalculationRepository.deleteAll()
     }
 
     Given("an RSR score of {string}") { rsr: String ->
@@ -254,11 +252,12 @@ class BddSteps : En {
     And("no completed Layer 3 assessment") {
       // do nothing - maybe should be a 404 from assessments API?
     }
-
     And("a completed Layer 3 assessment dated 55 weeks and one day ago") {
       setupData.setAssessmentDate(LocalDateTime.now().minusWeeks(55).minusDays(1))
     }
-
+    And("a completed Layer 3 assessment dated 55 weeks ago") {
+      setupData.setAssessmentDate(LocalDateTime.now().minusWeeks(55))
+    }
     And("has the following OASys complexity answer: {string} {string} : {string}") { _: String, question: String, answer: String ->
       setupData.setValidAssessment()
       setupData.setAssessmentAnswer(question, answer)
@@ -329,9 +328,7 @@ class BddSteps : En {
     }
 
     Then("a change level of {int} is returned and {int} points are scored") { changeLevel: Int, points: Int ->
-      val calculation: TierCalculationEntity = getTier()
-      assertThat(calculation.data.change.points).isEqualTo(points)
-      assertThat(calculation.data.change.tier.value).isEqualTo(changeLevel)
+      changeIs(changeLevel, points)
     }
 
     Then("a protect level of {string} is returned and {int} points are scored") { protectLevel: String, points: Int ->
@@ -341,10 +338,14 @@ class BddSteps : En {
     }
 
     Then("there is no mandate for change") {
-      val calculation: TierCalculationEntity = getTier()
-      assertThat(calculation.data.change.tier.value).isEqualTo(0)
-      assertThat(calculation.data.change.points).isEqualTo(0)
+      changeIs(0, 0)
     }
+  }
+
+  private fun changeIs(tier: Int, points: Int) {
+    val calculation: TierCalculationEntity = getTier()
+    assertThat(calculation.data.change.tier.value).isEqualTo(tier)
+    assertThat(calculation.data.change.points).isEqualTo(points)
   }
 
   private fun getTier(): TierCalculationEntity {

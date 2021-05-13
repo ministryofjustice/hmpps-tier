@@ -1,5 +1,4 @@
 #lang: en
-@single
 Feature: Mandate for change
 
   Scenario: Custodial sentence of type SC has mandate for change
@@ -46,6 +45,10 @@ Feature: Mandate for change
     When a tier is calculated
     Then a change level of 2 is returned and 0 points are scored
 
-
+  Scenario: Sentence with 55 week old assessment has a mandate for change
+    Given an offender with a current sentence of type 'NC'
+    And a completed Layer 3 assessment dated 55 weeks ago
+    When a tier is calculated
+    Then there is a mandate for change
 
 
