@@ -17,8 +17,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ONE
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.THREE
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.TWO
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ZERO
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor.IOM_NOMINAL
 
 @Service
 class ChangeLevelCalculator(
@@ -30,7 +28,7 @@ class ChangeLevelCalculator(
     crn: String,
     offenderAssessment: OffenderAssessment?,
     deliusAssessments: DeliusAssessments?,
-    registrations: Collection<Registration>,
+    iomNominalRegistrations: Collection<Registration>,
     convictions: Collection<Conviction>
   ): TierLevel<ChangeLevel> {
     return when {
@@ -41,7 +39,7 @@ class ChangeLevelCalculator(
         val points = mapOf(
           NEEDS to getAssessmentNeedsPoints(offenderAssessment!!.assessmentId),
           OGRS to getOgrsPoints(deliusAssessments),
-          IOM to getIomNominalPoints(registrations)
+          IOM to getIomNominalPoints(iomNominalRegistrations)
         )
 
         val total = points.map { it.value }.sum()
@@ -74,7 +72,7 @@ class ChangeLevelCalculator(
 
   private fun getIomNominalPoints(registrations: Collection<Registration>): Int =
     when {
-      registrations.any { ComplexityFactor.from(it.type.code) == IOM_NOMINAL } -> 2
+      registrations.any() -> 2
       else -> 0
     }.also { log.debug("IOM Nominal Points: $it") }
 

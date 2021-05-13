@@ -148,7 +148,7 @@ internal class TierCalculationServiceTest {
     fun `Should Call Collaborators Test value not changed`() {
       every { assessmentApiService.getRecentAssessment(crn) } returns null // anything
       every { communityApiClient.getDeliusAssessments(crn) } returns null // anything
-      every { communityApiClient.getRegistrations(crn) } returns listOf() // anything
+      every { communityApiClient.getRegistrations(crn) } returns Pair(listOf(), listOf()) // anything
       every { communityApiClient.getConvictionsWithSentences(crn) } returns listOf() // anything
 
       every { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) } returns protectLevelResult
@@ -179,7 +179,7 @@ internal class TierCalculationServiceTest {
     fun `Should Call Collaborators Test value changed`() {
       every { assessmentApiService.getRecentAssessment(crn) } returns null // anything
       every { communityApiClient.getDeliusAssessments(crn) } returns null // anything
-      every { communityApiClient.getRegistrations(crn) } returns listOf() // anything
+      every { communityApiClient.getRegistrations(crn) } returns Pair(listOf(), listOf()) // anything
       every { communityApiClient.getConvictionsWithSentences(crn) } returns listOf() // anything
 
       every { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) } returns protectLevelResult

@@ -101,7 +101,6 @@ class ProtectLevelCalculator(
     registrations
       .mapNotNull { ComplexityFactor.from(it.type.code) }
       .distinct()
-      .filter { it != ComplexityFactor.IOM_NOMINAL }
       .count()
       .times(2)
       .also { log.debug("Complexity factor size: $it") }
