@@ -9,6 +9,9 @@
   },
   "selfDiagnostics": {
     "destination": "console"
+  },
+  "sampling": {
+    "percentage": 10
   }
 }
 
