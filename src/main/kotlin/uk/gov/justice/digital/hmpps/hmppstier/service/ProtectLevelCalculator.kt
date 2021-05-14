@@ -6,11 +6,25 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.ADDITIONAL_FACTORS_FOR_WOMEN
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.COMPLEXITY
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.MAPPA
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.ROSH
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.RSR
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M1
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M2
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M3
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel.A
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel.B
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel.C
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel.D
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.HIGH
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.MEDIUM
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.VERY_HIGH
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_B_RSR_LOWER
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_B_RSR_UPPER
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_RSR_LOWER
@@ -30,21 +44,21 @@ class ProtectLevelCalculator(
   ): TierLevel<ProtectLevel> {
 
     val points = mapOf(
-      CalculationRule.RSR to getRsrPoints(deliusAssessments),
-      CalculationRule.ROSH to getRoshPoints(registrations),
-      CalculationRule.MAPPA to getMappaPoints(registrations),
-      CalculationRule.COMPLEXITY to getComplexityPoints(registrations),
-      CalculationRule.ADDITIONAL_FACTORS_FOR_WOMEN to additionalFactorsForWomen.calculate(crn, convictions, offenderAssessment)
+      RSR to getRsrPoints(deliusAssessments),
+      ROSH to getRoshPoints(registrations),
+      MAPPA to getMappaPoints(registrations),
+      COMPLEXITY to getComplexityPoints(registrations),
+      ADDITIONAL_FACTORS_FOR_WOMEN to additionalFactorsForWomen.calculate(crn, convictions, offenderAssessment)
     )
 
     val total = points.map { it.value }.sum()
-      .minus(minOf(points.getOrDefault(CalculationRule.RSR, 0), points.getOrDefault(CalculationRule.ROSH, 0)))
+      .minus(minOf(points.getOrDefault(RSR, 0), points.getOrDefault(ROSH, 0)))
 
     return when {
-      total >= 30 -> TierLevel(ProtectLevel.A, total, points)
-      total in 20..29 -> TierLevel(ProtectLevel.B, total, points)
-      total in 10..19 -> TierLevel(ProtectLevel.C, total, points)
-      else -> TierLevel(ProtectLevel.D, total, points)
+      total >= 30 -> TierLevel(A, total, points)
+      total in 20..29 -> TierLevel(B, total, points)
+      total in 10..19 -> TierLevel(C, total, points)
+      else -> TierLevel(D, total, points)
     }
   }
 
@@ -64,9 +78,9 @@ class ProtectLevelCalculator(
       .firstOrNull()
       .let { rosh ->
         when (rosh) {
-          Rosh.VERY_HIGH -> 30
-          Rosh.HIGH -> 20
-          Rosh.MEDIUM -> 10
+          VERY_HIGH -> 30
+          HIGH -> 20
+          MEDIUM -> 10
           else -> 0
         }
       }
@@ -77,8 +91,8 @@ class ProtectLevelCalculator(
       .firstOrNull()
       .let { mappa ->
         when (mappa) {
-          Mappa.M3, Mappa.M2 -> 30
-          Mappa.M1 -> 5
+          M3, M2 -> 30
+          M1 -> 5
           else -> 0
         }
       }
