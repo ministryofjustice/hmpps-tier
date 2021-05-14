@@ -15,12 +15,12 @@ internal class TierCalculationResultEntityTest {
     val tierCalculationResultEntity = TierCalculationResultEntity(
       protect = tierLetterResult,
       change = tierNumberResult,
-      calculationVersion = 99
+      calculationVersion = "99"
     )
 
     assertThat(tierCalculationResultEntity.protect).isEqualTo(tierLetterResult)
     assertThat(tierCalculationResultEntity.change).isEqualTo(tierNumberResult)
-    assertThat(tierCalculationResultEntity.calculationVersion).isEqualTo(99)
+    assertThat(tierCalculationResultEntity.calculationVersion).isEqualTo("99")
   }
 
   companion object {

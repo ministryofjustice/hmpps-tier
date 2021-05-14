@@ -64,7 +64,7 @@ internal class TierCalculationServiceTest {
     calculationId,
     crn,
     LocalDateTime.now(clock),
-    TierCalculationResultEntity(protectLevelResult, changeLevelResult, version)
+    TierCalculationResultEntity(protectLevelResult, changeLevelResult, version.toString())
   )
 
   @BeforeEach
