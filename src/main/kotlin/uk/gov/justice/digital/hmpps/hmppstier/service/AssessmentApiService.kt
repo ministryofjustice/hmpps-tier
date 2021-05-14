@@ -38,10 +38,12 @@ class AssessmentApiService(
       { it.answers.firstOrNull()?.refAnswerCode }
     ).filterKeys { it != null }
 
-  fun getAssessmentNeeds(assessmentId: String): Map<Need, NeedSeverity> =
-    assessmentApiClient.getAssessmentNeeds(assessmentId)
-      .filter { it.need != null && it.severity != null }
-      .associateBy({ it.need!! }, { it.severity!! })
+  fun getAssessmentNeeds(offenderAssessment: OffenderAssessment?): Map<Need, NeedSeverity> =
+    offenderAssessment?.let { assessment ->
+      assessmentApiClient.getAssessmentNeeds(assessment.assessmentId)
+        .filter { it.need != null && it.severity != null }
+        .associateBy({ it.need!! }, { it.severity!! })
+    } ?: mapOf()
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)

@@ -56,7 +56,7 @@ class TierCalculationService(
     val deliusAssessments = communityApiClient.getDeliusAssessments(crn)
     val (iomNominal, otherRegistrations) = communityApiClient.getRegistrations(crn)
     val deliusConvictions = communityApiClient.getConvictionsWithSentences(crn)
-    val needs = offenderAssessment?.let { assessmentApiService.getAssessmentNeeds(it.assessmentId) }
+    val needs = assessmentApiService.getAssessmentNeeds(offenderAssessment)
 
     val protectLevel = protectLevelCalculator.calculateProtectLevel(
       crn,
