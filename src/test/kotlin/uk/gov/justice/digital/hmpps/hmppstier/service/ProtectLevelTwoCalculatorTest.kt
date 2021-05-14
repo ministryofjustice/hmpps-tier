@@ -37,10 +37,12 @@ internal class ProtectLevelTwoCalculatorTest {
   private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
 
   private val service = ProtectLevelCalculator(
-    clock,
-    communityApiClient,
-    assessmentApiService,
-    2
+    AdditionalFactorsForWomen(
+      clock,
+      communityApiClient,
+      assessmentApiService,
+      2
+    )
   )
 
   private val crn = "Any Crn"
