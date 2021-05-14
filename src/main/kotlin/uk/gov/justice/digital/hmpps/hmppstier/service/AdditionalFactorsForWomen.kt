@@ -7,12 +7,14 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.TEMPER_CONTROL
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NsiOutcome
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import java.time.Clock
 import java.time.LocalDate
-import java.time.temporal.ChronoUnit
+import java.time.temporal.ChronoUnit.DAYS
 
 @Service
 class AdditionalFactorsForWomen(
@@ -21,7 +23,7 @@ class AdditionalFactorsForWomen(
   private val assessmentApiService: AssessmentApiService,
   @Value("\${calculation.version}") private val calculationVersion: Int
 ) {
-  fun getAdditionalFactorsForWomen(
+  fun calculate(
     crn: String,
     convictions: Collection<Conviction>,
     offenderAssessment: OffenderAssessment?
@@ -50,12 +52,12 @@ class AdditionalFactorsForWomen(
         assessmentApiService.getAssessmentAnswers(offenderAssessment.assessmentId)
           .let { answers ->
             val parenting = when {
-              isYes(answers[AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES]) -> 1
+              isYes(answers[PARENTING_RESPONSIBILITIES]) -> 1
               else -> 0
             }
             // We dont take the cumulative score, just '1' if at least one of these two is present
             val selfControl = when {
-              isAnswered(answers[AdditionalFactorForWomen.IMPULSIVITY]) || isAnswered(answers[AdditionalFactorForWomen.TEMPER_CONTROL]) -> 1
+              isAnswered(answers[IMPULSIVITY]) || isAnswered(answers[TEMPER_CONTROL]) -> 1
               else -> 0
             }
             (parenting + selfControl).times(2)
@@ -78,14 +80,11 @@ class AdditionalFactorsForWomen(
     val longerThanTenMonths = custodialSentences.any {
       it.startDate != null && it.expectedSentenceEndDate != null && sentenceTenMonthsOrOver(it)
     }
-    val indeterminate = custodialConvictions.any { "303" == it.latestCourtAppearanceOutcome }
+    val indeterminate = custodialConvictions.any { INDETERMINATE_SENTENCE == it.latestCourtAppearanceOutcome }
     return if (longerThanTenMonths || indeterminate) 2 else 0
   }
 
-  private fun sentenceTenMonthsOrOver(sentence: Sentence): Boolean {
-    val TEN_MONTHS_IN_DAYS: Long = 304
-    return ChronoUnit.DAYS.between(sentence.startDate, sentence.expectedSentenceEndDate!!) >= TEN_MONTHS_IN_DAYS
-  }
+  private fun sentenceTenMonthsOrOver(sentence: Sentence): Boolean = DAYS.between(sentence.startDate, sentence.expectedSentenceEndDate!!) >= TEN_MONTHS_IN_DAYS
 
   private fun getBreachRecallComplexityPoints(crn: String, convictions: Collection<Conviction>): Int =
     convictions
@@ -113,5 +112,7 @@ class AdditionalFactorsForWomen(
 
   companion object {
     val OFFENCE_CODES = OffenceCode.values().map { it.code }
+    val TEN_MONTHS_IN_DAYS: Long = 304
+    val INDETERMINATE_SENTENCE: String = "303"
   }
 }

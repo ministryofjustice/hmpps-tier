@@ -34,7 +34,7 @@ class ProtectLevelCalculator(
       CalculationRule.ROSH to getRoshPoints(registrations),
       CalculationRule.MAPPA to getMappaPoints(registrations),
       CalculationRule.COMPLEXITY to getComplexityPoints(registrations),
-      CalculationRule.ADDITIONAL_FACTORS_FOR_WOMEN to additionalFactorsForWomen.getAdditionalFactorsForWomen(crn, convictions, offenderAssessment)
+      CalculationRule.ADDITIONAL_FACTORS_FOR_WOMEN to additionalFactorsForWomen.calculate(crn, convictions, offenderAssessment)
     )
 
     val total = points.map { it.value }.sum()
