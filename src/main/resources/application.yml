@@ -74,4 +74,4 @@ management:
         time-to-live: 2000ms
 
 calculation:
-  version: 1.0
+  version: 1

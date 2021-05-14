@@ -1,6 +1,6 @@
 #lang: en
 @disabled
-# for version 1.1
+# for version 2
 Feature: Additional Factors (Female only) sentence length
 
   Scenario: Sentence length 10 months or over scores 2 points
