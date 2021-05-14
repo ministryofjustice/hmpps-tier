@@ -75,7 +75,7 @@ class TierCalculationService(
     return TierCalculationEntity(
       crn = crn,
       created = LocalDateTime.now(clock),
-      data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel, calculationVersion = calculationVersion)
+      data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel, calculationVersion = calculationVersion.toString())
     )
   }
 

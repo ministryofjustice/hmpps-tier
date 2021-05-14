@@ -34,7 +34,7 @@ internal class TierCalculationEntityTest {
     val data = TierCalculationResultEntity(
       protect = tierLetterResult,
       change = tierNumberResult,
-      calculationVersion = 88
+      calculationVersion = "88"
     )
   }
 }
