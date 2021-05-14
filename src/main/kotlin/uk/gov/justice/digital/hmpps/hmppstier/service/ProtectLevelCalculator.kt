@@ -24,14 +24,14 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_RSR_UPPER
 import java.time.Clock
 import java.time.LocalDate
-import java.time.Period
+import java.time.temporal.ChronoUnit.DAYS
 
 @Service
 class ProtectLevelCalculator(
   private val clock: Clock,
   private val communityApiClient: CommunityApiClient,
   private val assessmentApiService: AssessmentApiService,
-  @Value("\${calculation.version}")private val calculationVersion: Float
+  @Value("\${calculation.version}") private val calculationVersion: Float
 ) {
 
   fun calculateProtectLevel(
@@ -50,7 +50,8 @@ class ProtectLevelCalculator(
       CalculationRule.ADDITIONAL_FACTORS_FOR_WOMEN to getAdditionalFactorsForWomen(crn, convictions, offenderAssessment)
     )
 
-    val total = points.map { it.value }.sum().minus(minOf(points.getOrDefault(CalculationRule.RSR, 0), points.getOrDefault(CalculationRule.ROSH, 0)))
+    val total = points.map { it.value }.sum()
+      .minus(minOf(points.getOrDefault(CalculationRule.RSR, 0), points.getOrDefault(CalculationRule.ROSH, 0)))
 
     return when {
       total >= 30 -> TierLevel(ProtectLevel.A, total, points)
@@ -114,7 +115,8 @@ class ProtectLevelCalculator(
 
         val violenceArsonPoints = if (calculationVersion >= 1.1) getArsonOrViolencePoints(convictions) else 0
 
-        val tenMonthsPlusOrIndeterminatePoints = if (calculationVersion >= 1.1) getSentenceLengthPoints(convictions) else 0
+        val tenMonthsPlusOrIndeterminatePoints =
+          if (calculationVersion >= 1.1) getSentenceLengthPoints(convictions) else 0
 
         additionalFactorsPoints + breachRecallPoints + violenceArsonPoints + tenMonthsPlusOrIndeterminatePoints
       }
@@ -154,9 +156,17 @@ class ProtectLevelCalculator(
 
     val custodialSentences = convictions.map { it.sentence }.filter { isCustodial(it) }
     val custodialConvictions = convictions.filter { it.sentence in custodialSentences }
-    val longerThanTenMonths = custodialSentences.any { it.startDate != null && it.expectedSentenceEndDate != null && Period.between(it.startDate, it.expectedSentenceEndDate).months >= 10 }
+
+    val longerThanTenMonths = custodialSentences.any {
+      it.startDate != null && it.expectedSentenceEndDate != null && sentenceTenMonthsOrOver(it)
+    }
     val indeterminate = custodialConvictions.any { "303" == it.latestCourtAppearanceOutcome }
     return if (longerThanTenMonths || indeterminate) 2 else 0
+  }
+
+  private fun sentenceTenMonthsOrOver(sentence: Sentence): Boolean {
+    val TEN_MONTHS_IN_DAYS: Long = 304
+    return DAYS.between(sentence.startDate, sentence.expectedSentenceEndDate!!) >= TEN_MONTHS_IN_DAYS
   }
 
   private fun getBreachRecallComplexityPoints(crn: String, convictions: Collection<Conviction>): Int =
