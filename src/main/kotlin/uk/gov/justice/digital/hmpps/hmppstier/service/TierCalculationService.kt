@@ -53,7 +53,7 @@ class TierCalculationService(
   private fun calculateTier(crn: String): TierCalculationEntity {
 
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
-    val deliusAssessments = communityApiClient.getDeliusAssessments(crn)
+    val (rsr, ogrs) = communityApiClient.getDeliusAssessments(crn)
     val (iomNominal, otherRegistrations) = communityApiClient.getRegistrations(crn)
     val deliusConvictions = communityApiClient.getConvictionsWithSentences(crn)
     val needs = assessmentApiService.getAssessmentNeeds(offenderAssessment)
@@ -61,14 +61,14 @@ class TierCalculationService(
     val protectLevel = protectLevelCalculator.calculateProtectLevel(
       crn,
       offenderAssessment,
-      deliusAssessments,
+      rsr,
       otherRegistrations,
       deliusConvictions
     )
     val changeLevel = changeLevelCalculator.calculateChangeLevel(
       crn,
       offenderAssessment,
-      deliusAssessments,
+      ogrs,
       iomNominal,
       deliusConvictions,
       needs

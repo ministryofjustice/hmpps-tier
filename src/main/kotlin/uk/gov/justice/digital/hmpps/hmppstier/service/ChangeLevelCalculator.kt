@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
@@ -27,19 +26,19 @@ class ChangeLevelCalculator(
   fun calculateChangeLevel(
     crn: String,
     offenderAssessment: OffenderAssessment?,
-    deliusAssessments: DeliusAssessments?,
+    ogrsScore: Int,
     iomNominalRegistrations: Collection<Registration>,
     convictions: Collection<Conviction>,
     needs: Map<Need, NeedSeverity>
-  ): TierLevel<ChangeLevel> {
-    return when {
+  ): TierLevel<ChangeLevel> =
+    when {
       mandateForChange.hasNoMandate(crn, convictions) -> TIER_NO_MANDATE
       hasNoAssessment(offenderAssessment) -> TIER_NO_ASSESSMENT
 
       else -> {
         val points = mapOf(
           NEEDS to getAssessmentNeedsPoints(needs),
-          OGRS to getOgrsPoints(deliusAssessments),
+          OGRS to getOgrsPoints(ogrsScore),
           IOM to getIomNominalPoints(iomNominalRegistrations)
         )
 
@@ -52,7 +51,6 @@ class ChangeLevelCalculator(
         }
       }
     }
-  }
 
   private fun hasNoAssessment(offenderAssessment: OffenderAssessment?): Boolean =
     (offenderAssessment == null)
@@ -62,8 +60,8 @@ class ChangeLevelCalculator(
       it.key.weighting.times(it.value.score)
     }
 
-  private fun getOgrsPoints(deliusAssessments: DeliusAssessments?): Int =
-    (deliusAssessments?.ogrs?.div(10) ?: 0)
+  private fun getOgrsPoints(ogrsScore: Int): Int =
+    ogrsScore.div(10)
 
   private fun getIomNominalPoints(registrations: Collection<Registration>): Int =
     when {
