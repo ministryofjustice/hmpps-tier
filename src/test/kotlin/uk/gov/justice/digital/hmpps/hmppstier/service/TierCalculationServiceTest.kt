@@ -152,7 +152,7 @@ internal class TierCalculationServiceTest {
       every { communityApiClient.getConvictionsWithSentences(crn) } returns listOf() // anything
 
       every { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) } returns protectLevelResult
-      every { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) } returns changeLevelResult
+      every { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any(), any()) } returns changeLevelResult
 
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns validTierCalculationEntity
 
@@ -170,7 +170,7 @@ internal class TierCalculationServiceTest {
       verify { communityApiClient.getRegistrations(crn) }
       verify { communityApiClient.getConvictionsWithSentences(crn) }
       verify { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) }
-      verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) }
+      verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any(), any()) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
       verify { tierCalculationRepository.save(capture(slot)) }
     }
@@ -183,7 +183,7 @@ internal class TierCalculationServiceTest {
       every { communityApiClient.getConvictionsWithSentences(crn) } returns listOf() // anything
 
       every { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) } returns protectLevelResult
-      every { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) } returns changeLevelResult
+      every { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any(), any()) } returns changeLevelResult
 
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
 
@@ -201,7 +201,7 @@ internal class TierCalculationServiceTest {
       verify { communityApiClient.getRegistrations(crn) }
       verify { communityApiClient.getConvictionsWithSentences(crn) }
       verify { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) }
-      verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) }
+      verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any(), any()) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
       verify { tierCalculationRepository.save(capture(slot)) }
     }
