@@ -30,7 +30,7 @@ class ChangeLevelCalculator(
     deliusAssessments: DeliusAssessments?,
     iomNominalRegistrations: Collection<Registration>,
     convictions: Collection<Conviction>,
-    needs: Map<Need, NeedSeverity>?
+    needs: Map<Need, NeedSeverity>
   ): TierLevel<ChangeLevel> {
     return when {
       mandateForChange.hasNoMandate(crn, convictions) -> TIER_NO_MANDATE
@@ -57,12 +57,10 @@ class ChangeLevelCalculator(
   private fun hasNoAssessment(offenderAssessment: OffenderAssessment?): Boolean =
     (offenderAssessment == null)
 
-  private fun getAssessmentNeedsPoints(needs: Map<Need, NeedSeverity>?): Int =
-    needs?.let {
-      it.entries.sumOf { ent ->
-        ent.key.weighting.times(ent.value.score)
-      }
-    } ?: 0
+  private fun getAssessmentNeedsPoints(needs: Map<Need, NeedSeverity>): Int =
+    needs.entries.sumOf {
+      it.key.weighting.times(it.value.score)
+    }
 
   private fun getOgrsPoints(deliusAssessments: DeliusAssessments?): Int =
     (deliusAssessments?.ogrs?.div(10) ?: 0)
