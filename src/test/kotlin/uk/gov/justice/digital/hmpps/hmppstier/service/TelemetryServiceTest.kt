@@ -39,7 +39,7 @@ internal class TelemetryServiceTest {
       TierLevel(
         ChangeLevel.ONE, 5, mapOf()
       ),
-      77
+      "77"
     )
   )
 
@@ -85,7 +85,7 @@ internal class TelemetryServiceTest {
           "crn" to crn,
           "protect" to tierCalculation.data.protect.tier.value,
           "change" to tierCalculation.data.change.tier.value.toString(),
-          "version" to tierCalculation.data.calculationVersion.toString()
+          "version" to tierCalculation.data.calculationVersion
         ),
         null
       )

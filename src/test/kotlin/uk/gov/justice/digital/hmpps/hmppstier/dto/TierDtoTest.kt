@@ -39,7 +39,7 @@ internal class TierDtoTest {
     val changeLevel = ChangeLevel.TWO
     val calculationId = UUID.randomUUID()
     val calculationDate = LocalDateTime.now()
-    val version = 99
+    val version = "99"
 
     val data = TierCalculationResultEntity(
       protect = TierLevel(protectLevel, 4, mapOf(CalculationRule.ROSH to 4)),
