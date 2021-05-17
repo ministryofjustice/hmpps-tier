@@ -39,7 +39,7 @@ services:
      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
     environment:
       - SERVER_PORT=8080
-      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_PROFILES_ACTIVE=dev,dev-seed
   assessments-api:
     image: quay.io/hmpps/offender-assessments-api:latest
     networks:
