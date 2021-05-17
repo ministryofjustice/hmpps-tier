@@ -25,10 +25,14 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()
   }
 
-  fun getConvictionsWithSentences(crn: String): List<ConvictionDto> {
-    val convictions = getConvictionsCall(crn)
-    val sentences = convictions.mapNotNull { it.sentence }
-    return convictions
+  fun getConvictions(crn: String): List<ConvictionDto> {
+    val responseType = object : ParameterizedTypeReference<List<ConvictionDto>>() {}
+    return webClient
+      .get()
+      .uri("/offenders/crn/$crn/convictions?activeOnly=true")
+      .retrieve()
+      .bodyToMono(responseType)
+      .block() ?: listOf()
   }
 
   fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
@@ -62,16 +66,6 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .retrieve()
       .bodyToMono(Registrations::class.java)
       .block()?.registrations ?: listOf()
-  }
-
-  private fun getConvictionsCall(crn: String): List<ConvictionDto> {
-    val responseType = object : ParameterizedTypeReference<List<ConvictionDto>>() {}
-    return webClient
-      .get()
-      .uri("/offenders/crn/$crn/convictions?activeOnly=true")
-      .retrieve()
-      .bodyToMono(responseType)
-      .block() ?: listOf()
   }
 
   private fun getRequirementsCall(crn: String, convictionId: Long): List<RequirementDto> {

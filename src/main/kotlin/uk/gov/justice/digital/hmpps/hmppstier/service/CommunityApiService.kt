@@ -13,8 +13,6 @@ class CommunityApiService(
   fun getDeliusAssessments(crn: String): DeliusAssessments =
     DeliusAssessments.from(communityApiClient.getDeliusAssessments(crn))
 
-  fun getConvictionsWithSentences(crn: String): List<ConvictionWithSentence> {
-    val convictions = communityApiClient.getConvictionsWithSentences(crn)
-    return ConvictionWithSentence.from(convictions.filterNot { it.sentence == null })
-  }
+  fun getConvictionsWithSentences(crn: String): List<ConvictionWithSentence> =
+    ConvictionWithSentence.from(communityApiClient.getConvictions(crn).filterNot { it.sentence == null })
 }

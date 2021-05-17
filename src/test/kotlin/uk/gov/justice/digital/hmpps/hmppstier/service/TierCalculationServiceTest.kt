@@ -154,7 +154,7 @@ internal class TierCalculationServiceTest {
       every { assessmentApiService.getAssessmentNeeds(null) } returns mapOf() // anything
       every { communityApiService.getDeliusAssessments(crn) } returns DeliusAssessments(BigDecimal.ZERO, 0) // anything
       every { communityApiClient.getRegistrations(crn) } returns Pair(listOf(), listOf()) // anything
-      every { communityApiClient.getConvictionsWithSentences(crn) } returns listOf() // anything
+      every { communityApiService.getConvictionsWithSentences(crn) } returns listOf() // anything
 
       every { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) } returns protectLevelResult
       every { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any(), any()) } returns changeLevelResult
@@ -174,7 +174,7 @@ internal class TierCalculationServiceTest {
       verify { assessmentApiService.getAssessmentNeeds(null) }
       verify { communityApiService.getDeliusAssessments(crn) }
       verify { communityApiClient.getRegistrations(crn) }
-      verify { communityApiClient.getConvictionsWithSentences(crn) }
+      verify { communityApiService.getConvictionsWithSentences(crn) }
       verify { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) }
       verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any(), any()) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
@@ -187,7 +187,7 @@ internal class TierCalculationServiceTest {
       every { assessmentApiService.getAssessmentNeeds(null) } returns mapOf() // anything
       every { communityApiService.getDeliusAssessments(crn) } returns DeliusAssessments(BigDecimal.ZERO, 0)
       every { communityApiClient.getRegistrations(crn) } returns Pair(listOf(), listOf()) // anything
-      every { communityApiClient.getConvictionsWithSentences(crn) } returns listOf() // anything
+      every { communityApiService.getConvictionsWithSentences(crn) } returns listOf() // anything
 
       every { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) } returns protectLevelResult
       every { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any(), any()) } returns changeLevelResult
@@ -207,7 +207,7 @@ internal class TierCalculationServiceTest {
       verify { assessmentApiService.getAssessmentNeeds(null) }
       verify { communityApiService.getDeliusAssessments(crn) }
       verify { communityApiClient.getRegistrations(crn) }
-      verify { communityApiClient.getConvictionsWithSentences(crn) }
+      verify { communityApiService.getConvictionsWithSentences(crn) }
       verify { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) }
       verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any(), any()) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
