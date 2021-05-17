@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessmentsDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
@@ -54,7 +53,7 @@ internal class ChangeLevelCalculatorTest {
     fun `should calculate Oasys Needs none`() {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction(), mapOf())
+      val result = service.calculateChangeLevel(crn, assessment, 0, listOf(), getValidConviction(), mapOf())
       assertThat(result.points).isEqualTo(0)
     }
 
@@ -70,22 +69,15 @@ internal class ChangeLevelCalculatorTest {
     @Test
     fun `should calculate Ogrs null`() {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
-      val result = service.calculateChangeLevel(crn, assessment, getValidAssessments(null), listOf(), getValidConviction(), mapOf())
+      val result = service.calculateChangeLevel(crn, assessment, 0, listOf(), getValidConviction(), mapOf())
       assertThat(result.points).isEqualTo(0)
     }
 
     @Test
     fun `should calculate Ogrs null - no deliusAssessment`() {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
-      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction(), mapOf())
+      val result = service.calculateChangeLevel(crn, assessment, 0, listOf(), getValidConviction(), mapOf())
       assertThat(result.points).isEqualTo(0)
-    }
-
-    private fun getValidAssessments(ogrs: Int?): DeliusAssessmentsDto {
-      return DeliusAssessmentsDto(
-        rsr = null,
-        ogrs = ogrs
-      )
     }
 
     private fun getValidConviction(): List<Conviction> {

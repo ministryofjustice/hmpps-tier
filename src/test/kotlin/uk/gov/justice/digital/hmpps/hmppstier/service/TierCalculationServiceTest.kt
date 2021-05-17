@@ -15,12 +15,14 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
+import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
+import java.math.BigDecimal
 import java.time.Clock
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -37,6 +39,7 @@ internal class TierCalculationServiceTest {
   private val changeLevelCalculator: ChangeLevelCalculator = mockk(relaxUnitFun = true)
   private val protectLevelCalculator: ProtectLevelCalculator = mockk(relaxUnitFun = true)
   private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
+  private val communityApiService: CommunityApiService = mockk(relaxUnitFun = true)
   private val communityApiClient: CommunityApiClient = mockk(relaxUnitFun = true)
   private val telemetryService: TelemetryService = mockk(relaxUnitFun = true)
   private val successUpdater: SuccessUpdater = mockk(relaxUnitFun = true)
@@ -49,6 +52,7 @@ internal class TierCalculationServiceTest {
     changeLevelCalculator,
     protectLevelCalculator,
     assessmentApiService,
+    communityApiService,
     communityApiClient,
     successUpdater,
     telemetryService,
@@ -148,7 +152,7 @@ internal class TierCalculationServiceTest {
     fun `Should Call Collaborators Test value not changed`() {
       every { assessmentApiService.getRecentAssessment(crn) } returns null // anything
       every { assessmentApiService.getAssessmentNeeds(null) } returns mapOf() // anything
-      every { communityApiClient.getDeliusAssessments(crn) } returns null // anything
+      every { communityApiService.getDeliusAssessments(crn) } returns DeliusAssessments(BigDecimal.ZERO, 0) // anything
       every { communityApiClient.getRegistrations(crn) } returns Pair(listOf(), listOf()) // anything
       every { communityApiClient.getConvictionsWithSentences(crn) } returns listOf() // anything
 
@@ -181,7 +185,7 @@ internal class TierCalculationServiceTest {
     fun `Should Call Collaborators Test value changed`() {
       every { assessmentApiService.getRecentAssessment(crn) } returns null // anything
       every { assessmentApiService.getAssessmentNeeds(null) } returns mapOf() // anything
-      every { communityApiClient.getDeliusAssessments(crn) } returns null // anything
+      every { communityApiService.getDeliusAssessments(crn) } returns DeliusAssessments(BigDecimal.ZERO, 0)
       every { communityApiClient.getRegistrations(crn) } returns Pair(listOf(), listOf()) // anything
       every { communityApiClient.getConvictionsWithSentences(crn) } returns listOf() // anything
 
