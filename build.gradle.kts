@@ -80,10 +80,6 @@ detekt {
   ignoreFailures = true
 }
 
-val cucumberRuntime by configurations.creating {
-  extendsFrom(configurations["testImplementation"])
-}
-
 tasks {
   val cucumber by registering(JavaExec::class) {
     dependsOn(testClasses)
