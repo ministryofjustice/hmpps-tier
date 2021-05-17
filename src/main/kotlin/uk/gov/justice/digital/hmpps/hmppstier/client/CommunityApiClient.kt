@@ -25,19 +25,10 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()
   }
 
-  fun getConvictionsWithSentences(crn: String): List<Conviction> {
+  fun getConvictionsWithSentences(crn: String): List<ConvictionDto> {
     val convictions = getConvictionsCall(crn)
     val sentences = convictions.mapNotNull { it.sentence }
     return convictions
-      .filter { it.sentence in sentences }
-      .map {
-        Conviction(
-          it.convictionId,
-          it.sentence!!,
-          it.offences.filterNotNull(),
-          it.latestCourtAppearanceOutcome?.code
-        )
-      }
   }
 
   fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
@@ -127,7 +118,7 @@ data class Nsi @JsonCreator constructor(
   val status: KeyValue?
 )
 
-private data class ConvictionDto @JsonCreator constructor(
+data class ConvictionDto @JsonCreator constructor(
   @JsonProperty("convictionId")
   val convictionId: Long,
 
@@ -140,13 +131,6 @@ private data class ConvictionDto @JsonCreator constructor(
   @JsonProperty("latestCourtAppearanceOutcome")
   val latestCourtAppearanceOutcome: KeyValue?
 
-)
-
-data class Conviction constructor(
-  val convictionId: Long,
-  val sentence: Sentence,
-  val offences: List<Offence>,
-  val latestCourtAppearanceOutcome: String?
 )
 
 data class Sentence @JsonCreator constructor(
