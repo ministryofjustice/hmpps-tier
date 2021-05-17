@@ -172,7 +172,7 @@ internal class TierCalculationServiceTest {
 
       verify { assessmentApiService.getRecentAssessment(crn) }
       verify { assessmentApiService.getAssessmentNeeds(null) }
-      verify { communityApiClient.getDeliusAssessments(crn) }
+      verify { communityApiService.getDeliusAssessments(crn) }
       verify { communityApiClient.getRegistrations(crn) }
       verify { communityApiClient.getConvictionsWithSentences(crn) }
       verify { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) }
@@ -205,7 +205,7 @@ internal class TierCalculationServiceTest {
 
       verify { assessmentApiService.getRecentAssessment(crn) }
       verify { assessmentApiService.getAssessmentNeeds(null) }
-      verify { communityApiClient.getDeliusAssessments(crn) }
+      verify { communityApiService.getDeliusAssessments(crn) }
       verify { communityApiClient.getRegistrations(crn) }
       verify { communityApiClient.getConvictionsWithSentences(crn) }
       verify { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) }
