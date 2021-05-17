@@ -147,12 +147,13 @@ internal class TierCalculationServiceTest {
     @Test
     fun `Should Call Collaborators Test value not changed`() {
       every { assessmentApiService.getRecentAssessment(crn) } returns null // anything
+      every { assessmentApiService.getAssessmentNeeds(null) } returns mapOf() // anything
       every { communityApiClient.getDeliusAssessments(crn) } returns null // anything
       every { communityApiClient.getRegistrations(crn) } returns Pair(listOf(), listOf()) // anything
       every { communityApiClient.getConvictionsWithSentences(crn) } returns listOf() // anything
 
       every { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) } returns protectLevelResult
-      every { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) } returns changeLevelResult
+      every { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any(), any()) } returns changeLevelResult
 
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns validTierCalculationEntity
 
@@ -166,11 +167,12 @@ internal class TierCalculationServiceTest {
       verify { telemetryService.trackTierCalculated(crn, slot.captured, false) }
 
       verify { assessmentApiService.getRecentAssessment(crn) }
+      verify { assessmentApiService.getAssessmentNeeds(null) }
       verify { communityApiClient.getDeliusAssessments(crn) }
       verify { communityApiClient.getRegistrations(crn) }
       verify { communityApiClient.getConvictionsWithSentences(crn) }
       verify { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) }
-      verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) }
+      verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any(), any()) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
       verify { tierCalculationRepository.save(capture(slot)) }
     }
@@ -178,12 +180,13 @@ internal class TierCalculationServiceTest {
     @Test
     fun `Should Call Collaborators Test value changed`() {
       every { assessmentApiService.getRecentAssessment(crn) } returns null // anything
+      every { assessmentApiService.getAssessmentNeeds(null) } returns mapOf() // anything
       every { communityApiClient.getDeliusAssessments(crn) } returns null // anything
       every { communityApiClient.getRegistrations(crn) } returns Pair(listOf(), listOf()) // anything
       every { communityApiClient.getConvictionsWithSentences(crn) } returns listOf() // anything
 
       every { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) } returns protectLevelResult
-      every { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) } returns changeLevelResult
+      every { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any(), any()) } returns changeLevelResult
 
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
 
@@ -197,11 +200,12 @@ internal class TierCalculationServiceTest {
       verify { telemetryService.trackTierCalculated(crn, slot.captured, true) }
 
       verify { assessmentApiService.getRecentAssessment(crn) }
+      verify { assessmentApiService.getAssessmentNeeds(null) }
       verify { communityApiClient.getDeliusAssessments(crn) }
       verify { communityApiClient.getRegistrations(crn) }
       verify { communityApiClient.getConvictionsWithSentences(crn) }
       verify { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) }
-      verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any()) }
+      verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any(), any()) }
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
       verify { tierCalculationRepository.save(capture(slot)) }
     }

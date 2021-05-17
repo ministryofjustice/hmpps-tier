@@ -16,11 +16,12 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ONE
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.THREE
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.TWO
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ZERO
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 
 @Service
 class ChangeLevelCalculator(
   private val mandateForChange: MandateForChange,
-  private val assessmentApiService: AssessmentApiService,
 ) {
 
   fun calculateChangeLevel(
@@ -28,7 +29,8 @@ class ChangeLevelCalculator(
     offenderAssessment: OffenderAssessment?,
     deliusAssessments: DeliusAssessments?,
     iomNominalRegistrations: Collection<Registration>,
-    convictions: Collection<Conviction>
+    convictions: Collection<Conviction>,
+    needs: Map<Need, NeedSeverity>
   ): TierLevel<ChangeLevel> {
     return when {
       mandateForChange.hasNoMandate(crn, convictions) -> TIER_NO_MANDATE
@@ -36,7 +38,7 @@ class ChangeLevelCalculator(
 
       else -> {
         val points = mapOf(
-          NEEDS to getAssessmentNeedsPoints(offenderAssessment!!.assessmentId),
+          NEEDS to getAssessmentNeedsPoints(needs),
           OGRS to getOgrsPoints(deliusAssessments),
           IOM to getIomNominalPoints(iomNominalRegistrations)
         )
@@ -55,15 +57,10 @@ class ChangeLevelCalculator(
   private fun hasNoAssessment(offenderAssessment: OffenderAssessment?): Boolean =
     (offenderAssessment == null)
 
-  private fun getAssessmentNeedsPoints(assessmentId: String): Int =
-    (
-      assessmentApiService.getAssessmentNeeds(assessmentId)
-        .let {
-          it.entries.sumOf { ent ->
-            ent.key.weighting.times(ent.value.score)
-          }
-        }
-      )
+  private fun getAssessmentNeedsPoints(needs: Map<Need, NeedSeverity>): Int =
+    needs.entries.sumOf {
+      it.key.weighting.times(it.value.score)
+    }
 
   private fun getOgrsPoints(deliusAssessments: DeliusAssessments?): Int =
     (deliusAssessments?.ogrs?.div(10) ?: 0)

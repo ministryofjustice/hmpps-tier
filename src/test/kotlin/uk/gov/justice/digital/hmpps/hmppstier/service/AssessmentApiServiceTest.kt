@@ -243,7 +243,7 @@ internal class AssessmentApiServiceTest {
       val needs = listOf<AssessmentNeed>()
 
       every { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) } returns needs
-      val returnValue = assessmentService.getAssessmentNeeds(assessment.assessmentId)
+      val returnValue = assessmentService.getAssessmentNeeds(assessment)
 
       assertThat(returnValue).isEmpty()
 
@@ -261,7 +261,7 @@ internal class AssessmentApiServiceTest {
       )
 
       every { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) } returns needs
-      val returnValue = assessmentService.getAssessmentNeeds(assessment.assessmentId)
+      val returnValue = assessmentService.getAssessmentNeeds(assessment)
 
       assertThat(returnValue).hasSize(1)
       assertThat(returnValue).containsEntry(Need.ACCOMMODATION, NeedSeverity.NO_NEED)
@@ -284,7 +284,7 @@ internal class AssessmentApiServiceTest {
       )
 
       every { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) } returns needs
-      val returnValue = assessmentService.getAssessmentNeeds(assessment.assessmentId)
+      val returnValue = assessmentService.getAssessmentNeeds(assessment)
 
       assertThat(returnValue).hasSize(2)
       assertThat(returnValue).containsEntry(Need.ACCOMMODATION, NeedSeverity.NO_NEED)
