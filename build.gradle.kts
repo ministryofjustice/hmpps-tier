@@ -80,13 +80,36 @@ detekt {
   ignoreFailures = true
 }
 
+val cucumberRuntime by configurations.creating {
+  extendsFrom(configurations["testImplementation"])
+}
+
 tasks {
+  val cucumber by registering(JavaExec::class) {
+    dependsOn(testClasses)
+    finalizedBy("jacocoTestCoverageVerification")
+    val reportsDir = file("$buildDir/test-results")
+    outputs.dir(reportsDir)
+    classpath = sourceSets["test"].runtimeClasspath
+    main = "org.junit.platform.console.ConsoleLauncher"
+    args("--include-classname", ".*")
+    args("--select-class", "uk.gov.justice.digital.hmpps.hmppstier.integration.bdd.CucumberRunnerTest")
+    args("--exclude-tag", "disabled")
+
+    // if you want to run one feature/scenario, tag it @single and uncomment
+    // args("--include-tag", "single")
+    args("--reports-dir", reportsDir)
+    systemProperty("cucumber.publish.quiet", true)
+    val jacocoAgent = zipTree(configurations.jacocoAgent.get().singleFile)
+      .filter { it.name == "jacocoagent.jar" }
+      .singleFile
+    jvmArgs = listOf("-javaagent:$jacocoAgent=destfile=$buildDir/jacoco/cucumber.exec,append=false")
+  }
   getByName("check") {
     dependsOn(":ktlintCheck")
-    finalizedBy("jacocoTestCoverageVerification")
   }
   getByName<JacocoReport>("jacocoTestReport") {
-    dependsOn("test")
+
     reports {
       xml.isEnabled = false
       csv.isEnabled = false
@@ -105,15 +128,16 @@ tasks {
     }
   }
   getByName<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
+    executionData("$buildDir/jacoco/cucumber.exec")
     violationRules {
       rule {
         limit {
           counter = "BRANCH"
-          minimum = BigDecimal(0.8)
+          minimum = BigDecimal(0.90)
         }
         limit {
           counter = "COMPLEXITY"
-          minimum = BigDecimal(0.81)
+          minimum = BigDecimal(0.87)
         }
       }
     }
@@ -129,22 +153,6 @@ tasks {
         )
       )
     }
-  }
-
-  val cucumber by registering(JavaExec::class) {
-    dependsOn(testClasses)
-    val reportsDir = file("$buildDir/test-results")
-    outputs.dir(reportsDir)
-    classpath = sourceSets["test"].runtimeClasspath
-    main = "org.junit.platform.console.ConsoleLauncher"
-    args("--include-classname", ".*")
-    args("--select-class", "uk.gov.justice.digital.hmpps.hmppstier.integration.bdd.CucumberRunnerTest")
-    args("--exclude-tag", "disabled")
-
-    // if you want to run one feature/scenario, tag it @single and uncomment
-    // args("--include-tag", "single")
-    args("--reports-dir", reportsDir)
-    systemProperty("cucumber.publish.quiet", true)
   }
 
   getByName<Test>("test") {
