@@ -81,7 +81,7 @@ class BddSteps : En {
 
       setupOauth()
       crn = UUID.randomUUID().toString().replace("-", "").substring(0, 7)
-      assessmentId = UUID.randomUUID().toString().replace("\\D+".toRegex(), "").substring(0, 11)
+      assessmentId = UUID.randomUUID().toString().replace("\\D+".toRegex(), "").padEnd(11, '1').substring(0, 11)
       setupData = SetupData(communityApi, assessmentApi, mapOf("crn" to crn, "assessmentId" to "1$assessmentId"))
     }
 
