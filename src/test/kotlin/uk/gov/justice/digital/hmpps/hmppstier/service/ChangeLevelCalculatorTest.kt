@@ -2,10 +2,8 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import io.mockk.clearMocks
 import io.mockk.confirmVerified
-import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -30,11 +28,9 @@ import java.time.ZoneOffset
 internal class ChangeLevelCalculatorTest {
   private val clock = Clock.fixed(LocalDateTime.of(2020, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault())
   private val communityApiClient: CommunityApiClient = mockk(relaxUnitFun = true)
-  private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
 
   private val service = ChangeLevelCalculator(
     MandateForChange(communityApiClient),
-    assessmentApiService
   )
 
   private val crn = "Any Crn"
@@ -42,14 +38,12 @@ internal class ChangeLevelCalculatorTest {
   @BeforeEach
   fun resetAllMocks() {
     clearMocks(communityApiClient)
-    clearMocks(assessmentApiService)
   }
 
   @AfterEach
   fun confirmVerified() {
     // Check we don't add any more calls without updating the tests
     confirmVerified(communityApiClient)
-    confirmVerified(assessmentApiService)
   }
 
   @Nested
@@ -60,12 +54,8 @@ internal class ChangeLevelCalculatorTest {
     fun `should calculate Oasys Needs none`() {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) } returns mapOf()
-
-      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction())
+      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction(), mapOf())
       assertThat(result.points).isEqualTo(0)
-
-      verify { assessmentApiService.getAssessmentNeeds(assessment.assessmentId) }
     }
 
     private fun getValidConviction(): List<Conviction> {
@@ -79,20 +69,16 @@ internal class ChangeLevelCalculatorTest {
 
     @Test
     fun `should calculate Ogrs null`() {
-      setup()
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
-      val result = service.calculateChangeLevel(crn, assessment, getValidAssessments(null), listOf(), getValidConviction())
+      val result = service.calculateChangeLevel(crn, assessment, getValidAssessments(null), listOf(), getValidConviction(), mapOf())
       assertThat(result.points).isEqualTo(0)
-      validate()
     }
 
     @Test
     fun `should calculate Ogrs null - no deliusAssessment`() {
-      setup()
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
-      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction())
+      val result = service.calculateChangeLevel(crn, assessment, null, listOf(), getValidConviction(), mapOf())
       assertThat(result.points).isEqualTo(0)
-      validate()
     }
 
     private fun getValidAssessments(ogrs: Int?): DeliusAssessments {
@@ -104,14 +90,6 @@ internal class ChangeLevelCalculatorTest {
 
     private fun getValidConviction(): List<Conviction> {
       return listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(), "101"))
-    }
-
-    private fun setup() {
-      every { assessmentApiService.getAssessmentNeeds(any()) } returns mapOf()
-    }
-
-    private fun validate() {
-      verify { assessmentApiService.getAssessmentNeeds(any()) }
     }
   }
 }
