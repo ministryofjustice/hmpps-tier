@@ -14,7 +14,7 @@ import java.time.LocalDate
 class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val webClient: WebClient) {
 
   fun getRegistrations(crn: String): Pair<List<Registration>, List<Registration>> =
-    getRegistrationsCall(crn).partition { it.type.code == IOM_NOMINAL.registerCode }
+    getRegistrationsCall(crn).sortedByDescending { it.startDate }.partition { it.type.code == IOM_NOMINAL.registerCode }
 
   fun getDeliusAssessments(crn: String): DeliusAssessmentsDto? {
     return webClient
