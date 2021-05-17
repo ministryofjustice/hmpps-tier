@@ -16,13 +16,13 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   fun getRegistrations(crn: String): Pair<List<Registration>, List<Registration>> =
     getRegistrationsCall(crn).partition { it.type.code == IOM_NOMINAL.registerCode }
 
-  fun getDeliusAssessments(crn: String): DeliusAssessments {
+  fun getDeliusAssessments(crn: String): DeliusAssessmentsDto? {
     return webClient
       .get()
       .uri("/offenders/crn/$crn/assessments")
       .retrieve()
-      .bodyToMono(DeliusAssessments::class.java)
-      .block() ?: DeliusAssessments(BigDecimal(0), 0)
+      .bodyToMono(DeliusAssessmentsDto::class.java)
+      .block()
   }
 
   fun getConvictionsWithSentences(crn: String): List<Conviction> {
@@ -179,11 +179,11 @@ data class Offender @JsonCreator constructor(
   val gender: String?,
 )
 
-data class DeliusAssessments @JsonCreator constructor(
+data class DeliusAssessmentsDto @JsonCreator constructor(
   @JsonProperty("rsrScore")
-  val rsr: BigDecimal,
+  val rsr: BigDecimal?,
   @JsonProperty("ogrsScore")
-  val ogrs: Int
+  val ogrs: Int?
 )
 
 data class KeyValue @JsonCreator constructor(

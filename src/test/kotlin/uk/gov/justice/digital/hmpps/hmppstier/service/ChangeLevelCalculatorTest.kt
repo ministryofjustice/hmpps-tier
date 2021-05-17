@@ -13,7 +13,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
+import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessmentsDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
@@ -81,8 +81,8 @@ internal class ChangeLevelCalculatorTest {
       assertThat(result.points).isEqualTo(0)
     }
 
-    private fun getValidAssessments(ogrs: Int?): DeliusAssessments {
-      return DeliusAssessments(
+    private fun getValidAssessments(ogrs: Int?): DeliusAssessmentsDto {
+      return DeliusAssessmentsDto(
         rsr = null,
         ogrs = ogrs
       )

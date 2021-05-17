@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
+import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessmentsDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
 import uk.gov.justice.digital.hmpps.hmppstier.client.Nsi
 import uk.gov.justice.digital.hmpps.hmppstier.client.Offence
@@ -82,8 +82,8 @@ internal class ProtectLevelCalculatorTest {
       validate()
     }
 
-    private fun getValidAssessments(rsr: RsrThresholds): DeliusAssessments {
-      return DeliusAssessments(
+    private fun getValidAssessments(rsr: RsrThresholds): DeliusAssessmentsDto {
+      return DeliusAssessmentsDto(
         rsr = rsr.num.plus(BigDecimal(1)),
         ogrs = null
       )
@@ -117,7 +117,7 @@ internal class ProtectLevelCalculatorTest {
     @Test
     fun `should return 0 for RSR null no assessment object`() {
       setup()
-      val nulLDeliusAssessments: DeliusAssessments? = null
+      val nulLDeliusAssessments: DeliusAssessmentsDto? = null
       val result = service.calculateProtectLevel(crn, null, nulLDeliusAssessments, listOf(), listOf())
       assertThat(result.points).isEqualTo(0)
       validate()
@@ -125,7 +125,7 @@ internal class ProtectLevelCalculatorTest {
 
     @Test
     fun `Should return RSR`() {
-      val assessment = DeliusAssessments(
+      val assessment = DeliusAssessmentsDto(
         rsr = BigDecimal(5),
         ogrs = null,
       )
@@ -136,8 +136,8 @@ internal class ProtectLevelCalculatorTest {
       validate()
     }
 
-    private fun getValidAssessments(): DeliusAssessments {
-      return DeliusAssessments(
+    private fun getValidAssessments(): DeliusAssessmentsDto {
+      return DeliusAssessmentsDto(
         rsr = null,
         ogrs = null
       )

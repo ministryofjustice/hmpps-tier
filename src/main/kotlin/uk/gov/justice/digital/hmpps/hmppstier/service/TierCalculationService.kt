@@ -20,7 +20,8 @@ class TierCalculationService(
   private val changeLevelCalculator: ChangeLevelCalculator,
   private val protectLevelCalculator: ProtectLevelCalculator,
   private val assessmentApiService: AssessmentApiService,
-  private val communityApiClient: CommunityApiClient,
+  private val communityApiService: CommunityApiService,
+  private val communityApiClient: CommunityApiClient, // Deprecated
   private val successUpdater: SuccessUpdater,
   private val telemetryService: TelemetryService,
   @Value("\${calculation.version}")private val calculationVersion: Int
@@ -53,7 +54,7 @@ class TierCalculationService(
   private fun calculateTier(crn: String): TierCalculationEntity {
 
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
-    val (rsr, ogrs) = communityApiClient.getDeliusAssessments(crn)
+    val (rsr, ogrs) = communityApiService.getDeliusAssessments(crn)
     val (iomNominal, otherRegistrations) = communityApiClient.getRegistrations(crn)
     val deliusConvictions = communityApiClient.getConvictionsWithSentences(crn)
     val needs = assessmentApiService.getAssessmentNeeds(offenderAssessment)
