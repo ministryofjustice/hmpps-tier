@@ -9,8 +9,8 @@ oauth:
   endpoint:
     url: http://localhost:9090/auth
   client:
-    id: community-api-client
-    secret: community-api-client
+    id: hmpps-tier
+    secret: clientsecret
 
 community:
   endpoint:
