@@ -21,7 +21,7 @@ spring:
       maximum-pool-size: 25
 
   flyway:
-    locations: classpath:db/migration
+    locations: classpath:db/migration/postgres,classpath:db/migration/all
 
   security:
     oauth2:
