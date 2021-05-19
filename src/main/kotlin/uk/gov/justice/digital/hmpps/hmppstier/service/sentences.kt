@@ -1,4 +1,6 @@
-import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
+package uk.gov.justice.digital.hmpps.hmppstier.service
 
-fun isCustodial(sentence: Sentence): Boolean =
-  sentence.sentenceType.code in arrayOf("NC", "SC")
+import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
+
+fun Sentence.isCustodial(): Boolean =
+  this.sentenceType in arrayOf("NC", "SC")

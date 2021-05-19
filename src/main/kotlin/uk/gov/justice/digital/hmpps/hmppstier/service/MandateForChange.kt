@@ -1,11 +1,10 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import isCustodial
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
-import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.Requirement
-import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
+import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
 
 @Service
 class MandateForChange(
@@ -15,7 +14,7 @@ class MandateForChange(
     convictions
       .filter { isCurrent(it.sentence) }
       .none {
-        isCustodial(it.sentence) || hasNonRestrictiveRequirements(crn, it.convictionId)
+        it.sentence.isCustodial() || hasNonRestrictiveRequirements(crn, it.convictionId)
       }
 
   private fun isCurrent(sentence: Sentence): Boolean =
