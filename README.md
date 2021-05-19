@@ -32,38 +32,58 @@ In order to run the service locally you need to add HMPPS auth token to your req
 Make sure you have the necessary Access key and secret set as environment variables. 
 You can do that by running this command before starting the app
 
-```eval $(cloud-platform decode-secret -n hmpps-tier-dev -s hmpps-tier-offender-events-sqs-instance-output --export-aws-credentials)```
+```sh
+eval $(cloud-platform decode-secret -n hmpps-tier-dev -s hmpps-tier-offender-events-sqs-instance-output --export-aws-credentials)
+```
 
 This uses SPRING_PROFILES_ACTIVE=dev which has an in-memory database.
 
-```./gradlew bootRun```
+```sh
+./gradlew bootRun
+```
 
-##### Against localstack
+##### Against all local dependencies in docker
+This will bring up community-api, assessments-api and all the required queues and topics. The seed data will allow a successful tier calculation for CRN X320741
 
-```docker-compose-up```
+```sh
+docker-compose-up
+```
+
+Run the HmppsTier application with `SPRING_PROFILES_ACTIVE=dev,localstack,docker`
 
 Localstack has SQS and SNS. The queue and topic are set up and populated in `setup-sqs.sh` You can access them from the command line as per the following example
 
-```AWS_ACCESS_KEY_ID=key AWS_SECRET_ACCESS_KEY=secret aws sqs get-queue-attributes --queue-url http://localhost:4576/queue/Digital-Prison-Services-dev-hmpps_tier_offender_events_queue --attribute-names ApproximateNumberOfMessages --endpoint-url=http://localhost:4576```
+```sh
+AWS_ACCESS_KEY_ID=key AWS_SECRET_ACCESS_KEY=secret aws sqs get-queue-attributes --queue-url http://localhost:4576/queue/Digital-Prison-Services-dev-hmpps_tier_offender_events_queue --attribute-names ApproximateNumberOfMessages --endpoint-url=http://localhost:4576
+```
+
+Force a local tier calculation by publishing a message to the SNS topic like this: 
+```sh
+AWS_ACCESS_KEY_ID=key AWS_SECRET_ACCESS_KEY=secret aws --endpoint-url=http://localhost:4575 sns publish \
+    --topic-arn arn:aws:sns:eu-west-2:000000000000:offender_events \
+    --message-attributes '{"eventType": {"DataType": "String","StringValue": "OFFENDER_MANAGEMENT_TIER_CALCULATION_REQUIRED"},"source": {"DataType": "String","StringValue": "delius"},"id": {"DataType": "String","StringValue": "fcf89ef7-f6e8-ee95-326f-8ce87d3b8ea0"},"contentType": {"DataType": "String","StringValue": "text/plain;charset=UTF-8"},"timestamp": {"DataType": "Number","StringValue": "1611149702333"}}' \
+    --message '{"offenderId":2500468261,"crn":"X320741","sourceId":11174,"eventDatetime":"2021-01-20T13:34:59"}'
+```
+    
 
 ### Build service and run tests  
 
 #### testing and code coverage
 
 Fix kotlin linting errors
-```./gradlew fix```
+```sh
+./gradlew fix
+```
 
 Run lint and test
-```docker-compose-up localstack```
-```./gradlew check```
+The integration and cucumber tests need localstack running
 
-Run tests and generate a coverage report in build/reports/coverage/index.html
-```./gradlew jacocoTestReport```
+```sh
+docker-compose-up localstack
+./gradlew check
+```
 
-Run tests, generate reports and fail build if coverage is below the threshold
-```
-/gradlew jacocoTestCoverageVerification
-```
+This runs tests and generate a coverage report in build/reports/coverage/index.html
 
 ##### Cucumber
 
@@ -104,17 +124,17 @@ state of csr-api.
 #### Health and info Endpoints (curl)  
   
 ##### Application info  
-```  
+```sh
 curl -X GET http://localhost:8080/info  
 ```  
   
 ##### Application health  
-```  
+```sh
 curl -X GET http://localhost:8080/health  
 ```  
   
 ##### Application ping  
-```  
+```sh 
 curl -X GET http://localhost:8080/ping  
 ```  
 
