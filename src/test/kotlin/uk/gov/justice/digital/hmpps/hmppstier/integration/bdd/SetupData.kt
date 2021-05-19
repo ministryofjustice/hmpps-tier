@@ -63,9 +63,9 @@ class SetupData(
   private var rosh: String = "NO_ROSH"
   private var rsr: BigDecimal = BigDecimal(0)
   private var assessmentAnswers: MutableMap<String, String> = mutableMapOf(
-    Pair(IMPULSIVITY.answerCode, "0"),
-    Pair(TEMPER_CONTROL.answerCode, "0"),
-    Pair(PARENTING_RESPONSIBILITIES.answerCode, "NO")
+    IMPULSIVITY.answerCode to "0",
+    TEMPER_CONTROL.answerCode to "0",
+    PARENTING_RESPONSIBILITIES.answerCode to "NO"
   )
 
   fun setRsr(rsr: String) {

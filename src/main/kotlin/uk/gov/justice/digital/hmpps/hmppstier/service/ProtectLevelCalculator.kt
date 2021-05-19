@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
@@ -29,6 +28,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_B_
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_B_RSR_UPPER
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_RSR_LOWER
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_RSR_UPPER
+import java.math.BigDecimal
 
 @Service
 class ProtectLevelCalculator(
@@ -38,13 +38,13 @@ class ProtectLevelCalculator(
   fun calculateProtectLevel(
     crn: String,
     offenderAssessment: OffenderAssessment?,
-    deliusAssessments: DeliusAssessments?,
+    rsrScore: BigDecimal,
     registrations: Collection<Registration>,
     convictions: Collection<Conviction>
   ): TierLevel<ProtectLevel> {
 
     val points = mapOf(
-      RSR to getRsrPoints(deliusAssessments),
+      RSR to getRsrPoints(rsrScore),
       ROSH to getRoshPoints(registrations),
       MAPPA to getMappaPoints(registrations),
       COMPLEXITY to getComplexityPoints(registrations),
@@ -62,15 +62,12 @@ class ProtectLevelCalculator(
     }
   }
 
-  private fun getRsrPoints(deliusAssessments: DeliusAssessments?): Int =
-    deliusAssessments?.rsr
-      ?.let { rsr ->
-        when (rsr) {
-          in TIER_B_RSR_LOWER.num..TIER_B_RSR_UPPER.num -> 20
-          in TIER_C_RSR_LOWER.num..TIER_C_RSR_UPPER.num -> 10
-          else -> 0
-        }
-      } ?: 0
+  private fun getRsrPoints(rsr: BigDecimal): Int =
+    when (rsr) {
+      in TIER_B_RSR_LOWER.num..TIER_B_RSR_UPPER.num -> 20
+      in TIER_C_RSR_LOWER.num..TIER_C_RSR_UPPER.num -> 10
+      else -> 0
+    }
 
   private fun getRoshPoints(registrations: Collection<Registration>): Int =
     registrations
