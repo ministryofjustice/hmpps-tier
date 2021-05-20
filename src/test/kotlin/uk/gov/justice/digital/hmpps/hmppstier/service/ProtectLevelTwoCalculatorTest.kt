@@ -170,27 +170,6 @@ internal class ProtectLevelTwoCalculatorTest {
     }
 
     @Test
-    fun `should not count sentence null startDate`() {
-
-      val assessment = getValidAssessment()
-
-      val convictionId = 54321L
-      val sentence = Sentence(null, "SC", LocalDate.now(clock), LocalDate.now(clock).plusMonths(10))
-      val convictions = getValidConviction(convictionId, sentence, "Not Indeterminate")
-
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
-      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
-      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
-
-      val result = service.calculateProtectLevel(crn, assessment, BigDecimal.ZERO, listOf(), convictions)
-      assertThat(result.points).isEqualTo(0)
-
-      verify { communityApiClient.getOffender(crn) }
-      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
-      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
-    }
-
-    @Test
     fun `should not count sentence null endDate`() {
 
       val assessment = getValidAssessment()
