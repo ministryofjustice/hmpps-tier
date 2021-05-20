@@ -15,4 +15,5 @@ class CommunityApiService(
 
   fun getConvictionsWithSentences(crn: String): List<Conviction> =
     communityApiClient.getConvictions(crn).filterNot { it.sentence == null }.map { Conviction.from(it) }
+
 }
