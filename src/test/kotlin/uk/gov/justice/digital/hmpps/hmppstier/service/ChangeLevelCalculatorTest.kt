@@ -12,10 +12,9 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
-import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
-import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
+import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -58,7 +57,7 @@ internal class ChangeLevelCalculatorTest {
     }
 
     private fun getValidConviction(): List<Conviction> {
-      return listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(), "101"))
+      return listOf(Conviction(54321L, Sentence(null, "SC", LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(), "101"))
     }
   }
 
@@ -81,7 +80,7 @@ internal class ChangeLevelCalculatorTest {
     }
 
     private fun getValidConviction(): List<Conviction> {
-      return listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(), "101"))
+      return listOf(Conviction(54321L, Sentence(null, "SC", LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(), "101"))
     }
   }
 }
