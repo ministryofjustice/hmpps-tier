@@ -120,7 +120,7 @@ data class ConvictionDto @JsonCreator constructor(
   val sentence: SentenceDto?,
 
   @JsonProperty("offences")
-  val offences: List<Offence?>,
+  val offences: List<Offence>,
 
   @JsonProperty("latestCourtAppearanceOutcome")
   val latestCourtAppearanceOutcome: KeyValue?

@@ -14,5 +14,5 @@ class CommunityApiService(
     DeliusAssessments.from(communityApiClient.getDeliusAssessments(crn))
 
   fun getConvictionsWithSentences(crn: String): List<Conviction> =
-    Conviction.from(communityApiClient.getConvictions(crn).filterNot { it.sentence == null })
+    communityApiClient.getConvictions(crn).filterNot { it.sentence == null }.map { Conviction.from(it) }
 }
