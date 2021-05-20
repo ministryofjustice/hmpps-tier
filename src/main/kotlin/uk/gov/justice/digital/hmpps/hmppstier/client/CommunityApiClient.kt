@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor.IOM_NOMINAL
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -15,15 +14,14 @@ import java.time.LocalDate
 class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val webClient: WebClient) {
 
   fun getRegistrations(crn: String): Pair<List<Registration>, List<Registration>> =
-    getRegistrationsCall(crn).sortedByDescending { it.startDate }
-      .partition { ComplexityFactor.from(it.type.code) == IOM_NOMINAL }
+    getRegistrationsCall(crn).sortedByDescending { it.startDate }.partition { it.type.code == IOM_NOMINAL.registerCode }
 
-  fun getDeliusAssessments(crn: String): DeliusAssessments? {
+  fun getDeliusAssessments(crn: String): DeliusAssessmentsDto? {
     return webClient
       .get()
       .uri("/offenders/crn/$crn/assessments")
       .retrieve()
-      .bodyToMono(DeliusAssessments::class.java)
+      .bodyToMono(DeliusAssessmentsDto::class.java)
       .block()
   }
 
@@ -181,7 +179,7 @@ data class Offender @JsonCreator constructor(
   val gender: String?,
 )
 
-data class DeliusAssessments @JsonCreator constructor(
+data class DeliusAssessmentsDto @JsonCreator constructor(
   @JsonProperty("rsrScore")
   val rsr: BigDecimal?,
   @JsonProperty("ogrsScore")
