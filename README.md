@@ -50,6 +50,7 @@ docker-compose-up
 ```
 
 Run the HmppsTier application with `SPRING_PROFILES_ACTIVE=dev,localstack,docker`
+If you want to write the tier back into community-api, also run hmpps-tier-to-delius-update locally
 
 Localstack has SQS and SNS. The queue and topic are set up and populated in `setup-sqs.sh` You can access them from the command line as per the following example
 
