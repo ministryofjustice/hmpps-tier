@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
-import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
 import uk.gov.justice.digital.hmpps.hmppstier.client.Nsi
 import uk.gov.justice.digital.hmpps.hmppstier.client.Offence
@@ -22,7 +21,8 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.OffenceDetail
 import uk.gov.justice.digital.hmpps.hmppstier.client.Offender
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
-import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
+import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
@@ -688,7 +688,7 @@ internal class ProtectLevelCalculatorTest {
   @Nested
   @DisplayName("Get Breach Recall Tests")
   inner class GetBreachRecallTests {
-    private val irrelevantSentenceType: KeyValue = KeyValue("irrelevant")
+    private val irrelevantSentenceType = "Irrelevant"
 
     @Test
     fun `Should return Breach true if present and valid terminationDate after cutoff`() {
@@ -870,7 +870,7 @@ internal class ProtectLevelCalculatorTest {
 
     private fun getValidConviction(): List<Conviction> {
       val offence = Offence(OffenceDetail(OffenceCode._056.code))
-      return listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(offence), "101"))
+      return listOf(Conviction(54321L, Sentence(null, "SC", LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(offence.offenceDetail.mainCategoryCode), "101"))
     }
   }
 }
