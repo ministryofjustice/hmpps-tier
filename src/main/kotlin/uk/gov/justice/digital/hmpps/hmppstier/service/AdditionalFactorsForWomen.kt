@@ -74,7 +74,7 @@ class AdditionalFactorsForWomen(
     ) 2 else 0
 
   private fun Sentence.isTenMonthsOrOver(): Boolean =
-    this.expectedSentenceEndDate != null && DAYS.between(this.startDate, this.expectedSentenceEndDate) >= TEN_MONTHS_IN_DAYS
+    this.expectedEndDate != null && DAYS.between(this.startDate, this.expectedEndDate) >= TEN_MONTHS_IN_DAYS
 
   private fun Conviction.isIndeterminate(): Boolean =
     this.latestCourtAppearanceOutcome == INDETERMINATE_SENTENCE

@@ -7,8 +7,10 @@ data class Sentence constructor(
   val terminationDate: LocalDate?,
   val sentenceType: String,
   val startDate: LocalDate,
-  val expectedSentenceEndDate: LocalDate?,
+  val expectedEndDate: LocalDate?,
 ) {
+
+  fun isCustodial(): Boolean = this.sentenceType in arrayOf("NC", "SC")
 
   companion object {
 
