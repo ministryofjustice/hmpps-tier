@@ -56,15 +56,20 @@ class ProtectLevelCalculator(
       .minus(minOf(points.getOrDefault(RSR, 0), points.getOrDefault(ROSH, 0)))
 
     return when {
-      total >= 30 && isHighMappaOrVeryHighRosh(points) -> TierLevel(A, total, points)
+      total >= 30 && hasHighMappaOrVeryHighRosh(points) -> TierLevel(A, total, points)
       total >= 20 -> TierLevel(B, total, points)
       total in 10..19 -> TierLevel(C, total, points)
       else -> TierLevel(D, total, points)
     }
   }
 
-  private fun isHighMappaOrVeryHighRosh(points: Map<CalculationRule, Int>): Boolean =
-    points[MAPPA]!! >= 30 || points[ROSH]!! >= 30
+  private fun hasHighMappaOrVeryHighRosh(points: Map<CalculationRule, Int>): Boolean =
+    when {
+      points.getOrDefault(MAPPA, 0) >= getMappaPoints(M2) -> true
+      points.getOrDefault(MAPPA, 0) >= getMappaPoints(M3) -> true
+      points.getOrDefault(ROSH, 0) >= getRoshPoints(VERY_HIGH) -> true
+      else -> false
+    }
 
   private fun getRsrPoints(rsr: BigDecimal): Int =
     when (rsr) {
@@ -77,26 +82,28 @@ class ProtectLevelCalculator(
     registrations
       .mapNotNull { Rosh.from(it.type.code) }
       .firstOrNull()
-      .let { rosh ->
-        when (rosh) {
-          VERY_HIGH -> 30
-          HIGH -> 20
-          MEDIUM -> 10
-          else -> 0
-        }
-      }
+      .let { rosh -> getRoshPoints(rosh) }
+
+  private fun getRoshPoints(rosh: Rosh?): Int =
+    when (rosh) {
+      VERY_HIGH -> 30
+      HIGH -> 20
+      MEDIUM -> 10
+      else -> 0
+    }
 
   private fun getMappaPoints(registrations: Collection<Registration>): Int =
     registrations
       .mapNotNull { Mappa.from(it.registerLevel?.code) }
       .firstOrNull()
-      .let { mappa ->
-        when (mappa) {
-          M3, M2 -> 30
-          M1 -> 5
-          else -> 0
-        }
-      }
+      .let { mappa -> getMappaPoints(mappa) }
+
+  private fun getMappaPoints(mappa: Mappa?): Int =
+    when (mappa) {
+      M3, M2 -> 30
+      M1 -> 5
+      else -> 0
+    }
 
   private fun getComplexityPoints(registrations: Collection<Registration>): Int =
     registrations
