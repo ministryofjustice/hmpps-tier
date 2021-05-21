@@ -14,13 +14,12 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
-import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
 import uk.gov.justice.digital.hmpps.hmppstier.client.Offence
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenceDetail
 import uk.gov.justice.digital.hmpps.hmppstier.client.Offender
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
-import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
+import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import java.math.BigDecimal
 import java.time.Clock
@@ -72,7 +71,7 @@ internal class ProtectLevelTwoCalculatorTest {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       val offence = Offence(OffenceDetail(OffenceCode._056.code))
-      val convictions = listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(offence), "101"))
+      val convictions = listOf(Conviction(54321L, Sentence(null, "SC", LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(offence.offenceDetail.mainCategoryCode), "101"))
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
@@ -92,7 +91,7 @@ internal class ProtectLevelTwoCalculatorTest {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       val offence = Offence(OffenceDetail(OffenceCode._056.code))
-      val convictions = listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(offence), "101"))
+      val convictions = listOf(Conviction(54321L, Sentence(null, "SC", LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(offence.offenceDetail.mainCategoryCode), "101"))
 
       every { communityApiClient.getOffender(crn) } returns Offender("Male")
 
@@ -109,7 +108,7 @@ internal class ProtectLevelTwoCalculatorTest {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
       val offence = Offence(OffenceDetail("Any Invalid Code"))
-      val convictions = listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(offence), "101"))
+      val convictions = listOf(Conviction(54321L, Sentence(null, "SC", LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(offence.offenceDetail.mainCategoryCode), "101"))
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
@@ -134,7 +133,7 @@ internal class ProtectLevelTwoCalculatorTest {
       val assessment = getValidAssessment()
 
       val convictionId = 54321L
-      val sentence = Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusMonths(11))
+      val sentence = Sentence(null, "SC", LocalDate.now(clock), LocalDate.now(clock).plusMonths(11))
       val convictions = getValidConviction(convictionId, sentence, "Not Indeterminate")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
@@ -155,7 +154,7 @@ internal class ProtectLevelTwoCalculatorTest {
       val assessment = getValidAssessment()
 
       val convictionId = 54321L
-      val sentence = Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusMonths(10))
+      val sentence = Sentence(null, "SC", LocalDate.now(clock), LocalDate.now(clock).plusMonths(10))
       val convictions = getValidConviction(convictionId, sentence, "Not Indeterminate")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
@@ -171,33 +170,12 @@ internal class ProtectLevelTwoCalculatorTest {
     }
 
     @Test
-    fun `should not count sentence null startDate`() {
-
-      val assessment = getValidAssessment()
-
-      val convictionId = 54321L
-      val sentence = Sentence(null, KeyValue("SC"), null, LocalDate.now(clock).plusMonths(10))
-      val convictions = getValidConviction(convictionId, sentence, "Not Indeterminate")
-
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
-      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
-      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
-
-      val result = service.calculateProtectLevel(crn, assessment, BigDecimal.ZERO, listOf(), convictions)
-      assertThat(result.points).isEqualTo(0)
-
-      verify { communityApiClient.getOffender(crn) }
-      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
-      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
-    }
-
-    @Test
     fun `should not count sentence null endDate`() {
 
       val assessment = getValidAssessment()
 
       val convictionId = 54321L
-      val sentence = Sentence(null, KeyValue("SC"), LocalDate.now(), null)
+      val sentence = Sentence(null, "SC", LocalDate.now(clock), null)
       val convictions = getValidConviction(convictionId, sentence, "Not Indeterminate")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
@@ -218,7 +196,7 @@ internal class ProtectLevelTwoCalculatorTest {
       val assessment = getValidAssessment()
 
       val convictionId = 54321L
-      val sentence = Sentence(null, KeyValue("SC"), null, null)
+      val sentence = Sentence(null, "SC", LocalDate.now(), null)
       val convictions = getValidConviction(convictionId, sentence, "Not Indeterminate")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
@@ -239,7 +217,7 @@ internal class ProtectLevelTwoCalculatorTest {
       val assessment = getValidAssessment()
 
       val convictionId = 54321L
-      val sentence = Sentence(null, KeyValue("SC"), null, null)
+      val sentence = Sentence(null, "SC", LocalDate.now(clock), null)
       val convictions = getValidConviction(convictionId, sentence, "303")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
@@ -260,7 +238,7 @@ internal class ProtectLevelTwoCalculatorTest {
       val assessment = getValidAssessment()
 
       val convictionId = 54321L
-      val sentence = Sentence(null, KeyValue("SC"), null, null)
+      val sentence = Sentence(null, "SC", LocalDate.now(clock), null)
       val convictions = getValidConviction(convictionId, sentence, "303")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Male")
@@ -276,7 +254,7 @@ internal class ProtectLevelTwoCalculatorTest {
       val assessment = getValidAssessment()
 
       val convictionId = 54321L
-      val sentence = Sentence(null, KeyValue("HG"), null, null)
+      val sentence = Sentence(null, "HG", LocalDate.now(clock), null)
       val convictions = getValidConviction(convictionId, sentence, "303")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")
@@ -297,7 +275,7 @@ internal class ProtectLevelTwoCalculatorTest {
       val assessment = getValidAssessment()
 
       val convictionId = 54321L
-      val sentence = Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusMonths(11))
+      val sentence = Sentence(null, "SC", LocalDate.now(clock), LocalDate.now(clock).plusMonths(11))
       val convictions = getValidConviction(convictionId, sentence, "303")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Female")

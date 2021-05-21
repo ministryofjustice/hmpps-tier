@@ -15,9 +15,10 @@ internal class DeliusAssessmentsTest {
 
     @Test
     fun `It should construct using from`() {
-      val deliusAssessments = DeliusAssessments.from(DeliusAssessmentsDto(BigDecimal.TEN, 50))
-      Assertions.assertThat(deliusAssessments.rsr).isEqualTo(BigDecimal.TEN)
-      Assertions.assertThat(deliusAssessments.ogrs).isEqualTo(50)
+      val deliusAssessmentsDto = DeliusAssessmentsDto(BigDecimal.TEN, 50)
+      val deliusAssessments = DeliusAssessments.from(deliusAssessmentsDto)
+      Assertions.assertThat(deliusAssessments.rsr).isEqualTo(deliusAssessmentsDto.rsr)
+      Assertions.assertThat(deliusAssessments.ogrs).isEqualTo(deliusAssessmentsDto.ogrs)
     }
 
     @Test
