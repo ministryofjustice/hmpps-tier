@@ -223,7 +223,7 @@ internal class CommunityApiServiceTest {
         )
 
       val result = communityApiService.getMappa(registrations)
-      Assertions.assertThat(result).isEqualTo(Mappa.M3)
+      Assertions.assertThat(result).isNull()
     }
   }
 
@@ -277,7 +277,7 @@ internal class CommunityApiServiceTest {
         )
 
       val result = communityApiService.getComplexityFactors(registrations)
-      Assertions.assertThat(result.size).isEqualTo(0)
+      Assertions.assertThat(result.size).isEqualTo(1)
     }
 
     @Test
