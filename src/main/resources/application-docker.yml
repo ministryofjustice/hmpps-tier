@@ -3,15 +3,18 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: https://localhost/auth/.well-known/jwks.json
+          jwk-set-uri: http://localhost:9090/auth/.well-known/jwks.json
 
 oauth:
   endpoint:
-    url: localhost/auth
+    url: http://localhost:9090/auth
+  client:
+    id: hmpps-tier
+    secret: clientsecret
 
 community:
   endpoint:
-    url: localhost
+    url: http://localhost:8091/secure
 assessment:
   endpoint:
-    url: localhost
+    url: http://localhost:8092

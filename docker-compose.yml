@@ -28,5 +28,43 @@ services:
       - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
       - $PWD/src/test/resources/localstack:/docker-entrypoint-initaws.d
+  community-api:
+    image: quay.io/hmpps/community-api:latest
+    networks:
+      - hmpps
+    container_name: community-api
+    ports:
+     - "8091:8080"
+    healthcheck:
+     test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=dev,dev-seed
+  assessments-api:
+    image: quay.io/hmpps/offender-assessments-api:latest
+    networks:
+      - hmpps
+    container_name: assessments-api
+    ports:
+     - "8092:8080"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+    environment:
+      - SERVER_PORT=8080
+      - SPRING_PROFILES_ACTIVE=dev
+    depends_on:
+      - oauth
+  oauth:
+    image: quay.io/hmpps/hmpps-auth:latest
+    networks:
+      - hmpps
+    container_name: oauth
+    ports:
+      - "9090:9090"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9090/auth/health" ]
+    environment:
+      - SERVER_PORT=9090
+      - SPRING_PROFILES_ACTIVE=dev
 networks:
   hmpps:

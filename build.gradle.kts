@@ -163,5 +163,5 @@ tasks.register("fix") {
 }
 
 tasks.named<JavaExec>("bootRun") {
-  systemProperty("spring.profiles.active", "dev,localstack")
+  systemProperty("spring.profiles.active", "dev,localstack,docker")
 }

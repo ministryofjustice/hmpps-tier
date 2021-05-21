@@ -25,6 +25,3 @@ logging:
 
 server:
   shutdown: immediate
-
-community.endpoint.url: localhost:8092
-assessment.endpoint.url: localhost:8091
