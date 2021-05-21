@@ -46,7 +46,7 @@ This uses SPRING_PROFILES_ACTIVE=dev which has an in-memory database.
 This will bring up community-api, assessments-api and all the required queues and topics. The seed data will allow a successful tier calculation for CRN X320741
 
 ```sh
-docker-compose-up
+docker-compose up
 ```
 
 Run the HmppsTier application with `SPRING_PROFILES_ACTIVE=dev,localstack,docker`
