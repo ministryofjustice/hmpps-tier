@@ -8,7 +8,7 @@ import org.mockserver.model.Parameter
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.TEMPER_CONTROL
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ArsonOrViolenceOffenceCode
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiFemaleAnswersResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiNoSeverityNeedsResponse
@@ -124,11 +124,11 @@ class SetupData(
   }
 
   fun setMainOffenceArson() {
-    this.mainOffence = OffenceCode._056.code
+    this.mainOffence = ArsonOrViolenceOffenceCode._056.code
   }
 
   fun setMainOffenceViolence() {
-    this.mainOffence = OffenceCode._001.code
+    this.mainOffence = ArsonOrViolenceOffenceCode._001.code
   }
 
   fun setMainOffenceAbstractingElectricity() {

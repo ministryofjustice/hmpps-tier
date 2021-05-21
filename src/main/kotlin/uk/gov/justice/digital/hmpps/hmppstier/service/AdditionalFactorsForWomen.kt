@@ -10,8 +10,9 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.TEMPER_CONTROL
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ArsonOrViolenceOffenceCode
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.HarassmentOffenceCode
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NsiOutcome
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import java.time.Clock
 import java.time.LocalDate
 import java.time.temporal.ChronoUnit.DAYS
@@ -34,11 +35,10 @@ class AdditionalFactorsForWomen(
         val breachRecallPoints = getBreachRecallComplexityPoints(crn, convictions)
 
         val violenceArsonPoints = if (calculationVersion > 1) getArsonOrViolencePoints(convictions) else 0
+        val harassmentPoints = if (calculationVersion > 1) getHarassmentPoints(convictions) else 0
+        val tenMonthsPlusOrIndeterminatePoints = if (calculationVersion > 1) getSentenceLengthPoints(convictions) else 0
 
-        val tenMonthsPlusOrIndeterminatePoints =
-          if (calculationVersion > 1) getSentenceLengthPoints(convictions) else 0
-
-        additionalFactorsPoints + breachRecallPoints + violenceArsonPoints + tenMonthsPlusOrIndeterminatePoints
+        additionalFactorsPoints + breachRecallPoints + violenceArsonPoints + harassmentPoints + tenMonthsPlusOrIndeterminatePoints
       }
       else -> 0
     }
@@ -68,7 +68,14 @@ class AdditionalFactorsForWomen(
   private fun getArsonOrViolencePoints(convictions: Collection<Conviction>): Int =
     if (convictions.flatMap { it.offences }
       .map { it.offenceDetail }.any {
-        OFFENCE_CODES.contains(it.mainCategoryCode)
+        ARSON_VIOLENCE_OFFENCE_CODES.contains(it.mainCategoryCode)
+      }
+    ) 2 else 0
+
+  private fun getHarassmentPoints(convictions: Collection<Conviction>): Int =
+    if (convictions.flatMap { it.offences }
+      .map { it.offenceDetail }.any {
+        HARASSMENT_OFFENCE_CODES.contains(it.mainCategoryCode)
       }
     ) 2 else 0
 
@@ -111,7 +118,8 @@ class AdditionalFactorsForWomen(
       sentence.terminationDate.isAfter(LocalDate.now(clock).minusYears(1).minusDays(1))
 
   companion object {
-    val OFFENCE_CODES = OffenceCode.values().map { it.code }
+    val ARSON_VIOLENCE_OFFENCE_CODES = ArsonOrViolenceOffenceCode.values().map { it.code }
+    val HARASSMENT_OFFENCE_CODES = HarassmentOffenceCode.values().map { it.code }
     val TEN_MONTHS_IN_DAYS: Long = 304
     val INDETERMINATE_SENTENCE: String = "303"
   }

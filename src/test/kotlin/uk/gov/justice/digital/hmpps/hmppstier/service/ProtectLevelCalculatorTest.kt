@@ -24,8 +24,8 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ArsonOrViolenceOffenceCode
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_RSR_LOWER
 import java.math.BigDecimal
@@ -869,7 +869,7 @@ internal class ProtectLevelCalculatorTest {
     }
 
     private fun getValidConviction(): List<Conviction> {
-      val offence = Offence(OffenceDetail(OffenceCode._056.code))
+      val offence = Offence(OffenceDetail(ArsonOrViolenceOffenceCode._056.code))
       return listOf(Conviction(54321L, Sentence(null, KeyValue("SC"), LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(offence), "101"))
     }
   }

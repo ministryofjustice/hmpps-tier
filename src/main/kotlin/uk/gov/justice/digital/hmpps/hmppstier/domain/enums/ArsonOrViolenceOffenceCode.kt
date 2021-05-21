@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.domain.enums
 
-enum class OffenceCode(val code: String) {
+enum class ArsonOrViolenceOffenceCode(val code: String) {
   /* Violence codes*/
   _MIG("MIG"),
   _000("000"),
