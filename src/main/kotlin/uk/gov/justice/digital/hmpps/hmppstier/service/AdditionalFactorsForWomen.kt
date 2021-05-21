@@ -1,12 +1,11 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import isCustodial
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
-import uk.gov.justice.digital.hmpps.hmppstier.client.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
-import uk.gov.justice.digital.hmpps.hmppstier.client.Sentence
+import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.TEMPER_CONTROL
@@ -66,25 +65,19 @@ class AdditionalFactorsForWomen(
     }
 
   private fun getArsonOrViolencePoints(convictions: Collection<Conviction>): Int =
-    if (convictions.flatMap { it.offences }
-      .map { it.offenceDetail }.any {
-        OFFENCE_CODES.contains(it.mainCategoryCode)
-      }
+    if (convictions.flatMap { it.offenceMainCategoryCodes }.any { OFFENCE_CODES.contains(it) }) 2 else 0
+
+  private fun getSentenceLengthPoints(convictions: Collection<Conviction>): Int =
+    if (convictions
+      .filter { it.sentence.isCustodial() }
+      .any { it.sentence.isTenMonthsOrOver() || it.isIndeterminate() }
     ) 2 else 0
 
-  private fun getSentenceLengthPoints(convictions: Collection<Conviction>): Int {
+  private fun Sentence.isTenMonthsOrOver(): Boolean =
+    this.expectedSentenceEndDate != null && DAYS.between(this.startDate, this.expectedSentenceEndDate) >= TEN_MONTHS_IN_DAYS
 
-    val custodialSentences = convictions.map { it.sentence }.filter { isCustodial(it) }
-    val custodialConvictions = convictions.filter { it.sentence in custodialSentences }
-
-    val longerThanTenMonths = custodialSentences.any {
-      it.startDate != null && it.expectedSentenceEndDate != null && sentenceTenMonthsOrOver(it)
-    }
-    val indeterminate = custodialConvictions.any { INDETERMINATE_SENTENCE == it.latestCourtAppearanceOutcome }
-    return if (longerThanTenMonths || indeterminate) 2 else 0
-  }
-
-  private fun sentenceTenMonthsOrOver(sentence: Sentence): Boolean = DAYS.between(sentence.startDate, sentence.expectedSentenceEndDate!!) >= TEN_MONTHS_IN_DAYS
+  private fun Conviction.isIndeterminate(): Boolean =
+    this.latestCourtAppearanceOutcome == INDETERMINATE_SENTENCE
 
   private fun getBreachRecallComplexityPoints(crn: String, convictions: Collection<Conviction>): Int =
     convictions
@@ -112,7 +105,7 @@ class AdditionalFactorsForWomen(
 
   companion object {
     val OFFENCE_CODES = OffenceCode.values().map { it.code }
-    val TEN_MONTHS_IN_DAYS: Long = 304
-    val INDETERMINATE_SENTENCE: String = "303"
+    const val TEN_MONTHS_IN_DAYS: Long = 304
+    const val INDETERMINATE_SENTENCE: String = "303"
   }
 }

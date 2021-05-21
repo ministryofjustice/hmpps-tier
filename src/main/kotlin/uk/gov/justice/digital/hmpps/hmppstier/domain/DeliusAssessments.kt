@@ -9,7 +9,7 @@ data class DeliusAssessments(
 ) {
 
   companion object {
-    infix fun from(dto: DeliusAssessmentsDto?): DeliusAssessments {
+    fun from(dto: DeliusAssessmentsDto?): DeliusAssessments {
       return DeliusAssessments(
         rsr = dto?.rsr ?: BigDecimal.ZERO,
         ogrs = dto?.ogrs ?: 0
