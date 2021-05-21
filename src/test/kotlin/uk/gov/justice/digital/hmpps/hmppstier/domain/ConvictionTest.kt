@@ -27,7 +27,7 @@ internal class ConvictionTest {
       Assertions.assertThat(conviction.offenceMainCategoryCodes).isEqualTo(convictionDto.offences.map { it.offenceDetail.mainCategoryCode })
       Assertions.assertThat(conviction.latestCourtAppearanceOutcome).isEqualTo(convictionDto.latestCourtAppearanceOutcome?.code)
 
-      Assertions.assertThat(conviction.sentence.expectedSentenceEndDate).isEqualTo(convictionDto.sentence?.expectedSentenceEndDate)
+      Assertions.assertThat(conviction.sentence.expectedEndDate).isEqualTo(convictionDto.sentence?.expectedSentenceEndDate)
       Assertions.assertThat(conviction.sentence.sentenceType).isEqualTo(convictionDto.sentence?.sentenceType?.code)
       Assertions.assertThat(conviction.sentence.startDate).isEqualTo(convictionDto.sentence?.startDate)
       Assertions.assertThat(conviction.sentence.terminationDate).isEqualTo(convictionDto.sentence?.terminationDate)
@@ -43,7 +43,7 @@ internal class ConvictionTest {
       Assertions.assertThat(conviction.offenceMainCategoryCodes).isEqualTo(convictionDto.offences.map { it.offenceDetail.mainCategoryCode })
       Assertions.assertThat(conviction.latestCourtAppearanceOutcome).isEqualTo(convictionDto.latestCourtAppearanceOutcome?.code)
 
-      Assertions.assertThat(conviction.sentence.expectedSentenceEndDate).isEqualTo(convictionDto.sentence?.expectedSentenceEndDate)
+      Assertions.assertThat(conviction.sentence.expectedEndDate).isEqualTo(convictionDto.sentence?.expectedSentenceEndDate)
       Assertions.assertThat(conviction.sentence.sentenceType).isEqualTo(convictionDto.sentence?.sentenceType?.code)
       Assertions.assertThat(conviction.sentence.startDate).isEqualTo(convictionDto.sentence?.startDate)
       Assertions.assertThat(conviction.sentence.terminationDate).isEqualTo(convictionDto.sentence?.terminationDate)
