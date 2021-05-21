@@ -5,6 +5,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.ADDITIONAL_FACTORS_FOR_WOMEN
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.COMPLEXITY
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.MAPPA
@@ -55,12 +56,15 @@ class ProtectLevelCalculator(
       .minus(minOf(points.getOrDefault(RSR, 0), points.getOrDefault(ROSH, 0)))
 
     return when {
-      total >= 30 -> TierLevel(A, total, points)
-      total in 20..29 -> TierLevel(B, total, points)
+      total >= 30 && isHighMappaOrVeryHighRosh(points) -> TierLevel(A, total, points)
+      total >= 20 -> TierLevel(B, total, points)
       total in 10..19 -> TierLevel(C, total, points)
       else -> TierLevel(D, total, points)
     }
   }
+
+  private fun isHighMappaOrVeryHighRosh(points: Map<CalculationRule, Int>): Boolean =
+    points[MAPPA]!! >= 30 || points[ROSH]!! >= 30
 
   private fun getRsrPoints(rsr: BigDecimal): Int =
     when (rsr) {
