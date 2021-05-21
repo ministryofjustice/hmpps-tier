@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
-import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.ADDITIONAL_FACTORS_FOR_WOMEN
@@ -37,17 +36,19 @@ class ProtectLevelCalculator(
 
   fun calculateProtectLevel(
     crn: String,
-    offenderAssessment: OffenderAssessment?,
-    rsrScore: BigDecimal,
-    registrations: Collection<Registration>,
-    convictions: Collection<Conviction>
+    offenderAssessment: OffenderAssessment? = null,
+    rsrScore: BigDecimal = BigDecimal.ZERO,
+    rosh: Rosh? = null,
+    mappa: Mappa? = null,
+    complexityFactors: Collection<ComplexityFactor> = listOf(),
+    convictions: Collection<Conviction> = listOf()
   ): TierLevel<ProtectLevel> {
 
     val points = mapOf(
       RSR to getRsrPoints(rsrScore),
-      ROSH to getRoshPoints(registrations),
-      MAPPA to getMappaPoints(registrations),
-      COMPLEXITY to getComplexityPoints(registrations),
+      ROSH to getRoshPoints(rosh),
+      MAPPA to getMappaPoints(mappa),
+      COMPLEXITY to getComplexityPoints(complexityFactors),
       ADDITIONAL_FACTORS_FOR_WOMEN to additionalFactorsForWomen.calculate(crn, convictions, offenderAssessment)
     )
 
@@ -69,35 +70,21 @@ class ProtectLevelCalculator(
       else -> 0
     }
 
-  private fun getRoshPoints(registrations: Collection<Registration>): Int =
-    registrations
-      .mapNotNull { Rosh.from(it.type.code) }
-      .firstOrNull()
-      .let { rosh ->
-        when (rosh) {
-          VERY_HIGH -> 30
-          HIGH -> 20
-          MEDIUM -> 10
-          else -> 0
-        }
-      }
+  private fun getRoshPoints(rosh: Rosh?): Int =
+    when (rosh) {
+      VERY_HIGH -> 30
+      HIGH -> 20
+      MEDIUM -> 10
+      else -> 0
+    }
 
-  private fun getMappaPoints(registrations: Collection<Registration>): Int =
-    registrations
-      .mapNotNull { Mappa.from(it.registerLevel?.code) }
-      .firstOrNull()
-      .let { mappa ->
-        when (mappa) {
-          M3, M2 -> 30
-          M1 -> 5
-          else -> 0
-        }
-      }
+  private fun getMappaPoints(mappa: Mappa?): Int =
+    when (mappa) {
+      M3, M2 -> 30
+      M1 -> 5
+      else -> 0
+    }
 
-  private fun getComplexityPoints(registrations: Collection<Registration>): Int =
-    registrations
-      .mapNotNull { ComplexityFactor.from(it.type.code) }
-      .distinct()
-      .count()
-      .times(2)
+  private fun getComplexityPoints(complexityFactors: Collection<ComplexityFactor>): Int =
+    complexityFactors.count().times(2)
 }
