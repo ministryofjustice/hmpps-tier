@@ -20,7 +20,10 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.Offender
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
+import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import java.math.BigDecimal
 import java.time.Clock
 import java.time.LocalDate
@@ -29,7 +32,7 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 
 @ExtendWith(MockKExtension::class)
-@DisplayName("Protect Level Calculator calulation version 2 tests")
+@DisplayName("Protect Level Calculator calculation version 2 tests")
 internal class ProtectLevelTwoCalculatorTest {
 
   private val clock = Clock.fixed(LocalDateTime.of(2020, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault())
@@ -46,6 +49,10 @@ internal class ProtectLevelTwoCalculatorTest {
   )
 
   private val crn = "Any Crn"
+
+  private fun calculateProtectLevel(crn: String, offenderAssessment: OffenderAssessment? = null, rsrScore: BigDecimal = BigDecimal.ZERO, rosh: Rosh? = null, convictions: Collection<Conviction> = listOf()): TierLevel<ProtectLevel> {
+    return service.calculateProtectLevel(crn, offenderAssessment, rsrScore, rosh, null, listOf(), convictions)
+  }
 
   @BeforeEach
   fun resetAllMocks() {
@@ -77,7 +84,7 @@ internal class ProtectLevelTwoCalculatorTest {
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
 
-      val result = service.calculateProtectLevel(crn, assessment, BigDecimal.ZERO, listOf(), convictions)
+      val result = calculateProtectLevel(crn = crn, offenderAssessment = assessment, convictions = convictions)
       assertThat(result.points).isEqualTo(2)
 
       verify { communityApiClient.getOffender(crn) }
@@ -95,7 +102,7 @@ internal class ProtectLevelTwoCalculatorTest {
 
       every { communityApiClient.getOffender(crn) } returns Offender("Male")
 
-      val result = service.calculateProtectLevel(crn, assessment, BigDecimal.ZERO, listOf(), convictions)
+      val result = calculateProtectLevel(crn = crn, offenderAssessment = assessment, convictions = convictions)
       assertThat(result.points).isEqualTo(0)
 
       verify { communityApiClient.getOffender(crn) }
@@ -114,7 +121,7 @@ internal class ProtectLevelTwoCalculatorTest {
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
 
-      val result = service.calculateProtectLevel(crn, assessment, BigDecimal.ZERO, listOf(), convictions)
+      val result = calculateProtectLevel(crn = crn, offenderAssessment = assessment, convictions = convictions)
       assertThat(result.points).isEqualTo(0)
 
       verify { communityApiClient.getOffender(crn) }
@@ -140,7 +147,7 @@ internal class ProtectLevelTwoCalculatorTest {
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
 
-      val result = service.calculateProtectLevel(crn, assessment, BigDecimal.ZERO, listOf(), convictions)
+      val result = calculateProtectLevel(crn = crn, offenderAssessment = assessment, convictions = convictions)
       assertThat(result.points).isEqualTo(2)
 
       verify { communityApiClient.getOffender(crn) }
@@ -161,7 +168,7 @@ internal class ProtectLevelTwoCalculatorTest {
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
 
-      val result = service.calculateProtectLevel(crn, assessment, BigDecimal.ZERO, listOf(), convictions)
+      val result = calculateProtectLevel(crn = crn, offenderAssessment = assessment, convictions = convictions)
       assertThat(result.points).isEqualTo(2)
 
       verify { communityApiClient.getOffender(crn) }
@@ -182,7 +189,7 @@ internal class ProtectLevelTwoCalculatorTest {
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
 
-      val result = service.calculateProtectLevel(crn, assessment, BigDecimal.ZERO, listOf(), convictions)
+      val result = calculateProtectLevel(crn = crn, offenderAssessment = assessment, convictions = convictions)
       assertThat(result.points).isEqualTo(0)
 
       verify { communityApiClient.getOffender(crn) }
@@ -203,7 +210,7 @@ internal class ProtectLevelTwoCalculatorTest {
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
 
-      val result = service.calculateProtectLevel(crn, assessment, BigDecimal.ZERO, listOf(), convictions)
+      val result = calculateProtectLevel(crn = crn, offenderAssessment = assessment, convictions = convictions)
       assertThat(result.points).isEqualTo(0)
 
       verify { communityApiClient.getOffender(crn) }
@@ -224,7 +231,7 @@ internal class ProtectLevelTwoCalculatorTest {
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
 
-      val result = service.calculateProtectLevel(crn, assessment, BigDecimal.ZERO, listOf(), convictions)
+      val result = calculateProtectLevel(crn = crn, offenderAssessment = assessment, convictions = convictions)
       assertThat(result.points).isEqualTo(2)
 
       verify { communityApiClient.getOffender(crn) }
@@ -242,7 +249,7 @@ internal class ProtectLevelTwoCalculatorTest {
       val convictions = getValidConviction(convictionId, sentence, "303")
 
       every { communityApiClient.getOffender(crn) } returns Offender("Male")
-      val result = service.calculateProtectLevel(crn, assessment, BigDecimal.ZERO, listOf(), convictions)
+      val result = calculateProtectLevel(crn = crn, offenderAssessment = assessment, convictions = convictions)
       assertThat(result.points).isEqualTo(0)
 
       verify { communityApiClient.getOffender(crn) }
@@ -261,7 +268,7 @@ internal class ProtectLevelTwoCalculatorTest {
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
 
-      val result = service.calculateProtectLevel(crn, assessment, BigDecimal.ZERO, listOf(), convictions)
+      val result = calculateProtectLevel(crn = crn, offenderAssessment = assessment, convictions = convictions)
       assertThat(result.points).isEqualTo(0)
 
       verify { communityApiClient.getOffender(crn) }
@@ -282,7 +289,7 @@ internal class ProtectLevelTwoCalculatorTest {
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
 
-      val result = service.calculateProtectLevel(crn, assessment, BigDecimal.ZERO, listOf(), convictions)
+      val result = calculateProtectLevel(crn = crn, offenderAssessment = assessment, convictions = convictions)
       assertThat(result.points).isEqualTo(2) // not 4
 
       verify { communityApiClient.getOffender(crn) }

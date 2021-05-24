@@ -5,7 +5,6 @@ import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import io.mockk.slot
 import io.mockk.verify
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
@@ -15,14 +14,12 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
-import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
-import java.math.BigDecimal
 import java.time.Clock
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -141,77 +138,6 @@ internal class TierCalculationServiceTest {
       assertThat(result).isNull()
 
       verify { tierCalculationRepository.findByCrnAndUuid(crn, calculationId) }
-    }
-  }
-
-  @Nested
-  @DisplayName("Calculate  Tier for Crn tests")
-  inner class CalculateTierForCrnTests {
-
-    @Test
-    fun `Should Call Collaborators Test value not changed`() {
-      every { assessmentApiService.getRecentAssessment(crn) } returns null // anything
-      every { assessmentApiService.getAssessmentNeeds(null) } returns mapOf() // anything
-      every { communityApiService.getDeliusAssessments(crn) } returns DeliusAssessments(BigDecimal.ZERO, 0) // anything
-      every { communityApiClient.getRegistrations(crn) } returns Pair(listOf(), listOf()) // anything
-      every { communityApiService.getConvictionsWithSentences(crn) } returns listOf() // anything
-
-      every { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) } returns protectLevelResult
-      every { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any(), any()) } returns changeLevelResult
-
-      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns validTierCalculationEntity
-
-      val slot = slot<TierCalculationEntity>()
-      every { tierCalculationRepository.save(capture(slot)) } answers { slot.captured }
-
-      service.calculateTierForCrn(crn)
-
-      // We don't update the SNS and recognise that is hasn't change.
-      verify(exactly = 0) { successUpdater.update(crn, slot.captured.uuid) }
-      verify { telemetryService.trackTierCalculated(crn, slot.captured, false) }
-
-      verify { assessmentApiService.getRecentAssessment(crn) }
-      verify { assessmentApiService.getAssessmentNeeds(null) }
-      verify { communityApiService.getDeliusAssessments(crn) }
-      verify { communityApiClient.getRegistrations(crn) }
-      verify { communityApiService.getConvictionsWithSentences(crn) }
-      verify { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) }
-      verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any(), any()) }
-      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
-      verify { tierCalculationRepository.save(capture(slot)) }
-    }
-
-    @Test
-    fun `Should Call Collaborators Test value changed`() {
-      every { assessmentApiService.getRecentAssessment(crn) } returns null // anything
-      every { assessmentApiService.getAssessmentNeeds(null) } returns mapOf() // anything
-      every { communityApiService.getDeliusAssessments(crn) } returns DeliusAssessments(BigDecimal.ZERO, 0)
-      every { communityApiClient.getRegistrations(crn) } returns Pair(listOf(), listOf()) // anything
-      every { communityApiService.getConvictionsWithSentences(crn) } returns listOf() // anything
-
-      every { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) } returns protectLevelResult
-      every { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any(), any()) } returns changeLevelResult
-
-      every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns null
-
-      val slot = slot<TierCalculationEntity>()
-      every { tierCalculationRepository.save(capture(slot)) } answers { slot.captured }
-
-      service.calculateTierForCrn(crn)
-
-      // We do update and recognise that is has changed.
-      verify { successUpdater.update(crn, slot.captured.uuid) }
-      verify { telemetryService.trackTierCalculated(crn, slot.captured, true) }
-
-      verify { assessmentApiService.getRecentAssessment(crn) }
-      verify { assessmentApiService.getAssessmentNeeds(null) }
-      verify { communityApiService.getDeliusAssessments(crn) }
-      verify { communityApiClient.getRegistrations(crn) }
-      verify { communityApiService.getConvictionsWithSentences(crn) }
-      verify { protectLevelCalculator.calculateProtectLevel(crn, any(), any(), any(), any()) }
-      verify { changeLevelCalculator.calculateChangeLevel(crn, any(), any(), any(), any(), any()) }
-      verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
-      verify { tierCalculationRepository.save(capture(slot)) }
     }
   }
 }
