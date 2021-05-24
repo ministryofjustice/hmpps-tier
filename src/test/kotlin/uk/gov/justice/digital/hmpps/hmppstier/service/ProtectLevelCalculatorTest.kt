@@ -54,8 +54,8 @@ internal class ProtectLevelCalculatorTest {
 
   private val crn = "Any Crn"
 
-  private fun calculateProtectLevel(crn: String, offenderAssessment: OffenderAssessment? = null, rsrScore: BigDecimal = BigDecimal.ZERO, rosh: Rosh? = null, convictions: Collection<Conviction> = listOf()): TierLevel<ProtectLevel> {
-    return service.calculateProtectLevel(crn, offenderAssessment, rsrScore, rosh, null, listOf(), convictions)
+  private fun calculateProtectLevel(crn: String, offenderAssessment: OffenderAssessment? = null, rsr: BigDecimal = BigDecimal.ZERO, rosh: Rosh? = null, convictions: Collection<Conviction> = listOf()): TierLevel<ProtectLevel> {
+    return service.calculateProtectLevel(crn, offenderAssessment, rsr, rosh, null, listOf(), convictions)
   }
 
   @BeforeEach
@@ -79,7 +79,7 @@ internal class ProtectLevelCalculatorTest {
     fun `should use either when RSR is same as ROSH`() {
       setup()
       // rsr C+1 = 10 points, Rosh.Medium = 10 Points
-      val result = calculateProtectLevel(crn = crn, rsrScore = TIER_C_RSR_LOWER.num, rosh = Rosh.MEDIUM)
+      val result = calculateProtectLevel(crn = crn, rsr = TIER_C_RSR_LOWER.num, rosh = Rosh.MEDIUM)
       assertThat(result.points).isEqualTo(10)
       validate()
     }
@@ -100,7 +100,7 @@ internal class ProtectLevelCalculatorTest {
     @Test
     fun `should return 0 for RSR null`() {
       setup()
-      val result = calculateProtectLevel(crn = crn, rsrScore = BigDecimal.ZERO)
+      val result = calculateProtectLevel(crn = crn, rsr = BigDecimal.ZERO)
       assertThat(result.points).isEqualTo(0)
       validate()
     }
@@ -108,7 +108,7 @@ internal class ProtectLevelCalculatorTest {
     @Test
     fun `Should return RSR`() {
       setup()
-      val result = calculateProtectLevel(crn = crn, rsrScore = BigDecimal(5))
+      val result = calculateProtectLevel(crn = crn, rsr = BigDecimal(5))
       assertThat(result.points).isEqualTo(10)
       validate()
     }
