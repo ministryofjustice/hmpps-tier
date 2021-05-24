@@ -50,8 +50,8 @@ internal class ProtectLevelTwoCalculatorTest {
 
   private val crn = "Any Crn"
 
-  private fun calculateProtectLevel(crn: String, offenderAssessment: OffenderAssessment? = null, rsrScore: BigDecimal = BigDecimal.ZERO, rosh: Rosh? = null, convictions: Collection<Conviction> = listOf()): TierLevel<ProtectLevel> {
-    return service.calculateProtectLevel(crn, offenderAssessment, rsrScore, rosh, null, listOf(), convictions)
+  private fun calculateProtectLevel(crn: String, offenderAssessment: OffenderAssessment? = null, rsr: BigDecimal = BigDecimal.ZERO, rosh: Rosh? = null, convictions: Collection<Conviction> = listOf()): TierLevel<ProtectLevel> {
+    return service.calculateProtectLevel(crn, offenderAssessment, rsr, rosh, null, listOf(), convictions)
   }
 
   @BeforeEach
