@@ -1,26 +1,15 @@
 version: 2.1
 
 orbs:
-  hmpps: ministryofjustice/hmpps@3.0
+  hmpps: ministryofjustice/hmpps@3.2
   owasp: entur/owasp@0.0.10
-executors:
-  validator-integration:
-    docker:
-      - image: circleci/openjdk:11-jdk
-      - image: localstack/localstack:0.11.2
-        environment:
-          - SERVICES=sqs,sns
-          - DEBUG=${DEBUG- }
-          - DOCKER_HOST=unix:///var/run/docker.sock
-          - DEFAULT_REGION=eu-west-2
-          - TMPDIR=/private
-    environment:
-      _JAVA_OPTIONS: -Xmx256m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2 -Dorg.gradle.daemon=false -Dkotlin.compiler.execution.strategy=in-process
-    working_directory: ~/app
 
 jobs:
   validate:
-    executor: validator-integration
+    executor:
+      name: hmpps/localstack
+      jdk_tag: "16.0"
+      services: "sqs,sns"
     steps:
       - checkout
       - hmpps/install_aws_cli
@@ -38,7 +27,7 @@ jobs:
             - gradle-{{ checksum "build.gradle.kts" }}
             - gradle-
       - run:
-          command: ./gradlew check
+          command: ./gradlew -Dorg.gradle.jvmargs="--illegal-access=permit" -Dkotlin.daemon.jvm.options="--illegal-access=permit" check
       - save_cache:
           paths:
             - ~/.gradle
@@ -112,4 +101,6 @@ workflows:
                 - main
     jobs:
       - owasp/gradle_owasp_dependency_check:
-          executor: hmpps/java
+          executor:
+            name: hmpps/java
+            tag: "16.0"
