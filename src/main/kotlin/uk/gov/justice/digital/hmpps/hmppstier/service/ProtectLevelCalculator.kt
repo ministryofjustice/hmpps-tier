@@ -36,12 +36,12 @@ class ProtectLevelCalculator(
 
   fun calculateProtectLevel(
     crn: String,
-    offenderAssessment: OffenderAssessment? = null,
-    rsrScore: BigDecimal = BigDecimal.ZERO,
-    rosh: Rosh? = null,
-    mappa: Mappa? = null,
-    complexityFactors: Collection<ComplexityFactor> = listOf(),
-    convictions: Collection<Conviction> = listOf()
+    offenderAssessment: OffenderAssessment?,
+    rsrScore: BigDecimal,
+    rosh: Rosh?,
+    mappa: Mappa?,
+    complexityFactors: Collection<ComplexityFactor>,
+    convictions: Collection<Conviction>
   ): TierLevel<ProtectLevel> {
 
     val points = mapOf(

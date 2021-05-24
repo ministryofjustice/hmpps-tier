@@ -134,7 +134,7 @@ internal class CommunityApiServiceTest {
   inner class SimpleMappaTests {
 
     @Test
-    fun `should return null for No Rosh`() {
+    fun `should return null for No Mappa`() {
       val result = communityApiService.getMappa(listOf())
       Assertions.assertThat(result).isNull()
     }
