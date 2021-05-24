@@ -46,7 +46,7 @@ This uses SPRING_PROFILES_ACTIVE=dev which has an in-memory database.
 This will bring up community-api, assessments-api and all the required queues and topics. The seed data will allow a successful tier calculation for CRN X320741
 
 ```sh
-docker-compose up
+docker compose up
 ```
 
 Run the HmppsTier application with `SPRING_PROFILES_ACTIVE=dev,localstack,docker`
@@ -80,7 +80,7 @@ Run lint and test
 The integration and cucumber tests need localstack running
 
 ```sh
-docker-compose-up localstack
+docker compose up localstack
 ./gradlew check
 ```
 
@@ -90,17 +90,23 @@ This runs tests and generate a coverage report in build/reports/coverage/index.h
 
 You cannot run cucumber tests directly from IntelliJ. See https://github.com/gradle/gradle/issues/4773
 Instead run
-```docker-compose-up localstack```
-```./gradlew cucumber```
+
+```sh
+docker compose up localstack
+./gradlew cucumber
+```
 
 If you want to run a single feature/scenario, tag it @single and add this to the cucumber task definition in build.gradle.kts 
+
 ```args("--include-tag", "single")```
 
 This service is built using Gradle. In order to build the project from the command line and run the tests, use:
-```
-docker-compose-up localstack  
+
+```sh
+docker compose up localstack  
 ./gradlew clean build  
 ```  
+
 The created JAR file will be named "`probation-tiering<yyyy-mm-dd>.jar`", using the date that the build takes place in the format `yyyy-mm-dd`. 
 
 ### Additional configuration  
