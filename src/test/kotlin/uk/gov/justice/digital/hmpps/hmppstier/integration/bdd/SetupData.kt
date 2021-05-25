@@ -215,7 +215,6 @@ class SetupData(
     }
   }
 
-
   private fun assessmentsApi() {
     if (hasValidAssessment) {
       assessmentApiResponse(
