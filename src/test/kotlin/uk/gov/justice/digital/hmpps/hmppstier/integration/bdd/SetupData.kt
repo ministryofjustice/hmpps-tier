@@ -167,6 +167,79 @@ class SetupData(
   fun prepareResponses() {
     communityApiResponse(communityApiAssessmentsResponse(rsr, ogrs), "/secure/offenders/crn/$crn/assessments")
 
+    registrations()
+
+    assessmentsApi()
+
+    convictions()
+
+    when {
+      hasOrderExtended && hasUnpaidWork -> requirements(
+        unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse()
+      )
+      hasUnpaidWork -> requirements(unpaidWorkRequirementsResponse())
+      hasNonRestrictiveRequirement -> requirements(nonRestrictiveRequirementsResponse())
+    }
+
+    when (gender) {
+      "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
+      else -> {
+        communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
+        if (outcome.isNotEmpty()) {
+          outcome.forEach {
+            breachAndRecall(nsisResponse(it))
+          }
+        } else {
+          breachAndRecall(emptyNsisResponse())
+        }
+      }
+    }
+  }
+
+  private fun convictions() {
+    if (activeConvictions == 2) {
+      convictions(custodialAndNonCustodialConvictions())
+    } else {
+      if (null != convictionTerminatedDate) {
+        convictions(custodialTerminatedConvictionResponse(convictionTerminatedDate!!))
+      } else {
+        if (sentenceLengthIndeterminate) {
+          convictions(custodialNCConvictionResponse(mainOffence, courtAppearanceOutcome = "303"))
+        } else {
+          when (sentenceType) {
+            "SC" -> convictions(custodialSCConvictionResponse())
+            "NC" -> convictions(custodialNCConvictionResponse(mainOffence, sentenceLength))
+            else -> convictions(nonCustodialConvictionResponse())
+          }
+        }
+      }
+    }
+  }
+
+  private fun assessmentsApi() {
+    if (hasValidAssessment) {
+      assessmentApiResponse(
+        assessmentsApiAssessmentsResponse(assessmentDate, assessmentId),
+        "/offenders/crn/$crn/assessments/summary"
+      )
+      if (gender == "Female") {
+        assessmentApiResponse(
+          assessmentsApiFemaleAnswersResponse(assessmentAnswers, assessmentId),
+          "/assessments/oasysSetId/$assessmentId/answers"
+        )
+      }
+      assessmentApiResponse(
+        if (needs.any()) {
+          needsResponse(needs)
+        } else {
+          assessmentsApiNoSeverityNeedsResponse()
+        },
+        "/assessments/oasysSetId/$assessmentId/needs"
+      )
+    }
+  }
+
+  private fun registrations() {
     when {
       rosh != "NO_ROSH" &&
         mappa != "NO_MAPPA" &&
@@ -188,67 +261,6 @@ class SetupData(
       mappa != "NO_MAPPA" -> registrations(registrationsResponseWithMappa(mappa))
       additionalFactors.isNotEmpty() -> registrations(registrationsResponseWithAdditionalFactors(additionalFactors))
       else -> registrations(emptyRegistrationsResponse())
-    }
-
-    if (hasValidAssessment) {
-      assessmentApiResponse(
-        assessmentsApiAssessmentsResponse(assessmentDate, assessmentId),
-        "/offenders/crn/$crn/assessments/summary"
-      )
-      if (gender == "Female") {
-        assessmentApiResponse(
-          assessmentsApiFemaleAnswersResponse(assessmentAnswers, assessmentId),
-          "/assessments/oasysSetId/$assessmentId/answers"
-        )
-      }
-      assessmentApiResponse(
-        if (needs.any()) {
-          needsResponse(needs)
-        } else {
-          assessmentsApiNoSeverityNeedsResponse()
-        },
-        "/assessments/oasysSetId/$assessmentId/needs"
-      )
-    }
-
-    if (activeConvictions == 2) {
-      convictions(custodialAndNonCustodialConvictions())
-    } else {
-      if (null != convictionTerminatedDate) {
-        convictions(custodialTerminatedConvictionResponse(convictionTerminatedDate!!))
-      } else {
-        if (sentenceLengthIndeterminate) {
-          convictions(custodialNCConvictionResponse(mainOffence, courtAppearanceOutcome = "303"))
-        } else {
-          if (sentenceType == "SC") {
-            convictions(custodialSCConvictionResponse())
-          } else if (sentenceType == "NC") {
-            convictions(custodialNCConvictionResponse(mainOffence, sentenceLength))
-          } else {
-            convictions(nonCustodialConvictionResponse())
-          }
-        }
-      }
-    }
-
-    when {
-      hasOrderExtended && hasUnpaidWork -> requirements(unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse())
-      hasUnpaidWork -> requirements(unpaidWorkRequirementsResponse())
-      hasNonRestrictiveRequirement -> requirements(nonRestrictiveRequirementsResponse())
-    }
-
-    when (gender) {
-      "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
-      else -> {
-        communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
-        if (outcome.isNotEmpty()) {
-          outcome.forEach {
-            breachAndRecall(nsisResponse(it))
-          }
-        } else {
-          breachAndRecall(emptyNsisResponse())
-        }
-      }
     }
   }
 
