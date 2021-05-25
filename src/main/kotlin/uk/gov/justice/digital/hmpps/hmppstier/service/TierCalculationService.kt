@@ -76,8 +76,6 @@ class TierCalculationService(
       assessmentApiService.getAssessmentNeeds(offenderAssessment)
     )
 
-    println(protectLevel)
-    println(calculationVersion)
     return TierCalculationEntity(
       crn = crn,
       created = LocalDateTime.now(clock),

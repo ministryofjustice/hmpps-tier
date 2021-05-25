@@ -45,7 +45,8 @@ internal class ProtectLevelThreeCalculatorTest {
       communityApiClient,
       assessmentApiService,
       3
-    )
+    ),
+    3
   )
 
   private val crn = "Any Crn"
