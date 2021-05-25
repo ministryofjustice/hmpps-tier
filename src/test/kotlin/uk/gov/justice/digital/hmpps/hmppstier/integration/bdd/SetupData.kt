@@ -203,18 +203,18 @@ class SetupData(
       if (null != convictionTerminatedDate) {
         convictions(custodialTerminatedConvictionResponse(convictionTerminatedDate!!))
       } else {
-        if (sentenceLengthIndeterminate) {
-          convictions(custodialNCConvictionResponse(mainOffence, courtAppearanceOutcome = "303"))
-        } else {
-          when (sentenceType) {
-            "SC" -> convictions(custodialSCConvictionResponse())
-            "NC" -> convictions(custodialNCConvictionResponse(mainOffence, sentenceLength))
-            else -> convictions(nonCustodialConvictionResponse())
-          }
+        when {
+          sentenceLengthIndeterminate -> convictions(
+            custodialNCConvictionResponse(mainOffence, courtAppearanceOutcome = "303")
+          )
+          sentenceType == "SC" -> convictions(custodialSCConvictionResponse())
+          sentenceType == "NC" -> convictions(custodialNCConvictionResponse(mainOffence, sentenceLength))
+          else -> convictions(nonCustodialConvictionResponse())
         }
       }
     }
   }
+
 
   private fun assessmentsApi() {
     if (hasValidAssessment) {
