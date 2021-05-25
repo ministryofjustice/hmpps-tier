@@ -241,9 +241,7 @@ class SetupData(
 
   private fun registrations() {
     when {
-      rosh != "NO_ROSH" &&
-        mappa != "NO_MAPPA" &&
-        additionalFactors.isNotEmpty() -> registrations(
+      allRegistrationsPresent() -> registrations(
         registrationsResponseWithRoshMappaAndAdditionalFactors(
           rosh,
           mappa,
@@ -263,6 +261,8 @@ class SetupData(
       else -> registrations(emptyRegistrationsResponse())
     }
   }
+
+  private fun allRegistrationsPresent() = rosh != "NO_ROSH" && mappa != "NO_MAPPA" && additionalFactors.isNotEmpty()
 
   private fun breachAndRecall(response: HttpResponse) {
     communityApiResponseWithQs(
