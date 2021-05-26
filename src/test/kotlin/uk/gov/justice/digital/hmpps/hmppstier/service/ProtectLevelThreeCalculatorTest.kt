@@ -32,8 +32,8 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 
 @ExtendWith(MockKExtension::class)
-@DisplayName("Protect Level Calculator calculation version 2 tests")
-internal class ProtectLevelTwoCalculatorTest {
+@DisplayName("Protect Level Calculator calculation version 3 tests")
+internal class ProtectLevelThreeCalculatorTest {
 
   private val clock = Clock.fixed(LocalDateTime.of(2020, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault())
   private val communityApiClient: CommunityApiClient = mockk(relaxUnitFun = true)
@@ -44,8 +44,9 @@ internal class ProtectLevelTwoCalculatorTest {
       clock,
       communityApiClient,
       assessmentApiService,
-      2
-    )
+      3
+    ),
+    3
   )
 
   private val crn = "Any Crn"

@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
@@ -31,7 +32,8 @@ import java.math.BigDecimal
 
 @Service
 class ProtectLevelCalculator(
-  private val additionalFactorsForWomen: AdditionalFactorsForWomen
+  private val additionalFactorsForWomen: AdditionalFactorsForWomen,
+  @Value("\${calculation.version}") private val calculationVersion: Int
 ) {
 
   fun calculateProtectLevel(
@@ -56,9 +58,9 @@ class ProtectLevelCalculator(
       .minus(minOf(points.getOrDefault(RSR, 0), points.getOrDefault(ROSH, 0)))
 
     return when {
-      total >= 30 -> TierLevel(A, total, points)
-      total in 20..29 -> TierLevel(B, total, points)
-      total in 10..19 -> TierLevel(C, total, points)
+      total >= levelA() -> TierLevel(A, total, points)
+      total in 20 until levelA() -> TierLevel(B, total, points)
+      total in 10 until 20 -> TierLevel(C, total, points)
       else -> TierLevel(D, total, points)
     }
   }
@@ -72,7 +74,7 @@ class ProtectLevelCalculator(
 
   private fun getRoshPoints(rosh: Rosh?): Int =
     when (rosh) {
-      VERY_HIGH -> 30
+      VERY_HIGH -> levelA()
       HIGH -> 20
       MEDIUM -> 10
       else -> 0
@@ -80,10 +82,12 @@ class ProtectLevelCalculator(
 
   private fun getMappaPoints(mappa: Mappa?): Int =
     when (mappa) {
-      M3, M2 -> 30
+      M3, M2 -> levelA()
       M1 -> 5
       else -> 0
     }
+
+  private fun levelA() = if (calculationVersion == 2) 150 else 30
 
   private fun getComplexityPoints(complexityFactors: Collection<ComplexityFactor>): Int =
     complexityFactors.count().times(2)
