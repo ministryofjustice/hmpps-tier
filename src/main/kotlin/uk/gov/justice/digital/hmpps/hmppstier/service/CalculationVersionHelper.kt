@@ -9,11 +9,11 @@ class CalculationVersionHelper(
 ) {
   var calculationVersion: Int = calcVersion
 
-  fun enableArsonToggle(): Boolean = versionAtLeast(3)
+  fun arsonToggleEnabled(): Boolean = versionAtLeast(3)
 
-  fun enableSentenceToggle(): Boolean = versionAtLeast(3)
+  fun sentenceToggleEnabled(): Boolean = versionAtLeast(3)
 
-  fun enableTierAThresholdFix(): Boolean = versionAtLeast(2)
+  fun tierAThresholdFixEnabled(): Boolean = versionAtLeast(2)
 
   private fun versionAtLeast(value: Int): Boolean = calculationVersion >= value
 }

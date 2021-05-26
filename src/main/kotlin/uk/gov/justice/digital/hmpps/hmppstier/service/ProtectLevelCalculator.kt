@@ -70,7 +70,7 @@ class ProtectLevelCalculator(
   }
 
   private fun hasHighMappaOrVeryHighRosh(points: Map<CalculationRule, Int>): Boolean =
-    !calcVer.enableTierAThresholdFix() ||
+    !calcVer.tierAThresholdFixEnabled() ||
       when {
         points.getOrDefault(MAPPA, 0) >= getMappaPoints(M2) -> true
         points.getOrDefault(MAPPA, 0) >= getMappaPoints(M3) -> true
