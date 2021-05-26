@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
@@ -33,7 +32,7 @@ import java.math.BigDecimal
 @Service
 class ProtectLevelCalculator(
   private val additionalFactorsForWomen: AdditionalFactorsForWomen,
-  @Value("\${calculation.version}") private val calculationVersion: Int
+  private val calculationVersionHelper: CalculationVersionHelper
 ) {
 
   fun calculateProtectLevel(
@@ -87,7 +86,7 @@ class ProtectLevelCalculator(
       else -> 0
     }
 
-  private fun levelA() = if (calculationVersion == 2) 150 else 30
+  private fun levelA() = if (calculationVersionHelper.calculationVersion >= 2) 150 else 30
 
   private fun getComplexityPoints(complexityFactors: Collection<ComplexityFactor>): Int =
     complexityFactors.count().times(2)

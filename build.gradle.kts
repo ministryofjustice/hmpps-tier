@@ -101,14 +101,11 @@ tasks {
       .singleFile
     jvmArgs = listOf("-javaagent:$jacocoAgent=destfile=$buildDir/jacoco/cucumber.exec,append=false")
   }
-  val versionTwo by registering(Test::class) {
-    include("**/ProtectTierATest*")
-    finalizedBy(cucumber)
-  }
+
   getByName("check") {
     dependsOn(":ktlintCheck", detekt)
-    finalizedBy(versionTwo)
   }
+
   getByName<JacocoReport>("jacocoTestReport") {
 
     reports {
@@ -157,7 +154,7 @@ tasks {
   }
 
   getByName<Test>("test") {
-    exclude("**/CucumberRunnerTest*", "**/ProtectTierATest*")
+    exclude("**/CucumberRunnerTest*")
   }
 
   compileKotlin {

@@ -23,6 +23,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
+import uk.gov.justice.digital.hmpps.hmppstier.service.CalculationVersionHelper
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import java.math.BigDecimal
 import java.time.Duration
@@ -41,6 +42,9 @@ abstract class MockedEndpointsTestBase {
 
   @Autowired
   lateinit var gson: Gson
+
+  @Autowired
+  lateinit var calculationVersionHelper: CalculationVersionHelper
 
   @Autowired
   lateinit var calculationCompleteClient: AmazonSQSAsync

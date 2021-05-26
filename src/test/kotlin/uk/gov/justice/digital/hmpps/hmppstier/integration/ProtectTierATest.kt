@@ -1,13 +1,19 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBaseVersionTwo
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRosh
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRoshMappaAndAdditionalFactors
 
-class ProtectTierATest : MockedEndpointsTestBaseVersionTwo() {
+class ProtectTierATest : MockedEndpointsTestBase() {
+
+  @BeforeAll
+  fun `Enable Version 2`() {
+    super.calculationVersionHelper.calculationVersion = 2
+  }
 
   @Test
   fun `Tier is A with Mappa M2`() {
