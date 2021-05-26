@@ -31,9 +31,9 @@ class AdditionalFactorsForWomen(
         val additionalFactorsPoints = getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment)
         val breachRecallPoints = getBreachRecallComplexityPoints(crn, convictions)
 
-        val violenceArsonPoints = if (calcVer.enableArsonToggle()) getArsonOrViolencePoints(convictions) else 0
+        val violenceArsonPoints = if (calcVer.arsonToggleEnabled()) getArsonOrViolencePoints(convictions) else 0
 
-        val tenMonthsPlusOrIndeterminatePoints = if (calcVer.enableSentenceToggle()) getSentenceLengthPoints(convictions) else 0
+        val tenMonthsPlusOrIndeterminatePoints = if (calcVer.sentenceToggleEnabled()) getSentenceLengthPoints(convictions) else 0
 
         additionalFactorsPoints + breachRecallPoints + violenceArsonPoints + tenMonthsPlusOrIndeterminatePoints
       }

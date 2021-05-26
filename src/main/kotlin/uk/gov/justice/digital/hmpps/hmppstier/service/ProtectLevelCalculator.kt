@@ -86,7 +86,7 @@ class ProtectLevelCalculator(
       else -> 0
     }
 
-  private fun levelAThreshold() = if (calcVer.enableTierAThresholdFix()) 150 else 30
+  private fun levelAThreshold() = if (calcVer.tierAThresholdFixEnabled()) 150 else 30
 
   private fun getComplexityPoints(complexityFactors: Collection<ComplexityFactor>): Int =
     complexityFactors.count().times(2)
