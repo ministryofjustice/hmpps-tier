@@ -87,7 +87,7 @@ class ProtectLevelCalculator(
       else -> 0
     }
 
-  private fun levelA() = if (calculationVersion == 2) 300 else 30
+  private fun levelA() = if (calculationVersion == 2) 150 else 30
 
   private fun getComplexityPoints(complexityFactors: Collection<ComplexityFactor>): Int =
     complexityFactors.count().times(2)
