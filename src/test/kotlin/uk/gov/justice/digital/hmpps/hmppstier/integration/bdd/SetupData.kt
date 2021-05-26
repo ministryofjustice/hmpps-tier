@@ -167,29 +167,55 @@ class SetupData(
   fun prepareResponses() {
     communityApiResponse(communityApiAssessmentsResponse(rsr, ogrs), "/secure/offenders/crn/$crn/assessments")
 
+    registrations()
+
+    assessmentsApi()
+
+    convictions()
+
     when {
-      rosh != "NO_ROSH" &&
-        mappa != "NO_MAPPA" &&
-        additionalFactors.isNotEmpty() -> registrations(
-        registrationsResponseWithRoshMappaAndAdditionalFactors(
-          rosh,
-          mappa,
-          additionalFactors
-        )
+      hasOrderExtended && hasUnpaidWork -> requirements(
+        unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse()
       )
-      mappa != "NO_MAPPA" &&
-        additionalFactors.isNotEmpty() -> registrations(
-        registrationsResponseWithMappaAndAdditionalFactors(
-          mappa,
-          additionalFactors
-        )
-      )
-      rosh != "NO_ROSH" -> registrations(registrationsResponseWithRosh(rosh))
-      mappa != "NO_MAPPA" -> registrations(registrationsResponseWithMappa(mappa))
-      additionalFactors.isNotEmpty() -> registrations(registrationsResponseWithAdditionalFactors(additionalFactors))
-      else -> registrations(emptyRegistrationsResponse())
+      hasUnpaidWork -> requirements(unpaidWorkRequirementsResponse())
+      hasNonRestrictiveRequirement -> requirements(nonRestrictiveRequirementsResponse())
     }
 
+    when (gender) {
+      "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
+      else -> {
+        communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
+        if (outcome.isNotEmpty()) {
+          outcome.forEach {
+            breachAndRecall(nsisResponse(it))
+          }
+        } else {
+          breachAndRecall(emptyNsisResponse())
+        }
+      }
+    }
+  }
+
+  private fun convictions() {
+    if (activeConvictions == 2) {
+      convictions(custodialAndNonCustodialConvictions())
+    } else {
+      if (null != convictionTerminatedDate) {
+        convictions(custodialTerminatedConvictionResponse(convictionTerminatedDate!!))
+      } else {
+        when {
+          sentenceLengthIndeterminate -> convictions(
+            custodialNCConvictionResponse(mainOffence, courtAppearanceOutcome = "303")
+          )
+          sentenceType == "SC" -> convictions(custodialSCConvictionResponse())
+          sentenceType == "NC" -> convictions(custodialNCConvictionResponse(mainOffence, sentenceLength))
+          else -> convictions(nonCustodialConvictionResponse())
+        }
+      }
+    }
+  }
+
+  private fun assessmentsApi() {
     if (hasValidAssessment) {
       assessmentApiResponse(
         assessmentsApiAssessmentsResponse(assessmentDate, assessmentId),
@@ -210,47 +236,32 @@ class SetupData(
         "/assessments/oasysSetId/$assessmentId/needs"
       )
     }
+  }
 
-    if (activeConvictions == 2) {
-      convictions(custodialAndNonCustodialConvictions())
-    } else {
-      if (null != convictionTerminatedDate) {
-        convictions(custodialTerminatedConvictionResponse(convictionTerminatedDate!!))
-      } else {
-        if (sentenceLengthIndeterminate) {
-          convictions(custodialNCConvictionResponse(mainOffence, courtAppearanceOutcome = "303"))
-        } else {
-          if (sentenceType == "SC") {
-            convictions(custodialSCConvictionResponse())
-          } else if (sentenceType == "NC") {
-            convictions(custodialNCConvictionResponse(mainOffence, sentenceLength))
-          } else {
-            convictions(nonCustodialConvictionResponse())
-          }
-        }
-      }
-    }
-
+  private fun registrations() {
     when {
-      hasOrderExtended && hasUnpaidWork -> requirements(unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse())
-      hasUnpaidWork -> requirements(unpaidWorkRequirementsResponse())
-      hasNonRestrictiveRequirement -> requirements(nonRestrictiveRequirementsResponse())
-    }
-
-    when (gender) {
-      "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
-      else -> {
-        communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
-        if (outcome.isNotEmpty()) {
-          outcome.forEach {
-            breachAndRecall(nsisResponse(it))
-          }
-        } else {
-          breachAndRecall(emptyNsisResponse())
-        }
-      }
+      allRegistrationsPresent() -> registrations(
+        registrationsResponseWithRoshMappaAndAdditionalFactors(
+          rosh,
+          mappa,
+          additionalFactors
+        )
+      )
+      mappa != "NO_MAPPA" &&
+        additionalFactors.isNotEmpty() -> registrations(
+        registrationsResponseWithMappaAndAdditionalFactors(
+          mappa,
+          additionalFactors
+        )
+      )
+      rosh != "NO_ROSH" -> registrations(registrationsResponseWithRosh(rosh))
+      mappa != "NO_MAPPA" -> registrations(registrationsResponseWithMappa(mappa))
+      additionalFactors.isNotEmpty() -> registrations(registrationsResponseWithAdditionalFactors(additionalFactors))
+      else -> registrations(emptyRegistrationsResponse())
     }
   }
+
+  private fun allRegistrationsPresent() = rosh != "NO_ROSH" && mappa != "NO_MAPPA" && additionalFactors.isNotEmpty()
 
   private fun breachAndRecall(response: HttpResponse) {
     communityApiResponseWithQs(
