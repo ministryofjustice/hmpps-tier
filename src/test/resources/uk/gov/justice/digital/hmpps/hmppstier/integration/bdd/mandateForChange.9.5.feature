@@ -1,6 +1,9 @@
 #lang: en
 Feature: Mandate for change
 
+  Background:
+    Given a calculation version of at least 1
+
   Scenario: Custodial sentence of type SC has mandate for change
     Given an offender with a current sentence of type 'SC'
     And a valid assessment

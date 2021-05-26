@@ -1,6 +1,9 @@
 #lang: en
 Feature: Criminogenic Needs
 
+  Background:
+    Given a calculation version of at least 1
+
   Scenario: NO NEED for ACCOMMODATION scores 0 points
     Given the assessment need "ACCOMMODATION" with severity "NO_NEED"
     When a tier is calculated

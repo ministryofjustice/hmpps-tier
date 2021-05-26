@@ -1,6 +1,9 @@
 #lang: en
 Feature: Additional Factors (Male and Female)
 
+  Background:
+    Given a calculation version of at least 1
+
   Scenario: Child Concerns scores 2 points
     Given the following active registrations: "Child Concerns" "RCCO"
     When a tier is calculated

@@ -1,6 +1,9 @@
 #lang: en
 Feature: Higher score out of ROSH or RSR is taken
 
+  Background:
+    Given a calculation version of at least 1
+
   Scenario: ROSH 30 points RSR 20 points so 30 points scored
     Given a ROSH score of "VERY_HIGH"
     And an RSR score of "7.0"

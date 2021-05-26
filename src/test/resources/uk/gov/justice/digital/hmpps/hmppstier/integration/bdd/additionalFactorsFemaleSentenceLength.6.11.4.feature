@@ -1,7 +1,8 @@
 #lang: en
-@disabled
-# for version 2
 Feature: Additional Factors (Female only) sentence length
+
+  Background:
+    Given a calculation version of at least 3
 
   Scenario: Sentence length 10 months or over scores 2 points
     Given an offender is "Female"

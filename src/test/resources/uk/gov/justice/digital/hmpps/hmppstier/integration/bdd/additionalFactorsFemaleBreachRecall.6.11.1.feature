@@ -1,6 +1,9 @@
 #lang: en
 Feature: Additional Factors (Female only) Breach and Recall
 
+  Background:
+    Given a calculation version of at least 1
+
   Scenario: Male offender with breach/recall scores no points
     Given an offender is "Male"
     And has an active conviction with NSI Outcome code "BRE01"

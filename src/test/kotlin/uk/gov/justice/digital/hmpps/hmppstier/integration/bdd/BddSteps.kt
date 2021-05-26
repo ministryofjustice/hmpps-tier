@@ -27,6 +27,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.getNumberOfMessa
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnQueue
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
+import uk.gov.justice.digital.hmpps.hmppstier.service.CalculationVersionHelper
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -36,6 +37,9 @@ class BddSteps : En {
 
   @Autowired
   lateinit var gson: Gson
+
+  @Autowired
+  lateinit var calculationVersionHelper: CalculationVersionHelper
 
   @Autowired
   lateinit var calculationCompleteClient: AmazonSQSAsync
@@ -83,6 +87,10 @@ class BddSteps : En {
       crn = UUID.randomUUID().toString().replace("-", "").substring(0, 7)
       assessmentId = UUID.randomUUID().toString().replace("\\D+".toRegex(), "").padEnd(11, '1').substring(0, 11)
       setupData = SetupData(communityApi, assessmentApi, mapOf("crn" to crn, "assessmentId" to "1$assessmentId"))
+    }
+
+    Given("a calculation version of at least {int}") { version: Int ->
+      calculationVersionHelper.calculationVersion = version
     }
 
     Given("an RSR score of {string}") { rsr: String ->

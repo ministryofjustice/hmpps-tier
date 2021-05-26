@@ -1,6 +1,9 @@
 #lang: en
 Feature: Calculate ROSH score
 
+  Background:
+    Given a calculation version of at least 1
+
   Scenario: ROSH very high 30 points scored
     Given a ROSH score of "VERY_HIGH"
     And no RSR score

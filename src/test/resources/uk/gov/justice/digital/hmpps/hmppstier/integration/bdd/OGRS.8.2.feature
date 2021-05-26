@@ -1,6 +1,9 @@
 #lang: en
 Feature: OGRS
 
+  Background:
+    Given a calculation version of at least 1
+
   Scenario: An OGRS score of 59% only results in 5 points
     Given an OGRS score of "59"%
     When a tier is calculated

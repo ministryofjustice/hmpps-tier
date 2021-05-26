@@ -1,7 +1,8 @@
 #lang: en
-@disabled
-# for version 2
 Feature: Additional Factors (Female only) Violence or Arson
+
+  Background:
+    Given a calculation version of at least 3
 
   Scenario: Main offence of Arson scores 2 points
     Given an offender is "Female"

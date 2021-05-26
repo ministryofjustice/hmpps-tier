@@ -1,6 +1,9 @@
 #lang: en
 Feature: Additional Factors (Female only) Self-Control / Temper and Parenting / Caring Responsibility
 
+  Background:
+    Given a calculation version of at least 1
+
   Scenario: Parenting Responsibilities scores 2 points
     Given an offender is "Female"
     And has the following OASys complexity answer: "PARENTING_RESPONSIBILITIES" "6.9" : "YES"

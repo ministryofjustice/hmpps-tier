@@ -1,6 +1,8 @@
 #lang: en
 Feature: Change Level thresholds
 
+  Background:
+    Given a calculation version of at least 1
 
   Scenario: Scoring over 20 points results in a change level of '3'
     Given an offender scores 21 change points

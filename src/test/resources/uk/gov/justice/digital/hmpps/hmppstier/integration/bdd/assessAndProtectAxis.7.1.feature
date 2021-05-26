@@ -1,6 +1,9 @@
 #lang: en
 Feature: Assess and Protect Axis Calculation
 
+  Background:
+    Given a calculation version of at least 1
+
   Scenario: 31 points scored Protect Level A
     Given an offender scores 31 protect points
     When a tier is calculated

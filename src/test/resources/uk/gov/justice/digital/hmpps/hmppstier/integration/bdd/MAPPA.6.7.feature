@@ -1,6 +1,9 @@
 #lang: en
 Feature: MAPPA
 
+  Background:
+    Given a calculation version of at least 1
+
   Scenario: MAPPA M Level 3 scores 30 points
     Given an active MAPPA registration of M Level "3"
     When a tier is calculated
