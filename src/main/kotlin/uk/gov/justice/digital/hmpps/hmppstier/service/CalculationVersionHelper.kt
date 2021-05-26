@@ -13,7 +13,7 @@ class CalculationVersionHelper(
 
   fun enableSentenceToggle(): Boolean = versionAtLeast(3)
 
-  fun enableTierAFix(): Boolean = versionAtLeast(2)
+  fun enableTierAThresholdFix(): Boolean = versionAtLeast(2)
 
   private fun versionAtLeast(value: Int): Boolean = calculationVersion >= value
 }
