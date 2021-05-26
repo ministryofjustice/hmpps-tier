@@ -91,7 +91,7 @@ workflows:
           requires:
             - request-prod-approval
 
-  scheduled:
+  security:
     triggers:
       - schedule:
           cron: "0 6 * * 1-5"
@@ -100,7 +100,6 @@ workflows:
               only:
                 - main
     jobs:
-      - owasp/gradle_owasp_dependency_check:
-          executor:
-            name: hmpps/java
-            tag: "16.0"
+      - hmpps/gradle_owasp_dependency_check:
+          context:
+            - hmpps-common-vars
