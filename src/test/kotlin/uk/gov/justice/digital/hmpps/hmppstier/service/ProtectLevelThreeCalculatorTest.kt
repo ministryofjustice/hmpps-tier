@@ -45,7 +45,7 @@ internal class ProtectLevelThreeCalculatorTest {
       clock,
       communityApiClient,
       assessmentApiService,
-      3
+      calculationVersionHelper
     ),
     calculationVersionHelper
   )

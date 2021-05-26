@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
@@ -20,7 +19,7 @@ class AdditionalFactorsForWomen(
   private val clock: Clock,
   private val communityApiClient: CommunityApiClient,
   private val assessmentApiService: AssessmentApiService,
-  @Value("\${calculation.version}") private val calculationVersion: Int
+  private val calculationVersionHelper: CalculationVersionHelper
 ) {
   fun calculate(
     crn: String,
@@ -32,10 +31,10 @@ class AdditionalFactorsForWomen(
         val additionalFactorsPoints = getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment)
         val breachRecallPoints = getBreachRecallComplexityPoints(crn, convictions)
 
-        val violenceArsonPoints = if (calculationVersion > 2) getArsonOrViolencePoints(convictions) else 0
+        val violenceArsonPoints = if (calculationVersionHelper.calculationVersion > 2) getArsonOrViolencePoints(convictions) else 0
 
         val tenMonthsPlusOrIndeterminatePoints =
-          if (calculationVersion > 2) getSentenceLengthPoints(convictions) else 0
+          if (calculationVersionHelper.calculationVersion > 2) getSentenceLengthPoints(convictions) else 0
 
         additionalFactorsPoints + breachRecallPoints + violenceArsonPoints + tenMonthsPlusOrIndeterminatePoints
       }

@@ -42,15 +42,16 @@ internal class ProtectLevelCalculatorTest {
   private val clock = Clock.fixed(LocalDateTime.of(2020, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault())
   private val communityApiClient: CommunityApiClient = mockk(relaxUnitFun = true)
   private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
+  private val calculationVersionHelper: CalculationVersionHelper = CalculationVersionHelper(1)
 
   private val service = ProtectLevelCalculator(
     AdditionalFactorsForWomen(
       clock,
       communityApiClient,
       assessmentApiService,
-      1
+      calculationVersionHelper
     ),
-    1
+    calculationVersionHelper
   )
 
   private val crn = "Any Crn"
