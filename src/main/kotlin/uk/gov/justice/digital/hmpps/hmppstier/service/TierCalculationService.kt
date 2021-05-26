@@ -23,7 +23,7 @@ class TierCalculationService(
   private val communityApiClient: CommunityApiClient, // Deprecated
   private val successUpdater: SuccessUpdater,
   private val telemetryService: TelemetryService,
-  private val calculationVersionHelper: CalculationVersionHelper
+  private val calcVer: CalculationVersionHelper
 ) {
 
   fun getLatestTierByCrn(crn: String): TierDto? =
@@ -78,7 +78,7 @@ class TierCalculationService(
     return TierCalculationEntity(
       crn = crn,
       created = LocalDateTime.now(clock),
-      data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel, calculationVersion = calculationVersionHelper.calculationVersion.toString())
+      data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel, calculationVersion = calcVer.calculationVersion.toString())
     )
   }
 

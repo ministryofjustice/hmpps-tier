@@ -19,7 +19,7 @@ class AdditionalFactorsForWomen(
   private val clock: Clock,
   private val communityApiClient: CommunityApiClient,
   private val assessmentApiService: AssessmentApiService,
-  private val calculationVersionHelper: CalculationVersionHelper
+  private val calcVer: CalculationVersionHelper
 ) {
   fun calculate(
     crn: String,
@@ -31,10 +31,9 @@ class AdditionalFactorsForWomen(
         val additionalFactorsPoints = getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment)
         val breachRecallPoints = getBreachRecallComplexityPoints(crn, convictions)
 
-        val violenceArsonPoints = if (calculationVersionHelper.calculationVersion > 2) getArsonOrViolencePoints(convictions) else 0
+        val violenceArsonPoints = if (calcVer.enableArsonToggle()) getArsonOrViolencePoints(convictions) else 0
 
-        val tenMonthsPlusOrIndeterminatePoints =
-          if (calculationVersionHelper.calculationVersion > 2) getSentenceLengthPoints(convictions) else 0
+        val tenMonthsPlusOrIndeterminatePoints = if (calcVer.enableSentenceToggle()) getSentenceLengthPoints(convictions) else 0
 
         additionalFactorsPoints + breachRecallPoints + violenceArsonPoints + tenMonthsPlusOrIndeterminatePoints
       }

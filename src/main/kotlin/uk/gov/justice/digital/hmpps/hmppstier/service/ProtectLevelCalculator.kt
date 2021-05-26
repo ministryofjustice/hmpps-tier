@@ -32,7 +32,7 @@ import java.math.BigDecimal
 @Service
 class ProtectLevelCalculator(
   private val additionalFactorsForWomen: AdditionalFactorsForWomen,
-  private val calculationVersionHelper: CalculationVersionHelper
+  private val calcVer: CalculationVersionHelper
 ) {
 
   fun calculateProtectLevel(
@@ -86,7 +86,7 @@ class ProtectLevelCalculator(
       else -> 0
     }
 
-  private fun levelA() = if (calculationVersionHelper.calculationVersion >= 2) 150 else 30
+  private fun levelA() = if (calcVer.enableTierAFix()) 150 else 30
 
   private fun getComplexityPoints(complexityFactors: Collection<ComplexityFactor>): Int =
     complexityFactors.count().times(2)
