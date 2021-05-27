@@ -3,9 +3,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.amazonaws.services.sqs.model.PurgeQueueRequest
 import com.google.gson.Gson
-import org.awaitility.kotlin.await
-import org.awaitility.kotlin.matches
-import org.awaitility.kotlin.untilCallTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
@@ -204,11 +201,7 @@ abstract class MockedEndpointsTestBase {
 
   fun expectTierCalculationToHaveFailed() {
     // the message goes back on the queue but is not visible until after the test ends
-    await untilCallTo {
-      getNumberOfMessagesCurrentlyNotVisibleOnQueue(
-        offenderEventsClient, eventQueueUrl
-      )
-    } matches { it == 1 }
+    oneMessageNotVisibleOnQueue(offenderEventsClient, eventQueueUrl)
   }
 
   fun expectNoUpdatedTierCalculation() {

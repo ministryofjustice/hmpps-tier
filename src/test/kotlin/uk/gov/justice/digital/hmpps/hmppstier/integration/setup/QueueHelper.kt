@@ -12,11 +12,6 @@ fun putMessageOnQueue(client: AmazonSQSAsync, queueUrl: String, crn: String) {
   client.sendMessage(queueUrl, message)
 }
 
-fun getNumberOfMessagesCurrentlyOnQueue(client: AmazonSQSAsync, queueUrl: String): Int? {
-  val queueAttributes = client.getQueueAttributes(queueUrl, listOf("ApproximateNumberOfMessages"))
-  return queueAttributes.attributes["ApproximateNumberOfMessages"]?.toInt()
-}
-
 fun noMessagesCurrentlyOnQueue(client: AmazonSQSAsync, queueUrl: String) {
   await untilCallTo {
     getNumberOfMessagesCurrentlyOnQueue(
@@ -35,7 +30,21 @@ fun oneMessageCurrentlyOnQueue(client: AmazonSQSAsync, queueUrl: String) {
   } matches { it == 1 }
 }
 
-fun getNumberOfMessagesCurrentlyNotVisibleOnQueue(client: AmazonSQSAsync, queueUrl: String): Int? {
+fun oneMessageNotVisibleOnQueue(client: AmazonSQSAsync, queueUrl: String) {
+  await untilCallTo {
+    getNumberOfMessagesCurrentlyNotVisibleOnQueue(
+      client,
+      queueUrl
+    )
+  } matches { it == 1 }
+}
+
+private fun getNumberOfMessagesCurrentlyOnQueue(client: AmazonSQSAsync, queueUrl: String): Int? {
+  val queueAttributes = client.getQueueAttributes(queueUrl, listOf("ApproximateNumberOfMessages"))
+  return queueAttributes.attributes["ApproximateNumberOfMessages"]?.toInt()
+}
+
+private fun getNumberOfMessagesCurrentlyNotVisibleOnQueue(client: AmazonSQSAsync, queueUrl: String): Int? {
   val queueAttributes = client.getQueueAttributes(queueUrl, listOf("ApproximateNumberOfMessagesNotVisible"))
   return queueAttributes.attributes["ApproximateNumberOfMessagesNotVisible"]?.toInt()
 }
