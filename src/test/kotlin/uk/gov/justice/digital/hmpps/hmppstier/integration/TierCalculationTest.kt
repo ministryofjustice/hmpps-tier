@@ -40,4 +40,21 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       expectTierCalculation("A2")
     }
   }
+
+  @Nested
+  inner class TierIsUnchanged {
+    @Test
+    fun `Does not write back when tier is unchanged`() {
+      val crn = "X432769"
+
+      setupSCCustodialSentence(crn)
+      setupMaleOffenderWithRegistrations(crn, false, "4234568890")
+      setupLatestAssessment(crn, 2018, "1234567890")
+
+      calculateTierFor(crn)
+      expectTierCalculation("A2")
+      calculateTierFor(crn)
+      expectNoUpdatedTierCalculation()
+    }
+  }
 }

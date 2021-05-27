@@ -13,6 +13,6 @@ class CannotCalculateTierTest : MockedEndpointsTestBase() {
     setupRegistrations(emptyRegistrationsResponse(), crn)
     restOfSetupWithMaleOffenderAndSevereNeeds("NOTFOUND", assessmentId = "NOTUSED")
     calculateTierFor(crn)
-    expectNoTierCalculation()
+    expectTierCalculationToHaveFailed()
   }
 }

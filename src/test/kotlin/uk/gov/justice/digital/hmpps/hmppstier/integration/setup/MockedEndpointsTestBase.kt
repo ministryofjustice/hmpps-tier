@@ -202,13 +202,28 @@ abstract class MockedEndpointsTestBase {
 
   fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, eventQueueUrl, crn)
 
-  fun expectNoTierCalculation() {
+  fun expectTierCalculationToHaveFailed() {
     // the message goes back on the queue but is not visible until after the test ends
     await untilCallTo {
       getNumberOfMessagesCurrentlyNotVisibleOnQueue(
         offenderEventsClient, eventQueueUrl
       )
     } matches { it == 1 }
+  }
+
+  fun expectNoUpdatedTierCalculation() {
+    // calculation succeeded but is unchanged, so no update events
+    await untilCallTo {
+      getNumberOfMessagesCurrentlyOnQueue(
+        calculationCompleteClient,
+        calculationCompleteUrl
+      )
+    } matches { it == 0 }
+    await untilCallTo {
+      getNumberOfMessagesCurrentlyNotVisibleOnQueue(
+        offenderEventsClient, eventQueueUrl
+      )
+    } matches { it == 0 }
   }
 
   fun expectTierCalculation(tierScore: String) {
