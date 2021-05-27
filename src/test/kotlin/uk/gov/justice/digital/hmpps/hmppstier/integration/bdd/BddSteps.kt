@@ -7,9 +7,6 @@ import com.google.gson.Gson
 import io.cucumber.java8.En
 import io.cucumber.java8.Scenario
 import org.assertj.core.api.Assertions.assertThat
-import org.awaitility.kotlin.await
-import org.awaitility.kotlin.matches
-import org.awaitility.kotlin.untilCallTo
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse.response
@@ -23,7 +20,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.HIGH
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.MEDIUM
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.SQSMessage
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.getNumberOfMessagesCurrentlyOnQueue
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.oneMessageCurrentlyOnQueue
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnQueue
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
@@ -349,12 +346,7 @@ class BddSteps : En {
   }
 
   private fun getTier(): TierCalculationEntity {
-    await untilCallTo {
-      getNumberOfMessagesCurrentlyOnQueue(
-        calculationCompleteClient,
-        calculationCompleteUrl
-      )
-    } matches { it == 1 }
+    oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
     val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
     val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
     val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)

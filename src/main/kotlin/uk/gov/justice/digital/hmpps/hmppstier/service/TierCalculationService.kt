@@ -24,7 +24,7 @@ class TierCalculationService(
   private val communityApiClient: CommunityApiClient, // Deprecated
   private val successUpdater: SuccessUpdater,
   private val telemetryService: TelemetryService,
-  @Value("\${calculation.version}")private val calculationVersion: Int
+  @Value("\${calculation.version}") private val calculationVersion: Int
 ) {
 
   fun getLatestTierByCrn(crn: String): TierDto? =
@@ -42,7 +42,7 @@ class TierCalculationService(
   @Transactional
   fun calculateTierForCrn(crn: String) =
     calculateTier(crn).let {
-      val isUpdated = it.data != getLatestTierCalculation(crn)?.data
+      val isUpdated = isUpdated(it, crn)
       tierCalculationRepository.save(it)
       when {
         isUpdated -> successUpdater.update(crn, it.uuid)
@@ -50,6 +50,14 @@ class TierCalculationService(
       log.info("Tier calculated for $crn. Different from previous tier: $isUpdated")
       telemetryService.trackTierCalculated(crn, it, isUpdated)
     }
+
+  private fun isUpdated(
+    it: TierCalculationEntity,
+    crn: String
+  ): Boolean {
+    val latestTierCalculation = getLatestTierCalculation(crn)
+    return it.data.protect.tier != latestTierCalculation?.data?.protect?.tier || it.data.change.tier != latestTierCalculation.data.change.tier
+  }
 
   private fun calculateTier(crn: String): TierCalculationEntity {
 
@@ -79,7 +87,11 @@ class TierCalculationService(
     return TierCalculationEntity(
       crn = crn,
       created = LocalDateTime.now(clock),
-      data = TierCalculationResultEntity(change = changeLevel, protect = protectLevel, calculationVersion = calculationVersion.toString())
+      data = TierCalculationResultEntity(
+        change = changeLevel,
+        protect = protectLevel,
+        calculationVersion = calculationVersion.toString()
+      )
     )
   }
 

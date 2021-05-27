@@ -3,13 +3,11 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.amazonaws.services.sqs.model.PurgeQueueRequest
 import com.google.gson.Gson
-import org.awaitility.kotlin.await
-import org.awaitility.kotlin.matches
-import org.awaitility.kotlin.untilCallTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.mockserver.integration.ClientAndServer
+import org.mockserver.matchers.Times.exactly
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.notFoundResponse
@@ -202,22 +200,20 @@ abstract class MockedEndpointsTestBase {
 
   fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, eventQueueUrl, crn)
 
-  fun expectNoTierCalculation() {
+  fun expectTierCalculationToHaveFailed() {
     // the message goes back on the queue but is not visible until after the test ends
-    await untilCallTo {
-      getNumberOfMessagesCurrentlyNotVisibleOnQueue(
-        offenderEventsClient, eventQueueUrl
-      )
-    } matches { it == 1 }
+    oneMessageNotVisibleOnQueue(offenderEventsClient, eventQueueUrl)
+  }
+
+  fun expectNoUpdatedTierCalculation() {
+    // calculation succeeded but is unchanged, so no calculation complete events
+    // and message is not returned to the event queue
+    noMessagesCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
+    noMessagesCurrentlyOnQueue(offenderEventsClient, eventQueueUrl)
   }
 
   fun expectTierCalculation(tierScore: String) {
-    await untilCallTo {
-      getNumberOfMessagesCurrentlyOnQueue(
-        calculationCompleteClient,
-        calculationCompleteUrl
-      )
-    } matches { it == 1 }
+    oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
     val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
     val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
     val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
@@ -238,10 +234,10 @@ abstract class MockedEndpointsTestBase {
     clientAndServer: ClientAndServer,
     qs: Parameter
   ) =
-    clientAndServer.`when`(request().withPath(urlTemplate).withQueryStringParameter(qs)).respond(response)
+    clientAndServer.`when`(request().withPath(urlTemplate).withQueryStringParameter(qs), exactly(1)).respond(response)
 
   private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
-    clientAndServer.`when`(request().withPath(urlTemplate)).respond(response)
+    clientAndServer.`when`(request().withPath(urlTemplate), exactly(1)).respond(response)
 
   private fun communityApiResponseWithQs(response: HttpResponse, urlTemplate: String, qs: Parameter) =
     httpSetupWithQs(response, urlTemplate, communityApi, qs)
