@@ -17,7 +17,7 @@ internal class SentenceTest {
     @Test
     fun `It should construct using from`() {
       val now = LocalDate.now()
-      val sentenceDto = SentenceDto(now.plusDays(1), KeyValue("SC"), now, now.plusDays(3))
+      val sentenceDto = SentenceDto(now.plusDays(1), KeyValue("SC"))
       val sentence = Sentence.from(sentenceDto)
 
       Assertions.assertThat(sentence.sentenceType).isEqualTo(sentenceDto.sentenceType.code)
@@ -26,8 +26,7 @@ internal class SentenceTest {
 
     @Test
     fun `It should construct using from null values`() {
-      val now = LocalDate.now()
-      val sentenceDto = SentenceDto(null, KeyValue("SC"), now, null)
+      val sentenceDto = SentenceDto(null, KeyValue("SC"))
       val sentence = Sentence.from(sentenceDto)
 
       Assertions.assertThat(sentence.sentenceType).isEqualTo(sentenceDto.sentenceType.code)

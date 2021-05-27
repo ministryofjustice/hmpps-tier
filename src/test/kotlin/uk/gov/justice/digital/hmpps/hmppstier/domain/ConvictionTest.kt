@@ -18,7 +18,7 @@ internal class ConvictionTest {
     @Test
     fun `It should construct using from`() {
       val now = LocalDate.now()
-      val sentenceDto = SentenceDto(now.plusDays(1), KeyValue("SC"), now, now.plusDays(3))
+      val sentenceDto = SentenceDto(now.plusDays(1), KeyValue("SC"))
       val convictionDto = ConvictionDto(123L, sentenceDto)
       val conviction = Conviction.from(convictionDto)
       Assertions.assertThat(conviction.convictionId).isEqualTo(convictionDto.convictionId)
@@ -29,8 +29,7 @@ internal class ConvictionTest {
 
     @Test
     fun `It should construct using from null values`() {
-      val now = LocalDate.now()
-      val sentenceDto = SentenceDto(null, KeyValue("SC"), now, null)
+      val sentenceDto = SentenceDto(null, KeyValue("SC"))
       val convictionDto = ConvictionDto(123L, sentenceDto)
       val conviction = Conviction.from(convictionDto)
       Assertions.assertThat(conviction.convictionId).isEqualTo(convictionDto.convictionId)
