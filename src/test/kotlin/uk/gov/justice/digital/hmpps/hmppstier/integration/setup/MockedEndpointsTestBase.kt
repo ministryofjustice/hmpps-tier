@@ -57,8 +57,10 @@ abstract class MockedEndpointsTestBase {
 
   @Autowired
   lateinit var oauthMock: ClientAndServer
+
   @Autowired
   lateinit var communityApi: ClientAndServer
+
   @Autowired
   lateinit var assessmentApi: ClientAndServer
 
@@ -73,7 +75,8 @@ abstract class MockedEndpointsTestBase {
   private fun setupOauth() {
     val response = HttpResponse.response().withContentType(APPLICATION_JSON)
       .withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
-    oauthMock.`when`(request().withPath("/auth/oauth/token").withBody("grant_type=client_credentials")).respond(response)
+    oauthMock.`when`(request().withPath("/auth/oauth/token").withBody("grant_type=client_credentials"))
+      .respond(response)
   }
 
   fun setupNCCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialNCConvictionResponse())
@@ -94,13 +97,25 @@ abstract class MockedEndpointsTestBase {
       Parameter("nsiCodes", "BRE,BRES,REC,RECS")
     )
 
-  fun restOfSetupWithMaleOffenderNoSevereNeeds(crn: String, includeAssessmentApi: Boolean = true, assessmentId: String) =
+  fun restOfSetupWithMaleOffenderNoSevereNeeds(
+    crn: String,
+    includeAssessmentApi: Boolean = true,
+    assessmentId: String
+  ) =
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiNoSeverityNeedsResponse(), assessmentId)
 
-  fun restOfSetupWithMaleOffenderAndSevereNeeds(crn: String, includeAssessmentApi: Boolean = true, assessmentId: String) =
-    restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiHighSeverityNeedsResponse(), assessmentId)
+  fun restOfSetupWithMaleOffenderAndSevereNeeds(
+    crn: String,
+    assessmentId: String
+  ) =
+    restOfSetupWithNeeds(crn, true, assessmentsApiHighSeverityNeedsResponse(), assessmentId)
 
-  private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: HttpResponse, assessmentId: String) {
+  private fun restOfSetupWithNeeds(
+    crn: String,
+    includeAssessmentApi: Boolean,
+    needs: HttpResponse,
+    assessmentId: String
+  ) {
     setupCommunityApiAssessment(crn)
     setupMaleOffender(crn)
 
@@ -133,10 +148,17 @@ abstract class MockedEndpointsTestBase {
     assessmentApiResponse(needs, "/assessments/oasysSetId/$assessmentId/needs")
   }
 
-  fun setupCurrentAssessment(crn: String, assessmentId: String) = setupLatestAssessment(crn, LocalDate.now().year, assessmentId)
+  fun setupCurrentAssessment(crn: String, assessmentId: String) =
+    setupLatestAssessment(crn, LocalDate.now().year, assessmentId)
 
   fun setupLatestAssessment(crn: String, year: Int, assessmentId: String) =
-    assessmentApiResponse(assessmentsApiAssessmentsResponse(LocalDateTime.of(year, Month.JANUARY, 1, 0, 0)!!, assessmentId), "/offenders/crn/$crn/assessments/summary")
+    assessmentApiResponse(
+      assessmentsApiAssessmentsResponse(
+        LocalDateTime.of(year, Month.JANUARY, 1, 0, 0)!!,
+        assessmentId
+      ),
+      "/offenders/crn/$crn/assessments/summary"
+    )
 
   fun setupAssessmentNotFound(crn: String) =
     assessmentApiResponse(notFoundResponse(), "/offenders/crn/$crn/assessments/summary")
@@ -228,19 +250,11 @@ abstract class MockedEndpointsTestBase {
       .jsonPath("tierScore").isEqualTo(tierScore)
   }
 
-  private fun httpSetupWithQs(
-    response: HttpResponse,
-    urlTemplate: String,
-    clientAndServer: ClientAndServer,
-    qs: Parameter
-  ) =
-    clientAndServer.`when`(request().withPath(urlTemplate).withQueryStringParameter(qs), exactly(1)).respond(response)
-
   private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
     clientAndServer.`when`(request().withPath(urlTemplate), exactly(1)).respond(response)
 
   private fun communityApiResponseWithQs(response: HttpResponse, urlTemplate: String, qs: Parameter) =
-    httpSetupWithQs(response, urlTemplate, communityApi, qs)
+    communityApi.`when`(request().withPath(urlTemplate).withQueryStringParameter(qs), exactly(1)).respond(response)
 
   private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
     httpSetup(response, urlTemplate, communityApi)
