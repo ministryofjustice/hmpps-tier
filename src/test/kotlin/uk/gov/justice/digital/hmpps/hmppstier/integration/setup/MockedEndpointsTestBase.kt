@@ -212,27 +212,14 @@ abstract class MockedEndpointsTestBase {
   }
 
   fun expectNoUpdatedTierCalculation() {
-    // calculation succeeded but is unchanged, so no update events
-    await untilCallTo {
-      getNumberOfMessagesCurrentlyOnQueue(
-        calculationCompleteClient,
-        calculationCompleteUrl
-      )
-    } matches { it == 0 }
-    await untilCallTo {
-      getNumberOfMessagesCurrentlyNotVisibleOnQueue(
-        offenderEventsClient, eventQueueUrl
-      )
-    } matches { it == 0 }
+    // calculation succeeded but is unchanged, so no calculation complete events
+    // and message is not returned to the event queue
+    noMessagesCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
+    noMessagesCurrentlyOnQueue(offenderEventsClient, eventQueueUrl)
   }
 
   fun expectTierCalculation(tierScore: String) {
-    await untilCallTo {
-      getNumberOfMessagesCurrentlyOnQueue(
-        calculationCompleteClient,
-        calculationCompleteUrl
-      )
-    } matches { it == 1 }
+    oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
     val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
     val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
     val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
