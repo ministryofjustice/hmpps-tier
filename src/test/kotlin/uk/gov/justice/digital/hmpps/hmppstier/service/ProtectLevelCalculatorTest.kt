@@ -145,6 +145,24 @@ internal class ProtectLevelCalculatorTest {
     }
 
     @Test
+    fun `should not count assessment additional factors duplicates mixed answers`() {
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
+
+      every { communityApiClient.getOffender(crn) } returns Offender("Female")
+      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
+        mapOf(
+          AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "YES",
+          AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
+        )
+
+      val result = calculateProtectLevel(crn = crn, offenderAssessment = assessment)
+      assertThat(result.points).isEqualTo(2)
+
+      verify { communityApiClient.getOffender(crn) }
+      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+    }
+
+    @Test
     fun `should add multiple additional factors`() {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
