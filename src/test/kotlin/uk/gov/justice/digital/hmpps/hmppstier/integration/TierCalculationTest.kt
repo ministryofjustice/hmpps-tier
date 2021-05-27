@@ -110,19 +110,17 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       val crn = "X432771"
 
       setupSCCustodialSentence(crn)
-      setupMaleOffenderWithRegistrations(crn, false, "4234568890")
-      setupLatestAssessment(crn, 2018, "4234568890")
+      setupMaleOffenderWithRegistrations(crn, assessmentId = "4234568890")
 
       calculateTierFor(crn)
-      expectTierCalculation("A2")
+      expectTierCalculation("A1")
 
       setupSCCustodialSentence(crn)
       setupRegistrations(registrationsResponseWithMappa("M1"), crn)
-      restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890")
-      setupLatestAssessment(crn, 2018, "4234568890")
+      restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "4234568890")
 
       calculateTierFor(crn)
-      expectTierCalculation("B2")
+      expectTierCalculation("B1")
     }
   }
 }
