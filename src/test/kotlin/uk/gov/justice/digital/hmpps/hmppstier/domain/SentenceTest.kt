@@ -20,9 +20,7 @@ internal class SentenceTest {
       val sentenceDto = SentenceDto(now.plusDays(1), KeyValue("SC"), now, now.plusDays(3))
       val sentence = Sentence.from(sentenceDto)
 
-      Assertions.assertThat(sentence.expectedEndDate).isEqualTo(sentenceDto.expectedSentenceEndDate)
       Assertions.assertThat(sentence.sentenceType).isEqualTo(sentenceDto.sentenceType.code)
-      Assertions.assertThat(sentence.startDate).isEqualTo(sentenceDto.startDate)
       Assertions.assertThat(sentence.terminationDate).isEqualTo(sentenceDto.terminationDate)
     }
 
@@ -32,9 +30,7 @@ internal class SentenceTest {
       val sentenceDto = SentenceDto(null, KeyValue("SC"), now, null)
       val sentence = Sentence.from(sentenceDto)
 
-      Assertions.assertThat(sentence.expectedEndDate).isEqualTo(sentenceDto.expectedSentenceEndDate)
       Assertions.assertThat(sentence.sentenceType).isEqualTo(sentenceDto.sentenceType.code)
-      Assertions.assertThat(sentence.startDate).isEqualTo(sentenceDto.startDate)
       Assertions.assertThat(sentence.terminationDate).isEqualTo(sentenceDto.terminationDate)
     }
   }
