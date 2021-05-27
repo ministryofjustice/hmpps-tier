@@ -7,6 +7,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle
 import org.mockserver.integration.ClientAndServer
+import org.mockserver.matchers.Times.exactly
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.notFoundResponse
@@ -233,10 +234,10 @@ abstract class MockedEndpointsTestBase {
     clientAndServer: ClientAndServer,
     qs: Parameter
   ) =
-    clientAndServer.`when`(request().withPath(urlTemplate).withQueryStringParameter(qs)).respond(response)
+    clientAndServer.`when`(request().withPath(urlTemplate).withQueryStringParameter(qs), exactly(1)).respond(response)
 
   private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
-    clientAndServer.`when`(request().withPath(urlTemplate)).respond(response)
+    clientAndServer.`when`(request().withPath(urlTemplate), exactly(1)).respond(response)
 
   private fun communityApiResponseWithQs(response: HttpResponse, urlTemplate: String, qs: Parameter) =
     httpSetupWithQs(response, urlTemplate, communityApi, qs)
