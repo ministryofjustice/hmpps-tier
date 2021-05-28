@@ -5,9 +5,7 @@ import java.time.LocalDate
 
 data class Sentence constructor(
   val terminationDate: LocalDate?,
-  val sentenceType: String,
-  val startDate: LocalDate,
-  val expectedEndDate: LocalDate?,
+  val sentenceType: String
 ) {
 
   fun isCustodial(): Boolean = this.sentenceType in arrayOf("NC", "SC")
@@ -17,9 +15,7 @@ data class Sentence constructor(
     fun from(dto: SentenceDto): Sentence =
       Sentence(
         dto.terminationDate,
-        dto.sentenceType.code,
-        dto.startDate,
-        dto.expectedSentenceEndDate
+        dto.sentenceType.code
       )
   }
 }

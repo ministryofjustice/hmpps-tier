@@ -16,7 +16,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
 import java.time.Clock
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -57,7 +56,7 @@ internal class ChangeLevelCalculatorTest {
     }
 
     private fun getValidConviction(): List<Conviction> {
-      return listOf(Conviction(54321L, Sentence(null, "SC", LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(), "101"))
+      return listOf(Conviction(54321L, Sentence(null, "SC")))
     }
   }
 
@@ -80,7 +79,7 @@ internal class ChangeLevelCalculatorTest {
     }
 
     private fun getValidConviction(): List<Conviction> {
-      return listOf(Conviction(54321L, Sentence(null, "SC", LocalDate.now(clock), LocalDate.now(clock).plusDays(1)), listOf(), "101"))
+      return listOf(Conviction(54321L, Sentence(null, "SC")))
     }
   }
 }

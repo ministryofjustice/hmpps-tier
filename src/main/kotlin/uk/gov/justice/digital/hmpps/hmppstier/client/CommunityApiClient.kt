@@ -118,13 +118,6 @@ data class ConvictionDto @JsonCreator constructor(
 
   @JsonProperty("sentence")
   val sentence: SentenceDto?,
-
-  @JsonProperty("offences")
-  val offences: List<Offence>,
-
-  @JsonProperty("latestCourtAppearanceOutcome")
-  val latestCourtAppearanceOutcome: KeyValue?
-
 )
 
 data class SentenceDto @JsonCreator constructor(
@@ -132,23 +125,7 @@ data class SentenceDto @JsonCreator constructor(
   val terminationDate: LocalDate?,
 
   @JsonProperty("sentenceType")
-  val sentenceType: KeyValue,
-
-  @JsonProperty("startDate")
-  val startDate: LocalDate,
-
-  @JsonProperty("expectedSentenceEndDate")
-  val expectedSentenceEndDate: LocalDate?,
-)
-
-data class Offence @JsonCreator constructor(
-  @JsonProperty("detail")
-  val offenceDetail: OffenceDetail
-)
-
-data class OffenceDetail @JsonCreator constructor(
-  @JsonProperty("mainCategoryCode")
-  val mainCategoryCode: String
+  val sentenceType: KeyValue
 )
 
 data class Offender @JsonCreator constructor(
