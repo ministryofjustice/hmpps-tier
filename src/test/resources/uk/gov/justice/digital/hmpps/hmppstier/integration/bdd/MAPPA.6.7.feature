@@ -1,15 +1,15 @@
 #lang: en
 Feature: MAPPA
 
-  Scenario: MAPPA M Level 3 scores 30 points
+  Scenario: MAPPA M Level 3 scores 150 points
     Given an active MAPPA registration of M Level "3"
     When a tier is calculated
-    Then 30 protect points are scored
+    Then 150 protect points are scored
 
-  Scenario: MAPPA M Level 2 scores 30 points
+  Scenario: MAPPA M Level 2 scores 150 points
     Given an active MAPPA registration of M Level "2"
     When a tier is calculated
-    Then 30 protect points are scored
+    Then 150 protect points are scored
 
   Scenario: MAPPA M Level 1 scores 5 points
     Given an active MAPPA registration of M Level "1"

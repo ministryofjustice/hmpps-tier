@@ -1,11 +1,11 @@
 #lang: en
 Feature: Calculate ROSH score
 
-  Scenario: ROSH very high 30 points scored
+  Scenario: ROSH very high 150 points scored
     Given a ROSH score of "VERY_HIGH"
     And no RSR score
     When a tier is calculated
-    Then 30 protect points are scored
+    Then 150 protect points are scored
 
   Scenario: ROSH high 20 points scored
     Given a ROSH score of "HIGH"
