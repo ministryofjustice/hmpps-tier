@@ -4,6 +4,8 @@ import com.microsoft.applicationinsights.TelemetryClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
+import uk.gov.justice.digital.hmpps.hmppstier.service.TelemetryEventType.TIER_CHANGED
+import uk.gov.justice.digital.hmpps.hmppstier.service.TelemetryEventType.TIER_UNCHANGED
 
 @Component
 class TelemetryService(@Autowired private val telemetryClient: TelemetryClient) {
@@ -11,9 +13,9 @@ class TelemetryService(@Autowired private val telemetryClient: TelemetryClient) 
   fun trackTierCalculated(crn: String, calculation: TierCalculationEntity, isUpdated: Boolean) {
     trackEvent(
       if (isUpdated)
-        TelemetryEventType.TIER_CHANGED
+        TIER_CHANGED
       else
-        TelemetryEventType.TIER_UNCHANGED,
+        TIER_UNCHANGED,
       mapOf(
         "crn" to crn,
         "protect" to calculation.data.protect.tier.value,

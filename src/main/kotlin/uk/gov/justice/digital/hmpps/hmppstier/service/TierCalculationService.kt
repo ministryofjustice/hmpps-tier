@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
@@ -23,8 +22,7 @@ class TierCalculationService(
   private val communityApiService: CommunityApiService,
   private val communityApiClient: CommunityApiClient, // Deprecated
   private val successUpdater: SuccessUpdater,
-  private val telemetryService: TelemetryService,
-  @Value("\${calculation.version}") private val calculationVersion: Int
+  private val telemetryService: TelemetryService
 ) {
 
   fun getLatestTierByCrn(crn: String): TierDto? =
@@ -90,7 +88,7 @@ class TierCalculationService(
       data = TierCalculationResultEntity(
         change = changeLevel,
         protect = protectLevel,
-        calculationVersion = calculationVersion.toString()
+        calculationVersion = "2"
       )
     )
   }

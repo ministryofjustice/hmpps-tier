@@ -60,6 +60,3 @@ oauth:
   client:
     id: client-id
     secret: client-secret
-
-calculation:
-  version: 2
