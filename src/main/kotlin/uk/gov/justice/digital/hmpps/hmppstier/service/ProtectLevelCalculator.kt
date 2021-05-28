@@ -56,8 +56,8 @@ class ProtectLevelCalculator(
       .minus(minOf(points.getOrDefault(RSR, 0), points.getOrDefault(ROSH, 0)))
 
     return when {
-      total >= levelA -> TierLevel(A, total, points)
-      total in 20 until levelA -> TierLevel(B, total, points)
+      total >= LEVEL_A_LOWER_THRESHOLD -> TierLevel(A, total, points)
+      total in 20 until LEVEL_A_LOWER_THRESHOLD -> TierLevel(B, total, points)
       total in 10 until 20 -> TierLevel(C, total, points)
       else -> TierLevel(D, total, points)
     }
@@ -72,7 +72,7 @@ class ProtectLevelCalculator(
 
   private fun getRoshPoints(rosh: Rosh?): Int =
     when (rosh) {
-      VERY_HIGH -> levelA
+      VERY_HIGH -> LEVEL_A_LOWER_THRESHOLD
       HIGH -> 20
       MEDIUM -> 10
       else -> 0
@@ -80,13 +80,15 @@ class ProtectLevelCalculator(
 
   private fun getMappaPoints(mappa: Mappa?): Int =
     when (mappa) {
-      M3, M2 -> levelA
+      M3, M2 -> LEVEL_A_LOWER_THRESHOLD
       M1 -> 5
       else -> 0
     }
 
-  private val levelA = 150
-
   private fun getComplexityPoints(complexityFactors: Collection<ComplexityFactor>): Int =
     complexityFactors.count().times(2)
+
+  companion object {
+    private const val LEVEL_A_LOWER_THRESHOLD = 150
+  }
 }
