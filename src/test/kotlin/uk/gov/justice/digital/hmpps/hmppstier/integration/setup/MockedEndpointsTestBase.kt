@@ -27,6 +27,7 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Month
+import java.time.Month.JANUARY
 
 @TestInstance(Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -127,6 +128,10 @@ abstract class MockedEndpointsTestBase {
     communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
   }
 
+  fun setupMaleOffenderNotFound(crn: String) {
+    communityApiResponse(notFoundResponse(), "/secure/offenders/crn/$crn")
+  }
+
   fun restOfSetupWithFemaleOffender(crn: String, assessmentId: String) {
     setupNoDeliusAssessment(crn)
     communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
@@ -148,7 +153,7 @@ abstract class MockedEndpointsTestBase {
   fun setupLatestAssessment(crn: String, year: Int, assessmentId: String) =
     assessmentApiResponse(
       assessmentsApiAssessmentsResponse(
-        LocalDateTime.of(year, Month.JANUARY, 1, 0, 0)!!,
+        LocalDateTime.of(year, JANUARY, 1, 0, 0)!!,
         assessmentId
       ),
       "/offenders/crn/$crn/assessments/summary"

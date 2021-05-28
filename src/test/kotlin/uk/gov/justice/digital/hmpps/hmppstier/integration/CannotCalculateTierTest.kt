@@ -9,9 +9,12 @@ class CannotCalculateTierTest : MockedEndpointsTestBase() {
   @Test
   fun `Offender does not exist`() {
     val crn = "X123456"
+    setupCurrentAssessment(crn, "1234567890")
+
     setupSCCustodialSentence(crn)
     setupRegistrations(emptyRegistrationsResponse(), crn)
-    restOfSetupWithMaleOffenderNoSevereNeeds("NOTFOUND", assessmentId = "NOTUSED")
+    setupCommunityApiAssessment(crn)
+    setupMaleOffenderNotFound(crn)
     calculateTierFor(crn)
     expectTierCalculationToHaveFailed()
   }
