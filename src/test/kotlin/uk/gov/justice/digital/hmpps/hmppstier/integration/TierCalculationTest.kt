@@ -36,14 +36,14 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupSCCustodialSentence(crn)
       setupRegistrations(registrationsResponseWithMappa(), crn)
       restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890")
-      setupLatestAssessment(crn, 2018, "1234567890")
+      setupOutdatedAssessment(crn, "1234567890")
 
       calculateTierFor(crn)
       expectTierCalculation("A2")
 
       setupSCCustodialSentence(crn)
       setupMaleOffenderWithRegistrations(crn, false, "4234568890")
-      setupLatestAssessment(crn, 2018, "1234567890")
+      setupOutdatedAssessment(crn, "1234567890")
 
       calculateTierFor(crn)
       expectNoUpdatedTierCalculation()
@@ -55,7 +55,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
 
       setupSCCustodialSentence(crn)
       setupMaleOffenderWithRegistrations(crn, false, "4234568890")
-      setupLatestAssessment(crn, 2018, "1234567890")
+      setupOutdatedAssessment(crn, "1234567890")
 
       calculateTierFor(crn)
       expectTierCalculation("A2")
@@ -77,7 +77,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
 
       setupSCCustodialSentence(crn)
       setupMaleOffenderWithRegistrations(crn, false, "4234568890")
-      setupLatestAssessment(crn, 2018, "4234568890")
+      setupOutdatedAssessment(crn, "4234568890")
 
       calculateTierFor(crn)
       expectTierCalculation("A2")

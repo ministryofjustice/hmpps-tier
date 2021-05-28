@@ -149,7 +149,8 @@ abstract class MockedEndpointsTestBase {
   fun setupCurrentAssessment(crn: String, assessmentId: String) =
     setupLatestAssessment(crn, LocalDate.now().year, assessmentId)
 
-  fun setupLatestAssessment(crn: String, year: Int, assessmentId: String) =
+  fun setupOutdatedAssessment(crn: String, assessmentId: String) = setupLatestAssessment(crn, 2018, assessmentId)
+  private fun setupLatestAssessment(crn: String, year: Int, assessmentId: String) =
     assessmentApiResponse(
       assessmentsApiAssessmentsResponse(
         LocalDateTime.of(year, JANUARY, 1, 0, 0)!!,
