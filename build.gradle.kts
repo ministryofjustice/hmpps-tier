@@ -134,11 +134,11 @@ tasks {
       rule {
         limit {
           counter = "BRANCH"
-          minimum = BigDecimal(0.89)
+          minimum = BigDecimal(0.885)
         }
         limit {
           counter = "COMPLEXITY"
-          minimum = BigDecimal(0.88)
+          minimum = BigDecimal(0.875)
         }
       }
     }

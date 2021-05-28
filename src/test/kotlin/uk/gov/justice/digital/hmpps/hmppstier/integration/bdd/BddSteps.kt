@@ -288,12 +288,6 @@ class BddSteps : En {
     And("has a custodial sentence") {
       // Do nothing
     }
-    And("has a main offence of Arson") {
-      setupData.setMainOffenceArson()
-    }
-    And("has a main offence of Violence") {
-      setupData.setMainOffenceViolence()
-    }
     And("has a main offence of Abstracting Electricity") {
       setupData.setMainOffenceAbstractingElectricity()
     }
