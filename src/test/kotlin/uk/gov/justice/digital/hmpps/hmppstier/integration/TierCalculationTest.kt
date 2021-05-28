@@ -28,22 +28,6 @@ class TierCalculationTest : MockedEndpointsTestBase() {
   }
 
   @Nested
-  inner class MaleOffender {
-
-    @Test
-    fun `default change to '2' for non recent assessment`() {
-      val crn = "X432767"
-
-      setupSCCustodialSentence(crn)
-      setupMaleOffenderWithRegistrations(crn, false, "4234568890")
-      setupLatestAssessment(crn, 2018, "1234567890")
-
-      calculateTierFor(crn)
-      expectTierCalculation("A2")
-    }
-  }
-
-  @Nested
   inner class TierChangeWriteback {
     @Test
     fun `Does not write back when tier is unchanged`() {
