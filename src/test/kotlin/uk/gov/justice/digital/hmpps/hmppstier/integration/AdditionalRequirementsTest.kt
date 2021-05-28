@@ -12,7 +12,7 @@ class AdditionalRequirementsTest : MockedEndpointsTestBase() {
     setupNonCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithMappa(), crn)
     setupAdditionalRequirements(crn)
-    restOfSetupWithMaleOffenderAndSevereNeeds(crn, assessmentId = "4234567890")
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "4234567890")
     calculateTierFor(crn)
     expectTierCalculation("A0")
   }

@@ -26,7 +26,7 @@ import java.math.BigDecimal
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.Month
+import java.time.Month.JANUARY
 
 @TestInstance(Lifecycle.PER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -57,8 +57,10 @@ abstract class MockedEndpointsTestBase {
 
   @Autowired
   lateinit var oauthMock: ClientAndServer
+
   @Autowired
   lateinit var communityApi: ClientAndServer
+
   @Autowired
   lateinit var assessmentApi: ClientAndServer
 
@@ -73,7 +75,8 @@ abstract class MockedEndpointsTestBase {
   private fun setupOauth() {
     val response = HttpResponse.response().withContentType(APPLICATION_JSON)
       .withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
-    oauthMock.`when`(request().withPath("/auth/oauth/token").withBody("grant_type=client_credentials")).respond(response)
+    oauthMock.`when`(request().withPath("/auth/oauth/token").withBody("grant_type=client_credentials"))
+      .respond(response)
   }
 
   fun setupNCCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialNCConvictionResponse())
@@ -87,27 +90,25 @@ abstract class MockedEndpointsTestBase {
       Parameter("activeOnly", "true")
     )
 
-  fun setupEmptyNsisResponse(crn: String) =
+  fun setupEmptyNsisResponse(crn: String) {
     communityApiResponseWithQs(
       emptyNsisResponse(),
       "/secure/offenders/crn/$crn/convictions/2500222290/nsis",
       Parameter("nsiCodes", "BRE,BRES,REC,RECS")
     )
+  }
 
-  fun restOfSetupWithMaleOffenderNoSevereNeeds(crn: String, includeAssessmentApi: Boolean = true, assessmentId: String) =
-    restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiNoSeverityNeedsResponse(), assessmentId)
-
-  fun restOfSetupWithMaleOffenderAndSevereNeeds(crn: String, includeAssessmentApi: Boolean = true, assessmentId: String) =
-    restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiHighSeverityNeedsResponse(), assessmentId)
-
-  private fun restOfSetupWithNeeds(crn: String, includeAssessmentApi: Boolean, needs: HttpResponse, assessmentId: String) {
+  fun restOfSetupWithMaleOffenderNoSevereNeeds(
+    crn: String,
+    includeAssessmentApi: Boolean = true,
+    assessmentId: String
+  ) {
     setupCommunityApiAssessment(crn)
     setupMaleOffender(crn)
-
     if (includeAssessmentApi) {
       setupCurrentAssessment(crn, assessmentId)
     }
-    setupNeeds(needs, assessmentId)
+    setupNeeds(assessmentsApiNoSeverityNeedsResponse(), assessmentId)
   }
 
   fun setupCommunityApiAssessment(crn: String, rsr: BigDecimal = BigDecimal(23.0), ogrs: String = "21") {
@@ -116,6 +117,10 @@ abstract class MockedEndpointsTestBase {
 
   fun setupMaleOffender(crn: String) {
     communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
+  }
+
+  fun setupMaleOffenderNotFound(crn: String) {
+    communityApiResponse(notFoundResponse(), "/secure/offenders/crn/$crn")
   }
 
   fun restOfSetupWithFemaleOffender(crn: String, assessmentId: String) {
@@ -133,24 +138,42 @@ abstract class MockedEndpointsTestBase {
     assessmentApiResponse(needs, "/assessments/oasysSetId/$assessmentId/needs")
   }
 
-  fun setupCurrentAssessment(crn: String, assessmentId: String) = setupLatestAssessment(crn, LocalDate.now().year, assessmentId)
+  fun setupCurrentAssessment(crn: String, assessmentId: String) {
+    setupLatestAssessment(crn, LocalDate.now().year, assessmentId)
+  }
 
-  fun setupLatestAssessment(crn: String, year: Int, assessmentId: String) =
-    assessmentApiResponse(assessmentsApiAssessmentsResponse(LocalDateTime.of(year, Month.JANUARY, 1, 0, 0)!!, assessmentId), "/offenders/crn/$crn/assessments/summary")
+  fun setupOutdatedAssessment(crn: String, assessmentId: String) {
+    setupLatestAssessment(crn, 2018, assessmentId)
+  }
 
-  fun setupAssessmentNotFound(crn: String) =
+  private fun setupLatestAssessment(crn: String, year: Int, assessmentId: String) =
+    assessmentApiResponse(
+      assessmentsApiAssessmentsResponse(
+        LocalDateTime.of(year, JANUARY, 1, 0, 0)!!,
+        assessmentId
+      ),
+      "/offenders/crn/$crn/assessments/summary"
+    )
+
+  fun setupAssessmentNotFound(crn: String) {
     assessmentApiResponse(notFoundResponse(), "/offenders/crn/$crn/assessments/summary")
+  }
 
-  fun setupNonCustodialSentence(crn: String) = setupActiveConvictions(crn, nonCustodialConvictionResponse())
+  fun setupNonCustodialSentence(crn: String) {
+    setupActiveConvictions(crn, nonCustodialConvictionResponse())
+  }
 
-  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) =
+  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) {
     setupActiveConvictions(crn, nonCustodialCurrentAndTerminatedConviction())
+  }
 
-  fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) =
+  fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) {
     setupActiveConvictions(crn, custodialAndNonCustodialConvictions())
+  }
 
-  fun setupTerminatedCustodialSentence(crn: String) =
+  fun setupTerminatedCustodialSentence(crn: String) {
     setupActiveConvictions(crn, custodialTerminatedConvictionResponse())
+  }
 
   fun setupTerminatedNonCustodialSentence(crn: String) =
     setupActiveConvictions(crn, nonCustodialTerminatedConvictionResponse())
@@ -228,19 +251,11 @@ abstract class MockedEndpointsTestBase {
       .jsonPath("tierScore").isEqualTo(tierScore)
   }
 
-  private fun httpSetupWithQs(
-    response: HttpResponse,
-    urlTemplate: String,
-    clientAndServer: ClientAndServer,
-    qs: Parameter
-  ) =
-    clientAndServer.`when`(request().withPath(urlTemplate).withQueryStringParameter(qs), exactly(1)).respond(response)
-
   private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
     clientAndServer.`when`(request().withPath(urlTemplate), exactly(1)).respond(response)
 
   private fun communityApiResponseWithQs(response: HttpResponse, urlTemplate: String, qs: Parameter) =
-    httpSetupWithQs(response, urlTemplate, communityApi, qs)
+    communityApi.`when`(request().withPath(urlTemplate).withQueryStringParameter(qs), exactly(1)).respond(response)
 
   private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
     httpSetup(response, urlTemplate, communityApi)
