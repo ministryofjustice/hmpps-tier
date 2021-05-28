@@ -22,7 +22,6 @@ env:
   OAUTH_ROOT_URL: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
   COMMUNITY_ENDPOINT_URL: https://community-api.test.probation.service.justice.gov.uk/secure
   ASSESSMENT_ENDPOINT_URL: https://offender-dev.aks-dev-1.studio-hosting.service.justice.gov.uk
-  CALCULATION_VERSION: 2
 
 whitelist:
   office: "217.33.148.210/32"

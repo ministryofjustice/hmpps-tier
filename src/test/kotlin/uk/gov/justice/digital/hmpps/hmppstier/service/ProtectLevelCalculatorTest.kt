@@ -45,8 +45,7 @@ internal class ProtectLevelCalculatorTest {
       clock,
       communityApiClient,
       assessmentApiService
-    ),
-    1
+    )
   )
 
   private val crn = "Any Crn"
