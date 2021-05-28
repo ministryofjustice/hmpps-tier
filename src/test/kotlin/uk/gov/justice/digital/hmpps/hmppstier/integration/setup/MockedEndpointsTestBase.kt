@@ -104,12 +104,6 @@ abstract class MockedEndpointsTestBase {
   ) =
     restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiNoSeverityNeedsResponse(), assessmentId)
 
-  fun restOfSetupWithMaleOffenderAndSevereNeeds(
-    crn: String,
-    assessmentId: String
-  ) =
-    restOfSetupWithNeeds(crn, true, assessmentsApiHighSeverityNeedsResponse(), assessmentId)
-
   private fun restOfSetupWithNeeds(
     crn: String,
     includeAssessmentApi: Boolean,

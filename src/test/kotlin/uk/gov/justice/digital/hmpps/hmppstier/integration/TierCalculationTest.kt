@@ -34,7 +34,8 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       val crn = "X432769"
 
       setupSCCustodialSentence(crn)
-      setupMaleOffenderWithRegistrations(crn, false, "4234568890")
+      setupRegistrations(registrationsResponseWithMappa(), crn)
+      restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890")
       setupLatestAssessment(crn, 2018, "1234567890")
 
       calculateTierFor(crn)
