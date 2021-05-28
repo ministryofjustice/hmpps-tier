@@ -90,33 +90,25 @@ abstract class MockedEndpointsTestBase {
       Parameter("activeOnly", "true")
     )
 
-  fun setupEmptyNsisResponse(crn: String) =
+  fun setupEmptyNsisResponse(crn: String) {
     communityApiResponseWithQs(
       emptyNsisResponse(),
       "/secure/offenders/crn/$crn/convictions/2500222290/nsis",
       Parameter("nsiCodes", "BRE,BRES,REC,RECS")
     )
+  }
 
   fun restOfSetupWithMaleOffenderNoSevereNeeds(
     crn: String,
     includeAssessmentApi: Boolean = true,
     assessmentId: String
-  ) =
-    restOfSetupWithNeeds(crn, includeAssessmentApi, assessmentsApiNoSeverityNeedsResponse(), assessmentId)
-
-  private fun restOfSetupWithNeeds(
-    crn: String,
-    includeAssessmentApi: Boolean,
-    needs: HttpResponse,
-    assessmentId: String
   ) {
     setupCommunityApiAssessment(crn)
     setupMaleOffender(crn)
-
     if (includeAssessmentApi) {
       setupCurrentAssessment(crn, assessmentId)
     }
-    setupNeeds(needs, assessmentId)
+    setupNeeds(assessmentsApiNoSeverityNeedsResponse(), assessmentId)
   }
 
   fun setupCommunityApiAssessment(crn: String, rsr: BigDecimal = BigDecimal(23.0), ogrs: String = "21") {
@@ -146,10 +138,14 @@ abstract class MockedEndpointsTestBase {
     assessmentApiResponse(needs, "/assessments/oasysSetId/$assessmentId/needs")
   }
 
-  fun setupCurrentAssessment(crn: String, assessmentId: String) =
+  fun setupCurrentAssessment(crn: String, assessmentId: String) {
     setupLatestAssessment(crn, LocalDate.now().year, assessmentId)
+  }
 
-  fun setupOutdatedAssessment(crn: String, assessmentId: String) = setupLatestAssessment(crn, 2018, assessmentId)
+  fun setupOutdatedAssessment(crn: String, assessmentId: String) {
+    setupLatestAssessment(crn, 2018, assessmentId)
+  }
+
   private fun setupLatestAssessment(crn: String, year: Int, assessmentId: String) =
     assessmentApiResponse(
       assessmentsApiAssessmentsResponse(
@@ -159,19 +155,25 @@ abstract class MockedEndpointsTestBase {
       "/offenders/crn/$crn/assessments/summary"
     )
 
-  fun setupAssessmentNotFound(crn: String) =
+  fun setupAssessmentNotFound(crn: String) {
     assessmentApiResponse(notFoundResponse(), "/offenders/crn/$crn/assessments/summary")
+  }
 
-  fun setupNonCustodialSentence(crn: String) = setupActiveConvictions(crn, nonCustodialConvictionResponse())
+  fun setupNonCustodialSentence(crn: String) {
+    setupActiveConvictions(crn, nonCustodialConvictionResponse())
+  }
 
-  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) =
+  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) {
     setupActiveConvictions(crn, nonCustodialCurrentAndTerminatedConviction())
+  }
 
-  fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) =
+  fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) {
     setupActiveConvictions(crn, custodialAndNonCustodialConvictions())
+  }
 
-  fun setupTerminatedCustodialSentence(crn: String) =
+  fun setupTerminatedCustodialSentence(crn: String) {
     setupActiveConvictions(crn, custodialTerminatedConvictionResponse())
+  }
 
   fun setupTerminatedNonCustodialSentence(crn: String) =
     setupActiveConvictions(crn, nonCustodialTerminatedConvictionResponse())
