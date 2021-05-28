@@ -41,7 +41,7 @@ class ProtectTierATest : MockedEndpointsTestBase() {
   }
 
   @Test
-  fun `Tier is B with low Mappa but 30 points`() {
+  fun `Tier is B with low Mappa but 31 points`() {
     val crn = "X333480"
     setupNCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithRoshMappaAndAdditionalFactors(HIGH.registerCode, "M1", listOf("RCCO", "RCPR", "RCHD")), crn)
