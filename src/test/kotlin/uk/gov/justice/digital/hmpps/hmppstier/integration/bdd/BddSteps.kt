@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration.bdd
 
 import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.amazonaws.services.sqs.model.PurgeQueueRequest
-import com.google.common.collect.Lists.newArrayList
 import com.google.gson.Gson
 import io.cucumber.java8.En
 import io.cucumber.java8.Scenario
@@ -15,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M1
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M3
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.HIGH
@@ -86,7 +86,7 @@ class BddSteps : En {
       setupData.setRsr(rsr)
     }
     Given("a ROSH score of {string}") { rosh: String ->
-      var roshCode: String =
+      val roshCode: String =
         if (Rosh.values().any { it.name == rosh }) Rosh.valueOf(rosh).registerCode
         else "NO_ROSH"
 
@@ -193,13 +193,35 @@ class BddSteps : En {
       setupData.setRosh(HIGH.registerCode) // 20
       setupData.setAdditionalFactors(listOf("RCCO", "RCPR", "RCHD")) // 6
     }
-    Given("an offender scores 30 protect points") {
-      setupData.setMappa(Mappa.M3.registerCode)
+    Given("an offender scores 152 protect points") {
+      setupData.setMappa(M3.registerCode) // 150
+      setupData.setAdditionalFactors(listOf("RCCO")) // 2
     }
-    Given("an offender scores 29 protect points") {
+    Given("an offender scores 150 protect points") {
+      setupData.setMappa(M3.registerCode)
+    }
+    Given("an offender scores 51 protect points") {
+      setupData.setGender("Female")
+      setupData.setValidAssessment()
+      setupData.setAssessmentAnswer("11.2", "1") // 2
+      setupData.setAssessmentAnswer("6.9", "YES") // 2
       setupData.setMappa(M1.registerCode) // 5
       setupData.setRosh(HIGH.registerCode) // 20
-      setupData.setAdditionalFactors(listOf("RPIR", "RTAO")) // 4
+      setupData.setNsiOutcomes(listOf("BRE02"))
+      setupData.setAdditionalFactors(
+        listOf(
+          "RMDO",
+          "ALSH",
+          "RVLN",
+          "RCCO",
+          "RCPR",
+          "RCHD",
+          "RPIR",
+          "RVAD",
+          "STRG",
+          "RTAO"
+        )
+      ) // 20
     }
     Given("an offender scores 21 protect points") {
       setupData.setMappa(M1.registerCode) // 5
@@ -260,23 +282,23 @@ class BddSteps : En {
       setupData.setAssessmentAnswer(question, answer)
     }
     And("has an active conviction with NSI Outcome code {string}") { outcome: String ->
-      setupData.setNsiOutcomes(newArrayList(outcome))
+      setupData.setNsiOutcomes(listOf(outcome))
     }
     And("has two active convictions with NSI Outcome codes {string} and {string}") { outcome1: String, outcome2: String ->
       setupData.setTwoActiveConvictions()
-      setupData.setNsiOutcomes(newArrayList(outcome1, outcome2))
+      setupData.setNsiOutcomes(listOf(outcome1, outcome2))
     }
     And("has two active convictions with NSI Outcome code {string}") { outcome: String ->
-      setupData.setNsiOutcomes(newArrayList(outcome))
+      setupData.setNsiOutcomes(listOf(outcome))
       setupData.setTwoActiveConvictions()
     }
     And("has a conviction terminated 365 days ago with NSI Outcome code {string}") { outcome: String ->
       setupData.setConvictionTerminatedDate(LocalDate.now().minusYears(1))
-      setupData.setNsiOutcomes(newArrayList(outcome))
+      setupData.setNsiOutcomes(listOf(outcome))
     }
     And("has a conviction terminated 366 days ago with NSI Outcome code {string}") { outcome: String ->
       setupData.setConvictionTerminatedDate(LocalDate.now().minusYears(1).minusDays(1))
-      setupData.setNsiOutcomes(newArrayList(outcome))
+      setupData.setNsiOutcomes(listOf(outcome))
     }
     And("no ROSH score") {
       // Do nothing
