@@ -1,15 +1,10 @@
 #lang: en
 Feature: Assess and Protect Axis Calculation
-
-  Scenario: 31 points scored Protect Level A
-    Given an offender scores 31 protect points
-    When a tier is calculated
-    Then a protect level of "A" is returned and 31 points are scored
-
-  Scenario: 30 points scored Protect Level A
+  
+  Scenario: 150 points scored Protect Level A
     Given an offender scores 30 protect points
     When a tier is calculated
-    Then a protect level of "A" is returned and 30 points are scored
+    Then a protect level of "A" is returned and 150 points are scored
 
   Scenario: 29 points scored Protect Level B
     Given an offender scores 29 protect points
