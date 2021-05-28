@@ -13,6 +13,12 @@ Feature: Higher score out of ROSH or RSR is taken
     When a tier is calculated
     Then 20 protect points are scored
 
+  Scenario: ROSH 20 points RSR 20 points so 20 points scored
+    Given an RSR score of "22.0"
+    And a ROSH score of "MEDIUM"
+    When a tier is calculated
+    Then 20 protect points are scored
+
 
 
 

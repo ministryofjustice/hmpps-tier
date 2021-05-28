@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M1
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M3
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.HIGH
@@ -192,19 +193,35 @@ class BddSteps : En {
       setupData.setRosh(HIGH.registerCode) // 20
       setupData.setAdditionalFactors(listOf("RCCO", "RCPR", "RCHD")) // 6
     }
+    Given("an offender scores 152 protect points") {
+      setupData.setMappa(M3.registerCode) // 150
+      setupData.setAdditionalFactors(listOf("RCCO")) // 2
+    }
     Given("an offender scores 150 protect points") {
-      setupData.setMappa(Mappa.M3.registerCode)
+      setupData.setMappa(M3.registerCode)
     }
     Given("an offender scores 51 protect points") {
       setupData.setGender("Female")
       setupData.setValidAssessment()
-      setupData.setAssessmentAnswer( "11.2" , "1") // 1
-      setupData.setAssessmentAnswer( "11.4" , "1") // 1
-      setupData.setAssessmentAnswer( "6.9" , "YES") // 2
+      setupData.setAssessmentAnswer("11.2", "1") // 2
+      setupData.setAssessmentAnswer("6.9", "YES") // 2
       setupData.setMappa(M1.registerCode) // 5
       setupData.setRosh(HIGH.registerCode) // 20
       setupData.setNsiOutcomes(listOf("BRE02"))
-      setupData.setAdditionalFactors(listOf("RMDO", "ALSH", "RVLN", "RCCO", "RCPR", "RCHD", "RPIR", "RVAD", "STRG", "RTAO")) // 20
+      setupData.setAdditionalFactors(
+        listOf(
+          "RMDO",
+          "ALSH",
+          "RVLN",
+          "RCCO",
+          "RCPR",
+          "RCHD",
+          "RPIR",
+          "RVAD",
+          "STRG",
+          "RTAO"
+        )
+      ) // 20
     }
     Given("an offender scores 21 protect points") {
       setupData.setMappa(M1.registerCode) // 5
