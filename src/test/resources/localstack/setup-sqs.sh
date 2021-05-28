@@ -13,7 +13,7 @@ aws --endpoint-url=http://localhost:4576 sqs create-queue --queue-name Digital-P
 aws --endpoint-url=http://localhost:4576 sqs create-queue --queue-name Digital-Prison-Services-dev-hmpps_tier_offender_events_queue_d
 aws --endpoint-url=http://localhost:4576 sqs create-queue --queue-name Digital-Prison-Services-dev-hmpps_tier_calculation_complete_queue
 
-aws --endpoint-url=http://localhost:4576 sqs set-queue-attributes --queue-url "http://localhost:4576/queue/Digital-Prison-Services-dev-hmpps_tier_offender_events_queue" --attributes '{"RedrivePolicy":"{\"maxReceiveCount\":\"3\", \"deadLetterTargetArn\":\"arn:aws:sqs:eu-west-2:000000000000:Digital-Prison-Services-dev-hmpps_tier_offender_events_queue_d\"}"}'
+aws --endpoint-url=http://localhost:4576 sqs set-queue-attributes --queue-url "http://localhost:4576/queue/Digital-Prison-Services-dev-hmpps_tier_offender_events_queue" --attributes '{"RedrivePolicy":"{\"maxReceiveCount\":\"1\", \"deadLetterTargetArn\":\"arn:aws:sqs:eu-west-2:000000000000:Digital-Prison-Services-dev-hmpps_tier_offender_events_queue_d\"}"}'
 aws --endpoint-url=http://localhost:4575 sns subscribe \
     --topic-arn arn:aws:sns:eu-west-2:000000000000:offender_events \
     --protocol sqs \

@@ -10,7 +10,6 @@ class CannotCalculateTierTest : MockedEndpointsTestBase() {
   fun `Offender does not exist`() {
     val crn = "X123456"
     setupCurrentAssessment(crn, "1234567890")
-
     setupSCCustodialSentence(crn)
     setupRegistrations(emptyRegistrationsResponse(), crn)
     setupCommunityApiAssessment(crn)
