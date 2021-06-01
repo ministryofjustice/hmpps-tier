@@ -1,9 +1,11 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import io.mockk.clearMocks
+import io.mockk.every
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import org.assertj.core.api.Assertions
+import io.mockk.verify
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
@@ -24,6 +26,8 @@ internal class CommunityApiServiceTest {
   private val communityApiClient: CommunityApiClient = mockk(relaxUnitFun = true)
   private val communityApiService = CommunityApiService(communityApiClient)
 
+  private val crn = "X123456"
+
   @BeforeEach
   fun resetAllMocks() {
     clearMocks(communityApiClient)
@@ -39,10 +43,17 @@ internal class CommunityApiServiceTest {
   @DisplayName("Simple ROSH tests")
   inner class SimpleRoshTests {
 
+    @AfterEach
+    fun apiCall() {
+      verify { communityApiClient.getRegistrations(crn) }
+    }
+
     @Test
     fun `should return null for No Rosh`() {
-      val result = communityApiService.getRosh(listOf())
-      Assertions.assertThat(result).isNull()
+      every { communityApiClient.getRegistrations(crn) } returns listOf()
+
+      val result = communityApiService.getRegistrations(crn).rosh
+      assertThat(result).isNull()
     }
 
     @Test
@@ -55,8 +66,10 @@ internal class CommunityApiServiceTest {
             LocalDate.now()
           )
         )
-      val result = communityApiService.getRosh(registrations)
-      Assertions.assertThat(result).isEqualTo(Rosh.MEDIUM)
+      every { communityApiClient.getRegistrations(crn) } returns registrations
+
+      val result = communityApiService.getRegistrations(crn).rosh
+      assertThat(result).isEqualTo(Rosh.MEDIUM)
     }
 
     @Test
@@ -69,8 +82,10 @@ internal class CommunityApiServiceTest {
             LocalDate.now()
           )
         )
-      val result = communityApiService.getRosh(registrations)
-      Assertions.assertThat(result).isEqualTo(Rosh.MEDIUM)
+      every { communityApiClient.getRegistrations(crn) } returns registrations
+
+      val result = communityApiService.getRegistrations(crn).rosh
+      assertThat(result).isEqualTo(Rosh.MEDIUM)
     }
 
     @Test
@@ -96,8 +111,10 @@ internal class CommunityApiServiceTest {
             LocalDate.now()
           ),
         )
-      val result = communityApiService.getRosh(registrations)
-      Assertions.assertThat(result).isEqualTo(Rosh.MEDIUM)
+      every { communityApiClient.getRegistrations(crn) } returns registrations
+
+      val result = communityApiService.getRegistrations(crn).rosh
+      assertThat(result).isEqualTo(Rosh.MEDIUM)
     }
 
     @Test
@@ -124,8 +141,10 @@ internal class CommunityApiServiceTest {
           ),
 
         )
-      val result = communityApiService.getRosh(registrations)
-      Assertions.assertThat(result).isEqualTo(Rosh.MEDIUM)
+      every { communityApiClient.getRegistrations(crn) } returns registrations
+
+      val result = communityApiService.getRegistrations(crn).rosh
+      assertThat(result).isEqualTo(Rosh.MEDIUM)
     }
   }
 
@@ -136,7 +155,7 @@ internal class CommunityApiServiceTest {
     @Test
     fun `should return null for No Mappa`() {
       val result = communityApiService.getMappa(listOf())
-      Assertions.assertThat(result).isNull()
+      assertThat(result).isNull()
     }
 
     @Test
@@ -151,7 +170,7 @@ internal class CommunityApiServiceTest {
         )
 
       val result = communityApiService.getMappa(registrations)
-      Assertions.assertThat(result).isEqualTo(Mappa.M3)
+      assertThat(result).isEqualTo(Mappa.M3)
     }
 
     @Test
@@ -166,7 +185,7 @@ internal class CommunityApiServiceTest {
         )
 
       val result = communityApiService.getMappa(registrations)
-      Assertions.assertThat(result).isEqualTo(Mappa.M3)
+      assertThat(result).isEqualTo(Mappa.M3)
     }
 
     @Test
@@ -195,7 +214,7 @@ internal class CommunityApiServiceTest {
         )
 
       val result = communityApiService.getMappa(registrations)
-      Assertions.assertThat(result).isEqualTo(Mappa.M3)
+      assertThat(result).isEqualTo(Mappa.M3)
     }
 
     @Test
@@ -223,7 +242,7 @@ internal class CommunityApiServiceTest {
         )
 
       val result = communityApiService.getMappa(registrations)
-      Assertions.assertThat(result).isNull()
+      assertThat(result).isNull()
     }
   }
 
@@ -242,7 +261,7 @@ internal class CommunityApiServiceTest {
           )
         )
       )
-      Assertions.assertThat(result.size).isEqualTo(2)
+      assertThat(result.size).isEqualTo(2)
     }
 
     @Test
@@ -255,13 +274,13 @@ internal class CommunityApiServiceTest {
           )
         )
       )
-      Assertions.assertThat(result.size).isEqualTo(1)
+      assertThat(result.size).isEqualTo(1)
     }
 
     @Test
     fun `should not count complexity factors none`() {
       val result = communityApiService.getComplexityFactors(listOf())
-      Assertions.assertThat(result.size).isEqualTo(0)
+      assertThat(result.size).isEqualTo(0)
     }
 
     @Test
@@ -277,7 +296,7 @@ internal class CommunityApiServiceTest {
         )
 
       val result = communityApiService.getComplexityFactors(registrations)
-      Assertions.assertThat(result.size).isEqualTo(1)
+      assertThat(result.size).isEqualTo(1)
     }
 
     @Test
@@ -306,7 +325,7 @@ internal class CommunityApiServiceTest {
         )
 
       val result = communityApiService.getComplexityFactors(registrations)
-      Assertions.assertThat(result.size).isEqualTo(1)
+      assertThat(result.size).isEqualTo(1)
     }
 
     @Test
@@ -323,7 +342,7 @@ internal class CommunityApiServiceTest {
         )
 
       val result = communityApiService.getComplexityFactors(registrations)
-      Assertions.assertThat(result.size).isEqualTo(0)
+      assertThat(result.size).isEqualTo(0)
     }
 
     private fun getValidRegistrations(factors: List<ComplexityFactor>): Collection<Registration> {

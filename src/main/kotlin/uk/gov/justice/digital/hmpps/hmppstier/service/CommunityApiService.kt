@@ -20,7 +20,7 @@ class CommunityApiService(
   fun getConvictionsWithSentences(crn: String): List<Conviction> =
     communityApiClient.getConvictions(crn).filterNot { it.sentence == null }.map { Conviction.from(it) }
 
-  fun getRosh(registrations: Collection<Registration>): Rosh? =
+  private fun getRosh(registrations: Collection<Registration>): Rosh? =
     registrations.mapNotNull { Rosh.from(it.type.code) }.firstOrNull()
 
   fun getMappa(registrations: Collection<Registration>): Mappa? =
@@ -32,8 +32,8 @@ class CommunityApiService(
   fun getRegistrations(crn: String): Registrations {
     val (iomNominal, complexityFactors) = communityApiClient.getRegistrations(crn).sortedByDescending { it.startDate }
       .partition { it.type.code == ComplexityFactor.IOM_NOMINAL.registerCode }
-    return Registrations(iomNominal, complexityFactors)
+    return Registrations(iomNominal, complexityFactors, getRosh(complexityFactors))
   }
 }
 
-data class Registrations(val iomNominal: List<Registration>, val complexityFactors: List<Registration>)
+data class Registrations(val iomNominal: List<Registration>, val complexityFactors: List<Registration>, val rosh: Rosh?)

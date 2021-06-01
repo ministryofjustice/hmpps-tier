@@ -66,7 +66,7 @@ class TierCalculationService(
       crn,
       offenderAssessment,
       rsr,
-      communityApiService.getRosh(registrations.complexityFactors),
+      registrations.rosh,
       communityApiService.getMappa(registrations.complexityFactors),
       communityApiService.getComplexityFactors(registrations.complexityFactors),
       deliusConvictions
