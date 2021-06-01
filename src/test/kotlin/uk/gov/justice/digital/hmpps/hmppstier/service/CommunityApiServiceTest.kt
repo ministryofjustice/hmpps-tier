@@ -152,9 +152,16 @@ internal class CommunityApiServiceTest {
   @DisplayName("Simple Mappa tests")
   inner class SimpleMappaTests {
 
+    @AfterEach
+    fun apiCall() {
+      verify { communityApiClient.getRegistrations(crn) }
+    }
+
     @Test
     fun `should return null for No Mappa`() {
-      val result = communityApiService.getMappa(listOf())
+      every { communityApiClient.getRegistrations(crn) } returns listOf()
+
+      val result = communityApiService.getRegistrations(crn).mappa
       assertThat(result).isNull()
     }
 
@@ -168,8 +175,9 @@ internal class CommunityApiServiceTest {
             LocalDate.now()
           )
         )
+      every { communityApiClient.getRegistrations(crn) } returns registrations
 
-      val result = communityApiService.getMappa(registrations)
+      val result = communityApiService.getRegistrations(crn).mappa
       assertThat(result).isEqualTo(Mappa.M3)
     }
 
@@ -183,8 +191,9 @@ internal class CommunityApiServiceTest {
             LocalDate.now()
           )
         )
+      every { communityApiClient.getRegistrations(crn) } returns registrations
 
-      val result = communityApiService.getMappa(registrations)
+      val result = communityApiService.getRegistrations(crn).mappa
       assertThat(result).isEqualTo(Mappa.M3)
     }
 
@@ -212,8 +221,9 @@ internal class CommunityApiServiceTest {
           ),
 
         )
+      every { communityApiClient.getRegistrations(crn) } returns registrations
 
-      val result = communityApiService.getMappa(registrations)
+      val result = communityApiService.getRegistrations(crn).mappa
       assertThat(result).isEqualTo(Mappa.M3)
     }
 
@@ -240,8 +250,9 @@ internal class CommunityApiServiceTest {
             LocalDate.now()
           ),
         )
+      every { communityApiClient.getRegistrations(crn) } returns registrations
 
-      val result = communityApiService.getMappa(registrations)
+      val result = communityApiService.getRegistrations(crn).mappa
       assertThat(result).isNull()
     }
   }

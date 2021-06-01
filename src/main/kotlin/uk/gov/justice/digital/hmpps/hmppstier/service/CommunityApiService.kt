@@ -20,20 +20,25 @@ class CommunityApiService(
   fun getConvictionsWithSentences(crn: String): List<Conviction> =
     communityApiClient.getConvictions(crn).filterNot { it.sentence == null }.map { Conviction.from(it) }
 
-  private fun getRosh(registrations: Collection<Registration>): Rosh? =
-    registrations.mapNotNull { Rosh.from(it.type.code) }.firstOrNull()
-
-  fun getMappa(registrations: Collection<Registration>): Mappa? =
-    registrations.mapNotNull { Mappa.from(it.registerLevel?.code) }.firstOrNull()
-
   fun getComplexityFactors(registrations: Collection<Registration>): Collection<ComplexityFactor> =
     registrations.mapNotNull { ComplexityFactor.from(it.type.code) }.distinct()
 
   fun getRegistrations(crn: String): Registrations {
     val (iomNominal, complexityFactors) = communityApiClient.getRegistrations(crn).sortedByDescending { it.startDate }
       .partition { it.type.code == ComplexityFactor.IOM_NOMINAL.registerCode }
-    return Registrations(iomNominal, complexityFactors, getRosh(complexityFactors))
+    return Registrations(iomNominal, complexityFactors, getRosh(complexityFactors), getMappa(complexityFactors),)
   }
+
+  private fun getRosh(registrations: Collection<Registration>): Rosh? =
+    registrations.mapNotNull { Rosh.from(it.type.code) }.firstOrNull()
+
+  private fun getMappa(registrations: Collection<Registration>): Mappa? =
+    registrations.mapNotNull { Mappa.from(it.registerLevel?.code) }.firstOrNull()
 }
 
-data class Registrations(val iomNominal: List<Registration>, val complexityFactors: List<Registration>, val rosh: Rosh?)
+data class Registrations(
+  val iomNominal: List<Registration>,
+  val complexityFactors: List<Registration>,
+  val rosh: Rosh?,
+  val mappa: Mappa?
+)
