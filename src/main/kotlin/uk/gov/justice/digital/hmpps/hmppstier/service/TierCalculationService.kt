@@ -46,7 +46,7 @@ class TierCalculationService(
         isUpdated -> successUpdater.update(crn, it.uuid)
       }
       log.info("Tier calculated for $crn. Different from previous tier: $isUpdated")
-      telemetryService.trackTierCalculated(crn, it, isUpdated)
+      telemetryService.trackTierCalculated(it, isUpdated)
     }
 
   private fun isUpdated(

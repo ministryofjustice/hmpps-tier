@@ -57,7 +57,7 @@ internal class TelemetryServiceTest {
   @Test
   fun `Should emit TierChanged event when tier HAS changed`() {
 
-    service.trackTierCalculated(crn, tierCalculation, true)
+    service.trackTierCalculated(tierCalculation, true)
 
     verify {
       client.trackEvent(
@@ -76,7 +76,7 @@ internal class TelemetryServiceTest {
   @Test
   fun `Should emit TierUnchanged event when tier HAS NOT changed`() {
 
-    service.trackTierCalculated(crn, tierCalculation, false)
+    service.trackTierCalculated(tierCalculation, false)
 
     verify {
       client.trackEvent(

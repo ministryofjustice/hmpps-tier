@@ -10,14 +10,14 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.TelemetryEventType.TIER_UN
 @Component
 class TelemetryService(@Autowired private val telemetryClient: TelemetryClient) {
 
-  fun trackTierCalculated(crn: String, calculation: TierCalculationEntity, isUpdated: Boolean) {
+  fun trackTierCalculated(calculation: TierCalculationEntity, isUpdated: Boolean) {
     trackEvent(
       if (isUpdated)
         TIER_CHANGED
       else
         TIER_UNCHANGED,
       mapOf(
-        "crn" to crn,
+        "crn" to calculation.crn,
         "protect" to calculation.data.protect.tier.value,
         "change" to calculation.data.change.tier.value.toString(),
         "version" to calculation.data.calculationVersion
