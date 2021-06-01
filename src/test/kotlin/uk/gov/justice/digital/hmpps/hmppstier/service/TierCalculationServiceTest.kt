@@ -46,7 +46,6 @@ internal class TierCalculationServiceTest {
     clock,
     tierCalculationRepository,
     changeLevelCalculator,
-    protectLevelCalculator,
     assessmentApiService,
     communityApiService,
     communityApiClient,

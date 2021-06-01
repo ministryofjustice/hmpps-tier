@@ -17,7 +17,6 @@ class TierCalculationService(
   private val clock: Clock,
   private val tierCalculationRepository: TierCalculationRepository,
   private val changeLevelCalculator: ChangeLevelCalculator,
-  private val protectLevelCalculator: ProtectLevelCalculator,
   private val assessmentApiService: AssessmentApiService,
   private val communityApiService: CommunityApiService,
   private val communityApiClient: CommunityApiClient, // Deprecated
@@ -25,6 +24,8 @@ class TierCalculationService(
   private val telemetryService: TelemetryService,
   private val additionalFactorsForWomen: AdditionalFactorsForWomen
 ) {
+
+  private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator()
 
   fun getLatestTierByCrn(crn: String): TierDto? =
     getLatestTierCalculation(crn)?.let {

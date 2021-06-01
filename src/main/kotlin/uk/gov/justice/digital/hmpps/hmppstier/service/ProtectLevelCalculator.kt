@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.ADDITIONAL_FACTORS_FOR_WOMEN
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.COMPLEXITY
@@ -27,7 +26,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_RSR_UPPER
 import java.math.BigDecimal
 
-@Service
 class ProtectLevelCalculator {
 
   fun calculateProtectLevel(
