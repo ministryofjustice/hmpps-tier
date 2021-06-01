@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
@@ -20,7 +19,6 @@ class TierCalculationService(
   private val protectLevelCalculator: ProtectLevelCalculator,
   private val assessmentApiService: AssessmentApiService,
   private val communityApiService: CommunityApiService,
-  private val communityApiClient: CommunityApiClient, // Deprecated
   private val successUpdater: SuccessUpdater,
   private val telemetryService: TelemetryService
 ) {
