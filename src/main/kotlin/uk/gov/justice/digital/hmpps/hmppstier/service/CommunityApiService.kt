@@ -5,6 +5,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusAssessments
+import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor.IOM_NOMINAL
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
@@ -36,10 +37,3 @@ class CommunityApiService(
   private fun getComplexityFactors(registrations: Collection<Registration>): Collection<ComplexityFactor> =
     registrations.mapNotNull { ComplexityFactor.from(it.type.code) }.distinct()
 }
-
-data class Registrations(
-  val iomNominal: List<Registration>,
-  val complexityFactors: Collection<ComplexityFactor>,
-  val rosh: Rosh?,
-  val mappa: Mappa?
-)
