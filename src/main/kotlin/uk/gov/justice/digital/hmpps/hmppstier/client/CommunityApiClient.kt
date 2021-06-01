@@ -12,7 +12,7 @@ import java.time.LocalDate
 @Component
 class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val webClient: WebClient) {
 
-  fun getRegistrations(crn: String): List<Registration> =
+  fun getRegistrations(crn: String): Collection<Registration> =
     webClient
       .get()
       .uri("/offenders/crn/$crn/registrations?activeOnly=true")

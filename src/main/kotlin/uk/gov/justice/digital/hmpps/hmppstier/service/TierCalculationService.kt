@@ -68,7 +68,7 @@ class TierCalculationService(
       rsr,
       registrations.rosh,
       registrations.mappa,
-      communityApiService.getComplexityFactors(registrations.complexityFactors),
+      registrations.complexityFactors,
       deliusConvictions
     )
     val changeLevel = changeLevelCalculator.calculateChangeLevel(

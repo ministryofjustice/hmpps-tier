@@ -35,6 +35,7 @@ internal class CommunityApiServiceTest {
 
   @AfterEach
   fun confirmVerified() {
+    verify { communityApiClient.getRegistrations(crn) }
     // Check we don't add any more calls without updating the tests
     io.mockk.confirmVerified(communityApiClient)
   }
@@ -42,11 +43,6 @@ internal class CommunityApiServiceTest {
   @Nested
   @DisplayName("Simple ROSH tests")
   inner class SimpleRoshTests {
-
-    @AfterEach
-    fun apiCall() {
-      verify { communityApiClient.getRegistrations(crn) }
-    }
 
     @Test
     fun `should return null for No Rosh`() {
@@ -151,11 +147,6 @@ internal class CommunityApiServiceTest {
   @Nested
   @DisplayName("Simple Mappa tests")
   inner class SimpleMappaTests {
-
-    @AfterEach
-    fun apiCall() {
-      verify { communityApiClient.getRegistrations(crn) }
-    }
 
     @Test
     fun `should return null for No Mappa`() {
@@ -263,34 +254,36 @@ internal class CommunityApiServiceTest {
 
     @Test
     fun `should count complexity factors `() {
-      val result = communityApiService.getComplexityFactors(
-        getValidRegistrations(
-          listOf(
-            ComplexityFactor.VULNERABILITY_ISSUE,
-            ComplexityFactor.ADULT_AT_RISK,
-
-          )
+      every { communityApiClient.getRegistrations(crn) } returns getValidRegistrations(
+        listOf(
+          ComplexityFactor.VULNERABILITY_ISSUE,
+          ComplexityFactor.ADULT_AT_RISK,
         )
       )
+      val result = communityApiService.getRegistrations(crn).complexityFactors
       assertThat(result.size).isEqualTo(2)
     }
 
     @Test
     fun `should not count complexity factors duplicates`() {
-      val result = communityApiService.getComplexityFactors(
+      every { communityApiClient.getRegistrations(crn) } returns
         getValidRegistrations(
           listOf(
             ComplexityFactor.VULNERABILITY_ISSUE,
             ComplexityFactor.VULNERABILITY_ISSUE,
           )
         )
-      )
+
+      val result = communityApiService.getRegistrations(crn).complexityFactors
+
       assertThat(result.size).isEqualTo(1)
     }
 
     @Test
     fun `should not count complexity factors none`() {
-      val result = communityApiService.getComplexityFactors(listOf())
+      every { communityApiClient.getRegistrations(crn) } returns listOf()
+      val result = communityApiService.getRegistrations(crn).complexityFactors
+
       assertThat(result.size).isEqualTo(0)
     }
 
@@ -305,8 +298,9 @@ internal class CommunityApiServiceTest {
             LocalDate.now()
           )
         )
+      every { communityApiClient.getRegistrations(crn) } returns registrations
+      val result = communityApiService.getRegistrations(crn).complexityFactors
 
-      val result = communityApiService.getComplexityFactors(registrations)
       assertThat(result.size).isEqualTo(1)
     }
 
@@ -334,8 +328,8 @@ internal class CommunityApiServiceTest {
           ),
 
         )
-
-      val result = communityApiService.getComplexityFactors(registrations)
+      every { communityApiClient.getRegistrations(crn) } returns registrations
+      val result = communityApiService.getRegistrations(crn).complexityFactors
       assertThat(result.size).isEqualTo(1)
     }
 
@@ -351,8 +345,8 @@ internal class CommunityApiServiceTest {
             LocalDate.now()
           )
         )
-
-      val result = communityApiService.getComplexityFactors(registrations)
+      every { communityApiClient.getRegistrations(crn) } returns registrations
+      val result = communityApiService.getRegistrations(crn).complexityFactors
       assertThat(result.size).isEqualTo(0)
     }
 
