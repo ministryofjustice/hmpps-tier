@@ -456,30 +456,4 @@ internal class ProtectLevelCalculatorTest {
       verify { communityApiClient.getOffender(crn) }
     }
   }
-
-  @Nested
-  @DisplayName("Arson and Violence tests")
-  inner class ArsonViolenceTests {
-    @Test
-    fun `Should respect Arson & Violence Toggle`() {
-      val convictionId = 54321L
-
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
-
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
-      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns listOf()
-      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns mapOf()
-
-      val result = calculateProtectLevel(crn = crn, offenderAssessment = assessment, convictions = getValidConviction())
-      assertThat(result.points).isEqualTo(0)
-
-      verify { communityApiClient.getOffender(crn) }
-      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
-      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
-    }
-
-    private fun getValidConviction(): List<Conviction> {
-      return listOf(Conviction(54321L, Sentence(null, "SC")))
-    }
-  }
 }
