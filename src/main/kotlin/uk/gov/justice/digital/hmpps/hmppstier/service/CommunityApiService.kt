@@ -28,4 +28,7 @@ class CommunityApiService(
 
   fun getComplexityFactors(registrations: Collection<Registration>): Collection<ComplexityFactor> =
     registrations.mapNotNull { ComplexityFactor.from(it.type.code) }.distinct()
+
+  fun getRegistrations(crn: String): Pair<List<Registration>, List<Registration>> =
+    communityApiClient.getRegistrations(crn).sortedByDescending { it.startDate }.partition { it.type.code == ComplexityFactor.IOM_NOMINAL.registerCode }
 }
