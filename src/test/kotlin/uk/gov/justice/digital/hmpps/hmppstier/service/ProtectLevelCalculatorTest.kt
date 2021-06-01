@@ -39,19 +39,19 @@ internal class ProtectLevelCalculatorTest {
   private val clock = Clock.fixed(LocalDateTime.of(2020, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault())
   private val communityApiClient: CommunityApiClient = mockk(relaxUnitFun = true)
   private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
-
-  private val service = ProtectLevelCalculator(
-    AdditionalFactorsForWomen(
-      clock,
-      communityApiClient,
-      assessmentApiService
-    )
-  )
+  private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(clock, communityApiClient, assessmentApiService)
+  private val service = ProtectLevelCalculator()
 
   private val crn = "Any Crn"
 
   private fun calculateProtectLevel(crn: String, offenderAssessment: OffenderAssessment? = null, rsr: BigDecimal = BigDecimal.ZERO, rosh: Rosh? = null, convictions: Collection<Conviction> = listOf()): TierLevel<ProtectLevel> {
-    return service.calculateProtectLevel(crn, offenderAssessment, rsr, rosh, null, listOf(), convictions)
+    return service.calculateProtectLevel(
+      rsr,
+      rosh,
+      null,
+      listOf(),
+      additionalFactorsForWomen.calculate(crn, convictions, offenderAssessment)
+    )
   }
 
   @BeforeEach

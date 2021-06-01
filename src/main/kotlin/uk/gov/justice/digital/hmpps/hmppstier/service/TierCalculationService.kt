@@ -22,7 +22,8 @@ class TierCalculationService(
   private val communityApiService: CommunityApiService,
   private val communityApiClient: CommunityApiClient, // Deprecated
   private val successUpdater: SuccessUpdater,
-  private val telemetryService: TelemetryService
+  private val telemetryService: TelemetryService,
+  private val additionalFactorsForWomen: AdditionalFactorsForWomen
 ) {
 
   fun getLatestTierByCrn(crn: String): TierDto? =
@@ -65,13 +66,11 @@ class TierCalculationService(
     val deliusConvictions = communityApiService.getConvictionsWithSentences(crn)
 
     val protectLevel = protectLevelCalculator.calculateProtectLevel(
-      crn,
-      offenderAssessment,
       rsr,
       communityApiService.getRosh(otherRegistrations),
       communityApiService.getMappa(otherRegistrations),
       communityApiService.getComplexityFactors(otherRegistrations),
-      deliusConvictions
+      additionalFactorsForWomen.calculate(crn, deliusConvictions, offenderAssessment)
     )
     val changeLevel = changeLevelCalculator.calculateChangeLevel(
       crn,

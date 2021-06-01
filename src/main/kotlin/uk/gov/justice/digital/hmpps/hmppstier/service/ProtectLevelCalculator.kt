@@ -1,8 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
-import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.ADDITIONAL_FACTORS_FOR_WOMEN
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.COMPLEXITY
@@ -30,18 +28,14 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_
 import java.math.BigDecimal
 
 @Service
-class ProtectLevelCalculator(
-  private val additionalFactorsForWomen: AdditionalFactorsForWomen
-) {
+class ProtectLevelCalculator {
 
   fun calculateProtectLevel(
-    crn: String,
-    offenderAssessment: OffenderAssessment?,
     rsr: BigDecimal,
     rosh: Rosh?,
     mappa: Mappa?,
     complexityFactors: Collection<ComplexityFactor>,
-    convictions: Collection<Conviction>
+    additionalFactorsPoints: Int
   ): TierLevel<ProtectLevel> {
 
     val points = mapOf(
@@ -49,7 +43,7 @@ class ProtectLevelCalculator(
       ROSH to getRoshPoints(rosh),
       MAPPA to getMappaPoints(mappa),
       COMPLEXITY to getComplexityPoints(complexityFactors),
-      ADDITIONAL_FACTORS_FOR_WOMEN to additionalFactorsForWomen.calculate(crn, convictions, offenderAssessment)
+      ADDITIONAL_FACTORS_FOR_WOMEN to additionalFactorsPoints
     )
 
     val total = points.map { it.value }.sum()
