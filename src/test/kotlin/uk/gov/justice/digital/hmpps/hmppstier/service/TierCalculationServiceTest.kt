@@ -13,7 +13,6 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
@@ -37,7 +36,6 @@ internal class TierCalculationServiceTest {
   private val protectLevelCalculator: ProtectLevelCalculator = mockk(relaxUnitFun = true)
   private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
   private val communityApiService: CommunityApiService = mockk(relaxUnitFun = true)
-  private val communityApiClient: CommunityApiClient = mockk(relaxUnitFun = true)
   private val telemetryService: TelemetryService = mockk(relaxUnitFun = true)
   private val successUpdater: SuccessUpdater = mockk(relaxUnitFun = true)
 
@@ -48,7 +46,6 @@ internal class TierCalculationServiceTest {
     protectLevelCalculator,
     assessmentApiService,
     communityApiService,
-    communityApiClient,
     successUpdater,
     telemetryService
   )
@@ -71,7 +68,6 @@ internal class TierCalculationServiceTest {
     clearMocks(changeLevelCalculator)
     clearMocks(protectLevelCalculator)
     clearMocks(assessmentApiService)
-    clearMocks(communityApiClient)
     clearMocks(telemetryService)
   }
 
@@ -82,7 +78,6 @@ internal class TierCalculationServiceTest {
     confirmVerified(changeLevelCalculator)
     confirmVerified(protectLevelCalculator)
     confirmVerified(assessmentApiService)
-    confirmVerified(communityApiClient)
     confirmVerified(telemetryService)
   }
 
