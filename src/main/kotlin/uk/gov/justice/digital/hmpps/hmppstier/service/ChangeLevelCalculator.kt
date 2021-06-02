@@ -2,7 +2,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
-import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.IOM
@@ -27,7 +26,7 @@ class ChangeLevelCalculator(
     crn: String,
     offenderAssessment: OffenderAssessment?,
     ogrsScore: Int,
-    iomNominalRegistrations: Collection<Registration>,
+    hasIomNominal: Boolean,
     convictions: Collection<Conviction>,
     needs: Map<Need, NeedSeverity>
   ): TierLevel<ChangeLevel> =
@@ -39,7 +38,7 @@ class ChangeLevelCalculator(
         val points = mapOf(
           NEEDS to getAssessmentNeedsPoints(needs),
           OGRS to getOgrsPoints(ogrsScore),
-          IOM to getIomNominalPoints(iomNominalRegistrations)
+          IOM to getIomNominalPoints(hasIomNominal)
         )
 
         val total = points.map { it.value }.sum()
@@ -63,9 +62,9 @@ class ChangeLevelCalculator(
   private fun getOgrsPoints(ogrsScore: Int): Int =
     ogrsScore.div(10)
 
-  private fun getIomNominalPoints(registrations: Collection<Registration>): Int =
+  private fun getIomNominalPoints(hasIomNominal: Boolean): Int =
     when {
-      registrations.any() -> 2
+      hasIomNominal -> 2
       else -> 0
     }
 

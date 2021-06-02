@@ -73,7 +73,7 @@ class TierCalculationService(
       crn,
       offenderAssessment,
       ogrs,
-      registrations.iomNominal,
+      registrations.hasIomNominal,
       deliusConvictions,
       assessmentApiService.getAssessmentNeeds(offenderAssessment)
     )
