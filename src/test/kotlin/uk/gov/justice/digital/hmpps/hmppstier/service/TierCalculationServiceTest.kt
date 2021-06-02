@@ -38,16 +38,17 @@ internal class TierCalculationServiceTest {
   private val communityApiService: CommunityApiService = mockk(relaxUnitFun = true)
   private val telemetryService: TelemetryService = mockk(relaxUnitFun = true)
   private val successUpdater: SuccessUpdater = mockk(relaxUnitFun = true)
+  private val additionalFactorsForWomen: AdditionalFactorsForWomen = mockk(relaxUnitFun = true)
 
   private val service = TierCalculationService(
     clock,
     tierCalculationRepository,
     changeLevelCalculator,
-    protectLevelCalculator,
     assessmentApiService,
     communityApiService,
     successUpdater,
-    telemetryService
+    telemetryService,
+    additionalFactorsForWomen
   )
 
   private val calculationId = UUID.randomUUID()
@@ -90,7 +91,11 @@ internal class TierCalculationServiceTest {
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns validTierCalculationEntity
       val result = service.getLatestTierByCrn(crn)
 
-      assertThat(result?.tierScore).isEqualTo(validTierCalculationEntity.data.protect.tier.value.plus(validTierCalculationEntity.data.change.tier.value))
+      assertThat(result?.tierScore).isEqualTo(
+        validTierCalculationEntity.data.protect.tier.value.plus(
+          validTierCalculationEntity.data.change.tier.value
+        )
+      )
       assertThat(result?.calculationId).isEqualTo(validTierCalculationEntity.uuid)
 
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
@@ -116,7 +121,11 @@ internal class TierCalculationServiceTest {
       every { tierCalculationRepository.findByCrnAndUuid(crn, calculationId) } returns validTierCalculationEntity
       val result = service.getTierByCalculationId(crn, calculationId)
 
-      assertThat(result?.tierScore).isEqualTo(validTierCalculationEntity.data.protect.tier.value.plus(validTierCalculationEntity.data.change.tier.value))
+      assertThat(result?.tierScore).isEqualTo(
+        validTierCalculationEntity.data.protect.tier.value.plus(
+          validTierCalculationEntity.data.change.tier.value
+        )
+      )
       assertThat(result?.calculationId).isEqualTo(validTierCalculationEntity.uuid)
 
       verify { tierCalculationRepository.findByCrnAndUuid(crn, calculationId) }

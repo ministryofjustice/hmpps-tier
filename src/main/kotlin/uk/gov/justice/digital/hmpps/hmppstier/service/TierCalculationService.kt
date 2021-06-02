@@ -16,12 +16,14 @@ class TierCalculationService(
   private val clock: Clock,
   private val tierCalculationRepository: TierCalculationRepository,
   private val changeLevelCalculator: ChangeLevelCalculator,
-  private val protectLevelCalculator: ProtectLevelCalculator,
   private val assessmentApiService: AssessmentApiService,
   private val communityApiService: CommunityApiService,
   private val successUpdater: SuccessUpdater,
-  private val telemetryService: TelemetryService
+  private val telemetryService: TelemetryService,
+  private val additionalFactorsForWomen: AdditionalFactorsForWomen
 ) {
+
+  private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator()
 
   fun getLatestTierByCrn(crn: String): TierDto? =
     getLatestTierCalculation(crn)?.let {
@@ -44,7 +46,7 @@ class TierCalculationService(
         isUpdated -> successUpdater.update(crn, it.uuid)
       }
       log.info("Tier calculated for $crn. Different from previous tier: $isUpdated")
-      telemetryService.trackTierCalculated(crn, it, isUpdated)
+      telemetryService.trackTierCalculated(it, isUpdated)
     }
 
   private fun isUpdated(
@@ -63,13 +65,11 @@ class TierCalculationService(
     val deliusConvictions = communityApiService.getConvictionsWithSentences(crn)
 
     val protectLevel = protectLevelCalculator.calculateProtectLevel(
-      crn,
-      offenderAssessment,
       rsr,
       registrations.rosh,
       registrations.mappa,
       registrations.complexityFactors,
-      deliusConvictions
+      additionalFactorsForWomen.calculate(crn, deliusConvictions, offenderAssessment)
     )
     val changeLevel = changeLevelCalculator.calculateChangeLevel(
       crn,
