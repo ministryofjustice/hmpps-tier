@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
@@ -23,10 +24,8 @@ internal class ProtectLevelCalculatorTest {
   private fun calculateProtectLevel(rsr: BigDecimal = BigDecimal.ZERO, rosh: Rosh? = null): TierLevel<ProtectLevel> {
     return service.calculateProtectLevel(
       rsr,
-      rosh,
-      null,
-      listOf(),
-      0
+      0,
+      Registrations(listOf(), listOf(), rosh, null)
     )
   }
 
