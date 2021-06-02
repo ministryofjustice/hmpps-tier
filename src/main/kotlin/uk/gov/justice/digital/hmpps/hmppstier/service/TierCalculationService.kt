@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
@@ -19,7 +18,6 @@ class TierCalculationService(
   private val changeLevelCalculator: ChangeLevelCalculator,
   private val assessmentApiService: AssessmentApiService,
   private val communityApiService: CommunityApiService,
-  private val communityApiClient: CommunityApiClient, // Deprecated
   private val successUpdater: SuccessUpdater,
   private val telemetryService: TelemetryService,
   private val additionalFactorsForWomen: AdditionalFactorsForWomen
@@ -63,21 +61,21 @@ class TierCalculationService(
 
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
     val (rsr, ogrs) = communityApiService.getDeliusAssessments(crn)
-    val (iomNominal, otherRegistrations) = communityApiClient.getRegistrations(crn)
+    val registrations = communityApiService.getRegistrations(crn)
     val deliusConvictions = communityApiService.getConvictionsWithSentences(crn)
 
     val protectLevel = protectLevelCalculator.calculateProtectLevel(
       rsr,
-      communityApiService.getRosh(otherRegistrations),
-      communityApiService.getMappa(otherRegistrations),
-      communityApiService.getComplexityFactors(otherRegistrations),
+      registrations.rosh,
+      registrations.mappa,
+      registrations.complexityFactors,
       additionalFactorsForWomen.calculate(crn, deliusConvictions, offenderAssessment)
     )
     val changeLevel = changeLevelCalculator.calculateChangeLevel(
       crn,
       offenderAssessment,
       ogrs,
-      iomNominal,
+      registrations.iomNominal,
       deliusConvictions,
       assessmentApiService.getAssessmentNeeds(offenderAssessment)
     )
