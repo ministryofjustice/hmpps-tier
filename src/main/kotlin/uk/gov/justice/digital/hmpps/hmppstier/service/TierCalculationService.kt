@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
@@ -17,13 +16,14 @@ class TierCalculationService(
   private val clock: Clock,
   private val tierCalculationRepository: TierCalculationRepository,
   private val changeLevelCalculator: ChangeLevelCalculator,
-  private val protectLevelCalculator: ProtectLevelCalculator,
   private val assessmentApiService: AssessmentApiService,
   private val communityApiService: CommunityApiService,
-  private val communityApiClient: CommunityApiClient, // Deprecated
   private val successUpdater: SuccessUpdater,
-  private val telemetryService: TelemetryService
+  private val telemetryService: TelemetryService,
+  private val additionalFactorsForWomen: AdditionalFactorsForWomen
 ) {
+
+  private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator()
 
   fun getLatestTierByCrn(crn: String): TierDto? =
     getLatestTierCalculation(crn)?.let {
@@ -46,7 +46,7 @@ class TierCalculationService(
         isUpdated -> successUpdater.update(crn, it.uuid)
       }
       log.info("Tier calculated for $crn. Different from previous tier: $isUpdated")
-      telemetryService.trackTierCalculated(crn, it, isUpdated)
+      telemetryService.trackTierCalculated(it, isUpdated)
     }
 
   private fun isUpdated(
@@ -61,23 +61,19 @@ class TierCalculationService(
 
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
     val (rsr, ogrs) = communityApiService.getDeliusAssessments(crn)
-    val (iomNominal, otherRegistrations) = communityApiClient.getRegistrations(crn)
+    val registrations = communityApiService.getRegistrations(crn)
     val deliusConvictions = communityApiService.getConvictionsWithSentences(crn)
 
     val protectLevel = protectLevelCalculator.calculateProtectLevel(
-      crn,
-      offenderAssessment,
       rsr,
-      communityApiService.getRosh(otherRegistrations),
-      communityApiService.getMappa(otherRegistrations),
-      communityApiService.getComplexityFactors(otherRegistrations),
-      deliusConvictions
+      additionalFactorsForWomen.calculate(crn, deliusConvictions, offenderAssessment),
+      registrations
     )
     val changeLevel = changeLevelCalculator.calculateChangeLevel(
       crn,
       offenderAssessment,
       ogrs,
-      iomNominal,
+      registrations.hasIomNominal,
       deliusConvictions,
       assessmentApiService.getAssessmentNeeds(offenderAssessment)
     )

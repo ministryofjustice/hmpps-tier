@@ -6,15 +6,19 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor.IOM_NOMINAL
 import java.math.BigDecimal
 import java.time.LocalDate
 
 @Component
 class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val webClient: WebClient) {
 
-  fun getRegistrations(crn: String): Pair<List<Registration>, List<Registration>> =
-    getRegistrationsCall(crn).sortedByDescending { it.startDate }.partition { it.type.code == IOM_NOMINAL.registerCode }
+  fun getRegistrations(crn: String): Collection<Registration> =
+    webClient
+      .get()
+      .uri("/offenders/crn/$crn/registrations?activeOnly=true")
+      .retrieve()
+      .bodyToMono(Registrations::class.java)
+      .block()?.registrations ?: listOf()
 
   fun getDeliusAssessments(crn: String): DeliusAssessmentsDto? {
     return webClient
@@ -57,15 +61,6 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
     return getRequirementsCall(crn, convictionId)
       .filterNot { it.requirementTypeMainCategory == null && it.restrictive == null }
       .map { Requirement(it.restrictive!!, it.requirementTypeMainCategory!!.code) }
-  }
-
-  private fun getRegistrationsCall(crn: String): Collection<Registration> {
-    return webClient
-      .get()
-      .uri("/offenders/crn/$crn/registrations?activeOnly=true")
-      .retrieve()
-      .bodyToMono(Registrations::class.java)
-      .block()?.registrations ?: listOf()
   }
 
   private fun getRequirementsCall(crn: String, convictionId: Long): List<RequirementDto> {

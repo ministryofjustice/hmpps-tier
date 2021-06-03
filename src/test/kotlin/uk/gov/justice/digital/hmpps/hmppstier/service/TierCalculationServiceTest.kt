@@ -13,7 +13,6 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
@@ -37,20 +36,19 @@ internal class TierCalculationServiceTest {
   private val protectLevelCalculator: ProtectLevelCalculator = mockk(relaxUnitFun = true)
   private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
   private val communityApiService: CommunityApiService = mockk(relaxUnitFun = true)
-  private val communityApiClient: CommunityApiClient = mockk(relaxUnitFun = true)
   private val telemetryService: TelemetryService = mockk(relaxUnitFun = true)
   private val successUpdater: SuccessUpdater = mockk(relaxUnitFun = true)
+  private val additionalFactorsForWomen: AdditionalFactorsForWomen = mockk(relaxUnitFun = true)
 
   private val service = TierCalculationService(
     clock,
     tierCalculationRepository,
     changeLevelCalculator,
-    protectLevelCalculator,
     assessmentApiService,
     communityApiService,
-    communityApiClient,
     successUpdater,
-    telemetryService
+    telemetryService,
+    additionalFactorsForWomen
   )
 
   private val calculationId = UUID.randomUUID()
@@ -71,7 +69,6 @@ internal class TierCalculationServiceTest {
     clearMocks(changeLevelCalculator)
     clearMocks(protectLevelCalculator)
     clearMocks(assessmentApiService)
-    clearMocks(communityApiClient)
     clearMocks(telemetryService)
   }
 
@@ -82,7 +79,6 @@ internal class TierCalculationServiceTest {
     confirmVerified(changeLevelCalculator)
     confirmVerified(protectLevelCalculator)
     confirmVerified(assessmentApiService)
-    confirmVerified(communityApiClient)
     confirmVerified(telemetryService)
   }
 
@@ -95,7 +91,11 @@ internal class TierCalculationServiceTest {
       every { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) } returns validTierCalculationEntity
       val result = service.getLatestTierByCrn(crn)
 
-      assertThat(result?.tierScore).isEqualTo(validTierCalculationEntity.data.protect.tier.value.plus(validTierCalculationEntity.data.change.tier.value))
+      assertThat(result?.tierScore).isEqualTo(
+        validTierCalculationEntity.data.protect.tier.value.plus(
+          validTierCalculationEntity.data.change.tier.value
+        )
+      )
       assertThat(result?.calculationId).isEqualTo(validTierCalculationEntity.uuid)
 
       verify { tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn) }
@@ -113,7 +113,7 @@ internal class TierCalculationServiceTest {
   }
 
   @Nested
-  @DisplayName("Get Tier By Crn tests")
+  @DisplayName("Get Tier By CalculationID tests")
   inner class GetTierByCalculationIdTests {
 
     @Test
@@ -121,7 +121,11 @@ internal class TierCalculationServiceTest {
       every { tierCalculationRepository.findByCrnAndUuid(crn, calculationId) } returns validTierCalculationEntity
       val result = service.getTierByCalculationId(crn, calculationId)
 
-      assertThat(result?.tierScore).isEqualTo(validTierCalculationEntity.data.protect.tier.value.plus(validTierCalculationEntity.data.change.tier.value))
+      assertThat(result?.tierScore).isEqualTo(
+        validTierCalculationEntity.data.protect.tier.value.plus(
+          validTierCalculationEntity.data.change.tier.value
+        )
+      )
       assertThat(result?.calculationId).isEqualTo(validTierCalculationEntity.uuid)
 
       verify { tierCalculationRepository.findByCrnAndUuid(crn, calculationId) }
