@@ -113,7 +113,7 @@ internal class TierCalculationServiceTest {
   }
 
   @Nested
-  @DisplayName("Get Tier By Crn tests")
+  @DisplayName("Get Tier By CalculationID tests")
   inner class GetTierByCalculationIdTests {
 
     @Test
