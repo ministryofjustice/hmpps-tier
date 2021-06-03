@@ -157,11 +157,8 @@ class SetupData(
 
   fun prepareResponses() {
     communityApiResponse(communityApiAssessmentsResponse(rsr, ogrs), "/secure/offenders/crn/$crn/assessments")
-
     registrations()
-
     assessmentsApi()
-
     convictions()
 
     when {
@@ -219,10 +216,9 @@ class SetupData(
         )
       }
       assessmentApiResponse(
-        if (needs.any()) {
-          needsResponse(needs)
-        } else {
-          assessmentsApiNoSeverityNeedsResponse()
+        when {
+          needs.any() -> needsResponse(needs)
+          else -> assessmentsApiNoSeverityNeedsResponse()
         },
         "/assessments/oasysSetId/$assessmentId/needs"
       )
@@ -230,29 +226,27 @@ class SetupData(
   }
 
   private fun registrations() {
+    val registrationsSetup = RegistrationsSetup(rosh, mappa, additionalFactors)
     when {
-      allRegistrationsPresent() -> registrations(
+      registrationsSetup.allRegistrationsPresent() -> registrations(
         registrationsResponseWithRoshMappaAndAdditionalFactors(
           rosh,
           mappa,
           additionalFactors
         )
       )
-      mappa != "NO_MAPPA" &&
-        additionalFactors.isNotEmpty() -> registrations(
+      registrationsSetup.mappaAndAdditionalFactors() -> registrations(
         registrationsResponseWithMappaAndAdditionalFactors(
           mappa,
           additionalFactors
         )
       )
-      rosh != "NO_ROSH" -> registrations(registrationsResponseWithRosh(rosh))
-      mappa != "NO_MAPPA" -> registrations(registrationsResponseWithMappa(mappa))
-      additionalFactors.isNotEmpty() -> registrations(registrationsResponseWithAdditionalFactors(additionalFactors))
+      registrationsSetup.hasRosh() -> registrations(registrationsResponseWithRosh(rosh))
+      registrationsSetup.hasMappa() -> registrations(registrationsResponseWithMappa(mappa))
+      registrationsSetup.hasAdditionalFactors() -> registrations(registrationsResponseWithAdditionalFactors(additionalFactors))
       else -> registrations(emptyRegistrationsResponse())
     }
   }
-
-  private fun allRegistrationsPresent() = rosh != "NO_ROSH" && mappa != "NO_MAPPA" && additionalFactors.isNotEmpty()
 
   private fun breachAndRecall(response: HttpResponse) {
     communityApiResponseWithQs(
@@ -297,4 +291,12 @@ class SetupData(
 
   private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
     httpSetup(response, urlTemplate, communityApi)
+}
+
+class RegistrationsSetup(val rosh: String, val mappa: String, val additionalFactors: List<String>) {
+  fun allRegistrationsPresent() = hasRosh() && hasMappa() && hasAdditionalFactors()
+  fun mappaAndAdditionalFactors() = hasMappa() && hasAdditionalFactors()
+  fun hasRosh() = rosh != "NO_ROSH"
+  fun hasMappa() = mappa != "NO_MAPPA"
+  fun hasAdditionalFactors() = additionalFactors.isNotEmpty()
 }
