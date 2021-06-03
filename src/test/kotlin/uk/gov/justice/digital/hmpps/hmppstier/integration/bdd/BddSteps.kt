@@ -202,7 +202,6 @@ class BddSteps : En {
     }
     Given("an offender scores 51 protect points") {
       setupData.setGender("Female")
-      setupData.setValidAssessment()
       setupData.setAssessmentAnswer("11.2", "1") // 2
       setupData.setAssessmentAnswer("6.9", "YES") // 2
       setupData.setMappa(M1.registerCode) // 5
@@ -278,7 +277,6 @@ class BddSteps : En {
       setupData.setAssessmentDate(LocalDateTime.now().minusWeeks(55))
     }
     And("has the following OASys complexity answer: {string} {string} : {string}") { _: String, question: String, answer: String ->
-      setupData.setValidAssessment()
       setupData.setAssessmentAnswer(question, answer)
     }
     And("has an active conviction with NSI Outcome code {string}") { outcome: String ->
