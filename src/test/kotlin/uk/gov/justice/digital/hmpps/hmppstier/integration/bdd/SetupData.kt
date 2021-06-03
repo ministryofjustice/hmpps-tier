@@ -193,7 +193,7 @@ class SetupData(
 
   private fun convictions() =
     if (activeConvictions == 2) {
-      convictions(custodialAndNonCustodialConvictions())
+      convictions(custodialAndNonCustodialConvictions(convictionId, convictionId.reversed()))
     } else {
       if (null != convictionTerminatedDate) {
         convictions(custodialTerminatedConvictionResponse(convictionTerminatedDate!!, convictionId))

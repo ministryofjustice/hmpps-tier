@@ -129,8 +129,12 @@ fun noRequirementsResponse(): HttpResponse = jsonResponseOf(
 
 fun additionalRequirementsResponse(): HttpResponse = communityApiResponse("requirements-additional.json")
 
-fun custodialAndNonCustodialConvictions(): HttpResponse =
-  communityApiResponse("convictions-custodial-and-non-custodial.json")
+fun custodialAndNonCustodialConvictions(firstConvictionId: String = "2500409603", secondConvictionId: String = "2500409601"): HttpResponse =
+  jsonResponseOf(
+    responseFrom("$communityApiPath/convictions-custodial-and-non-custodial.json")
+      .replace("firstConvictionIdToReplace", firstConvictionId)
+      .replace("secondConvictionIdToReplace", secondConvictionId)
+  )
 
 fun custodialNCConvictionResponse(
   mainOffence: String = "016",
