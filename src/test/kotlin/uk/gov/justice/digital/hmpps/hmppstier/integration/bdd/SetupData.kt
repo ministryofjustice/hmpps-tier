@@ -21,7 +21,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistratio
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.femaleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.maleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.needsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.noRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nonCustodialConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nsisResponse
@@ -179,13 +178,14 @@ class SetupData(
     }
   }
 
-  private fun requirements() = when {
-    hasOrderExtended && hasUnpaidWork -> requirements(
-      unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse()
-    )
-    hasUnpaidWork -> requirements(unpaidWorkRequirementsResponse())
-    hasNonRestrictiveRequirement -> requirements(nonRestrictiveRequirementsResponse())
-    else -> requirements(noRequirementsResponse())
+  private fun requirements() {
+    when {
+      hasOrderExtended && hasUnpaidWork -> requirements(
+        unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse()
+      )
+      hasUnpaidWork -> requirements(unpaidWorkRequirementsResponse())
+      hasNonRestrictiveRequirement -> requirements(nonRestrictiveRequirementsResponse())
+    }
   }
 
   private fun convictions() =
