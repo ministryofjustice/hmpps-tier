@@ -21,6 +21,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistratio
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.femaleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.maleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.needsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.noRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nonCustodialConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nsisResponse
@@ -80,17 +81,17 @@ class SetupData(
   }
 
   fun setOgrs(ogrs: String) {
-    this.hasValidAssessment = true // There needs to be a valid assessment to access ogrs code path
+    setValidAssessment() // There needs to be a valid assessment to access ogrs code path
     this.ogrs = ogrs
   }
 
   fun setAdditionalFactors(additionalFactors: List<String>) {
-    this.hasValidAssessment = true // for IOM
+    setValidAssessment() // for IOM
     this.additionalFactors = additionalFactors
   }
 
   fun setNeeds(needs: Map<String, String>) {
-    this.hasValidAssessment = true // There needs to be a valid assessment to access needs code path
+    setValidAssessment() // There needs to be a valid assessment to access needs code path
     this.needs.putAll(needs)
   }
 
@@ -119,6 +120,7 @@ class SetupData(
   }
 
   fun setAssessmentAnswer(question: String, answer: String) {
+    setValidAssessment()
     this.assessmentAnswers[question] = answer
   }
 
@@ -151,7 +153,7 @@ class SetupData(
   }
 
   fun setAssessmentDate(date: LocalDateTime) {
-    this.hasValidAssessment = true
+    setValidAssessment()
     this.assessmentDate = date
   }
 
@@ -160,14 +162,7 @@ class SetupData(
     registrations()
     assessmentsApi()
     convictions()
-
-    when {
-      hasOrderExtended && hasUnpaidWork -> requirements(
-        unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse()
-      )
-      hasUnpaidWork -> requirements(unpaidWorkRequirementsResponse())
-      hasNonRestrictiveRequirement -> requirements(nonRestrictiveRequirementsResponse())
-    }
+    requirements()
 
     when (gender) {
       "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
@@ -184,7 +179,16 @@ class SetupData(
     }
   }
 
-  private fun convictions() {
+  private fun requirements() = when {
+    hasOrderExtended && hasUnpaidWork -> requirements(
+      unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse()
+    )
+    hasUnpaidWork -> requirements(unpaidWorkRequirementsResponse())
+    hasNonRestrictiveRequirement -> requirements(nonRestrictiveRequirementsResponse())
+    else -> requirements(noRequirementsResponse())
+  }
+
+  private fun convictions() =
     if (activeConvictions == 2) {
       convictions(custodialAndNonCustodialConvictions())
     } else {
@@ -201,7 +205,6 @@ class SetupData(
         }
       }
     }
-  }
 
   private fun assessmentsApi() {
     if (hasValidAssessment) {
@@ -243,44 +246,39 @@ class SetupData(
       )
       registrationsSetup.hasRosh() -> registrations(registrationsResponseWithRosh(rosh))
       registrationsSetup.hasMappa() -> registrations(registrationsResponseWithMappa(mappa))
-      registrationsSetup.hasAdditionalFactors() -> registrations(registrationsResponseWithAdditionalFactors(additionalFactors))
+      registrationsSetup.hasAdditionalFactors() -> registrations(
+        registrationsResponseWithAdditionalFactors(
+          additionalFactors
+        )
+      )
       else -> registrations(emptyRegistrationsResponse())
     }
   }
 
-  private fun breachAndRecall(response: HttpResponse) {
+  private fun breachAndRecall(response: HttpResponse) =
     communityApiResponseWithQs(
       response,
       "/secure/offenders/crn/$crn/convictions/\\d+/nsis", // should supply the actual convictionID here?
       Parameter("nsiCodes", "BRE,BRES,REC,RECS")
     )
-  }
 
-  private fun convictions(response: HttpResponse) {
+  private fun convictions(response: HttpResponse) =
     communityApiResponseWithQs(
       response,
-      "/secure/offenders/crn/$crn/convictions",
-      Parameter("activeOnly", "true")
+      "/secure/offenders/crn/$crn/convictions", Parameter("activeOnly", "true")
     )
-  }
 
-  private fun assessmentApiResponse(response: HttpResponse, urlTemplate: String) {
-    httpSetup(response, urlTemplate, assessmentApi)
-  }
-
-  private fun registrations(response: HttpResponse) {
+  private fun registrations(response: HttpResponse) =
     communityApiResponseWithQs(
       response,
       "/secure/offenders/crn/$crn/registrations", Parameter("activeOnly", "true")
     )
-  }
 
-  private fun requirements(response: HttpResponse) {
+  private fun requirements(response: HttpResponse) =
     communityApiResponseWithQs(
       response,
       "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true")
     )
-  }
 
   private fun httpSetup(response: HttpResponse, urlTemplate: String, api: ClientAndServer) =
     api.`when`(request().withPath(urlTemplate), exactly(1)).respond(response)
@@ -291,6 +289,9 @@ class SetupData(
 
   private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
     httpSetup(response, urlTemplate, communityApi)
+
+  private fun assessmentApiResponse(response: HttpResponse, urlTemplate: String) =
+    httpSetup(response, urlTemplate, assessmentApi)
 }
 
 class RegistrationsSetup(val rosh: String, val mappa: String, val additionalFactors: List<String>) {
