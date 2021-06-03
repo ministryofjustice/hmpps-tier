@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
+import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.ADDITIONAL_FACTORS_FOR_WOMEN
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.COMPLEXITY
@@ -30,17 +31,15 @@ class ProtectLevelCalculator {
 
   fun calculateProtectLevel(
     rsr: BigDecimal,
-    rosh: Rosh?,
-    mappa: Mappa?,
-    complexityFactors: Collection<ComplexityFactor>,
-    additionalFactorsPoints: Int
+    additionalFactorsPoints: Int,
+    registrations: Registrations
   ): TierLevel<ProtectLevel> {
 
     val points = mapOf(
       RSR to getRsrPoints(rsr),
-      ROSH to getRoshPoints(rosh),
-      MAPPA to getMappaPoints(mappa),
-      COMPLEXITY to getComplexityPoints(complexityFactors),
+      ROSH to getRoshPoints(registrations.rosh),
+      MAPPA to getMappaPoints(registrations.mappa),
+      COMPLEXITY to getComplexityPoints(registrations.complexityFactors),
       ADDITIONAL_FACTORS_FOR_WOMEN to additionalFactorsPoints
     )
 

@@ -25,7 +25,7 @@ class CommunityApiService(
   fun getRegistrations(crn: String): Registrations {
     val (iomNominal, registrations) = communityApiClient.getRegistrations(crn).sortedByDescending { it.startDate }
       .partition { it.type.code == IOM_NOMINAL.registerCode }
-    return Registrations(iomNominal, getComplexityFactors(registrations), getRosh(registrations), getMappa(registrations),)
+    return Registrations(iomNominal.isNotEmpty(), getComplexityFactors(registrations), getRosh(registrations), getMappa(registrations),)
   }
 
   private fun getRosh(registrations: Collection<Registration>): Rosh? =
