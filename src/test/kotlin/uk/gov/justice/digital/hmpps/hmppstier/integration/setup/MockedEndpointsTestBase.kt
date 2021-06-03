@@ -265,7 +265,7 @@ abstract class MockedEndpointsTestBase {
 
   private fun setAuthorisation(): (HttpHeaders) -> Unit {
     val token = jwtHelper.createJwt(
-      subject = "ROLE_HMPPS_TIER",
+      subject = "hmpps-tier",
       expiryTime = Duration.ofHours(1L)
     )
     return { it.set(AUTHORIZATION, "Bearer $token") }
