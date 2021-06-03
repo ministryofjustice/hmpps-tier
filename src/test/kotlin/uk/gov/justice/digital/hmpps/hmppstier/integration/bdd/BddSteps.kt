@@ -61,6 +61,7 @@ class BddSteps : En {
   private lateinit var setupData: SetupData
   private lateinit var crn: String
   private lateinit var assessmentId: String
+  private lateinit var convictionId: String
 
   private fun setupOauth() {
     val response = response().withContentType(APPLICATION_JSON)
@@ -79,7 +80,9 @@ class BddSteps : En {
       setupOauth()
       crn = UUID.randomUUID().toString().replace("-", "").substring(0, 7)
       assessmentId = UUID.randomUUID().toString().replace("\\D+".toRegex(), "").padEnd(11, '1').substring(0, 11)
-      setupData = SetupData(communityApi, assessmentApi, mapOf("crn" to crn, "assessmentId" to "1$assessmentId"))
+      convictionId = UUID.randomUUID().toString().replace("\\D+".toRegex(), "").padEnd(11, '1').substring(0, 11)
+
+      setupData = SetupData(communityApi, assessmentApi, mapOf("crn" to crn, "assessmentId" to "1$assessmentId", "convictionId" to convictionId))
     }
 
     Given("an RSR score of {string}") { rsr: String ->

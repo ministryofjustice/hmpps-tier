@@ -91,10 +91,11 @@ private fun registrations(registrations: String) = jsonResponseOf(
 
 fun custodialSCConvictionResponse(): HttpResponse = communityApiResponse("convictions-custodial-sc.json")
 
-fun custodialTerminatedConvictionResponse(terminatedDate: LocalDate = LocalDate.now().minusDays(1)): HttpResponse =
+fun custodialTerminatedConvictionResponse(terminatedDate: LocalDate = LocalDate.now().minusDays(1), convictionId: String = "2500222290"): HttpResponse =
   jsonResponseOf(
     responseFrom("$communityApiPath/convictions-custodial-terminated.json")
       .replace("terminationDateToReplace", terminatedDate.format(ISO_DATE))
+      .replace("\"convictionIdToReplace\"", convictionId)
   )
 
 fun nonCustodialConvictionResponse(): HttpResponse = communityApiResponse("convictions-non-custodial.json")

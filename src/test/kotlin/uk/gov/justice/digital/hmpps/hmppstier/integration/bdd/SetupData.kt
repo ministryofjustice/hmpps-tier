@@ -47,6 +47,7 @@ class SetupData(
   private var sentenceType: String = "NC"
   var crn: String = ids["crn"]!!
   var assessmentId: String = ids["assessmentId"]!!
+  var convictionId: String = ids["convictionId"]!!
   private var sentenceLengthIndeterminate: Boolean = false
   private var sentenceLength: Long = 1
   private var mainOffence: String = "016"
@@ -158,23 +159,25 @@ class SetupData(
 
   fun prepareResponses() {
     communityApiResponse(communityApiAssessmentsResponse(rsr, ogrs), "/secure/offenders/crn/$crn/assessments")
-    registrations()
+    registrations(RegistrationsSetup(rosh, mappa, additionalFactors))
     assessmentsApi()
     convictions()
     requirements()
 
     when (gender) {
       "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
-      else -> {
-        communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
-        if (outcome.isNotEmpty()) {
-          outcome.forEach {
-            breachAndRecall(nsisResponse(it))
-          }
-        } else {
-          breachAndRecall(emptyNsisResponse())
-        }
+      else -> femaleWithBreachAndRecall()
+    }
+  }
+
+  private fun femaleWithBreachAndRecall() {
+    communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
+    if (outcome.isNotEmpty()) {
+      outcome.forEach {
+        breachAndRecall(nsisResponse(it))
       }
+    } else {
+      breachAndRecall(emptyNsisResponse())
     }
   }
 
@@ -193,7 +196,7 @@ class SetupData(
       convictions(custodialAndNonCustodialConvictions())
     } else {
       if (null != convictionTerminatedDate) {
-        convictions(custodialTerminatedConvictionResponse(convictionTerminatedDate!!))
+        convictions(custodialTerminatedConvictionResponse(convictionTerminatedDate!!, convictionId))
       } else {
         when {
           sentenceLengthIndeterminate -> convictions(
@@ -228,8 +231,7 @@ class SetupData(
     }
   }
 
-  private fun registrations() {
-    val registrationsSetup = RegistrationsSetup(rosh, mappa, additionalFactors)
+  private fun registrations(registrationsSetup: RegistrationsSetup) =
     when {
       registrationsSetup.allRegistrationsPresent() -> registrations(
         registrationsResponseWithRoshMappaAndAdditionalFactors(
@@ -253,7 +255,6 @@ class SetupData(
       )
       else -> registrations(emptyRegistrationsResponse())
     }
-  }
 
   private fun breachAndRecall(response: HttpResponse) =
     communityApiResponseWithQs(
@@ -294,7 +295,7 @@ class SetupData(
     httpSetup(response, urlTemplate, assessmentApi)
 }
 
-class RegistrationsSetup(val rosh: String, val mappa: String, val additionalFactors: List<String>) {
+class RegistrationsSetup(private val rosh: String, private val mappa: String, private val additionalFactors: List<String>) {
   fun allRegistrationsPresent() = hasRosh() && hasMappa() && hasAdditionalFactors()
   fun mappaAndAdditionalFactors() = hasMappa() && hasAdditionalFactors()
   fun hasRosh() = rosh != "NO_ROSH"
