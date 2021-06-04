@@ -279,7 +279,7 @@ class SetupData(
   private fun requirements(response: HttpResponse) =
     communityApiResponseWithQs(
       response,
-      "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true") // TODO use real convictionId here
+      "/secure/offenders/crn/$crn/convictions/$convictionId/requirements", Parameter("activeOnly", "true")
     )
 
   private fun httpSetup(response: HttpResponse, urlTemplate: String, api: ClientAndServer) =
