@@ -9,6 +9,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.IomNominal.IOM_NOMINAL
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NsiOutcome
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 
 @Service
@@ -31,6 +32,10 @@ class CommunityApiService(
       getMappa(registrations)
     )
   }
+
+  fun convictionHasBreachOrRecallNsis(crn: String, convictionId: Long): Boolean =
+    communityApiClient.getBreachRecallNsis(crn, convictionId)
+      .any { NsiOutcome.from(it.status?.code) != null }
 
   private fun getRosh(registrations: Collection<Registration>): Rosh? =
     registrations.mapNotNull { Rosh.from(it.type.code) }.firstOrNull()

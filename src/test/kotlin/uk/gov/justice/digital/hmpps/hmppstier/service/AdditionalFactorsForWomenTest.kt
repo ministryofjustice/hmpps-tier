@@ -29,7 +29,12 @@ class AdditionalFactorsForWomenTest {
   private val clock = Clock.fixed(LocalDateTime.of(2020, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault())
   private val communityApiClient: CommunityApiClient = mockk(relaxUnitFun = true)
   private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
-  private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(clock, communityApiClient, assessmentApiService)
+  private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(
+    clock,
+    communityApiClient,
+    assessmentApiService,
+    CommunityApiService(communityApiClient)
+  )
 
   @BeforeEach
   fun resetAllMocks() {
