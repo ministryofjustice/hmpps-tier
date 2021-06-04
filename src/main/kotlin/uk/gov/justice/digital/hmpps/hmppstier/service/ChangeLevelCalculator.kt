@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.IOM
@@ -16,8 +15,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ZERO
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 
-@Service
-class ChangeLevelCalculator() {
+class ChangeLevelCalculator {
 
   fun calculateChangeLevel(
     offenderAssessment: OffenderAssessment?,

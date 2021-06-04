@@ -15,7 +15,6 @@ import java.util.UUID
 class TierCalculationService(
   private val clock: Clock,
   private val tierCalculationRepository: TierCalculationRepository,
-  private val changeLevelCalculator: ChangeLevelCalculator,
   private val assessmentApiService: AssessmentApiService,
   private val communityApiService: CommunityApiService,
   private val successUpdater: SuccessUpdater,
@@ -25,6 +24,7 @@ class TierCalculationService(
 ) {
 
   private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator()
+  private val changeLevelCalculator: ChangeLevelCalculator = ChangeLevelCalculator()
 
   fun getLatestTierByCrn(crn: String): TierDto? =
     getLatestTierCalculation(crn)?.let {

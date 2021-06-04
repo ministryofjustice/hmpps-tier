@@ -44,7 +44,6 @@ internal class TierCalculationServiceTest {
   private val service = TierCalculationService(
     clock,
     tierCalculationRepository,
-    changeLevelCalculator,
     assessmentApiService,
     communityApiService,
     successUpdater,
