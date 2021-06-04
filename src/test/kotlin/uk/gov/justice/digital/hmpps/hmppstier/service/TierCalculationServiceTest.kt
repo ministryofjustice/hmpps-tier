@@ -39,6 +39,7 @@ internal class TierCalculationServiceTest {
   private val telemetryService: TelemetryService = mockk(relaxUnitFun = true)
   private val successUpdater: SuccessUpdater = mockk(relaxUnitFun = true)
   private val additionalFactorsForWomen: AdditionalFactorsForWomen = mockk(relaxUnitFun = true)
+  private val mandateForChange: MandateForChange = mockk(relaxUnitFun = true)
 
   private val service = TierCalculationService(
     clock,
@@ -48,7 +49,8 @@ internal class TierCalculationServiceTest {
     communityApiService,
     successUpdater,
     telemetryService,
-    additionalFactorsForWomen
+    additionalFactorsForWomen,
+    mandateForChange
   )
 
   private val calculationId = UUID.randomUUID()

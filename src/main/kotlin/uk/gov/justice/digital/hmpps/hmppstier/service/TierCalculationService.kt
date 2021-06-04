@@ -20,7 +20,8 @@ class TierCalculationService(
   private val communityApiService: CommunityApiService,
   private val successUpdater: SuccessUpdater,
   private val telemetryService: TelemetryService,
-  private val additionalFactorsForWomen: AdditionalFactorsForWomen
+  private val additionalFactorsForWomen: AdditionalFactorsForWomen,
+  private val mandateForChange: MandateForChange
 ) {
 
   private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator()
@@ -70,12 +71,11 @@ class TierCalculationService(
       registrations
     )
     val changeLevel = changeLevelCalculator.calculateChangeLevel(
-      crn,
       offenderAssessment,
       ogrs,
       registrations.hasIomNominal,
-      deliusConvictions,
-      assessmentApiService.getAssessmentNeeds(offenderAssessment)
+      assessmentApiService.getAssessmentNeeds(offenderAssessment),
+      mandateForChange.hasNoMandate(crn, deliusConvictions)
     )
 
     return TierCalculationEntity(
