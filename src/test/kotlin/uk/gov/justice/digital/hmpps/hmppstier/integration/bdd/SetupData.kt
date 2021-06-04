@@ -48,7 +48,7 @@ class SetupData(
   var crn: String = ids["crn"]!!
   var assessmentId: String = ids["assessmentId"]!!
   var convictionId: String = ids["convictionId"]!!
-  var secondConvictionId: String = convictionId.reversed()
+  var secondConvictionId: String = ids["secondConvictionId"]!!
   private var sentenceLengthIndeterminate: Boolean = false
   private var sentenceLength: Long = 1
   private var mainOffence: String = "016"

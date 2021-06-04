@@ -80,11 +80,11 @@ class BddSteps : En {
 
       setupOauth()
       crn = UUID.randomUUID().toString().replace("-", "").substring(0, 7)
-      assessmentId = UUID.randomUUID().toString().replace("\\D+".toRegex(), "").padEnd(11, '1').substring(0, 11).replace("0", "9")
-      convictionId = UUID.randomUUID().toString().replace("\\D+".toRegex(), "").padEnd(11, '1').substring(0, 11).replace("0", "9")
-      secondConvictionId = convictionId.reversed()
+      assessmentId = "1${UUID.randomUUID().toString().replace("\\D+".toRegex(), "").padEnd(11, '1').substring(0, 11)}"
+      convictionId = "1${UUID.randomUUID().toString().replace("\\D+".toRegex(), "").padEnd(11, '1').substring(0, 11)}"
+      secondConvictionId = "1${convictionId.reversed()}"
 
-      setupData = SetupData(communityApi, assessmentApi, mapOf("crn" to crn, "assessmentId" to "1$assessmentId", "convictionId" to convictionId, "secondConvictionId" to secondConvictionId))
+      setupData = SetupData(communityApi, assessmentApi, mapOf("crn" to crn, "assessmentId" to assessmentId, "convictionId" to convictionId, "secondConvictionId" to secondConvictionId))
     }
 
     Given("an RSR score of {string}") { rsr: String ->
