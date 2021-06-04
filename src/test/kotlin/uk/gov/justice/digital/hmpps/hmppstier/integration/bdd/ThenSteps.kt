@@ -4,6 +4,7 @@ import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.google.gson.Gson
 import io.cucumber.java8.En
 import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
@@ -29,17 +30,17 @@ class ThenSteps : En {
   init {
     Then("{int} protect points are scored") { points: Int ->
       val calculation: TierCalculationEntity = getTier()
-      Assertions.assertThat(calculation.data.protect.points).isEqualTo(points)
+      assertThat(calculation.data.protect.points).isEqualTo(points)
     }
 
     Then("{int} change points are scored") { points: Int ->
       val calculation: TierCalculationEntity = getTier()
-      Assertions.assertThat(calculation.data.change.points).isEqualTo(points)
+      assertThat(calculation.data.change.points).isEqualTo(points)
     }
 
     Then("there is a mandate for change") {
       val calculation: TierCalculationEntity = getTier()
-      Assertions.assertThat(calculation.data.change.tier.value).isEqualTo(1)
+      assertThat(calculation.data.change.tier.value).isEqualTo(1)
     }
 
     Then("a change level of {int} is returned and {int} points are scored") { changeLevel: Int, points: Int ->
@@ -48,8 +49,8 @@ class ThenSteps : En {
 
     Then("a protect level of {string} is returned and {int} points are scored") { protectLevel: String, points: Int ->
       val calculation: TierCalculationEntity = getTier()
-      Assertions.assertThat(calculation.data.protect.tier).isEqualTo(ProtectLevel.valueOf(protectLevel))
-      Assertions.assertThat(calculation.data.protect.points).isEqualTo(points)
+      assertThat(calculation.data.protect.tier).isEqualTo(ProtectLevel.valueOf(protectLevel))
+      assertThat(calculation.data.protect.points).isEqualTo(points)
     }
 
     Then("there is no mandate for change") {
@@ -59,8 +60,8 @@ class ThenSteps : En {
 
   private fun changeIs(tier: Int, points: Int) {
     val calculation: TierCalculationEntity = getTier()
-    Assertions.assertThat(calculation.data.change.tier.value).isEqualTo(tier)
-    Assertions.assertThat(calculation.data.change.points).isEqualTo(points)
+    assertThat(calculation.data.change.tier.value).isEqualTo(tier)
+    assertThat(calculation.data.change.points).isEqualTo(points)
   }
 
   private fun getTier(): TierCalculationEntity {

@@ -110,15 +110,12 @@ class BddSteps : En {
     Given("an offender is {string}") { gender: String ->
       setupData.setGender(gender)
     }
-
     Given("an OGRS score of {string}%") { ogrs: String ->
       setupData.setOgrs(ogrs)
     }
-
     Given("the assessment need {string} with severity {string}") { need: String, severity: String ->
       setupData.setNeeds(mapOf(need to severity))
     }
-
     Given("an offender scores 21 change points") {
       setupData.setOgrs("90") // 9 points
       setupData.setNeeds(
@@ -132,7 +129,6 @@ class BddSteps : En {
         )
       ) // 12 points
     }
-
     Given("an offender scores 20 change points") {
       setupData.setOgrs("100") // 10 points
       setupData.setNeeds(
@@ -145,7 +141,6 @@ class BddSteps : En {
         )
       ) // 10 points
     }
-
     Given("an offender scores 19 change points") {
       setupData.setOgrs("90") // 9 points
       setupData.setNeeds(
@@ -158,16 +153,10 @@ class BddSteps : En {
         )
       ) // 10 points
     }
-
     Given("an offender scores 11 change points") {
       setupData.setOgrs("90") // 9 points
-      setupData.setNeeds(
-        mapOf(
-          "ACCOMMODATION" to "SEVERE",
-        )
-      ) // 2 points
+      setupData.setNeeds(mapOf("ACCOMMODATION" to "SEVERE")) // 2 points
     }
-
     Given("an offender scores 10 change points") {
       setupData.setNeeds(
         mapOf(
@@ -179,7 +168,6 @@ class BddSteps : En {
         )
       ) // 10 points
     }
-
     Given("an offender scores 9 change points") {
       setupData.setNeeds(
         mapOf(
@@ -191,7 +179,6 @@ class BddSteps : En {
         )
       ) // 9 points
     }
-
     Given("an offender scores 31 protect points") {
       setupData.setMappa(M1.registerCode) // 5
       setupData.setRosh(HIGH.registerCode) // 20
@@ -259,6 +246,7 @@ class BddSteps : En {
     Given("an offender with a current non-custodial sentence") {
       setupData.setSentenceType("SP")
     }
+
     And("unpaid work") {
       setupData.setUnpaidWork()
     }
@@ -310,7 +298,6 @@ class BddSteps : En {
     And("no RSR score") {
       setupData.setRsr("0")
     }
-
     And("has a custodial sentence") {
       // Do nothing
     }
