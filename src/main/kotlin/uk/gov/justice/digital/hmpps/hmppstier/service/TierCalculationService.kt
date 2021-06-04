@@ -67,7 +67,12 @@ class TierCalculationService(
 
     val protectLevel = protectLevelCalculator.calculateProtectLevel(
       rsr,
-      additionalFactorsForWomen.calculate(crn, deliusConvictions, offenderAssessment),
+      additionalFactorsForWomen.calculate(
+        crn,
+        deliusConvictions,
+        offenderAssessment,
+        communityApiService.offenderIsFemale(crn)
+      ),
       registrations
     )
     val changeLevel = changeLevelCalculator.calculateChangeLevel(

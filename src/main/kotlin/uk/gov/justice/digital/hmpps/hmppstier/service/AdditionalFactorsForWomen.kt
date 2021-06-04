@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
@@ -14,17 +13,17 @@ import java.time.LocalDate
 @Service
 class AdditionalFactorsForWomen(
   private val clock: Clock,
-  private val communityApiClient: CommunityApiClient,
   private val assessmentApiService: AssessmentApiService,
-  private val communityApiService: CommunityApiService,
+  private val communityApiService: CommunityApiService
 ) {
   fun calculate(
     crn: String,
     convictions: Collection<Conviction>,
-    offenderAssessment: OffenderAssessment?
+    offenderAssessment: OffenderAssessment?,
+    offenderIsFemale: Boolean
   ): Int =
     when {
-      isFemale(crn) -> {
+      offenderIsFemale -> {
         val additionalFactorsPoints = getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment)
         val breachRecallPoints = getBreachRecallComplexityPoints(crn, convictions)
 
@@ -32,8 +31,6 @@ class AdditionalFactorsForWomen(
       }
       else -> 0
     }
-
-  private fun isFemale(crn: String) = communityApiClient.getOffender(crn)?.gender.equals("female", true)
 
   private fun getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment: OffenderAssessment?): Int =
     when (offenderAssessment) {
