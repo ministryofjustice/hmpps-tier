@@ -54,7 +54,7 @@ class SetupData(
   private var hasValidAssessment: Boolean = false
   private var convictionTerminatedDate: LocalDate? = null
   private var activeConvictions: Int = 1
-  private var outcome: MutableMap<String, String> = mutableMapOf()
+  private var outcomes: MutableMap<String, String> = mutableMapOf()
   private var gender: String = "Male"
   private var additionalFactors: List<String> = emptyList()
   private var needs: MutableMap<String, String> = mutableMapOf()
@@ -86,7 +86,7 @@ class SetupData(
   }
 
   fun setAdditionalFactors(additionalFactors: List<String>) {
-    setValidAssessment() // for IOM
+    setValidAssessment() // There needs to be a valid assessment to get IOM nominal
     this.additionalFactors = additionalFactors
   }
 
@@ -95,16 +95,12 @@ class SetupData(
     this.needs.putAll(needs)
   }
 
-  fun addNeed(need: String, severity: String) {
-    setNeeds(mapOf(need to severity))
-  }
-
   fun setGender(gender: String) {
     this.gender = gender
   }
 
   fun setNsiOutcome(outcome: String, conviction: String) {
-    this.outcome[conviction] = outcome
+    this.outcomes[conviction] = outcome
   }
 
   fun setTwoActiveConvictions() {
@@ -168,8 +164,8 @@ class SetupData(
 
   private fun femaleWithBreachAndRecall() {
     communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
-    if (outcome.isNotEmpty()) {
-      outcome.forEach {
+    if (outcomes.isNotEmpty()) {
+      outcomes.forEach {
         breachAndRecall(nsisResponse(it.value), it.key)
       }
     } else {
@@ -190,10 +186,7 @@ class SetupData(
   private fun convictionsResponse() =
     when {
       activeConvictions == 2 -> convictionsResponse(
-        custodialAndNonCustodialConvictions(
-          convictionId,
-          secondConvictionId
-        )
+        custodialAndNonCustodialConvictions(convictionId, secondConvictionId)
       )
       null != convictionTerminatedDate ->
         convictionsResponse(custodialTerminatedConvictionResponse(convictionTerminatedDate!!, convictionId))

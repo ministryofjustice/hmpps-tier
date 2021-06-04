@@ -117,7 +117,7 @@ class BddSteps : En {
     }
 
     Given("the assessment need {string} with severity {string}") { need: String, severity: String ->
-      setupData.addNeed(need, severity)
+      setupData.setNeeds(mapOf(need to severity))
     }
 
     Given("an offender scores 21 change points") {
