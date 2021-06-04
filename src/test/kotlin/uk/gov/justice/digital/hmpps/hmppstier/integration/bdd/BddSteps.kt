@@ -5,7 +5,6 @@ import com.amazonaws.services.sqs.model.PurgeQueueRequest
 import com.google.gson.Gson
 import io.cucumber.java8.En
 import io.cucumber.java8.Scenario
-import org.assertj.core.api.Assertions.assertThat
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse.response
@@ -15,16 +14,10 @@ import org.springframework.beans.factory.annotation.Value
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M1
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M3
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.HIGH
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.MEDIUM
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.SQSMessage
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.oneMessageCurrentlyOnQueue
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnQueue
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
-import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -45,9 +38,6 @@ class BddSteps : En {
 
   @Value("\${offender-events.sqs-queue}")
   lateinit var eventQueueUrl: String
-
-  @Autowired
-  lateinit var tierCalculationRepository: TierCalculationRepository
 
   @Autowired
   lateinit var oauthMock: ClientAndServer
@@ -84,7 +74,16 @@ class BddSteps : En {
       convictionId = "1${UUID.randomUUID().toString().replace("\\D+".toRegex(), "").padEnd(11, '1').substring(0, 11)}"
       secondConvictionId = "1${convictionId.reversed()}"
 
-      setupData = SetupData(communityApi, assessmentApi, mapOf("crn" to crn, "assessmentId" to assessmentId, "convictionId" to convictionId, "secondConvictionId" to secondConvictionId))
+      setupData = SetupData(
+        communityApi,
+        assessmentApi,
+        mapOf(
+          "crn" to crn,
+          "assessmentId" to assessmentId,
+          "convictionId" to convictionId,
+          "secondConvictionId" to secondConvictionId
+        )
+      )
     }
 
     Given("an RSR score of {string}") { rsr: String ->
@@ -326,49 +325,5 @@ class BddSteps : En {
       setupData.prepareResponses()
       putMessageOnQueue(offenderEventsClient, eventQueueUrl, crn)
     }
-
-    Then("{int} protect points are scored") { points: Int ->
-      val calculation: TierCalculationEntity = getTier()
-      assertThat(calculation.data.protect.points).isEqualTo(points)
-    }
-
-    Then("{int} change points are scored") { points: Int ->
-      val calculation: TierCalculationEntity = getTier()
-      assertThat(calculation.data.change.points).isEqualTo(points)
-    }
-
-    Then("there is a mandate for change") {
-      val calculation: TierCalculationEntity = getTier()
-      assertThat(calculation.data.change.tier.value).isEqualTo(1)
-    }
-
-    Then("a change level of {int} is returned and {int} points are scored") { changeLevel: Int, points: Int ->
-      changeIs(changeLevel, points)
-    }
-
-    Then("a protect level of {string} is returned and {int} points are scored") { protectLevel: String, points: Int ->
-      val calculation: TierCalculationEntity = getTier()
-      assertThat(calculation.data.protect.tier).isEqualTo(ProtectLevel.valueOf(protectLevel))
-      assertThat(calculation.data.protect.points).isEqualTo(points)
-    }
-
-    Then("there is no mandate for change") {
-      changeIs(0, 0)
-    }
-  }
-
-  private fun changeIs(tier: Int, points: Int) {
-    val calculation: TierCalculationEntity = getTier()
-    assertThat(calculation.data.change.tier.value).isEqualTo(tier)
-    assertThat(calculation.data.change.points).isEqualTo(points)
-  }
-
-  private fun getTier(): TierCalculationEntity {
-    oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
-    val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
-    val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
-    val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
-
-    return tierCalculationRepository.findByCrnAndUuid(crn, changeEvent.calculationId)!!
   }
 }
