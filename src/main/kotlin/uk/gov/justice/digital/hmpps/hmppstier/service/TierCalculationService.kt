@@ -15,15 +15,16 @@ import java.util.UUID
 class TierCalculationService(
   private val clock: Clock,
   private val tierCalculationRepository: TierCalculationRepository,
-  private val changeLevelCalculator: ChangeLevelCalculator,
   private val assessmentApiService: AssessmentApiService,
   private val communityApiService: CommunityApiService,
   private val successUpdater: SuccessUpdater,
   private val telemetryService: TelemetryService,
-  private val additionalFactorsForWomen: AdditionalFactorsForWomen
+  private val additionalFactorsForWomen: AdditionalFactorsForWomen,
+  private val mandateForChange: MandateForChange
 ) {
 
   private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator()
+  private val changeLevelCalculator: ChangeLevelCalculator = ChangeLevelCalculator()
 
   fun getLatestTierByCrn(crn: String): TierDto? =
     getLatestTierCalculation(crn)?.let {
@@ -70,12 +71,11 @@ class TierCalculationService(
       registrations
     )
     val changeLevel = changeLevelCalculator.calculateChangeLevel(
-      crn,
       offenderAssessment,
       ogrs,
       registrations.hasIomNominal,
-      deliusConvictions,
-      assessmentApiService.getAssessmentNeeds(offenderAssessment)
+      assessmentApiService.getAssessmentNeeds(offenderAssessment),
+      mandateForChange.hasNoMandate(crn, deliusConvictions)
     )
 
     return TierCalculationEntity(

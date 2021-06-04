@@ -1,8 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
-import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.IOM
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.NEEDS
@@ -17,21 +15,17 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ZERO
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 
-@Service
-class ChangeLevelCalculator(
-  private val mandateForChange: MandateForChange,
-) {
+class ChangeLevelCalculator {
 
   fun calculateChangeLevel(
-    crn: String,
     offenderAssessment: OffenderAssessment?,
     ogrsScore: Int,
     hasIomNominal: Boolean,
-    convictions: Collection<Conviction>,
-    needs: Map<Need, NeedSeverity>
+    needs: Map<Need, NeedSeverity>,
+    hasNoMandateForChange: Boolean
   ): TierLevel<ChangeLevel> =
     when {
-      mandateForChange.hasNoMandate(crn, convictions) -> TIER_NO_MANDATE
+      hasNoMandateForChange -> TIER_NO_MANDATE
       hasNoAssessment(offenderAssessment) -> TIER_NO_ASSESSMENT
 
       else -> {
