@@ -32,6 +32,8 @@ class CommunityApiService(
     )
   }
 
+  fun offenderIsFemale(crn: String): Boolean = communityApiClient.getOffender(crn)?.gender.equals("female", true)
+
   private fun getRosh(registrations: Collection<Registration>): Rosh? =
     registrations.mapNotNull { Rosh.from(it.type.code) }.firstOrNull()
 
