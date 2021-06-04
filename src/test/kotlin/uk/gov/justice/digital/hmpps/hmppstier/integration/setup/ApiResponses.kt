@@ -89,15 +89,58 @@ private fun registrations(registrations: String) = jsonResponseOf(
     "]}"
 )
 
-fun custodialSCConvictionResponse(): HttpResponse = communityApiResponse("convictions-custodial-sc.json")
-
-fun custodialTerminatedConvictionResponse(terminatedDate: LocalDate = LocalDate.now().minusDays(1)): HttpResponse =
+fun custodialTerminatedConvictionResponse(
+  terminatedDate: LocalDate = LocalDate.now().minusDays(1),
+  convictionId: String = "2500222290"
+): HttpResponse =
   jsonResponseOf(
     responseFrom("$communityApiPath/convictions-custodial-terminated.json")
       .replace("terminationDateToReplace", terminatedDate.format(ISO_DATE))
+      .replace("\"convictionIdToReplace\"", convictionId)
   )
 
-fun nonCustodialConvictionResponse(): HttpResponse = communityApiResponse("convictions-non-custodial.json")
+fun nonCustodialConvictionResponse(convictionId: String = "2500222290"): HttpResponse =
+  jsonResponseOf(
+    responseFrom("$communityApiPath/convictions-non-custodial.json")
+      .replace("\"convictionIdToReplace\"", convictionId)
+  )
+
+fun custodialAndNonCustodialConvictions(
+  firstConvictionId: String = "2500409603",
+  secondConvictionId: String = "2500409601"
+): HttpResponse =
+  jsonResponseOf(
+    responseFrom("$communityApiPath/convictions-custodial-and-non-custodial.json")
+      .replace("\"firstConvictionIdToReplace\"", firstConvictionId)
+      .replace("\"secondConvictionIdToReplace\"", secondConvictionId)
+  )
+
+fun custodialNCConvictionResponse(
+  sentenceLength: Long = 1,
+  courtAppearanceOutcome: String = "428",
+  convictionId: String = "2500222290"
+): HttpResponse =
+  jsonResponseOf(
+    responseFrom("$communityApiPath/convictions-custodial-nc.json")
+      .replace("startDateToReplace", LocalDate.of(2021, 4, 30).format(ISO_DATE))
+      .replace(
+        "expectedSentenceEndDateToReplace",
+        LocalDate.of(2021, 4, 30).plusMonths(sentenceLength).format(ISO_DATE)
+      )
+      .replace("latestCourtAppearanceOutcomeToReplace", courtAppearanceOutcome)
+      .replace("\"convictionIdToReplace\"", convictionId)
+  )
+
+fun custodialSCConvictionResponse(
+  convictionId: String = "2500222290"
+): HttpResponse =
+  jsonResponseOf(
+    responseFrom("$communityApiPath/convictions-custodial-sc.json")
+      .replace("\"convictionIdToReplace\"", convictionId)
+  )
+
+fun nonCustodialCurrentAndTerminatedConviction(): HttpResponse =
+  communityApiResponse("convictions-non-custodial-current-and-terminated.json")
 
 fun noSentenceConvictionResponse(): HttpResponse = communityApiResponse("convictions-no-sentence.json")
 
@@ -128,34 +171,13 @@ fun noRequirementsResponse(): HttpResponse = jsonResponseOf(
 
 fun additionalRequirementsResponse(): HttpResponse = communityApiResponse("requirements-additional.json")
 
-fun custodialAndNonCustodialConvictions(): HttpResponse =
-  communityApiResponse("convictions-custodial-and-non-custodial.json")
-
-fun custodialNCConvictionResponse(
-  mainOffence: String = "016",
-  sentenceLength: Long = 1,
-  courtAppearanceOutcome: String = "428"
-): HttpResponse =
+fun assessmentsApiAssessmentsResponse(assessmentDate: LocalDateTime, assessmentId: String): HttpResponse =
   jsonResponseOf(
-    responseFrom("$communityApiPath/convictions-custodial-nc.json")
-      .replace("mainOffenceToReplace", mainOffence)
-      .replace("startDateToReplace", LocalDate.of(2021, 4, 30).format(ISO_DATE))
-      .replace(
-        "expectedSentenceEndDateToReplace",
-        LocalDate.of(2021, 4, 30).plusMonths(sentenceLength).format(ISO_DATE)
-      )
-      .replace("latestCourtAppearanceOutcomeToReplace", courtAppearanceOutcome)
+    responseFrom("$assessmentApiPath/assessments.json")
+      .replace("completedDate", assessmentDate.format(ISO_DATE_TIME))
+      .replace("voidedDate", "")
+      .replace("\"assessmentIdToReplace\"", assessmentId)
   )
-
-fun nonCustodialCurrentAndTerminatedConviction(): HttpResponse =
-  communityApiResponse("convictions-non-custodial-current-and-terminated.json")
-
-fun assessmentsApiAssessmentsResponse(assessmentDate: LocalDateTime, assessmentId: String): HttpResponse = jsonResponseOf(
-  responseFrom("$assessmentApiPath/assessments.json")
-    .replace("completedDate", assessmentDate.format(ISO_DATE_TIME))
-    .replace("voidedDate", "")
-    .replace("\"assessmentIdToReplace\"", assessmentId)
-)
 
 fun assessmentsApiNoSeverityNeedsResponse(): HttpResponse =
   assessmentApiResponse("no_severity_needs.json")
