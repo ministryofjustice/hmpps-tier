@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import io.mockk.clearMocks
+import io.mockk.confirmVerified
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
@@ -13,7 +14,6 @@ import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
 import uk.gov.justice.digital.hmpps.hmppstier.client.Nsi
-import uk.gov.justice.digital.hmpps.hmppstier.client.Offender
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
@@ -25,11 +25,14 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 
 class AdditionalFactorsForWomenTest {
-
   private val clock = Clock.fixed(LocalDateTime.of(2020, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault())
   private val communityApiClient: CommunityApiClient = mockk(relaxUnitFun = true)
   private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
-  private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(clock, communityApiClient, assessmentApiService)
+  private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(
+    clock,
+    communityApiClient,
+    assessmentApiService
+  )
 
   @BeforeEach
   fun resetAllMocks() {
@@ -40,9 +43,10 @@ class AdditionalFactorsForWomenTest {
   @AfterEach
   fun confirmVerified() {
     // Check we don't add any more calls without updating the tests
-    io.mockk.confirmVerified(communityApiClient)
-    io.mockk.confirmVerified(assessmentApiService)
+    confirmVerified(communityApiClient)
+    confirmVerified(assessmentApiService)
   }
+
   @Nested
   @DisplayName("Additional Factors For Women tests")
   inner class AdditionalFactorsForWomenTests {
@@ -52,7 +56,6 @@ class AdditionalFactorsForWomenTest {
     fun `should not count assessment additional factors duplicates`() {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
@@ -62,11 +65,14 @@ class AdditionalFactorsForWomenTest {
           AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
           AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
         )
-
-      val result = additionalFactorsForWomen.calculate(crn, listOf(), assessment,)
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(),
+        assessment,
+        true,
+      )
       assertThat(result).isEqualTo(2)
 
-      verify { communityApiClient.getOffender(crn) }
       verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
@@ -74,17 +80,19 @@ class AdditionalFactorsForWomenTest {
     fun `should not count assessment additional factors duplicates mixed answers`() {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "YES",
           AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
         )
-
-      val result = additionalFactorsForWomen.calculate(crn, listOf(), assessment,)
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(),
+        assessment,
+        true
+      )
       assertThat(result).isEqualTo(2)
 
-      verify { communityApiClient.getOffender(crn) }
       verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
@@ -92,17 +100,19 @@ class AdditionalFactorsForWomenTest {
     fun `should add multiple additional factors`() {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
           AdditionalFactorForWomen.TEMPER_CONTROL to "1",
         )
-
-      val result = additionalFactorsForWomen.calculate(crn, listOf(), assessment,)
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(),
+        assessment,
+        true,
+      )
       assertThat(result).isEqualTo(4)
 
-      verify { communityApiClient.getOffender(crn) }
       verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
@@ -110,29 +120,32 @@ class AdditionalFactorsForWomenTest {
     fun `should not include additional factors if no valid assessment`() {
       val assessment = null
 
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
-
-      val result = additionalFactorsForWomen.calculate(crn, listOf(), assessment,)
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(),
+        assessment,
+        true,
+      )
       assertThat(result).isEqualTo(0)
-
-      verify { communityApiClient.getOffender(crn) }
     }
 
     @Test
     fun `should count both Temper and Impulsivity as max '1'`() {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.IMPULSIVITY to "2",
           AdditionalFactorForWomen.TEMPER_CONTROL to "1",
         )
-
-      val result = additionalFactorsForWomen.calculate(crn, listOf(), assessment,)
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(),
+        assessment,
+        true,
+      )
       assertThat(result).isEqualTo(2) // 1 * 2 weighting for all additional factors
 
-      verify { communityApiClient.getOffender(crn) }
       verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
@@ -140,16 +153,18 @@ class AdditionalFactorsForWomenTest {
     fun `should count Temper without Impulsivity as max '2'`() {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.TEMPER_CONTROL to "1",
         )
-
-      val result = additionalFactorsForWomen.calculate(crn, listOf(), assessment,)
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(),
+        assessment,
+        true,
+      )
       assertThat(result).isEqualTo(2) // 1 * 2 weighting for all additional factors
 
-      verify { communityApiClient.getOffender(crn) }
       verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
@@ -157,16 +172,18 @@ class AdditionalFactorsForWomenTest {
     fun `should count Impulsivity without Temper as max '1'`() {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.IMPULSIVITY to "2",
         )
-
-      val result = additionalFactorsForWomen.calculate(crn, listOf(), assessment,)
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(),
+        assessment,
+        true,
+      )
       assertThat(result).isEqualTo(2) // 1 * 2 weighting for all additional factors
 
-      verify { communityApiClient.getOffender(crn) }
       verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
@@ -174,16 +191,18 @@ class AdditionalFactorsForWomenTest {
     fun `should ignore negative Parenting`() {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "N",
         )
-
-      val result = additionalFactorsForWomen.calculate(crn, listOf(), assessment,)
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(),
+        assessment,
+        true,
+      )
       assertThat(result).isEqualTo(0)
 
-      verify { communityApiClient.getOffender(crn) }
       verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
@@ -191,16 +210,18 @@ class AdditionalFactorsForWomenTest {
     fun `should ignore negative Impulsivity`() {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.IMPULSIVITY to "0",
         )
-
-      val result = additionalFactorsForWomen.calculate(crn, listOf(), assessment,)
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(),
+        assessment,
+        true,
+      )
       assertThat(result).isEqualTo(0)
 
-      verify { communityApiClient.getOffender(crn) }
       verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
@@ -208,16 +229,18 @@ class AdditionalFactorsForWomenTest {
     fun `should ignore negative Temper`() {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
       every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.TEMPER_CONTROL to "0",
         )
-
-      val result = additionalFactorsForWomen.calculate(crn, listOf(), assessment,)
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(),
+        assessment,
+        true,
+      )
       assertThat(result).isEqualTo(0)
 
-      verify { communityApiClient.getOffender(crn) }
       verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
   }
@@ -234,17 +257,17 @@ class AdditionalFactorsForWomenTest {
       val terminationDate = LocalDate.now(clock).minusYears(1)
       val sentence = Sentence(terminationDate, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
-
       val breaches = listOf(Nsi(status = KeyValue("BRE08")))
-
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
 
-      val result = additionalFactorsForWomen.calculate(crn, listOf(conviction), null)
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(conviction),
+        null,
+        true
+      )
       assertThat(result).isEqualTo(2)
-
       verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
-      verify { communityApiClient.getOffender(crn) }
     }
 
     @Test
@@ -255,12 +278,13 @@ class AdditionalFactorsForWomenTest {
       val sentence = Sentence(terminationDate, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
 
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
-
-      val result = additionalFactorsForWomen.calculate(crn, listOf(conviction), null)
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(conviction),
+        null,
+        true
+      )
       assertThat(result).isEqualTo(0)
-
-      verify { communityApiClient.getOffender(crn) }
     }
 
     @Test
@@ -269,17 +293,17 @@ class AdditionalFactorsForWomenTest {
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
-
       val breaches = listOf(Nsi(status = KeyValue("BRE08")))
-
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
 
-      val result = additionalFactorsForWomen.calculate(crn, listOf(conviction), null)
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(conviction),
+        null,
+        true
+      )
       assertThat(result).isEqualTo(2)
-
       verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
-      verify { communityApiClient.getOffender(crn) }
     }
 
     @Test
@@ -288,33 +312,33 @@ class AdditionalFactorsForWomenTest {
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
-
       val unrelatedConviction = Conviction(convictionId.plus(1), sentence)
       val unrelatedBreaches = listOf(Nsi(status = KeyValue("BRE99")))
-
       val breaches = listOf(Nsi(status = KeyValue("BRE08")))
-
       every { communityApiClient.getBreachRecallNsis(crn, convictionId.plus(1)) } returns unrelatedBreaches
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
 
-      val result = additionalFactorsForWomen.calculate(crn, listOf(conviction, unrelatedConviction), null)
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(conviction, unrelatedConviction),
+        null,
+        true
+      )
       assertThat(result).isEqualTo(2)
-
       verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
-      verify { communityApiClient.getOffender(crn) }
     }
 
     @Test
     fun `Should return Breach false if no conviction`() {
       val crn = "123"
 
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
-
-      val result = additionalFactorsForWomen.calculate(crn, listOf(), null)
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(),
+        null,
+        true
+      )
       assertThat(result).isEqualTo(0)
-
-      verify { communityApiClient.getOffender(crn) }
     }
 
     @Test
@@ -323,20 +347,20 @@ class AdditionalFactorsForWomenTest {
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
-
       val breaches = listOf(
         Nsi(status = KeyValue("BRE54")),
         Nsi(status = KeyValue("BRE08"))
       )
-
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
 
-      val result = additionalFactorsForWomen.calculate(crn, listOf(conviction), null)
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(conviction),
+        null,
+        true
+      )
       assertThat(result).isEqualTo(2)
-
       verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
-      verify { communityApiClient.getOffender(crn) }
     }
 
     @Test
@@ -345,20 +369,20 @@ class AdditionalFactorsForWomenTest {
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
-
       val breaches = listOf(
         Nsi(status = KeyValue("BRE54")),
         Nsi(status = KeyValue("bre08"))
       )
-
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
-      val result = additionalFactorsForWomen.calculate(crn, listOf(conviction), null)
 
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(conviction),
+        null,
+        true
+      )
       assertThat(result).isEqualTo(2)
-
       verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
-      verify { communityApiClient.getOffender(crn) }
     }
 
     @Test
@@ -367,20 +391,20 @@ class AdditionalFactorsForWomenTest {
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
-
       val breaches = listOf(
         Nsi(status = KeyValue("BRE99")),
         Nsi(status = KeyValue("BRE99"))
       )
-
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
-      every { communityApiClient.getOffender(crn) } returns Offender("Female")
 
-      val result = additionalFactorsForWomen.calculate(crn, listOf(conviction), null)
+      val result = additionalFactorsForWomen.calculate(
+        crn,
+        listOf(conviction),
+        null,
+        true
+      )
       assertThat(result).isEqualTo(0)
-
       verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
-      verify { communityApiClient.getOffender(crn) }
     }
   }
 }
