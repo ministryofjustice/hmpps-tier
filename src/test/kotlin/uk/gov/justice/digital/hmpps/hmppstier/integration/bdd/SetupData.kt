@@ -48,13 +48,14 @@ class SetupData(
   var crn: String = ids["crn"]!!
   var assessmentId: String = ids["assessmentId"]!!
   var convictionId: String = ids["convictionId"]!!
+  var secondConvictionId: String = convictionId.reversed()
   private var sentenceLengthIndeterminate: Boolean = false
   private var sentenceLength: Long = 1
   private var mainOffence: String = "016"
   private var hasValidAssessment: Boolean = false
   private var convictionTerminatedDate: LocalDate? = null
   private var activeConvictions: Int = 1
-  private var outcome: List<String> = emptyList()
+  private var outcome: MutableMap<String, String> = mutableMapOf()
   private var gender: String = "Male"
   private var additionalFactors: List<String> = emptyList()
   private var needs: MutableMap<String, String> = mutableMapOf()
@@ -103,8 +104,8 @@ class SetupData(
     this.gender = gender
   }
 
-  fun setNsiOutcomes(outcome: List<String>) {
-    this.outcome = outcome
+  fun setNsiOutcome(outcome: String, conviction: String) {
+    this.outcome[conviction] = outcome
   }
 
   fun setTwoActiveConvictions() {
@@ -174,10 +175,10 @@ class SetupData(
     communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
     if (outcome.isNotEmpty()) {
       outcome.forEach {
-        breachAndRecall(nsisResponse(it))
+        breachAndRecall(nsisResponse(it.value), it.key)
       }
     } else {
-      breachAndRecall(emptyNsisResponse())
+      breachAndRecall(emptyNsisResponse(), convictionId)
     }
   }
 
@@ -193,18 +194,18 @@ class SetupData(
 
   private fun convictions() =
     if (activeConvictions == 2) {
-      convictions(custodialAndNonCustodialConvictions(convictionId, convictionId.reversed()))
+      convictions(custodialAndNonCustodialConvictions(convictionId, secondConvictionId))
     } else {
       if (null != convictionTerminatedDate) {
         convictions(custodialTerminatedConvictionResponse(convictionTerminatedDate!!, convictionId))
       } else {
         when {
           sentenceLengthIndeterminate -> convictions(
-            custodialNCConvictionResponse(mainOffence, courtAppearanceOutcome = "303")
+            custodialNCConvictionResponse(mainOffence, courtAppearanceOutcome = "303", convictionId = convictionId)
           )
-          sentenceType == "SC" -> convictions(custodialSCConvictionResponse())
-          sentenceType == "NC" -> convictions(custodialNCConvictionResponse(mainOffence, sentenceLength))
-          else -> convictions(nonCustodialConvictionResponse())
+          sentenceType == "SC" -> convictions(custodialSCConvictionResponse(convictionId))
+          sentenceType == "NC" -> convictions(custodialNCConvictionResponse(mainOffence, sentenceLength, convictionId = convictionId))
+          else -> convictions(nonCustodialConvictionResponse(convictionId))
         }
       }
     }
@@ -256,10 +257,10 @@ class SetupData(
       else -> registrations(emptyRegistrationsResponse())
     }
 
-  private fun breachAndRecall(response: HttpResponse) =
+  private fun breachAndRecall(response: HttpResponse, convictionId: String) =
     communityApiResponseWithQs(
       response,
-      "/secure/offenders/crn/$crn/convictions/\\d+/nsis", // should supply the actual convictionID here?
+      "/secure/offenders/crn/$crn/convictions/$convictionId/nsis",
       Parameter("nsiCodes", "BRE,BRES,REC,RECS")
     )
 
@@ -278,7 +279,7 @@ class SetupData(
   private fun requirements(response: HttpResponse) =
     communityApiResponseWithQs(
       response,
-      "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true")
+      "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true") // TODO use real convictionId here
     )
 
   private fun httpSetup(response: HttpResponse, urlTemplate: String, api: ClientAndServer) =

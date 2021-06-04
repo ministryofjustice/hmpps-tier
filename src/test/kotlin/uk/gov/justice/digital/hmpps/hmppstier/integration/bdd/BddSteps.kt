@@ -62,6 +62,7 @@ class BddSteps : En {
   private lateinit var crn: String
   private lateinit var assessmentId: String
   private lateinit var convictionId: String
+  private lateinit var secondConvictionId: String
 
   private fun setupOauth() {
     val response = response().withContentType(APPLICATION_JSON)
@@ -79,10 +80,11 @@ class BddSteps : En {
 
       setupOauth()
       crn = UUID.randomUUID().toString().replace("-", "").substring(0, 7)
-      assessmentId = UUID.randomUUID().toString().replace("\\D+".toRegex(), "").padEnd(11, '1').substring(0, 11)
-      convictionId = UUID.randomUUID().toString().replace("\\D+".toRegex(), "").padEnd(11, '1').substring(0, 11)
+      assessmentId = UUID.randomUUID().toString().replace("\\D+".toRegex(), "").padEnd(11, '1').substring(0, 11).replace("0", "9")
+      convictionId = UUID.randomUUID().toString().replace("\\D+".toRegex(), "").padEnd(11, '1').substring(0, 11).replace("0", "9")
+      secondConvictionId = convictionId.reversed()
 
-      setupData = SetupData(communityApi, assessmentApi, mapOf("crn" to crn, "assessmentId" to "1$assessmentId", "convictionId" to convictionId))
+      setupData = SetupData(communityApi, assessmentApi, mapOf("crn" to crn, "assessmentId" to "1$assessmentId", "convictionId" to convictionId, "secondConvictionId" to secondConvictionId))
     }
 
     Given("an RSR score of {string}") { rsr: String ->
@@ -209,7 +211,7 @@ class BddSteps : En {
       setupData.setAssessmentAnswer("6.9", "YES") // 2
       setupData.setMappa(M1.registerCode) // 5
       setupData.setRosh(HIGH.registerCode) // 20
-      setupData.setNsiOutcomes(listOf("BRE02"))
+      setupData.setNsiOutcome("BRE02", convictionId)
       setupData.setAdditionalFactors(
         listOf(
           "RMDO",
@@ -283,23 +285,25 @@ class BddSteps : En {
       setupData.setAssessmentAnswer(question, answer)
     }
     And("has an active conviction with NSI Outcome code {string}") { outcome: String ->
-      setupData.setNsiOutcomes(listOf(outcome))
+      setupData.setNsiOutcome(outcome, convictionId)
     }
     And("has two active convictions with NSI Outcome codes {string} and {string}") { outcome1: String, outcome2: String ->
       setupData.setTwoActiveConvictions()
-      setupData.setNsiOutcomes(listOf(outcome1, outcome2))
+      setupData.setNsiOutcome(outcome1, convictionId)
+      setupData.setNsiOutcome(outcome2, secondConvictionId)
     }
     And("has two active convictions with NSI Outcome code {string}") { outcome: String ->
-      setupData.setNsiOutcomes(listOf(outcome))
+      setupData.setNsiOutcome(outcome, convictionId)
+      setupData.setNsiOutcome(outcome, secondConvictionId)
       setupData.setTwoActiveConvictions()
     }
     And("has a conviction terminated 365 days ago with NSI Outcome code {string}") { outcome: String ->
       setupData.setConvictionTerminatedDate(LocalDate.now().minusYears(1))
-      setupData.setNsiOutcomes(listOf(outcome))
+      setupData.setNsiOutcome(outcome, convictionId)
     }
     And("has a conviction terminated 366 days ago with NSI Outcome code {string}") { outcome: String ->
       setupData.setConvictionTerminatedDate(LocalDate.now().minusYears(1).minusDays(1))
-      setupData.setNsiOutcomes(listOf(outcome))
+      setupData.setNsiOutcome(outcome, convictionId)
     }
     And("no ROSH score") {
       // Do nothing
