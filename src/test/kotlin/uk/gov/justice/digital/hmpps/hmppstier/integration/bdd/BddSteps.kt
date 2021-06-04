@@ -315,9 +315,6 @@ class BddSteps : En {
     And("has a custodial sentence") {
       // Do nothing
     }
-    And("has a main offence of Abstracting Electricity") {
-      setupData.setMainOffenceAbstractingElectricity()
-    }
     And("has a sentence length of {long} months") { months: Long ->
       setupData.setSentenceLength(months)
     }

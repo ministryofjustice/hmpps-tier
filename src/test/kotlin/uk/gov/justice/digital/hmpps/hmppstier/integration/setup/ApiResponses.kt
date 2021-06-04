@@ -89,14 +89,6 @@ private fun registrations(registrations: String) = jsonResponseOf(
     "]}"
 )
 
-fun custodialSCConvictionResponse(
-  convictionId: String = "2500222290"
-): HttpResponse =
-  jsonResponseOf(
-    responseFrom("$communityApiPath/convictions-custodial-sc.json")
-      .replace("\"convictionIdToReplace\"", convictionId)
-  )
-
 fun custodialTerminatedConvictionResponse(
   terminatedDate: LocalDate = LocalDate.now().minusDays(1),
   convictionId: String = "2500222290"
@@ -124,20 +116,26 @@ fun custodialAndNonCustodialConvictions(
   )
 
 fun custodialNCConvictionResponse(
-  mainOffence: String = "016",
   sentenceLength: Long = 1,
   courtAppearanceOutcome: String = "428",
   convictionId: String = "2500222290"
 ): HttpResponse =
   jsonResponseOf(
     responseFrom("$communityApiPath/convictions-custodial-nc.json")
-      .replace("mainOffenceToReplace", mainOffence)
       .replace("startDateToReplace", LocalDate.of(2021, 4, 30).format(ISO_DATE))
       .replace(
         "expectedSentenceEndDateToReplace",
         LocalDate.of(2021, 4, 30).plusMonths(sentenceLength).format(ISO_DATE)
       )
       .replace("latestCourtAppearanceOutcomeToReplace", courtAppearanceOutcome)
+      .replace("\"convictionIdToReplace\"", convictionId)
+  )
+
+fun custodialSCConvictionResponse(
+  convictionId: String = "2500222290"
+): HttpResponse =
+  jsonResponseOf(
+    responseFrom("$communityApiPath/convictions-custodial-sc.json")
       .replace("\"convictionIdToReplace\"", convictionId)
   )
 

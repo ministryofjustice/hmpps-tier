@@ -51,7 +51,6 @@ class SetupData(
   var secondConvictionId: String = ids["secondConvictionId"]!!
   private var sentenceLengthIndeterminate: Boolean = false
   private var sentenceLength: Long = 1
-  private var mainOffence: String = "016"
   private var hasValidAssessment: Boolean = false
   private var convictionTerminatedDate: LocalDate? = null
   private var activeConvictions: Int = 1
@@ -125,10 +124,6 @@ class SetupData(
     this.assessmentAnswers[question] = answer
   }
 
-  fun setMainOffenceAbstractingElectricity() {
-    this.mainOffence = "043"
-  }
-
   fun setSentenceLength(months: Long) {
     this.sentenceLength = months
   }
@@ -198,11 +193,11 @@ class SetupData(
       null != convictionTerminatedDate ->
         convictions(custodialTerminatedConvictionResponse(convictionTerminatedDate!!, convictionId))
       sentenceLengthIndeterminate -> convictions(
-        custodialNCConvictionResponse(mainOffence, courtAppearanceOutcome = "303", convictionId = convictionId)
+        custodialNCConvictionResponse(courtAppearanceOutcome = "303", convictionId = convictionId)
       )
       sentenceType == "SC" -> convictions(custodialSCConvictionResponse(convictionId))
       sentenceType == "NC" -> convictions(
-        custodialNCConvictionResponse(mainOffence, sentenceLength, convictionId = convictionId)
+        custodialNCConvictionResponse(sentenceLength, convictionId = convictionId)
       )
       else -> convictions(nonCustodialConvictionResponse(convictionId))
     }

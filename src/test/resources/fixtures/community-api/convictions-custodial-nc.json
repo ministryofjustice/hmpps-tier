@@ -13,7 +13,7 @@
         "detail": {
           "code": "01600",
           "description": "(Buggery and attempted buggery - 01600)",
-          "mainCategoryCode": "mainOffenceToReplace",
+          "mainCategoryCode": "016",
           "mainCategoryDescription": "Buggery and attempted buggery",
           "mainCategoryAbbreviation": "Buggery and attempted buggery",
           "ogrsOffenceCategory": "Sexual (not against child)",
