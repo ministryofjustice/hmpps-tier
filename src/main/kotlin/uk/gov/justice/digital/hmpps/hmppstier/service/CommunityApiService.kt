@@ -7,7 +7,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor.IOM_NOMINAL
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.IomNominal.IOM_NOMINAL
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 
@@ -23,9 +23,13 @@ class CommunityApiService(
     communityApiClient.getConvictions(crn).filterNot { it.sentence == null }.map { Conviction.from(it) }
 
   fun getRegistrations(crn: String): Registrations {
-    val (iomNominal, registrations) = communityApiClient.getRegistrations(crn).sortedByDescending { it.startDate }
-      .partition { it.type.code == IOM_NOMINAL.registerCode }
-    return Registrations(iomNominal.isNotEmpty(), getComplexityFactors(registrations), getRosh(registrations), getMappa(registrations),)
+    val registrations = communityApiClient.getRegistrations(crn).sortedByDescending { it.startDate }
+    return Registrations(
+      hasIomNominal(registrations),
+      getComplexityFactors(registrations),
+      getRosh(registrations),
+      getMappa(registrations)
+    )
   }
 
   private fun getRosh(registrations: Collection<Registration>): Rosh? =
@@ -36,4 +40,7 @@ class CommunityApiService(
 
   private fun getComplexityFactors(registrations: Collection<Registration>): Collection<ComplexityFactor> =
     registrations.mapNotNull { ComplexityFactor.from(it.type.code) }.distinct()
+
+  private fun hasIomNominal(registrations: Collection<Registration>): Boolean =
+    registrations.any { it.type.code == IOM_NOMINAL.registerCode }
 }
