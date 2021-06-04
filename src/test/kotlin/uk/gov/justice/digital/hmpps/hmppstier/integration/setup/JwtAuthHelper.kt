@@ -29,11 +29,18 @@ class JwtAuthHelper {
   fun createJwt(
     subject: String,
     expiryTime: Duration = Duration.ofHours(1),
-    jwtId: String = UUID.randomUUID().toString()
+    jwtId: String = UUID.randomUUID().toString(),
+    roles: List<String> = listOf("ROLE_HMPPS_TIER")
   ): String {
+
+    val claims = mapOf(
+      "authorities" to roles,
+    )
+
     return Jwts.builder()
       .setId(jwtId)
       .setSubject(subject)
+      .addClaims(claims)
       .setExpiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
       .signWith(SignatureAlgorithm.RS256, keyPair.private)
       .compact()
