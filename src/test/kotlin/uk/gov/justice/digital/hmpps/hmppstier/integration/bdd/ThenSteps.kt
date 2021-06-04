@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration.bdd
 import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.google.gson.Gson
 import io.cucumber.java8.En
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
