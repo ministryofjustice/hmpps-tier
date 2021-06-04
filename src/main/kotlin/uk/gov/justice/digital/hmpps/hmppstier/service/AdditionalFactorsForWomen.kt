@@ -57,7 +57,7 @@ class AdditionalFactorsForWomen(
       .filter { qualifyingConvictions(it.sentence) }
       .let {
         when {
-          it.any { conviction -> communityApiService.convictionHasBreachOrRecallNsis(crn, conviction.convictionId) } -> 2
+          communityApiService.hasBreachedConvictions(crn, it) -> 2
           else -> 0
         }
       }
