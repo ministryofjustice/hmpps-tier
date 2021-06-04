@@ -21,7 +21,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistratio
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.femaleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.maleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.needsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.noRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nonCustodialConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nsisResponse
@@ -194,21 +193,18 @@ class SetupData(
   }
 
   private fun convictions() =
-    if (activeConvictions == 2) {
-      convictions(custodialAndNonCustodialConvictions(convictionId, secondConvictionId))
-    } else {
-      if (null != convictionTerminatedDate) {
+    when {
+      activeConvictions == 2 -> convictions(custodialAndNonCustodialConvictions(convictionId, secondConvictionId))
+      null != convictionTerminatedDate ->
         convictions(custodialTerminatedConvictionResponse(convictionTerminatedDate!!, convictionId))
-      } else {
-        when {
-          sentenceLengthIndeterminate -> convictions(
-            custodialNCConvictionResponse(mainOffence, courtAppearanceOutcome = "303", convictionId = convictionId)
-          )
-          sentenceType == "SC" -> convictions(custodialSCConvictionResponse(convictionId))
-          sentenceType == "NC" -> convictions(custodialNCConvictionResponse(mainOffence, sentenceLength, convictionId = convictionId))
-          else -> convictions(nonCustodialConvictionResponse(convictionId))
-        }
-      }
+      sentenceLengthIndeterminate -> convictions(
+        custodialNCConvictionResponse(mainOffence, courtAppearanceOutcome = "303", convictionId = convictionId)
+      )
+      sentenceType == "SC" -> convictions(custodialSCConvictionResponse(convictionId))
+      sentenceType == "NC" -> convictions(
+        custodialNCConvictionResponse(mainOffence, sentenceLength, convictionId = convictionId)
+      )
+      else -> convictions(nonCustodialConvictionResponse(convictionId))
     }
 
   private fun assessmentsApi() {
@@ -297,7 +293,11 @@ class SetupData(
     httpSetup(response, urlTemplate, assessmentApi)
 }
 
-class RegistrationsSetup(private val rosh: String, private val mappa: String, private val additionalFactors: List<String>) {
+class RegistrationsSetup(
+  private val rosh: String,
+  private val mappa: String,
+  private val additionalFactors: List<String>
+) {
   fun allRegistrationsPresent() = hasRosh() && hasMappa() && hasAdditionalFactors()
   fun mappaAndAdditionalFactors() = hasMappa() && hasAdditionalFactors()
   fun hasRosh() = rosh != "NO_ROSH"
