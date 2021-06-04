@@ -262,25 +262,19 @@ class SetupData(
     )
 
   private fun convictions(response: HttpResponse) =
-    communityApiResponseWithQs(
-      response,
-      "/secure/offenders/crn/$crn/convictions", Parameter("activeOnly", "true")
-    )
+    communityApiActiveOnlyResponse(response, "/secure/offenders/crn/$crn/convictions")
 
   private fun registrations(response: HttpResponse) =
-    communityApiResponseWithQs(
-      response,
-      "/secure/offenders/crn/$crn/registrations", Parameter("activeOnly", "true")
-    )
+    communityApiActiveOnlyResponse(response, "/secure/offenders/crn/$crn/registrations")
 
   private fun requirements(response: HttpResponse) =
-    communityApiResponseWithQs(
-      response,
-      "/secure/offenders/crn/$crn/convictions/$convictionId/requirements", Parameter("activeOnly", "true")
-    )
+    communityApiActiveOnlyResponse(response, "/secure/offenders/crn/$crn/convictions/$convictionId/requirements")
 
   private fun httpSetup(response: HttpResponse, urlTemplate: String, api: ClientAndServer) =
     api.`when`(request().withPath(urlTemplate), exactly(1)).respond(response)
+
+  private fun communityApiActiveOnlyResponse(response: HttpResponse, urlTemplate: String) =
+    communityApiResponseWithQs(response, urlTemplate, Parameter("activeOnly", "true"))
 
   private fun communityApiResponseWithQs(response: HttpResponse, urlTemplate: String, qs: Parameter) =
     communityApi.`when`(request().withPath(urlTemplate).withQueryStringParameter(qs), exactly(1))
