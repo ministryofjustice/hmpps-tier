@@ -5,7 +5,6 @@ import com.amazonaws.services.sqs.model.PurgeQueueRequest
 import com.google.gson.Gson
 import io.cucumber.java8.En
 import io.cucumber.java8.Scenario
-import org.assertj.core.api.Assertions.assertThat
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse.response
@@ -15,16 +14,10 @@ import org.springframework.beans.factory.annotation.Value
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M1
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M3
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.HIGH
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.MEDIUM
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.SQSMessage
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.oneMessageCurrentlyOnQueue
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnQueue
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
-import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -47,9 +40,6 @@ class BddSteps : En {
   lateinit var eventQueueUrl: String
 
   @Autowired
-  lateinit var tierCalculationRepository: TierCalculationRepository
-
-  @Autowired
   lateinit var oauthMock: ClientAndServer
 
   @Autowired
@@ -61,6 +51,8 @@ class BddSteps : En {
   private lateinit var setupData: SetupData
   private lateinit var crn: String
   private lateinit var assessmentId: String
+  private lateinit var convictionId: String
+  private lateinit var secondConvictionId: String
 
   private fun setupOauth() {
     val response = response().withContentType(APPLICATION_JSON)
@@ -78,8 +70,20 @@ class BddSteps : En {
 
       setupOauth()
       crn = UUID.randomUUID().toString().replace("-", "").substring(0, 7)
-      assessmentId = UUID.randomUUID().toString().replace("\\D+".toRegex(), "").padEnd(11, '1').substring(0, 11)
-      setupData = SetupData(communityApi, assessmentApi, mapOf("crn" to crn, "assessmentId" to "1$assessmentId"))
+      assessmentId = "1${UUID.randomUUID().toString().replace("\\D+".toRegex(), "").padEnd(11, '1').substring(0, 11)}"
+      convictionId = "1${UUID.randomUUID().toString().replace("\\D+".toRegex(), "").padEnd(11, '1').substring(0, 11)}"
+      secondConvictionId = "1${convictionId.reversed()}"
+
+      setupData = SetupData(
+        communityApi,
+        assessmentApi,
+        mapOf(
+          "crn" to crn,
+          "assessmentId" to assessmentId,
+          "convictionId" to convictionId,
+          "secondConvictionId" to secondConvictionId
+        )
+      )
     }
 
     Given("an RSR score of {string}") { rsr: String ->
@@ -106,15 +110,12 @@ class BddSteps : En {
     Given("an offender is {string}") { gender: String ->
       setupData.setGender(gender)
     }
-
     Given("an OGRS score of {string}%") { ogrs: String ->
       setupData.setOgrs(ogrs)
     }
-
     Given("the assessment need {string} with severity {string}") { need: String, severity: String ->
-      setupData.addNeed(need, severity)
+      setupData.setNeeds(mapOf(need to severity))
     }
-
     Given("an offender scores 21 change points") {
       setupData.setOgrs("90") // 9 points
       setupData.setNeeds(
@@ -128,7 +129,6 @@ class BddSteps : En {
         )
       ) // 12 points
     }
-
     Given("an offender scores 20 change points") {
       setupData.setOgrs("100") // 10 points
       setupData.setNeeds(
@@ -141,7 +141,6 @@ class BddSteps : En {
         )
       ) // 10 points
     }
-
     Given("an offender scores 19 change points") {
       setupData.setOgrs("90") // 9 points
       setupData.setNeeds(
@@ -154,16 +153,10 @@ class BddSteps : En {
         )
       ) // 10 points
     }
-
     Given("an offender scores 11 change points") {
       setupData.setOgrs("90") // 9 points
-      setupData.setNeeds(
-        mapOf(
-          "ACCOMMODATION" to "SEVERE",
-        )
-      ) // 2 points
+      setupData.setNeeds(mapOf("ACCOMMODATION" to "SEVERE")) // 2 points
     }
-
     Given("an offender scores 10 change points") {
       setupData.setNeeds(
         mapOf(
@@ -175,7 +168,6 @@ class BddSteps : En {
         )
       ) // 10 points
     }
-
     Given("an offender scores 9 change points") {
       setupData.setNeeds(
         mapOf(
@@ -187,7 +179,6 @@ class BddSteps : En {
         )
       ) // 9 points
     }
-
     Given("an offender scores 31 protect points") {
       setupData.setMappa(M1.registerCode) // 5
       setupData.setRosh(HIGH.registerCode) // 20
@@ -206,7 +197,7 @@ class BddSteps : En {
       setupData.setAssessmentAnswer("6.9", "YES") // 2
       setupData.setMappa(M1.registerCode) // 5
       setupData.setRosh(HIGH.registerCode) // 20
-      setupData.setNsiOutcomes(listOf("BRE02"))
+      setupData.setNsiOutcome("BRE02", convictionId)
       setupData.setAdditionalFactors(
         listOf(
           "RMDO",
@@ -255,6 +246,7 @@ class BddSteps : En {
     Given("an offender with a current non-custodial sentence") {
       setupData.setSentenceType("SP")
     }
+
     And("unpaid work") {
       setupData.setUnpaidWork()
     }
@@ -280,23 +272,25 @@ class BddSteps : En {
       setupData.setAssessmentAnswer(question, answer)
     }
     And("has an active conviction with NSI Outcome code {string}") { outcome: String ->
-      setupData.setNsiOutcomes(listOf(outcome))
+      setupData.setNsiOutcome(outcome, convictionId)
     }
     And("has two active convictions with NSI Outcome codes {string} and {string}") { outcome1: String, outcome2: String ->
       setupData.setTwoActiveConvictions()
-      setupData.setNsiOutcomes(listOf(outcome1, outcome2))
+      setupData.setNsiOutcome(outcome1, convictionId)
+      setupData.setNsiOutcome(outcome2, secondConvictionId)
     }
     And("has two active convictions with NSI Outcome code {string}") { outcome: String ->
-      setupData.setNsiOutcomes(listOf(outcome))
+      setupData.setNsiOutcome(outcome, convictionId)
+      setupData.setNsiOutcome(outcome, secondConvictionId)
       setupData.setTwoActiveConvictions()
     }
     And("has a conviction terminated 365 days ago with NSI Outcome code {string}") { outcome: String ->
       setupData.setConvictionTerminatedDate(LocalDate.now().minusYears(1))
-      setupData.setNsiOutcomes(listOf(outcome))
+      setupData.setNsiOutcome(outcome, convictionId)
     }
     And("has a conviction terminated 366 days ago with NSI Outcome code {string}") { outcome: String ->
       setupData.setConvictionTerminatedDate(LocalDate.now().minusYears(1).minusDays(1))
-      setupData.setNsiOutcomes(listOf(outcome))
+      setupData.setNsiOutcome(outcome, convictionId)
     }
     And("no ROSH score") {
       // Do nothing
@@ -304,12 +298,8 @@ class BddSteps : En {
     And("no RSR score") {
       setupData.setRsr("0")
     }
-
     And("has a custodial sentence") {
       // Do nothing
-    }
-    And("has a main offence of Abstracting Electricity") {
-      setupData.setMainOffenceAbstractingElectricity()
     }
     And("has a sentence length of {long} months") { months: Long ->
       setupData.setSentenceLength(months)
@@ -322,49 +312,5 @@ class BddSteps : En {
       setupData.prepareResponses()
       putMessageOnQueue(offenderEventsClient, eventQueueUrl, crn)
     }
-
-    Then("{int} protect points are scored") { points: Int ->
-      val calculation: TierCalculationEntity = getTier()
-      assertThat(calculation.data.protect.points).isEqualTo(points)
-    }
-
-    Then("{int} change points are scored") { points: Int ->
-      val calculation: TierCalculationEntity = getTier()
-      assertThat(calculation.data.change.points).isEqualTo(points)
-    }
-
-    Then("there is a mandate for change") {
-      val calculation: TierCalculationEntity = getTier()
-      assertThat(calculation.data.change.tier.value).isEqualTo(1)
-    }
-
-    Then("a change level of {int} is returned and {int} points are scored") { changeLevel: Int, points: Int ->
-      changeIs(changeLevel, points)
-    }
-
-    Then("a protect level of {string} is returned and {int} points are scored") { protectLevel: String, points: Int ->
-      val calculation: TierCalculationEntity = getTier()
-      assertThat(calculation.data.protect.tier).isEqualTo(ProtectLevel.valueOf(protectLevel))
-      assertThat(calculation.data.protect.points).isEqualTo(points)
-    }
-
-    Then("there is no mandate for change") {
-      changeIs(0, 0)
-    }
-  }
-
-  private fun changeIs(tier: Int, points: Int) {
-    val calculation: TierCalculationEntity = getTier()
-    assertThat(calculation.data.change.tier.value).isEqualTo(tier)
-    assertThat(calculation.data.change.points).isEqualTo(points)
-  }
-
-  private fun getTier(): TierCalculationEntity {
-    oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
-    val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
-    val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
-    val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
-
-    return tierCalculationRepository.findByCrnAndUuid(crn, changeEvent.calculationId)!!
   }
 }

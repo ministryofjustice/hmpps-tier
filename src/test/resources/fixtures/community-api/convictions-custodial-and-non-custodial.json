@@ -1,6 +1,6 @@
 [
   {
-    "convictionId": 2500409603,
+    "convictionId": "firstConvictionIdToReplace",
     "index": "2",
     "active": true,
     "inBreach": false,
@@ -67,7 +67,7 @@
     }
   },
   {
-    "convictionId": 2500409601,
+    "convictionId": "secondConvictionIdToReplace",
     "index": "1",
     "active": true,
     "inBreach": false,

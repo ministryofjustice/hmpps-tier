@@ -23,7 +23,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import java.math.BigDecimal
-import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Month.JANUARY
@@ -264,10 +263,7 @@ abstract class MockedEndpointsTestBase {
     httpSetup(response, urlTemplate, assessmentApi)
 
   private fun setAuthorisation(): (HttpHeaders) -> Unit {
-    val token = jwtHelper.createJwt(
-      subject = "hmpps-tier",
-      expiryTime = Duration.ofHours(1L)
-    )
+    val token = jwtHelper.createJwt()
     return { it.set(AUTHORIZATION, "Bearer $token") }
   }
 }

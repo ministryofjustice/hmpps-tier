@@ -26,22 +26,17 @@ class JwtAuthHelper {
   @Bean
   fun jwtDecoder(): JwtDecoder = NimbusJwtDecoder.withPublicKey(keyPair.public as RSAPublicKey).build()
 
-  fun createJwt(
-    subject: String,
-    expiryTime: Duration = Duration.ofHours(1),
-    jwtId: String = UUID.randomUUID().toString(),
-    roles: List<String> = listOf("ROLE_HMPPS_TIER")
-  ): String {
+  fun createJwt(): String {
 
     val claims = mapOf(
-      "authorities" to roles,
+      "authorities" to listOf("ROLE_HMPPS_TIER"),
     )
 
     return Jwts.builder()
-      .setId(jwtId)
-      .setSubject(subject)
+      .setId(UUID.randomUUID().toString())
+      .setSubject("hmpps-tier")
       .addClaims(claims)
-      .setExpiration(Date(System.currentTimeMillis() + expiryTime.toMillis()))
+      .setExpiration(Date(System.currentTimeMillis() + Duration.ofHours(1).toMillis()))
       .signWith(SignatureAlgorithm.RS256, keyPair.private)
       .compact()
   }

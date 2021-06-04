@@ -21,7 +21,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistratio
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.femaleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.maleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.needsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.noRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nonCustodialConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nsisResponse
@@ -48,13 +47,14 @@ class SetupData(
   private var sentenceType: String = "NC"
   var crn: String = ids["crn"]!!
   var assessmentId: String = ids["assessmentId"]!!
+  var convictionId: String = ids["convictionId"]!!
+  var secondConvictionId: String = ids["secondConvictionId"]!!
   private var sentenceLengthIndeterminate: Boolean = false
   private var sentenceLength: Long = 1
-  private var mainOffence: String = "016"
   private var hasValidAssessment: Boolean = false
   private var convictionTerminatedDate: LocalDate? = null
   private var activeConvictions: Int = 1
-  private var outcome: List<String> = emptyList()
+  private var outcomes: MutableMap<String, String> = mutableMapOf()
   private var gender: String = "Male"
   private var additionalFactors: List<String> = emptyList()
   private var needs: MutableMap<String, String> = mutableMapOf()
@@ -86,7 +86,7 @@ class SetupData(
   }
 
   fun setAdditionalFactors(additionalFactors: List<String>) {
-    setValidAssessment() // for IOM
+    setValidAssessment() // There needs to be a valid assessment to get IOM nominal
     this.additionalFactors = additionalFactors
   }
 
@@ -95,16 +95,12 @@ class SetupData(
     this.needs.putAll(needs)
   }
 
-  fun addNeed(need: String, severity: String) {
-    setNeeds(mapOf(need to severity))
-  }
-
   fun setGender(gender: String) {
     this.gender = gender
   }
 
-  fun setNsiOutcomes(outcome: List<String>) {
-    this.outcome = outcome
+  fun setNsiOutcome(outcome: String, conviction: String) {
+    this.outcomes[conviction] = outcome
   }
 
   fun setTwoActiveConvictions() {
@@ -122,10 +118,6 @@ class SetupData(
   fun setAssessmentAnswer(question: String, answer: String) {
     setValidAssessment()
     this.assessmentAnswers[question] = answer
-  }
-
-  fun setMainOffenceAbstractingElectricity() {
-    this.mainOffence = "043"
   }
 
   fun setSentenceLength(months: Long) {
@@ -159,51 +151,53 @@ class SetupData(
 
   fun prepareResponses() {
     communityApiResponse(communityApiAssessmentsResponse(rsr, ogrs), "/secure/offenders/crn/$crn/assessments")
-    registrations()
+    registrationsResponse(RegistrationsSetup(rosh, mappa, additionalFactors))
     assessmentsApi()
-    convictions()
-    requirements()
+    convictionsResponse()
+    requirementsResponse()
 
     when (gender) {
       "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
-      else -> {
-        communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
-        if (outcome.isNotEmpty()) {
-          outcome.forEach {
-            breachAndRecall(nsisResponse(it))
-          }
-        } else {
-          breachAndRecall(emptyNsisResponse())
-        }
-      }
+      else -> femaleWithBreachAndRecall()
     }
   }
 
-  private fun requirements() = when {
-    hasOrderExtended && hasUnpaidWork -> requirements(
-      unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse()
-    )
-    hasUnpaidWork -> requirements(unpaidWorkRequirementsResponse())
-    hasNonRestrictiveRequirement -> requirements(nonRestrictiveRequirementsResponse())
-    else -> requirements(noRequirementsResponse())
+  private fun femaleWithBreachAndRecall() {
+    communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
+    if (outcomes.isNotEmpty()) {
+      outcomes.forEach {
+        breachAndRecall(nsisResponse(it.value), it.key)
+      }
+    } else {
+      breachAndRecall(emptyNsisResponse(), convictionId)
+    }
   }
 
-  private fun convictions() =
-    if (activeConvictions == 2) {
-      convictions(custodialAndNonCustodialConvictions())
-    } else {
-      if (null != convictionTerminatedDate) {
-        convictions(custodialTerminatedConvictionResponse(convictionTerminatedDate!!))
-      } else {
-        when {
-          sentenceLengthIndeterminate -> convictions(
-            custodialNCConvictionResponse(mainOffence, courtAppearanceOutcome = "303")
-          )
-          sentenceType == "SC" -> convictions(custodialSCConvictionResponse())
-          sentenceType == "NC" -> convictions(custodialNCConvictionResponse(mainOffence, sentenceLength))
-          else -> convictions(nonCustodialConvictionResponse())
-        }
-      }
+  private fun requirementsResponse() {
+    when {
+      hasOrderExtended && hasUnpaidWork -> requirementsResponse(
+        unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse()
+      )
+      hasUnpaidWork -> requirementsResponse(unpaidWorkRequirementsResponse())
+      hasNonRestrictiveRequirement -> requirementsResponse(nonRestrictiveRequirementsResponse())
+    }
+  }
+
+  private fun convictionsResponse() =
+    when {
+      activeConvictions == 2 -> convictionsResponse(
+        custodialAndNonCustodialConvictions(convictionId, secondConvictionId)
+      )
+      null != convictionTerminatedDate ->
+        convictionsResponse(custodialTerminatedConvictionResponse(convictionTerminatedDate!!, convictionId))
+      sentenceLengthIndeterminate -> convictionsResponse(
+        custodialNCConvictionResponse(courtAppearanceOutcome = "303", convictionId = convictionId)
+      )
+      sentenceType == "SC" -> convictionsResponse(custodialSCConvictionResponse(convictionId))
+      sentenceType == "NC" -> convictionsResponse(
+        custodialNCConvictionResponse(sentenceLength, convictionId = convictionId)
+      )
+      else -> convictionsResponse(nonCustodialConvictionResponse(convictionId))
     }
 
   private fun assessmentsApi() {
@@ -228,73 +222,58 @@ class SetupData(
     }
   }
 
-  private fun registrations() {
-    val registrationsSetup = RegistrationsSetup(rosh, mappa, additionalFactors)
+  private fun registrationsResponse(registrationsSetup: RegistrationsSetup) =
     when {
-      registrationsSetup.allRegistrationsPresent() -> registrations(
-        registrationsResponseWithRoshMappaAndAdditionalFactors(
-          rosh,
-          mappa,
-          additionalFactors
-        )
+      registrationsSetup.allRegistrationsPresent() -> registrationsResponse(
+        registrationsResponseWithRoshMappaAndAdditionalFactors(rosh, mappa, additionalFactors)
       )
-      registrationsSetup.mappaAndAdditionalFactors() -> registrations(
-        registrationsResponseWithMappaAndAdditionalFactors(
-          mappa,
-          additionalFactors
-        )
+      registrationsSetup.mappaAndAdditionalFactors() -> registrationsResponse(
+        registrationsResponseWithMappaAndAdditionalFactors(mappa, additionalFactors)
       )
-      registrationsSetup.hasRosh() -> registrations(registrationsResponseWithRosh(rosh))
-      registrationsSetup.hasMappa() -> registrations(registrationsResponseWithMappa(mappa))
-      registrationsSetup.hasAdditionalFactors() -> registrations(
-        registrationsResponseWithAdditionalFactors(
-          additionalFactors
-        )
+      registrationsSetup.hasRosh() -> registrationsResponse(registrationsResponseWithRosh(rosh))
+      registrationsSetup.hasMappa() -> registrationsResponse(registrationsResponseWithMappa(mappa))
+      registrationsSetup.hasAdditionalFactors() -> registrationsResponse(
+        registrationsResponseWithAdditionalFactors(additionalFactors)
       )
-      else -> registrations(emptyRegistrationsResponse())
+      else -> registrationsResponse(emptyRegistrationsResponse())
     }
-  }
 
-  private fun breachAndRecall(response: HttpResponse) =
+  private fun breachAndRecall(response: HttpResponse, convictionId: String) =
     communityApiResponseWithQs(
       response,
-      "/secure/offenders/crn/$crn/convictions/\\d+/nsis", // should supply the actual convictionID here?
+      "/secure/offenders/crn/$crn/convictions/$convictionId/nsis",
       Parameter("nsiCodes", "BRE,BRES,REC,RECS")
     )
 
-  private fun convictions(response: HttpResponse) =
-    communityApiResponseWithQs(
-      response,
-      "/secure/offenders/crn/$crn/convictions", Parameter("activeOnly", "true")
-    )
+  private fun convictionsResponse(response: HttpResponse) =
+    communityApiActiveOnlyResponse(response, "/secure/offenders/crn/$crn/convictions")
 
-  private fun registrations(response: HttpResponse) =
-    communityApiResponseWithQs(
-      response,
-      "/secure/offenders/crn/$crn/registrations", Parameter("activeOnly", "true")
-    )
+  private fun registrationsResponse(response: HttpResponse) =
+    communityApiActiveOnlyResponse(response, "/secure/offenders/crn/$crn/registrations")
 
-  private fun requirements(response: HttpResponse) =
-    communityApiResponseWithQs(
-      response,
-      "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true")
-    )
+  private fun requirementsResponse(response: HttpResponse) =
+    communityApiActiveOnlyResponse(response, "/secure/offenders/crn/$crn/convictions/$convictionId/requirements")
 
-  private fun httpSetup(response: HttpResponse, urlTemplate: String, api: ClientAndServer) =
-    api.`when`(request().withPath(urlTemplate), exactly(1)).respond(response)
+  private fun httpSetup(response: HttpResponse, url: String, api: ClientAndServer) =
+    api.`when`(request().withPath(url), exactly(1)).respond(response)
 
-  private fun communityApiResponseWithQs(response: HttpResponse, urlTemplate: String, qs: Parameter) =
-    communityApi.`when`(request().withPath(urlTemplate).withQueryStringParameter(qs), exactly(1))
+  private fun communityApiActiveOnlyResponse(response: HttpResponse, url: String) =
+    communityApiResponseWithQs(response, url, Parameter("activeOnly", "true"))
+
+  private fun communityApiResponseWithQs(response: HttpResponse, url: String, qs: Parameter) =
+    communityApi.`when`(request().withPath(url).withQueryStringParameter(qs), exactly(1))
       .respond(response)
 
-  private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
-    httpSetup(response, urlTemplate, communityApi)
+  private fun communityApiResponse(response: HttpResponse, url: String) = httpSetup(response, url, communityApi)
 
-  private fun assessmentApiResponse(response: HttpResponse, urlTemplate: String) =
-    httpSetup(response, urlTemplate, assessmentApi)
+  private fun assessmentApiResponse(response: HttpResponse, url: String) = httpSetup(response, url, assessmentApi)
 }
 
-class RegistrationsSetup(val rosh: String, val mappa: String, val additionalFactors: List<String>) {
+class RegistrationsSetup(
+  private val rosh: String,
+  private val mappa: String,
+  private val additionalFactors: List<String>
+) {
   fun allRegistrationsPresent() = hasRosh() && hasMappa() && hasAdditionalFactors()
   fun mappaAndAdditionalFactors() = hasMappa() && hasAdditionalFactors()
   fun hasRosh() = rosh != "NO_ROSH"
