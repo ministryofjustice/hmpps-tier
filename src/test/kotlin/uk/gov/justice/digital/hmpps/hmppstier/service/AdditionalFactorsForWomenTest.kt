@@ -30,8 +30,8 @@ class AdditionalFactorsForWomenTest {
   private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
   private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(
     clock,
-    communityApiClient,
-    assessmentApiService
+    assessmentApiService,
+    CommunityApiService(communityApiClient)
   )
 
   @BeforeEach

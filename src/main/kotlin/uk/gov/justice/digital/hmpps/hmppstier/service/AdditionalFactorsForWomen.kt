@@ -1,22 +1,20 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.TEMPER_CONTROL
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NsiOutcome
 import java.time.Clock
 import java.time.LocalDate
 
 @Service
 class AdditionalFactorsForWomen(
   private val clock: Clock,
-  private val communityApiClient: CommunityApiClient,
-  private val assessmentApiService: AssessmentApiService
+  private val assessmentApiService: AssessmentApiService,
+  private val communityApiService: CommunityApiService
 ) {
   fun calculate(
     crn: String,
@@ -59,7 +57,7 @@ class AdditionalFactorsForWomen(
       .filter { qualifyingConvictions(it.sentence) }
       .let {
         when {
-          it.any { conviction -> convictionHasBreachOrRecallNsis(crn, conviction.convictionId) } -> 2
+          communityApiService.hasBreachedConvictions(crn, it) -> 2
           else -> 0
         }
       }
@@ -69,10 +67,6 @@ class AdditionalFactorsForWomen(
 
   private fun isAnswered(value: String?): Boolean =
     value?.toInt() ?: 0 > 0
-
-  private fun convictionHasBreachOrRecallNsis(crn: String, convictionId: Long): Boolean =
-    communityApiClient.getBreachRecallNsis(crn, convictionId)
-      .any { NsiOutcome.from(it.status?.code) != null }
 
   private fun qualifyingConvictions(sentence: Sentence): Boolean =
     sentence.terminationDate == null ||
