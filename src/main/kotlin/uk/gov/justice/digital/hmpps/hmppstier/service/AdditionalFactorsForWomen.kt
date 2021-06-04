@@ -16,16 +16,16 @@ import java.time.LocalDate
 class AdditionalFactorsForWomen(
   private val clock: Clock,
   private val communityApiClient: CommunityApiClient,
-  private val assessmentApiService: AssessmentApiService,
-  private val communityApiService: CommunityApiService
+  private val assessmentApiService: AssessmentApiService
 ) {
   fun calculate(
     crn: String,
     convictions: Collection<Conviction>,
-    offenderAssessment: OffenderAssessment?
+    offenderAssessment: OffenderAssessment?,
+    offenderIsFemale: Boolean
   ): Int =
     when {
-      communityApiService.offenderIsFemale(crn) -> {
+      offenderIsFemale -> {
         val additionalFactorsPoints = getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment)
         val breachRecallPoints = getBreachRecallComplexityPoints(crn, convictions)
 
