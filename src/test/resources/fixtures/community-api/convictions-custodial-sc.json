@@ -11,7 +11,7 @@
         "offenceId": "M2500292515",
         "mainOffence": true,
         "detail": {
-          "code": "04300",
+          "code": "offenceCodeToReplace",
           "description": "Abstracting electricity - 04300",
           "mainCategoryCode": "043",
           "mainCategoryDescription": "Abstracting electricity",

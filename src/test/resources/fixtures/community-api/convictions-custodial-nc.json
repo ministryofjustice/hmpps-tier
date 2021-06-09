@@ -11,7 +11,7 @@
         "offenceId": "M2500222290",
         "mainOffence": true,
         "detail": {
-          "code": "01600",
+          "code": "offenceCodeToReplace",
           "description": "(Buggery and attempted buggery - 01600)",
           "mainCategoryCode": "016",
           "mainCategoryDescription": "Buggery and attempted buggery",

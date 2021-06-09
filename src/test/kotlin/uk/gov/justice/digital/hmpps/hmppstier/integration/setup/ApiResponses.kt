@@ -105,7 +105,7 @@ fun nonCustodialConvictionResponse(
 ): HttpResponse =
   jsonResponseOf(
     responseFrom("$communityApiPath/convictions-non-custodial.json")
-      .replace("mainOffenceToReplace", mainOffence)
+      .replace("offenceCodeToReplace", mainOffence)
       .replace("\"convictionIdToReplace\"", convictionId)
   )
 
@@ -127,7 +127,7 @@ fun custodialNCConvictionResponse(
 ): HttpResponse =
   jsonResponseOf(
     responseFrom("$communityApiPath/convictions-custodial-nc.json")
-      .replace("mainOffenceToReplace", mainOffence)
+      .replace("offenceCodeToReplace", mainOffence)
       .replace("startDateToReplace", LocalDate.of(2021, 4, 30).format(ISO_DATE))
       .replace(
         "expectedSentenceEndDateToReplace",
@@ -144,7 +144,7 @@ fun custodialSCConvictionResponse(
   jsonResponseOf(
     responseFrom("$communityApiPath/convictions-custodial-sc.json")
       .replace("\"convictionIdToReplace\"", convictionId)
-      .replace("mainOffenceToReplace", mainOffence)
+      .replace("offenceCodeToReplace", mainOffence)
 
   )
 

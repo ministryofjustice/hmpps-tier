@@ -11,7 +11,7 @@
         "offenceId": "M2500409584",
         "mainOffence": true,
         "detail": {
-          "code": "04600",
+          "code": "offenceCodeToReplace",
           "description": "Stealing from shops and stalls (shoplifting) - 04600",
           "mainCategoryCode": "046",
           "mainCategoryDescription": "Stealing from shops and stalls (shoplifting)",
