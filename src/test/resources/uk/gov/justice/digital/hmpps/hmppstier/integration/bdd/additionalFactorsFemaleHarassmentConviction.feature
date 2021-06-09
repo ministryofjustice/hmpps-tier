@@ -23,9 +23,9 @@ Feature: Additional Factors (Female only) Violence or Arson
     Then 0 protect points are scored
 
 
-  Scenario: Non custodial setence scores 0 points
+  Scenario: Non custodial sentence scores 2 points
     Given an offender is "Female"
     And has a non-custodial sentence
     And has a Harassment offence
     When a tier is calculated
-    Then 0 protect points are scored
+    Then 2 protect points are scored
