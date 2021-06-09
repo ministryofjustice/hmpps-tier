@@ -100,8 +100,8 @@ fun custodialTerminatedConvictionResponse(
   )
 
 fun nonCustodialConvictionResponse(
-  convictionId: String = "2500222290",
-  mainOffence: String = "016"
+  mainOffence: String = "016",
+  convictionId: String = "2500222290"
 ): HttpResponse =
   jsonResponseOf(
     responseFrom("$communityApiPath/convictions-non-custodial.json")

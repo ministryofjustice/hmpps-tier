@@ -198,9 +198,9 @@ class SetupData(
       activeConvictions == 2 -> convictionsResponse(custodialAndNonCustodialConvictions(convictionId, secondConvictionId))
       null != convictionTerminatedDate -> convictionsResponse(custodialTerminatedConvictionResponse(convictionTerminatedDate!!, convictionId))
       sentenceLengthIndeterminate -> convictionsResponse(custodialNCConvictionResponse(courtAppearanceOutcome = "303", convictionId = convictionId))
-      sentenceType == "SC" -> convictionsResponse(custodialSCConvictionResponse(offence, convictionId))
-      sentenceType == "NC" -> convictionsResponse(custodialNCConvictionResponse(offence, sentenceLength, convictionId = convictionId,))
-      else -> convictionsResponse(nonCustodialConvictionResponse(offence, convictionId))
+      sentenceType == "SC" -> convictionsResponse(custodialSCConvictionResponse(mainOffence = offence, convictionId))
+      sentenceType == "NC" -> convictionsResponse(custodialNCConvictionResponse(mainOffence = offence, sentenceLength, convictionId = convictionId,))
+      else -> convictionsResponse(nonCustodialConvictionResponse(mainOffence = offence, convictionId = convictionId))
     }
 
   private fun assessmentsApi() {
