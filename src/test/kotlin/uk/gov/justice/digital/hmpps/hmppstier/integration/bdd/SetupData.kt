@@ -130,6 +130,10 @@ class SetupData(
     this.offence = OffenceCode._000.code
   }
 
+  fun setAbstractingElectricityOffence() {
+    this.offence = "04300"
+  }
+
   fun setSentenceLengthIndeterminate() {
     this.sentenceLengthIndeterminate = true
   }

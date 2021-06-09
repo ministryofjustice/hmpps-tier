@@ -301,6 +301,9 @@ class BddSteps : En {
     And("has a custodial sentence") {
       // Do nothing
     }
+    And("has a non-custodial sentence") {
+      setupData.setSentenceType("SP")
+    }
     And("has a sentence length of {long} months") { months: Long ->
       setupData.setSentenceLength(months)
     }
@@ -310,6 +313,10 @@ class BddSteps : En {
 
     And("has a Harassment offence") {
       setupData.setHarassmentOffence()
+    }
+
+    And("has an Abstracting Electricity offence") {
+      setupData.setAbstractingElectricityOffence()
     }
 
     When("a tier is calculated") {
