@@ -127,7 +127,7 @@ class SetupData(
   }
 
   fun setHarassmentOffence() {
-    this.offence = OffenceCode._000.code
+    this.offence = OffenceCode._08702.code
   }
 
   fun setAbstractingElectricityOffence() {
