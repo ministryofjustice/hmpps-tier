@@ -245,6 +245,7 @@ class BddSteps : En {
     }
     Given("an offender with a current non-custodial sentence") {
       setupData.setSentenceType("SP")
+      setupData.setNonRestrictiveRequirement() // we just need a non-404 from requirements.
     }
 
     And("unpaid work") {
