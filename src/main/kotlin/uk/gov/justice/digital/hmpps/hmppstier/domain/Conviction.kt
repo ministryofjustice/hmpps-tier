@@ -5,6 +5,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.ConvictionDto
 data class Conviction constructor(
   val convictionId: Long,
   val sentence: Sentence,
+  val offenceCodes: List<String>,
 ) {
 
   companion object {
@@ -12,7 +13,8 @@ data class Conviction constructor(
     fun from(dto: ConvictionDto): Conviction =
       Conviction(
         dto.convictionId,
-        Sentence.from(dto.sentence!!)
+        Sentence.from(dto.sentence!!),
+        dto.offences.map { it.offenceDetail.offenceCode }
       )
   }
 }

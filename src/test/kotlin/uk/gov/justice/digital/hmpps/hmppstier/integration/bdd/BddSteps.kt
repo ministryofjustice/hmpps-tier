@@ -308,6 +308,10 @@ class BddSteps : En {
       setupData.setSentenceLengthIndeterminate()
     }
 
+    And("has a Harassment offence") {
+      setupData.setHarassmentOffence()
+    }
+
     When("a tier is calculated") {
       setupData.prepareResponses()
       putMessageOnQueue(offenderEventsClient, eventQueueUrl, crn)

@@ -113,6 +113,19 @@ data class ConvictionDto @JsonCreator constructor(
 
   @JsonProperty("sentence")
   val sentence: SentenceDto?,
+
+  @JsonProperty("offences")
+  val offences: List<Offence>,
+)
+
+data class Offence @JsonCreator constructor(
+  @JsonProperty("detail")
+  val offenceDetail: OffenceDetail
+)
+
+data class OffenceDetail @JsonCreator constructor(
+  @JsonProperty("code")
+  val offenceCode: String
 )
 
 data class SentenceDto @JsonCreator constructor(

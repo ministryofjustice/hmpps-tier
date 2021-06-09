@@ -8,6 +8,7 @@ import org.mockserver.model.Parameter
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.TEMPER_CONTROL
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiFemaleAnswersResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiNoSeverityNeedsResponse
@@ -67,6 +68,7 @@ class SetupData(
     TEMPER_CONTROL.answerCode to "0",
     PARENTING_RESPONSIBILITIES.answerCode to "NO"
   )
+  private var offence: String = "016"
 
   fun setRsr(rsr: String) {
     this.rsr = BigDecimal(rsr)
@@ -122,6 +124,10 @@ class SetupData(
 
   fun setSentenceLength(months: Long) {
     this.sentenceLength = months
+  }
+
+  fun setHarassmentOffence() {
+    this.offence = OffenceCode._000.code
   }
 
   fun setSentenceLengthIndeterminate() {

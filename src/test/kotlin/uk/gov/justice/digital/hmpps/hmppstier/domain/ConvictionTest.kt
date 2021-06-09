@@ -6,6 +6,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.client.ConvictionDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
+import uk.gov.justice.digital.hmpps.hmppstier.client.Offence
+import uk.gov.justice.digital.hmpps.hmppstier.client.OffenceDetail
 import uk.gov.justice.digital.hmpps.hmppstier.client.SentenceDto
 import java.time.LocalDate
 
@@ -19,7 +21,7 @@ internal class ConvictionTest {
     fun `It should construct using from`() {
       val now = LocalDate.now()
       val sentenceDto = SentenceDto(now.plusDays(1), KeyValue("SC"))
-      val convictionDto = ConvictionDto(123L, sentenceDto)
+      val convictionDto = ConvictionDto(123L, sentenceDto, listOf(Offence(OffenceDetail("11111111"))))
       val conviction = Conviction.from(convictionDto)
       Assertions.assertThat(conviction.convictionId).isEqualTo(convictionDto.convictionId)
 
@@ -30,7 +32,7 @@ internal class ConvictionTest {
     @Test
     fun `It should construct using from null values`() {
       val sentenceDto = SentenceDto(null, KeyValue("SC"))
-      val convictionDto = ConvictionDto(123L, sentenceDto)
+      val convictionDto = ConvictionDto(123L, sentenceDto, listOf())
       val conviction = Conviction.from(convictionDto)
       Assertions.assertThat(conviction.convictionId).isEqualTo(convictionDto.convictionId)
 

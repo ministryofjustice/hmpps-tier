@@ -256,10 +256,9 @@ class AdditionalFactorsForWomenTest {
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock).minusYears(1)
       val sentence = Sentence(terminationDate, irrelevantSentenceType)
-      val conviction = Conviction(convictionId, sentence)
+      val conviction = Conviction(convictionId, sentence, listOf())
       val breaches = listOf(Nsi(status = KeyValue("BRE08")))
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
-
       val result = additionalFactorsForWomen.calculate(
         crn,
         listOf(conviction),
@@ -276,7 +275,7 @@ class AdditionalFactorsForWomenTest {
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock).minusYears(1).minusDays(1)
       val sentence = Sentence(terminationDate, irrelevantSentenceType)
-      val conviction = Conviction(convictionId, sentence)
+      val conviction = Conviction(convictionId, sentence, listOf())
 
       val result = additionalFactorsForWomen.calculate(
         crn,
@@ -292,7 +291,7 @@ class AdditionalFactorsForWomenTest {
       val crn = "123"
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
-      val conviction = Conviction(convictionId, sentence)
+      val conviction = Conviction(convictionId, sentence, listOf())
       val breaches = listOf(Nsi(status = KeyValue("BRE08")))
       every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
 
@@ -311,8 +310,8 @@ class AdditionalFactorsForWomenTest {
       val crn = "123"
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
-      val conviction = Conviction(convictionId, sentence)
-      val unrelatedConviction = Conviction(convictionId.plus(1), sentence)
+      val conviction = Conviction(convictionId, sentence, listOf())
+      val unrelatedConviction = Conviction(convictionId.plus(1), sentence, listOf())
       val unrelatedBreaches = listOf(Nsi(status = KeyValue("BRE99")))
       val breaches = listOf(Nsi(status = KeyValue("BRE08")))
       every { communityApiClient.getBreachRecallNsis(crn, convictionId.plus(1)) } returns unrelatedBreaches
@@ -346,7 +345,7 @@ class AdditionalFactorsForWomenTest {
       val crn = "123"
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
-      val conviction = Conviction(convictionId, sentence)
+      val conviction = Conviction(convictionId, sentence, listOf())
       val breaches = listOf(
         Nsi(status = KeyValue("BRE54")),
         Nsi(status = KeyValue("BRE08"))
@@ -368,7 +367,7 @@ class AdditionalFactorsForWomenTest {
       val crn = "123"
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
-      val conviction = Conviction(convictionId, sentence)
+      val conviction = Conviction(convictionId, sentence, listOf())
       val breaches = listOf(
         Nsi(status = KeyValue("BRE54")),
         Nsi(status = KeyValue("bre08"))
@@ -390,7 +389,7 @@ class AdditionalFactorsForWomenTest {
       val crn = "123"
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
-      val conviction = Conviction(convictionId, sentence)
+      val conviction = Conviction(convictionId, sentence, listOf())
       val breaches = listOf(
         Nsi(status = KeyValue("BRE99")),
         Nsi(status = KeyValue("BRE99"))

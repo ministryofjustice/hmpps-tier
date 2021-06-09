@@ -7,6 +7,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.TEMPER_CONTROL
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.OffenceCode
 import java.time.Clock
 import java.time.LocalDate
 
@@ -26,11 +27,15 @@ class AdditionalFactorsForWomen(
       offenderIsFemale -> {
         val additionalFactorsPoints = getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment)
         val breachRecallPoints = getBreachRecallComplexityPoints(crn, convictions)
+        val harassmentPoints = getHarassmentPoints(convictions)
 
-        additionalFactorsPoints + breachRecallPoints
+        additionalFactorsPoints + breachRecallPoints + harassmentPoints
       }
       else -> 0
     }
+
+  private fun getHarassmentPoints(convictions: Collection<Conviction>): Int =
+    if (convictions.flatMap { it.offenceCodes }.any { OFFENCE_CODES.contains(it) }) 2 else 0
 
   private fun getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment: OffenderAssessment?): Int =
     when (offenderAssessment) {
@@ -71,4 +76,8 @@ class AdditionalFactorsForWomen(
   private fun qualifyingConvictions(sentence: Sentence): Boolean =
     sentence.terminationDate == null ||
       sentence.terminationDate.isAfter(LocalDate.now(clock).minusYears(1).minusDays(1))
+
+  companion object {
+    val OFFENCE_CODES = OffenceCode.values().map { it.code }
+  }
 }
