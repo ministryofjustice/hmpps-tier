@@ -49,12 +49,11 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   }
 
   fun getOffender(crn: String): Offender? = webClient
-      .get()
-      .uri("/offenders/crn/$crn")
-      .retrieve()
-      .bodyToMono(Offender::class.java)
-      .block()
-
+    .get()
+    .uri("/offenders/crn/$crn")
+    .retrieve()
+    .bodyToMono(Offender::class.java)
+    .block()
 
   fun getRequirements(crn: String, convictionId: Long): List<RequirementDto> =
     webClient
