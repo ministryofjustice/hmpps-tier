@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
+import uk.gov.justice.digital.hmpps.hmppstier.client.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
@@ -31,6 +32,10 @@ class CommunityApiService(
       getRosh(registrations),
       getMappa(registrations)
     )
+  }
+
+  fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
+    return communityApiClient.getRequirements(crn, convictionId)
   }
 
   fun hasBreachedConvictions(crn: String, convictions: List<Conviction>): Boolean =

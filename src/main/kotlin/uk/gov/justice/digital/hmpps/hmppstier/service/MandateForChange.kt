@@ -1,14 +1,13 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
 
 @Service
 class MandateForChange(
-  private val communityApiClient: CommunityApiClient
+  private val communityApiService: CommunityApiService
 ) {
   fun hasNoMandate(crn: String, convictions: Collection<Conviction>): Boolean =
     convictions
@@ -21,7 +20,7 @@ class MandateForChange(
     sentence.terminationDate == null
 
   private fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
-    communityApiClient.getRequirements(crn, convictionId)
+    communityApiService.getRequirements(crn, convictionId)
       .filter { excludeUnpaidWork(it) }
       .any { isNonRestrictive(it) }
 
