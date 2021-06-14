@@ -3,10 +3,10 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
-import uk.gov.justice.digital.hmpps.hmppstier.client.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
+import uk.gov.justice.digital.hmpps.hmppstier.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.IomNominal.IOM_NOMINAL
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
@@ -36,6 +36,8 @@ class CommunityApiService(
 
   fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
     return communityApiClient.getRequirements(crn, convictionId)
+      .filterNot { it.requirementTypeMainCategory == null && it.restrictive == null }
+      .map { Requirement(it.restrictive!!, it.requirementTypeMainCategory!!.code) }
   }
 
   fun hasBreachedConvictions(crn: String, convictions: List<Conviction>): Boolean =
