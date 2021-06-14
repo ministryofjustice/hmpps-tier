@@ -63,13 +63,13 @@ class TierCalculationService(
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
     val (rsr, ogrs) = communityApiService.getDeliusAssessments(crn)
     val registrations = communityApiService.getRegistrations(crn)
-    val deliusConvictions = communityApiService.getConvictionsWithSentences(crn)
+    val convictions = communityApiService.getConvictionsWithSentences(crn)
 
     val protectLevel = protectLevelCalculator.calculateProtectLevel(
       rsr,
       additionalFactorsForWomen.calculate(
         crn,
-        deliusConvictions,
+        convictions,
         offenderAssessment,
         communityApiService.offenderIsFemale(crn)
       ),
@@ -80,7 +80,7 @@ class TierCalculationService(
       ogrs,
       registrations.hasIomNominal,
       assessmentApiService.getAssessmentNeeds(offenderAssessment),
-      mandateForChange.hasNoMandate(crn, deliusConvictions)
+      mandateForChange.hasNoMandate(crn, convictions)
     )
 
     return TierCalculationEntity(
