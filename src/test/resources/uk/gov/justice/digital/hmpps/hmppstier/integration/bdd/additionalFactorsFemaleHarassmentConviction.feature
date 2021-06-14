@@ -15,7 +15,7 @@ Feature: Additional Factors (Female only) Harassment
     When a tier is calculated
     Then 0 protect points are scored
 
-  Scenario: Male offender with main offence of Violence scores 0 points
+  Scenario: Male offender with main offence of Harassment scores 0 points
     Given an offender is "Male"
     And has a custodial sentence
     And has a Harassment offence
