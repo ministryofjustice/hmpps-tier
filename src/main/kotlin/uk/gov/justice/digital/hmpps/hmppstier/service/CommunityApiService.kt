@@ -41,7 +41,7 @@ class CommunityApiService(
   }
 
   fun hasBreachedConvictions(crn: String, convictions: List<Conviction>): Boolean =
-    convictions.any { convictionHasBreachOrRecallNsis(crn, it.convictionId) }
+    convictions.any { hasBreachOrRecallNsis(crn, it.convictionId) }
 
   fun offenderIsFemale(crn: String): Boolean = communityApiClient.getOffender(crn)?.gender.equals("female", true)
 
@@ -57,7 +57,7 @@ class CommunityApiService(
   private fun hasIomNominal(registrations: Collection<Registration>): Boolean =
     registrations.any { it.type.code == IOM_NOMINAL.registerCode }
 
-  private fun convictionHasBreachOrRecallNsis(crn: String, convictionId: Long): Boolean =
+  private fun hasBreachOrRecallNsis(crn: String, convictionId: Long): Boolean =
     communityApiClient.getBreachRecallNsis(crn, convictionId)
       .any { NsiOutcome.from(it.status?.code) != null }
 }

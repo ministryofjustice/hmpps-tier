@@ -17,7 +17,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 
 class ChangeLevelCalculator {
 
-  fun calculateChangeLevel(
+  fun calculate(
     offenderAssessment: OffenderAssessment?,
     ogrsScore: Int,
     hasIomNominal: Boolean,

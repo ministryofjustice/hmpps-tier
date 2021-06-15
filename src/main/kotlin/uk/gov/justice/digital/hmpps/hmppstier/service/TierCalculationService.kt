@@ -65,17 +65,15 @@ class TierCalculationService(
     val registrations = communityApiService.getRegistrations(crn)
     val convictions = communityApiService.getConvictionsWithSentences(crn)
 
-    val protectLevel = protectLevelCalculator.calculateProtectLevel(
-      rsr,
-      additionalFactorsForWomen.calculate(
-        crn,
-        convictions,
-        offenderAssessment,
-        communityApiService.offenderIsFemale(crn)
-      ),
-      registrations
+    val additionalFactorsPoints = additionalFactorsForWomen.calculate(
+      crn,
+      convictions,
+      offenderAssessment,
+      communityApiService.offenderIsFemale(crn)
     )
-    val changeLevel = changeLevelCalculator.calculateChangeLevel(
+
+    val protectLevel = protectLevelCalculator.calculate(rsr, additionalFactorsPoints, registrations)
+    val changeLevel = changeLevelCalculator.calculate(
       offenderAssessment,
       ogrs,
       registrations.hasIomNominal,
