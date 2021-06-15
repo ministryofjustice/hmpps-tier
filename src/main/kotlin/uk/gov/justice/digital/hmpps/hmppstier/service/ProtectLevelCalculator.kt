@@ -29,7 +29,7 @@ import java.math.BigDecimal
 
 class ProtectLevelCalculator {
 
-  fun calculateProtectLevel(
+  fun calculate(
     rsr: BigDecimal,
     additionalFactorsPoints: Int,
     registrations: Registrations

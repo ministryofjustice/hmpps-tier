@@ -11,6 +11,7 @@ import org.mockserver.matchers.Times.exactly
 import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.notFoundResponse
+import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.mockserver.model.Parameter
 import org.springframework.beans.factory.annotation.Autowired
@@ -72,7 +73,7 @@ abstract class MockedEndpointsTestBase {
   }
 
   private fun setupOauth() {
-    val response = HttpResponse.response().withContentType(APPLICATION_JSON)
+    val response = response().withContentType(APPLICATION_JSON)
       .withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
     oauthMock.`when`(request().withPath("/auth/oauth/token").withBody("grant_type=client_credentials"))
       .respond(response)
