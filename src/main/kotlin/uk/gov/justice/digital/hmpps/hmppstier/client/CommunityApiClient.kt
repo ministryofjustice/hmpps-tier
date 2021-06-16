@@ -48,29 +48,20 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .block()?.nsis ?: listOf()
   }
 
-  fun getOffender(crn: String): Offender? {
-    return webClient
-      .get()
-      .uri("/offenders/crn/$crn")
-      .retrieve()
-      .bodyToMono(Offender::class.java)
-      .block()
-  }
+  fun getOffender(crn: String): Offender? = webClient
+    .get()
+    .uri("/offenders/crn/$crn")
+    .retrieve()
+    .bodyToMono(Offender::class.java)
+    .block()
 
-  fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
-    return getRequirementsCall(crn, convictionId)
-      .filterNot { it.requirementTypeMainCategory == null && it.restrictive == null }
-      .map { Requirement(it.restrictive!!, it.requirementTypeMainCategory!!.code) }
-  }
-
-  private fun getRequirementsCall(crn: String, convictionId: Long): List<RequirementDto> {
-    return webClient
+  fun getRequirements(crn: String, convictionId: Long): List<RequirementDto> =
+    webClient
       .get()
       .uri("/offenders/crn/$crn/convictions/$convictionId/requirements?activeOnly=true")
       .retrieve()
       .bodyToMono(Requirements::class.java)
       .block()?.requirements ?: listOf()
-  }
 }
 
 private data class Requirements @JsonCreator constructor(
@@ -78,7 +69,7 @@ private data class Requirements @JsonCreator constructor(
   val requirements: List<RequirementDto>
 )
 
-private data class RequirementDto @JsonCreator constructor(
+data class RequirementDto @JsonCreator constructor(
   @JsonProperty("restrictive")
   val restrictive: Boolean?,
 
@@ -86,13 +77,7 @@ private data class RequirementDto @JsonCreator constructor(
   val requirementTypeMainCategory: RequirementTypeMainCategory?
 )
 
-data class Requirement @JsonCreator constructor(
-  val isRestrictive: Boolean,
-
-  val mainCategory: String
-)
-
-private data class RequirementTypeMainCategory @JsonCreator constructor(
+data class RequirementTypeMainCategory @JsonCreator constructor(
   @JsonProperty("code")
   val code: String
 )
