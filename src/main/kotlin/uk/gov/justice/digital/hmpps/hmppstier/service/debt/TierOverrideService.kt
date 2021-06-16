@@ -35,6 +35,8 @@ class TierOverrideService(
       sendMessagesFromList(requests)
       log.info("Finished saving overrides")
     } catch (ex: Exception) {
+      println(ex)
+      log.error(ex.localizedMessage)
       throw CsvImportException("Error during csv import")
     } finally {
       closeFileReader(fileReader)
@@ -52,7 +54,7 @@ class TierOverrideService(
               created = LocalDateTime.now(),
               data = TierCalculationResultEntity(
                 protect = TierLevel(ProtectLevel.valueOf(req.score!!.uppercase().substring(0, 1)), 0, mapOf()),
-                change = TierLevel(ChangeLevel.valueOf(req.score!!.uppercase().substring(1, 2)), 0, mapOf()),
+                change = TierLevel(changeLevel(req), 0, mapOf()),
                 "0"
               )
             )
@@ -61,6 +63,9 @@ class TierOverrideService(
         log.info("Sent Batch")
       }
   }
+
+  private fun changeLevel(req: ActiveCrn) =
+    ChangeLevel.values().first{it.value == req.score!!.substring(1, 2).toInt()}
 
   private fun throwIfFileEmpty(file: MultipartFile) {
     if (file.isEmpty)
@@ -78,7 +83,7 @@ class TierOverrideService(
     try {
       fileReader!!.close()
     } catch (ex: IOException) {
-      throw CsvImportException("Error during csv import")
+      throw CsvImportException("Error closing file reader")
     }
   }
 
