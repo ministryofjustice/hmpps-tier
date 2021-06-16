@@ -120,7 +120,7 @@ tasks {
         files(
           classDirectories.files.map {
             fileTree(it) {
-              exclude("**/config/**")
+              exclude("**/config/**", "**/debt/**")
             }
           }
         )
@@ -147,7 +147,7 @@ tasks {
         files(
           classDirectories.files.map {
             fileTree(it) {
-              exclude("**/config/**")
+              exclude("**/config/**", "**/debt/**")
             }
           }
         )
