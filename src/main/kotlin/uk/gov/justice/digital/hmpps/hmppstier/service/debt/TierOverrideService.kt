@@ -35,8 +35,6 @@ class TierOverrideService(
       sendMessagesFromList(requests)
       log.info("Finished saving overrides")
     } catch (ex: Exception) {
-      println(ex)
-      log.error(ex.localizedMessage)
       throw CsvImportException("Error during csv import")
     } finally {
       closeFileReader(fileReader)
@@ -65,7 +63,7 @@ class TierOverrideService(
   }
 
   private fun changeLevel(req: ActiveCrn) =
-    ChangeLevel.values().first{it.value == req.score!!.substring(1, 2).toInt()}
+    ChangeLevel.values().first { it.value == req.score!!.substring(1, 2).toInt() }
 
   private fun throwIfFileEmpty(file: MultipartFile) {
     if (file.isEmpty)
