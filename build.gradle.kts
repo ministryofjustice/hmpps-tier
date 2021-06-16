@@ -43,6 +43,8 @@ dependencies {
   implementation("com.google.code.gson:gson:2.8.6")
   implementation("org.springframework.cloud:spring-cloud-aws-messaging")
 
+  implementation("com.opencsv:opencsv:5.2") // Debt
+
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test") {
@@ -118,7 +120,7 @@ tasks {
         files(
           classDirectories.files.map {
             fileTree(it) {
-              exclude("**/config/**")
+              exclude("**/config/**", "**/debt/**")
             }
           }
         )
@@ -145,7 +147,7 @@ tasks {
         files(
           classDirectories.files.map {
             fileTree(it) {
-              exclude("**/config/**")
+              exclude("**/config/**", "**/debt/**")
             }
           }
         )
