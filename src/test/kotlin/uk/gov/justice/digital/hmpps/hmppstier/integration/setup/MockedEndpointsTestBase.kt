@@ -155,25 +155,19 @@ abstract class MockedEndpointsTestBase {
       "/offenders/crn/$crn/assessments/summary"
     )
 
-  fun setupAssessmentNotFound(crn: String) {
+  fun setupAssessmentNotFound(crn: String) =
     assessmentApiResponse(notFoundResponse(), "/offenders/crn/$crn/assessments/summary")
-  }
 
-  fun setupNonCustodialSentence(crn: String) {
-    setupActiveConvictions(crn, nonCustodialConvictionResponse())
-  }
+  fun setupNonCustodialSentence(crn: String) = setupActiveConvictions(crn, nonCustodialConvictionResponse())
 
-  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) {
+  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) =
     setupActiveConvictions(crn, nonCustodialCurrentAndTerminatedConviction())
-  }
 
-  fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) {
+  fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) =
     setupActiveConvictions(crn, custodialAndNonCustodialConvictions())
-  }
 
-  fun setupTerminatedCustodialSentence(crn: String) {
+  fun setupTerminatedCustodialSentence(crn: String) =
     setupActiveConvictions(crn, custodialTerminatedConvictionResponse())
-  }
 
   fun setupTerminatedNonCustodialSentence(crn: String) =
     setupActiveConvictions(crn, nonCustodialTerminatedConvictionResponse())
@@ -223,10 +217,8 @@ abstract class MockedEndpointsTestBase {
 
   fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, eventQueueUrl, crn)
 
-  fun expectTierCalculationToHaveFailed() {
-    // the message goes back on the queue but is not visible until after the test ends
-    oneMessageNotVisibleOnQueue(offenderEventsClient, eventQueueUrl)
-  }
+  // the message goes back on the queue but is not visible until after the test ends
+  fun expectTierCalculationToHaveFailed() = oneMessageNotVisibleOnQueue(offenderEventsClient, eventQueueUrl)
 
   fun expectNoUpdatedTierCalculation() {
     // calculation succeeded but is unchanged, so no calculation complete events
@@ -235,7 +227,7 @@ abstract class MockedEndpointsTestBase {
     noMessagesCurrentlyOnQueue(offenderEventsClient, eventQueueUrl)
   }
 
-  fun expectTierCalculation(tierScore: String) {
+  fun expectTierCalculationById(tierScore: String) {
     oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
     val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
     val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
@@ -243,6 +235,49 @@ abstract class MockedEndpointsTestBase {
     webTestClient
       .get()
       .uri("crn/${changeEvent.crn}/tier/${changeEvent.calculationId}")
+      .headers(setAuthorisation())
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("tierScore").isEqualTo(tierScore)
+  }
+
+  fun expectLatestTierCalculationNotFound(crn: String) =
+    webTestClient
+      .get()
+      .uri("crn/$crn/tier")
+      .headers(setAuthorisation())
+      .exchange()
+      .expectStatus()
+      .isNotFound
+
+  fun expectTierCalculationNotFound(crn: String, calculationId: String) =
+    webTestClient
+      .get()
+      .uri("crn/$crn/tier/$calculationId")
+      .headers(setAuthorisation())
+      .exchange()
+      .expectStatus()
+      .isNotFound
+
+  fun expectTierCalculationBadRequest(crn: String, calculationId: String) =
+    webTestClient
+      .get()
+      .uri("crn/$crn/tier/$calculationId")
+      .headers(setAuthorisation())
+      .exchange()
+      .expectStatus()
+      .isBadRequest
+
+  fun expectLatestTierCalculation(tierScore: String) {
+    oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
+    val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
+    val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
+    val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
+    webTestClient
+      .get()
+      .uri("crn/${changeEvent.crn}/tier")
       .headers(setAuthorisation())
       .exchange()
       .expectStatus()

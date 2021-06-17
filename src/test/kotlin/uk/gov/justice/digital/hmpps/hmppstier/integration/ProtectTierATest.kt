@@ -17,7 +17,7 @@ class ProtectTierATest : MockedEndpointsTestBase() {
     setupRegistrations(registrationsResponseWithMappa("M2"), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "5234567891")
     calculateTierFor(crn)
-    expectTierCalculation("A1")
+    expectTierCalculationById("A1")
   }
 
   @Test
@@ -27,7 +27,7 @@ class ProtectTierATest : MockedEndpointsTestBase() {
     setupRegistrations(registrationsResponseWithMappa("M3"), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "5234567892")
     calculateTierFor(crn)
-    expectTierCalculation("A1")
+    expectTierCalculationById("A1")
   }
 
   @Test
@@ -37,7 +37,7 @@ class ProtectTierATest : MockedEndpointsTestBase() {
     setupRegistrations(registrationsResponseWithRosh(VERY_HIGH.registerCode), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "5234567893")
     calculateTierFor(crn)
-    expectTierCalculation("A1")
+    expectTierCalculationById("A1")
   }
 
   @Test
@@ -47,6 +47,6 @@ class ProtectTierATest : MockedEndpointsTestBase() {
     setupRegistrations(registrationsResponseWithRoshMappaAndAdditionalFactors(HIGH.registerCode, "M1", listOf("RCCO", "RCPR", "RCHD")), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "5234567894")
     calculateTierFor(crn)
-    expectTierCalculation("B1")
+    expectTierCalculationById("B1")
   }
 }

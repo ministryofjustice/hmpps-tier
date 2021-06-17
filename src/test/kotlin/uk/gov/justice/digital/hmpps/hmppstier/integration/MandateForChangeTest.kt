@@ -12,7 +12,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567892")
     calculateTierFor(crn)
-    expectTierCalculation("A1")
+    expectTierCalculationById("A1")
   }
 
   @Test
@@ -21,7 +21,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupTerminatedCustodialSentence(crn)
     setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567895")
     calculateTierFor(crn)
-    expectTierCalculation("A0")
+    expectTierCalculationById("A0")
   }
 
   @Test
@@ -31,7 +31,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupNonRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567896")
     calculateTierFor(crn)
-    expectTierCalculation("A1")
+    expectTierCalculationById("A1")
   }
 
   @Test
@@ -41,7 +41,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupNonRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567898")
     calculateTierFor(crn)
-    expectTierCalculation("A0")
+    expectTierCalculationById("A0")
   }
 
   @Test
@@ -51,7 +51,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567899")
     calculateTierFor(crn)
-    expectTierCalculation("A0")
+    expectTierCalculationById("A0")
   }
 
   @Test
@@ -61,7 +61,7 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupRestrictiveAndNonRestrictiveRequirements(crn)
     setupMaleOffenderWithRegistrations(crn, assessmentId = "4134567890")
     calculateTierFor(crn)
-    expectTierCalculation("A1")
+    expectTierCalculationById("A1")
   }
 
   @Test
@@ -71,6 +71,6 @@ class MandateForChangeTest : MockedEndpointsTestBase() {
     setupNoRequirements(crn)
     setupMaleOffenderWithRegistrations(crn, assessmentId = "4334567890")
     calculateTierFor(crn)
-    expectTierCalculation("A0")
+    expectTierCalculationById("A0")
   }
 }
