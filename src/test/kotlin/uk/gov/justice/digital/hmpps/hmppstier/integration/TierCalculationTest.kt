@@ -132,4 +132,10 @@ class TierCalculationTest : MockedEndpointsTestBase() {
     val crn = "XNOCALC"
     expectLatestTierCalculationNotFound(crn)
   }
+
+  @Test
+  fun `404 from named tier calculation if there is no calculation`() {
+    val crn = "XNOCALC"
+    expectTierCalculationNotFound(crn, "5118f557-211e-4457-b75b-6df1f996d308")
+  }
 }

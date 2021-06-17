@@ -155,15 +155,19 @@ abstract class MockedEndpointsTestBase {
       "/offenders/crn/$crn/assessments/summary"
     )
 
-  fun setupAssessmentNotFound(crn: String) = assessmentApiResponse(notFoundResponse(), "/offenders/crn/$crn/assessments/summary")
+  fun setupAssessmentNotFound(crn: String) =
+    assessmentApiResponse(notFoundResponse(), "/offenders/crn/$crn/assessments/summary")
 
   fun setupNonCustodialSentence(crn: String) = setupActiveConvictions(crn, nonCustodialConvictionResponse())
 
-  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) = setupActiveConvictions(crn, nonCustodialCurrentAndTerminatedConviction())
+  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) =
+    setupActiveConvictions(crn, nonCustodialCurrentAndTerminatedConviction())
 
-  fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialAndNonCustodialConvictions())
+  fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) =
+    setupActiveConvictions(crn, custodialAndNonCustodialConvictions())
 
-  fun setupTerminatedCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialTerminatedConvictionResponse())
+  fun setupTerminatedCustodialSentence(crn: String) =
+    setupActiveConvictions(crn, custodialTerminatedConvictionResponse())
 
   fun setupTerminatedNonCustodialSentence(crn: String) =
     setupActiveConvictions(crn, nonCustodialTerminatedConvictionResponse())
@@ -238,10 +242,20 @@ abstract class MockedEndpointsTestBase {
       .expectBody()
       .jsonPath("tierScore").isEqualTo(tierScore)
   }
+
   fun expectLatestTierCalculationNotFound(crn: String) =
     webTestClient
       .get()
       .uri("crn/$crn/tier")
+      .headers(setAuthorisation())
+      .exchange()
+      .expectStatus()
+      .isNotFound
+
+  fun expectTierCalculationNotFound(crn: String, calculationId: String) =
+    webTestClient
+      .get()
+      .uri("crn/$crn/tier/$calculationId")
       .headers(setAuthorisation())
       .exchange()
       .expectStatus()
