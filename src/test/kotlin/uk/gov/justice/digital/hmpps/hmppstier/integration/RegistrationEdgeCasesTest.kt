@@ -16,7 +16,7 @@ class RegistrationEdgeCasesTest : MockedEndpointsTestBase() {
     setupRegistrations(emptyRegistrationsResponse(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "7234567890")
     calculateTierFor(crn)
-    expectTierCalculation("B1")
+    expectTierCalculationById("B1")
   }
 
   @Test
@@ -26,7 +26,7 @@ class RegistrationEdgeCasesTest : MockedEndpointsTestBase() {
     setupRegistrations(registrationsResponseWithNoLevel(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "6234567890")
     calculateTierFor(crn)
-    expectTierCalculation("B1")
+    expectTierCalculationById("B1")
   }
 
   @Test
@@ -38,6 +38,6 @@ class RegistrationEdgeCasesTest : MockedEndpointsTestBase() {
     setupNeeds(assessmentsApiNoSeverityNeedsResponse(), "6234507890")
     setupNoDeliusAssessment(crn)
     calculateTierFor(crn)
-    expectTierCalculation("A2")
+    expectTierCalculationById("A2")
   }
 }

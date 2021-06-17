@@ -23,7 +23,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupEmptyNsisResponse(crn)
 
       calculateTierFor(crn)
-      expectTierCalculation("D2")
+      expectTierCalculationById("D2")
     }
   }
 
@@ -39,7 +39,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupOutdatedAssessment(crn, "1234567890")
 
       calculateTierFor(crn)
-      expectTierCalculation("A2")
+      expectTierCalculationById("A2")
 
       setupSCCustodialSentence(crn)
       setupMaleOffenderWithRegistrations(crn, false, "4234568890")
@@ -58,7 +58,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupOutdatedAssessment(crn, "1234567890")
 
       calculateTierFor(crn)
-      expectTierCalculation("A2")
+      expectTierCalculationById("A2")
 
       setupSCCustodialSentence(crn)
       setupRegistrations(registrationsResponseWithMappa(), crn)
@@ -80,14 +80,14 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupOutdatedAssessment(crn, "4234568890")
 
       calculateTierFor(crn)
-      expectTierCalculation("A2")
+      expectTierCalculationById("A2")
 
       setupSCCustodialSentence(crn)
       setupMaleOffenderWithRegistrations(crn, false, "4234568891")
 
       setupCurrentAssessment(crn, "4234568891") // assessment not out of date
       calculateTierFor(crn)
-      expectTierCalculation("A1")
+      expectTierCalculationById("A1")
     }
 
     @Test
@@ -98,14 +98,38 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupMaleOffenderWithRegistrations(crn, assessmentId = "4234568890")
 
       calculateTierFor(crn)
-      expectTierCalculation("A1")
+      expectTierCalculationById("A1")
 
       setupSCCustodialSentence(crn)
       setupRegistrations(registrationsResponseWithMappa("M1"), crn)
       restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "4234568890")
 
       calculateTierFor(crn)
-      expectTierCalculation("B1")
+      expectTierCalculationById("B1")
     }
+  }
+
+  @Test
+  fun `returns latest tier calculation`() {
+    val crn = "X432777"
+
+    setupSCCustodialSentence(crn)
+    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234568890")
+
+    calculateTierFor(crn)
+    expectLatestTierCalculation("A1")
+
+    setupSCCustodialSentence(crn)
+    setupRegistrations(registrationsResponseWithMappa("M1"), crn)
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "4234568890")
+
+    calculateTierFor(crn)
+    expectLatestTierCalculation("B1")
+  }
+
+  @Test
+  fun `404 from latest tier calculation if there is no calculation`() {
+    val crn = "XNOCALC"
+    expectLatestTierCalculationNotFound(crn)
   }
 }

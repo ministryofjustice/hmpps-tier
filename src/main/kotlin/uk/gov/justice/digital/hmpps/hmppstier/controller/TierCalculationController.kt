@@ -31,10 +31,7 @@ class TierCalculationController(private val tierCalculationService: TierCalculat
 
   @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
   @GetMapping("crn/{crn}/tier")
-  fun getLatestTierCalculation(@PathVariable(required = true) crn: String): ResponseEntity<TierDto> {
-    return ResponseEntity.ok(tierCalculationService.getLatestTierByCrn(crn))
-      ?: throw EntityNotFoundException("Tier Result Not Found for $crn")
-  }
+  fun getLatestTierCalculation(@PathVariable(required = true) crn: String): ResponseEntity<TierDto> = ResponseEntity.ok(tierCalculationService.getLatestTierByCrn(crn) ?: throw EntityNotFoundException("Tier Result Not Found for $crn"))
 
   @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
   @GetMapping("crn/{crn}/tier/{calculationId}")
