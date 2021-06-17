@@ -138,4 +138,10 @@ class TierCalculationTest : MockedEndpointsTestBase() {
     val crn = "XNOCALC"
     expectTierCalculationNotFound(crn, "5118f557-211e-4457-b75b-6df1f996d308")
   }
+
+  @Test
+  fun `400 from named tier calculation if calculationId is not valid`() {
+    val crn = "XNOCALC"
+    expectTierCalculationBadRequest(crn, "made-up-calculation-id")
+  }
 }

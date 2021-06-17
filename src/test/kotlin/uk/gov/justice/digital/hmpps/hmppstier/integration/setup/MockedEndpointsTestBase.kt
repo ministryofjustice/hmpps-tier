@@ -261,6 +261,15 @@ abstract class MockedEndpointsTestBase {
       .expectStatus()
       .isNotFound
 
+  fun expectTierCalculationBadRequest(crn: String, calculationId: String) =
+    webTestClient
+      .get()
+      .uri("crn/$crn/tier/$calculationId")
+      .headers(setAuthorisation())
+      .exchange()
+      .expectStatus()
+      .isBadRequest
+
   fun expectLatestTierCalculation(tierScore: String) {
     oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
     val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
