@@ -166,10 +166,6 @@ tasks {
   }
 }
 
-tasks.register("fix") {
-  dependsOn(":ktlintFormat")
-}
-
 tasks.named<JavaExec>("bootRun") {
   systemProperty("spring.profiles.active", "dev,localstack,docker")
 }
