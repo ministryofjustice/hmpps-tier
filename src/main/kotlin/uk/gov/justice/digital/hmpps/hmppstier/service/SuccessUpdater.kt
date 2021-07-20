@@ -6,6 +6,7 @@ import com.amazonaws.services.sns.model.PublishRequest
 import com.google.gson.Gson
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.hmppstier.service.EventType.TIER_CALCULATION_COMPLETE
 import java.util.UUID
 
 @Service
@@ -19,7 +20,7 @@ class SuccessUpdater(
     val event = PublishRequest(topic, gson.toJson(TierChangeEvent(crn, calculationId)))
     val messageAttributeValue = MessageAttributeValue()
     with(messageAttributeValue) {
-      stringValue = EventType.TIER_CALCULATION_COMPLETE.toString()
+      stringValue = TIER_CALCULATION_COMPLETE.toString()
       dataType = "String"
     }
     event.addMessageAttributesEntry("eventType", messageAttributeValue)
