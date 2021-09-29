@@ -122,17 +122,17 @@ workflows:
           context:
             - hmpps-common-vars
             - veracode-credentials
-    security-weekly:
-      triggers:
-        - schedule:
-            cron: "32 5 * * 1"
-            filters:
-              branches:
-                only:
-                  - main
-      jobs:
-        - hmpps/veracode_policy_scan:
-            slack_channel: << pipeline.parameters.alerts-slack-channel >>
-            context:
-              - veracode-credentials
-              - hmpps-common-vars
+  security-weekly:
+    triggers:
+      - schedule:
+          cron: "32 5 * * 1"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - hmpps/veracode_policy_scan:
+          slack_channel: << pipeline.parameters.alerts-slack-channel >>
+          context:
+            - veracode-credentials
+            - hmpps-common-vars
