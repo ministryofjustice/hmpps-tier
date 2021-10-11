@@ -7,7 +7,7 @@
 https://app.circleci.com/pipelines/github/ministryofjustice/hmpps-tier
 
 ### Prerequisites  
-* Java JDK 11+  
+* Java JDK 16+  
 * An editor/IDE
 * Gradle  
 * Docker  
@@ -71,11 +71,6 @@ AWS_ACCESS_KEY_ID=key AWS_SECRET_ACCESS_KEY=secret aws --endpoint-url=http://loc
 
 #### testing and code coverage
 
-Fix kotlin linting errors
-```sh
-./gradlew fix
-```
-
 Run lint and test
 The integration and cucumber tests need localstack running
 
@@ -117,7 +112,7 @@ The Spring documentation can be found here: https://docs.spring.io/spring-boot/d
 By default the application starts on port '8080'. To override, set server.port (e.g. `SERVER_PORT=8099 java -jar build/libs/csr-api-<yyyy-mm-dd>.jar` )  
   
 ### Documentation  
-The generated documentation for the api can be viewed at http://localhost:8080/swagger-ui.html  
+The generated documentation for the api can be viewed at http://localhost:8080/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config
   
 ### Health  
   
