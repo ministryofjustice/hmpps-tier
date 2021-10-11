@@ -26,8 +26,10 @@ dependencies {
 
   implementation("org.springframework:spring-webflux")
   implementation("org.springframework.boot:spring-boot-starter-reactor-netty")
-  implementation("io.springfox:springfox-swagger2:2.9.2")
-  implementation("io.springfox:springfox-swagger-ui:2.9.2")
+
+  implementation("org.springdoc:springdoc-openapi-ui:1.5.10")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.5.10")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.5.10")
 
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -158,6 +160,11 @@ tasks {
   }
 
   compileKotlin {
+    kotlinOptions {
+      jvmTarget = "16"
+    }
+  }
+  compileTestKotlin {
     kotlinOptions {
       jvmTarget = "16"
     }
