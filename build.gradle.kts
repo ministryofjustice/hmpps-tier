@@ -2,8 +2,8 @@ val cucumberVersion = "6.10.3"
 
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.3.9"
-  kotlin("plugin.spring") version "1.5.0"
-  kotlin("plugin.jpa") version "1.5.0"
+  kotlin("plugin.spring") version "1.5.31"
+  kotlin("plugin.jpa") version "1.5.31"
   id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
   jacoco
   java
@@ -27,9 +27,9 @@ dependencies {
   implementation("org.springframework:spring-webflux")
   implementation("org.springframework.boot:spring-boot-starter-reactor-netty")
 
-  implementation("org.springdoc:springdoc-openapi-ui:1.5.10")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.5.10")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.5.10")
+  implementation("org.springdoc:springdoc-openapi-ui:1.5.11")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.5.11")
+  implementation("org.springdoc:springdoc-openapi-data-rest:1.5.11")
 
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -161,12 +161,12 @@ tasks {
 
   compileKotlin {
     kotlinOptions {
-      jvmTarget = "16"
+      jvmTarget = JavaVersion.VERSION_16.toString()
     }
   }
   compileTestKotlin {
     kotlinOptions {
-      jvmTarget = "16"
+      jvmTarget = JavaVersion.VERSION_16.toString()
     }
   }
 }
