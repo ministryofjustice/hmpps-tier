@@ -3,7 +3,7 @@
 
 generic-service:
   ingress:
-    host: hmpps-tier-preprod.hmpps.service.justice.gov.uk
+    host: hmpps-tier.hmpps.service.justice.gov.uk
   env:
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: https://sign-in.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json
     OAUTH_ENDPOINT_URL: https://sign-in.hmpps.service.justice.gov.uk/auth
