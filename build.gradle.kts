@@ -93,7 +93,7 @@ tasks {
     val jacocoAgent = zipTree(configurations.jacocoAgent.get().singleFile)
       .filter { it.name == "jacocoagent.jar" }
       .singleFile
-    jvmArgs = listOf("-javaagent:$jacocoAgent=destfile=$buildDir/jacoco/cucumber.exec,append=true")
+    jvmArgs = listOf("-javaagent:$jacocoAgent=destfile=$buildDir/jacoco/cucumber.exec,append=false")
   }
 
   getByName("check") {
@@ -112,7 +112,7 @@ tasks {
         files(
           classDirectories.files.map {
             fileTree(it) {
-              exclude("**/config/**", "**/uk/gov/justice/digital/hmpps/hmppstier/HmppsTier*")
+              exclude("**/config/**")
             }
           }
         )
@@ -139,7 +139,7 @@ tasks {
         files(
           classDirectories.files.map {
             fileTree(it) {
-              exclude("**/config/**", "**/uk/gov/justice/digital/hmpps/hmppstier/*.*")
+              exclude("**/config/**")
             }
           }
         )
