@@ -15,7 +15,7 @@ import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.mockserver.model.Parameter
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.http.HttpHeaders
@@ -23,6 +23,8 @@ import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
+import uk.gov.justice.hmpps.sqs.HmppsQueueService
+import uk.gov.justice.hmpps.sqs.MissingQueueException
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -40,17 +42,20 @@ abstract class MockedEndpointsTestBase {
   @Autowired
   lateinit var gson: Gson
 
+  @Qualifier("hmppscalculationcompletequeue-sqs-client")
   @Autowired
   lateinit var calculationCompleteClient: AmazonSQSAsync
 
-  @Value("\${calculation-complete.sqs-queue}")
-  lateinit var calculationCompleteUrl: String
+  protected val calculationCompleteUrl by lazy { hmppsQueueService.findByQueueId("hmppscalculationcompletequeue")?.queueUrl ?: throw MissingQueueException("HmppsQueue tiercalculationqueue not found") }
 
+  @Autowired
+  protected lateinit var hmppsQueueService: HmppsQueueService
+
+  @Qualifier("hmppsoffenderqueue-sqs-client")
   @Autowired
   lateinit var offenderEventsClient: AmazonSQSAsync
 
-  @Value("\${offender-events.sqs-queue}")
-  lateinit var eventQueueUrl: String
+  protected val eventQueueUrl by lazy { hmppsQueueService.findByQueueId("hmppsoffenderqueue")?.queueUrl ?: throw MissingQueueException("HmppsQueue tiercalculationqueue not found") }
 
   @Autowired
   internal lateinit var jwtHelper: JwtAuthHelper

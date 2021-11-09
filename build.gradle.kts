@@ -43,7 +43,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
   implementation("com.google.code.gson:gson:2.8.6")
-  implementation("org.springframework.cloud:spring-cloud-aws-messaging")
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:1.0.3")
 
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
@@ -62,14 +62,6 @@ dependencies {
   testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
   testImplementation("org.junit.platform:junit-platform-console:1.7.1")
-}
-
-extra["springCloudVersion"] = "Hoxton.SR8"
-
-dependencyManagement {
-  imports {
-    mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
-  }
 }
 
 jacoco {
@@ -109,7 +101,7 @@ tasks {
     finalizedBy(cucumber)
   }
   getByName<JacocoReport>("jacocoTestReport") {
-
+    executionData(files("$buildDir/jacoco/cucumber.exec", "$buildDir/jacoco/test.exec"))
     reports {
       xml.isEnabled = false
       csv.isEnabled = false
@@ -128,7 +120,7 @@ tasks {
     }
   }
   getByName<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
-    executionData("$buildDir/jacoco/cucumber.exec")
+    executionData("$buildDir/jacoco/cucumber.exec", "$buildDir/jacoco/test.exec")
     violationRules {
       rule {
         limit {
@@ -172,5 +164,5 @@ tasks {
 }
 
 tasks.named<JavaExec>("bootRun") {
-  systemProperty("spring.profiles.active", "dev,localstack,docker")
+  systemProperty("spring.profiles.active", "dev,docker")
 }

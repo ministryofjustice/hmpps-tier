@@ -16,10 +16,8 @@ import java.time.LocalDateTime
 @Component
 class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val webClient: WebClient) {
 
-  fun getAssessmentAnswers(assessmentId: String?): Collection<Question> {
-    return assessmentId?.let {
-      getAssessmentAnswersCall(assessmentId)
-    } ?: listOf()
+  fun getAssessmentAnswers(assessmentId: String): Collection<Question> {
+    return getAssessmentAnswersCall(assessmentId)
   }
 
   fun getAssessmentNeeds(assessmentId: String): Collection<AssessmentNeed> {

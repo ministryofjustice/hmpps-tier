@@ -5,23 +5,28 @@ import com.google.gson.Gson
 import io.cucumber.java8.En
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.beans.factory.annotation.Qualifier
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.oneMessageCurrentlyOnQueue
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
+import uk.gov.justice.hmpps.sqs.HmppsQueueService
+import uk.gov.justice.hmpps.sqs.MissingQueueException
 
 class ThenSteps : En {
   @Autowired
   lateinit var gson: Gson
 
+  @Qualifier("hmppscalculationcompletequeue-sqs-client")
   @Autowired
   lateinit var calculationCompleteClient: AmazonSQSAsync
 
-  @Value("\${calculation-complete.sqs-queue}")
-  lateinit var calculationCompleteUrl: String
+  private val calculationCompleteUrl by lazy { hmppsQueueService.findByQueueId("hmppscalculationcompletequeue")?.queueUrl ?: throw MissingQueueException("HmppsQueue tiercalculationqueue not found") }
+
+  @Autowired
+  private lateinit var hmppsQueueService: HmppsQueueService
 
   @Autowired
   lateinit var tierCalculationRepository: TierCalculationRepository
