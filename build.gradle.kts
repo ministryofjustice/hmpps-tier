@@ -64,14 +64,6 @@ dependencies {
   testImplementation("org.junit.platform:junit-platform-console:1.7.1")
 }
 
-extra["springCloudVersion"] = "Hoxton.SR8"
-
-dependencyManagement {
-  imports {
-    mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
-  }
-}
-
 jacoco {
   toolVersion = "0.8.7"
 }
@@ -101,7 +93,7 @@ tasks {
     val jacocoAgent = zipTree(configurations.jacocoAgent.get().singleFile)
       .filter { it.name == "jacocoagent.jar" }
       .singleFile
-    jvmArgs = listOf("-javaagent:$jacocoAgent=destfile=$buildDir/jacoco/cucumber.exec,append=false")
+    jvmArgs = listOf("-javaagent:$jacocoAgent=destfile=$buildDir/jacoco/cucumber.exec,append=true")
   }
 
   getByName("check") {
@@ -109,7 +101,7 @@ tasks {
     finalizedBy(cucumber)
   }
   getByName<JacocoReport>("jacocoTestReport") {
-
+    executionData(files("$buildDir/jacoco/cucumber.exec", "$buildDir/jacoco/test.exec"))
     reports {
       xml.isEnabled = false
       csv.isEnabled = false
@@ -120,7 +112,7 @@ tasks {
         files(
           classDirectories.files.map {
             fileTree(it) {
-              exclude("**/config/**")
+              exclude("**/config/**", "**/uk/gov/justice/digital/hmpps/hmppstier/HmppsTier*")
             }
           }
         )
@@ -128,7 +120,7 @@ tasks {
     }
   }
   getByName<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
-    executionData("$buildDir/jacoco/cucumber.exec")
+    executionData("$buildDir/jacoco/cucumber.exec", "$buildDir/jacoco/test.exec")
     violationRules {
       rule {
         limit {
@@ -147,7 +139,7 @@ tasks {
         files(
           classDirectories.files.map {
             fileTree(it) {
-              exclude("**/config/**")
+              exclude("**/config/**", "**/uk/gov/justice/digital/hmpps/hmppstier/*.*")
             }
           }
         )
