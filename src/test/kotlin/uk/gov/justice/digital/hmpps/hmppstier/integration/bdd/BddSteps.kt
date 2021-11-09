@@ -10,7 +10,7 @@ import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.beans.factory.annotation.Qualifier
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M1
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M3
@@ -18,6 +18,8 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.HIGH
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.MEDIUM
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnQueue
+import uk.gov.justice.hmpps.sqs.HmppsQueueService
+import uk.gov.justice.hmpps.sqs.MissingQueueException
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
@@ -27,17 +29,20 @@ class BddSteps : En {
   @Autowired
   lateinit var gson: Gson
 
+  @Qualifier("hmppscalculationcompletequeue-sqs-client")
   @Autowired
   lateinit var calculationCompleteClient: AmazonSQSAsync
 
-  @Value("\${calculation-complete.sqs-queue}")
-  lateinit var calculationCompleteUrl: String
+  private val calculationCompleteUrl by lazy { hmppsQueueService.findByQueueId("hmppscalculationcompletequeue")?.queueUrl ?: throw MissingQueueException("HmppsQueue tiercalculationqueue not found") }
 
+  @Autowired
+  private lateinit var hmppsQueueService: HmppsQueueService
+
+  @Qualifier("hmppsoffenderqueue-sqs-client")
   @Autowired
   lateinit var offenderEventsClient: AmazonSQSAsync
 
-  @Value("\${offender-events.sqs-queue}")
-  lateinit var eventQueueUrl: String
+  private val eventQueueUrl by lazy { hmppsQueueService.findByQueueId("hmppsoffenderqueue")?.queueUrl ?: throw MissingQueueException("HmppsQueue tiercalculationqueue not found") }
 
   @Autowired
   lateinit var oauthMock: ClientAndServer

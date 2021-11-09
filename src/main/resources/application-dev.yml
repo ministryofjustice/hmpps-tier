@@ -19,6 +19,20 @@ spring:
         jwt:
           public-key-location: classpath:local-public-key.pub
 
+hmpps.sqs:
+  provider: localstack
+  queues:
+    hmppsoffenderqueue:
+      queueName: hmpps_offender_event_queue
+      dlqName: hmpps_offender_event_dlq
+      subscribeTopicId: hmppsoffendertopic
+      subscribeFilter: '{"eventType":[ "OFFENDER_MANAGEMENT_TIER_CALCULATION_REQUIRED"] }'
+  topics:
+    hmppsdomaintopic:
+      arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
+    hmppsoffendertopic:
+      arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
+
 logging:
   level:
     uk.gov: DEBUG

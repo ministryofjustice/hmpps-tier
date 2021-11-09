@@ -12,12 +12,12 @@ services:
       - POSTGRES_PASSWORD=dev
       - POSTGRES_USER=root
   localstack:
-    image: localstack/localstack:0.11.2
+    image: localstack/localstack:0.12.20
     networks:
       - hmpps
     container_name: hmpps-tier-localstack
     ports:
-      - "4567-4597:4567-4597"
+      - "4566:4566"
       - 8999:8080
     environment:
       - SERVICES=sns,sqs
@@ -27,7 +27,6 @@ services:
     volumes:
       - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
-      - $PWD/src/test/resources/localstack:/docker-entrypoint-initaws.d
   community-api:
     image: quay.io/hmpps/community-api:latest
     networks:

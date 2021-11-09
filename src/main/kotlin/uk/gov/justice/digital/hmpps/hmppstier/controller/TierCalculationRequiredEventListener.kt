@@ -3,8 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.controller
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import org.slf4j.LoggerFactory
-import org.springframework.cloud.aws.messaging.listener.SqsMessageDeletionPolicy.ON_SUCCESS
-import org.springframework.cloud.aws.messaging.listener.annotation.SqsListener
+import org.springframework.jms.annotation.JmsListener
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
@@ -21,7 +20,7 @@ class TierCalculationRequiredEventListener(
     throw e
   }
 
-  @SqsListener(value = ["\${offender-events.sqs-queue}"], deletionPolicy = ON_SUCCESS)
+  @JmsListener(destination = "hmppsoffenderqueue", containerFactory = "hmppsQueueContainerFactoryProxy")
   fun listen(msg: String) {
     calculator.calculateTierForCrn(getCrn(msg))
   }
