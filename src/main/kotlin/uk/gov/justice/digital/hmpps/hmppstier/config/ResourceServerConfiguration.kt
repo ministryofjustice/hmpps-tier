@@ -32,7 +32,10 @@ class ResourceServerConfiguration : WebSecurityConfigurerAdapter() {
             "/health/**",
             "/info",
             "/h2-console/**",
-            "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
+            "/v3/api-docs/**",
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/queue-admin/retry-all-dlqs"
           )
           .permitAll()
           .anyRequest()
