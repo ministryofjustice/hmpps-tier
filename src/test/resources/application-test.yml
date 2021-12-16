@@ -3,12 +3,6 @@ spring:
     use-legacy-processing: true
   profiles:
     include: stdout
-
-  datasource:
-    url: 'jdbc:h2:mem:probation-tiering;INIT=create domain if not exists jsonb as text;MODE=PostgreSQL;'
-    username: probation
-    password: tiering
-
   security:
     oauth2:
       resourceserver:

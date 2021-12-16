@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  hmpps: ministryofjustice/hmpps@3.11
+  hmpps: ministryofjustice/hmpps@3.12
   slack: circleci/slack@4.4.2
 
 parameters:
@@ -12,10 +12,7 @@ parameters:
 jobs:
   validate:
     executor:
-      name: hmpps/localstack
-      jdk_tag: "16.0"
-      localstack_tag: "0.12.20"
-      services: "sqs,sns"
+      name: hmpps/java_localstack_postgres
     steps:
       - checkout
       - hmpps/install_aws_cli
