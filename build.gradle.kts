@@ -1,13 +1,13 @@
-val cucumberVersion = "6.10.3"
+val cucumberVersion = "7.1.0"
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "3.3.16"
-  kotlin("plugin.spring") version "1.5.31"
-  kotlin("plugin.jpa") version "1.5.31"
-  id("org.jlleitschuh.gradle.ktlint") version "9.4.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.0"
+  kotlin("plugin.spring") version "1.6.10"
+  kotlin("plugin.jpa") version "1.6.10"
+  id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
   jacoco
   java
-  id("io.gitlab.arturbosch.detekt").version("1.17.1")
+  id("io.gitlab.arturbosch.detekt").version("1.19.0")
 }
 
 configurations {
@@ -20,8 +20,8 @@ dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
   runtimeOnly("org.postgresql:postgresql")
-  runtimeOnly("com.zaxxer:HikariCP:3.4.5")
-  runtimeOnly("org.flywaydb:flyway-core:8.2.2")
+  runtimeOnly("com.zaxxer:HikariCP")
+  runtimeOnly("org.flywaydb:flyway-core")
 
   implementation("org.springframework:spring-webflux")
   implementation("org.springframework.boot:spring-boot-starter-reactor-netty")
@@ -33,15 +33,15 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
-  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.11.2")
-  implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.11.2")
+  implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+  implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
   implementation("com.vladmihalcea:hibernate-types-52:2.10.0")
 
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-  implementation("com.google.code.gson:gson:2.8.6")
+  implementation("com.google.code.gson:gson")
   implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:1.0.3")
 
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")

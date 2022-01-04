@@ -15,7 +15,7 @@ class InfoTest : ApiTestBase() {
       .expectStatus()
       .isOk
       .expectBody()
-      .jsonPath("app.name").isEqualTo("Hmpps Tier")
+      .jsonPath("build.name").isEqualTo("hmpps-tier")
   }
 
   @Test
