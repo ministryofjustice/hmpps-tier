@@ -1,7 +1,7 @@
 val cucumberVersion = "7.1.0"
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.0.1-beta"
   kotlin("plugin.spring") version "1.6.10"
   kotlin("plugin.jpa") version "1.6.10"
   id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
