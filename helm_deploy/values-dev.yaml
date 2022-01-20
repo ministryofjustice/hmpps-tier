@@ -4,7 +4,6 @@
 generic-service:
   ingress:
     host: hmpps-tier-dev.hmpps.service.justice.gov.uk
-    contextColour: green
   env:
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json
     OAUTH_ENDPOINT_URL: https://sign-in-dev.hmpps.service.justice.gov.uk/auth

@@ -13,6 +13,7 @@ generic-service:
     enabled: true
     host: app-hostname.local    # override per environment
     tlsSecretName: hmpps-tier-cert
+    contextColour: green
     path: /
     annotations:
       nginx.ingress.kubernetes.io/custom-http-errors: "418"
