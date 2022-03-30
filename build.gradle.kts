@@ -55,7 +55,7 @@ dependencies {
 
   testImplementation("com.ninja-squad:springmockk:2.0.1")
   testImplementation("org.assertj:assertj-core:3.18.0")
-  testImplementation("org.awaitility:awaitility-kotlin:4.0.3")
+  testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
