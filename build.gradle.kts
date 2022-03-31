@@ -1,4 +1,4 @@
-val cucumberVersion = "7.1.0"
+val cucumberVersion = "7.2.3"
 
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.2"
