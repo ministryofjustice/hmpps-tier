@@ -35,7 +35,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-  implementation("com.vladmihalcea:hibernate-types-52:2.10.0")
+  implementation("com.vladmihalcea:hibernate-types-52:2.14.1")
 
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
