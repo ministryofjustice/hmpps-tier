@@ -3,7 +3,7 @@ val cucumberVersion = "7.2.3"
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.2"
   kotlin("plugin.spring") version "1.6.20"
-  kotlin("plugin.jpa") version "1.6.10"
+  kotlin("plugin.jpa") version "1.6.20"
   id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
   jacoco
   java
