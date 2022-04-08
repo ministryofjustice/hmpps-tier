@@ -1,4 +1,4 @@
-val cucumberVersion = "7.1.0"
+
 
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.2"
@@ -15,6 +15,8 @@ configurations {
     exclude(group = "org.junit.vintage")
   }
 }
+val cucumberVersion by extra( "7.1.0")
+val springDocVersion by extra("1.6.7")
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -26,9 +28,9 @@ dependencies {
   implementation("org.springframework:spring-webflux")
   implementation("org.springframework.boot:spring-boot-starter-reactor-netty")
 
-  implementation("org.springdoc:springdoc-openapi-ui:1.6.6")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.6")
-  implementation("org.springdoc:springdoc-openapi-data-rest:1.6.6")
+  implementation("org.springdoc:springdoc-openapi-ui:$springDocVersion")
+  implementation("org.springdoc:springdoc-openapi-kotlin:$springDocVersion")
+  implementation("org.springdoc:springdoc-openapi-data-rest:$springDocVersion")
 
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
