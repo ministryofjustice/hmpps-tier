@@ -27,7 +27,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-reactor-netty")
 
   implementation("org.springdoc:springdoc-openapi-ui:1.6.6")
-  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.6")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.7")
   implementation("org.springdoc:springdoc-openapi-data-rest:1.6.6")
 
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
