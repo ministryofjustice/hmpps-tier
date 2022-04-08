@@ -1,9 +1,9 @@
 
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.2"
-  kotlin("plugin.spring") version "1.6.10"
-  kotlin("plugin.jpa") version "1.6.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.1.3"
+  kotlin("plugin.spring") version "1.6.20"
+  kotlin("plugin.jpa") version "1.6.20"
   id("org.jlleitschuh.gradle.ktlint") version "10.2.1"
   jacoco
   java
@@ -15,7 +15,7 @@ configurations {
     exclude(group = "org.junit.vintage")
   }
 }
-val cucumberVersion by extra( "7.1.0")
+val cucumberVersion by extra( "7.2.3")
 val springDocVersion by extra("1.6.7")
 
 dependencies {
@@ -37,14 +37,14 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-  implementation("com.vladmihalcea:hibernate-types-52:2.10.0")
+  implementation("com.vladmihalcea:hibernate-types-52:2.15.1")
 
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
   implementation("com.google.code.gson:gson")
-  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:1.1.2")
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:1.1.3")
 
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
@@ -53,10 +53,10 @@ dependencies {
     exclude(module = "mockito-core")
   }
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("org.mock-server:mockserver-netty:5.13.0")
+  testImplementation("org.mock-server:mockserver-netty:5.13.2")
 
-  testImplementation("com.ninja-squad:springmockk:2.0.1")
-  testImplementation("org.assertj:assertj-core:3.18.0")
+  testImplementation("com.ninja-squad:springmockk:3.1.1")
+  testImplementation("org.assertj:assertj-core:3.22.0")
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
