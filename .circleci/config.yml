@@ -13,7 +13,7 @@ jobs:
   validate:
     executor:
       name: hmpps/java_localstack_postgres
-      jdk_tag: "16.0"
+      jdk_tag: "17.0"
       localstack_tag: "0.14.1"
       postgres_tag: "11"
     steps:
