@@ -7,7 +7,7 @@ WORKDIR /app
 ADD . .
 RUN ./gradlew clean assemble -Dorg.gradle.daemon=false
 
-FROM openjdk:16-slim
+FROM openjdk:17-slim
 LABEL maintainer="HMPPS Digital Studio <info@digital.justice.gov.uk>"
 
 ARG BUILD_NUMBER
