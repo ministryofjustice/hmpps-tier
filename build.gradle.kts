@@ -154,12 +154,12 @@ tasks {
 
   compileKotlin {
     kotlinOptions {
-      jvmTarget = JavaVersion.VERSION_16.toString()
+      jvmTarget = JavaVersion.VERSION_17.toString()
     }
   }
   compileTestKotlin {
     kotlinOptions {
-      jvmTarget = JavaVersion.VERSION_16.toString()
+      jvmTarget = JavaVersion.VERSION_17.toString()
     }
   }
 }
