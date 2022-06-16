@@ -21,7 +21,7 @@ val springDocVersion by extra("1.6.7")
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
-  runtimeOnly("org.postgresql:postgresql:42.3.6")
+  runtimeOnly("org.postgresql:postgresql:42.4.0")
   runtimeOnly("com.zaxxer:HikariCP")
   runtimeOnly("org.flywaydb:flyway-core")
 
