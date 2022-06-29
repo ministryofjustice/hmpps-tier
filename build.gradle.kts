@@ -1,9 +1,9 @@
 
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.2.3"
-  kotlin("plugin.spring") version "1.6.21"
-  kotlin("plugin.jpa") version "1.6.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.3.0"
+  kotlin("plugin.spring") version "1.7.0"
+  kotlin("plugin.jpa") version "1.7.0"
   id("org.jlleitschuh.gradle.ktlint") version "10.3.0"
   jacoco
   java
@@ -37,7 +37,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-  implementation("com.vladmihalcea:hibernate-types-52:2.16.2")
+  implementation("com.vladmihalcea:hibernate-types-52:2.16.3")
 
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
