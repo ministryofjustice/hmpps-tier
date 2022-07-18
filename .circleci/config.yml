@@ -2,10 +2,12 @@ version: 2.1
 
 orbs:
   hmpps: ministryofjustice/hmpps@5.1
-  slack: circleci/slack@4.4.2
 
 parameters:
   alerts-slack-channel:
+    type: string
+    default: manage_a_workforce_dev
+  releases-slack-channel:
     type: string
     default: manage_a_workforce_dev
 
@@ -93,6 +95,8 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_prod
           env: "prod"
+          slack_notification: true
+          slack_channel_name: << pipeline.parameters.releases-slack-channel >>
           context:
             - hmpps-common-vars
             - hmpps-tier-prod
