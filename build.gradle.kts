@@ -62,7 +62,7 @@ dependencies {
   testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
-  testImplementation("org.junit.platform:junit-platform-console:1.8.2")
+  testImplementation("org.junit.platform:junit-platform-console:1.9.0")
 }
 
 jacoco {
