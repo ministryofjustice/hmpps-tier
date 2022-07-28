@@ -75,38 +75,33 @@ detekt {
   ignoreFailures = true
 }
 
-tasks {
-  val cucumber by registering(JavaExec::class) {
-    dependsOn(testClasses)
-    finalizedBy("jacocoTestCoverageVerification")
-    val reportsDir = file("$buildDir/test-results")
-    outputs.dir(reportsDir)
-    classpath = sourceSets["test"].runtimeClasspath
-    main = "org.junit.platform.console.ConsoleLauncher"
-    args("--include-classname", ".*")
-    args("--select-class", "uk.gov.justice.digital.hmpps.hmppstier.integration.bdd.CucumberRunnerTest")
-    args("--exclude-tag", "disabled")
-
-    // if you want to run one feature/scenario, tag it @single and uncomment
-    // args("--include-tag", "single")
-    args("--reports-dir", reportsDir)
-    systemProperty("cucumber.publish.quiet", true)
-    val jacocoAgent = zipTree(configurations.jacocoAgent.get().singleFile)
-      .filter { it.name == "jacocoagent.jar" }
-      .singleFile
-    jvmArgs = listOf("-javaagent:$jacocoAgent=destfile=$buildDir/jacoco/cucumber.exec,append=false")
+task("cucumber") {
+  dependsOn("assemble", "testClasses")
+  finalizedBy("jacocoTestCoverageVerification")
+  doLast {
+    javaexec {
+      mainClass.set("io.cucumber.core.cli.Main")
+      classpath = sourceSets["test"].runtimeClasspath
+      val jacocoAgent = zipTree(configurations.jacocoAgent.get().singleFile)
+        .filter { it.name == "jacocoagent.jar" }
+        .singleFile
+      jvmArgs = listOf("-javaagent:$jacocoAgent=destfile=$buildDir/results/jacoco/cucumber.exec,append=false")
+    }
   }
+}
+
+tasks {
 
   getByName("check") {
     dependsOn(":ktlintCheck", detekt)
-    finalizedBy(cucumber)
+    finalizedBy("cucumber")
   }
   getByName<JacocoReport>("jacocoTestReport") {
     executionData(files("$buildDir/jacoco/cucumber.exec", "$buildDir/jacoco/test.exec"))
     reports {
-      xml.isEnabled = false
-      csv.isEnabled = false
-      html.destination = file("$buildDir/reports/coverage")
+      xml.required.set(false)
+      csv.required.set(false)
+      html.outputLocation.set(file("$buildDir/reports/coverage"))
     }
     afterEvaluate {
       classDirectories.setFrom(
