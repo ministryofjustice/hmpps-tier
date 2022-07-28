@@ -85,7 +85,7 @@ task("cucumber") {
       val jacocoAgent = zipTree(configurations.jacocoAgent.get().singleFile)
         .filter { it.name == "jacocoagent.jar" }
         .singleFile
-      jvmArgs = listOf("-javaagent:$jacocoAgent=destfile=$buildDir/results/jacoco/cucumber.exec,append=false")
+      jvmArgs = listOf("-javaagent:$jacocoAgent=destfile=$buildDir/jacoco/cucumber.exec,append=false")
     }
   }
 }
