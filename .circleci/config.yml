@@ -73,6 +73,7 @@ workflows:
           env: "dev"
           jira_update: true
           jira_env_type: development
+          context: hmpps-common-vars
           filters:
             branches:
               only:
@@ -90,7 +91,9 @@ workflows:
           env: "preprod"
           jira_update: true
           jira_env_type: staging
-          context: hmpps-tier-preprod
+          context:
+            - hmpps-common-vars
+            - hmpps-tier-preprod
           requires:
             - request-preprod-approval
       - request-prod-approval:
