@@ -15,8 +15,8 @@ configurations {
     exclude(group = "org.junit.vintage")
   }
 }
-val cucumberVersion by extra("7.2.3")
-val springDocVersion by extra("1.6.7")
+val cucumberVersion by extra("7.3.3")
+val springDocVersion by extra("1.6.9")
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -149,12 +149,12 @@ tasks {
 
   compileKotlin {
     kotlinOptions {
-      jvmTarget = JavaVersion.VERSION_17.toString()
+      jvmTarget = JavaVersion.VERSION_18.toString()
     }
   }
   compileTestKotlin {
     kotlinOptions {
-      jvmTarget = JavaVersion.VERSION_17.toString()
+      jvmTarget = JavaVersion.VERSION_18.toString()
     }
   }
 }
