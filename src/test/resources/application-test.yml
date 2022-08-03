@@ -39,7 +39,6 @@ hmpps.sqs:
       dlqName: hmpps_offender_event_dlq
       subscribeTopicId: hmppsoffendertopic
       subscribeFilter: '{"eventType":[ "OFFENDER_MANAGEMENT_TIER_CALCULATION_REQUIRED"] }'
-      asyncQueueClient: true
     hmppscalculationcompletequeue:
       queueName: hmpps_calculation_complete_event_queue
       dlqName: hmpps_calculation_complete_event_dlq
@@ -49,7 +48,6 @@ hmpps.sqs:
   topics:
     hmppscalculationcompletetopic:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
-      asyncClient: true
     hmppsoffendertopic:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
 
