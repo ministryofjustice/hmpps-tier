@@ -1,7 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.controller
 
-import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.jms.annotation.JmsListener
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler
@@ -11,7 +11,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 @Service
 class TierCalculationRequiredEventListener(
   private val calculator: TierCalculationService,
-  private val gson: Gson
+  private val objectMapper: ObjectMapper,
 ) {
 
   @MessageExceptionHandler()
@@ -26,8 +26,8 @@ class TierCalculationRequiredEventListener(
   }
 
   private fun getCrn(msg: String): String {
-    val message = gson.fromJson(msg, SQSMessage::class.java).message
-    return gson.fromJson(message, TierCalculationMessage::class.java).crn
+    val (message) = objectMapper.readValue(msg, SQSMessage::class.java)
+    return objectMapper.readValue(message, TierCalculationMessage::class.java).crn
       .also { log.debug("Tier calculation message decoded for $it") }
   }
 
@@ -36,6 +36,6 @@ class TierCalculationRequiredEventListener(
   }
 }
 
-private data class TierCalculationMessage(val crn: String)
+data class TierCalculationMessage(val crn: String)
 
-private data class SQSMessage(@SerializedName("Message") val message: String)
+data class SQSMessage(@JsonProperty("Message") val message: String)
