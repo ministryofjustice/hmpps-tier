@@ -22,6 +22,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
@@ -69,11 +70,14 @@ abstract class MockedEndpointsTestBase {
   @Autowired
   lateinit var assessmentApi: ClientAndServer
 
+  @Autowired
+  private lateinit var tierCalculationRepository: TierCalculationRepository
+
   @BeforeEach
   fun `purge Queues`() {
     offenderEventsClient.purgeQueue(PurgeQueueRequest(eventQueueUrl))
     calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
-
+    tierCalculationRepository.deleteAll()
     setupOauth()
   }
 
