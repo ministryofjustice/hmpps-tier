@@ -16,12 +16,12 @@ import uk.gov.justice.hmpps.sqs.MissingQueueException
 
 @Service
 class TriggerCalculationService(
-  private val hmppsQueueService: HmppsQueueService,
+  hmppsQueueService: HmppsQueueService,
   private val objectMapper: ObjectMapper,
   @Qualifier("hmppsoffenderqueue-sqs-client") private val hmppsOffenderSqsClient: AmazonSQSAsync,
 ) {
 
-  private val hmppsOffenderQueueUrl by lazy { hmppsQueueService.findByQueueId("hmppsoffenderqueue")?.queueUrl ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found") }
+  private val hmppsOffenderQueueUrl = hmppsQueueService.findByQueueId("hmppsoffenderqueue")?.queueUrl ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found")
 
   @Async
   fun sendEvents(crns: List<TriggerCsv>) {
