@@ -18,7 +18,7 @@ class TriggerCalculationUpload : MockedEndpointsTestBase() {
 
   @Test
   fun `trigger a tier calculation from upload`() {
-    val crn = "X432769"
+    val crn = "X546739"
 
     setupSCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithMappa(), crn)
