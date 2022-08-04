@@ -53,7 +53,7 @@ server:
 
 hmpps:
   sqs:
-    queueAdminRole: ROLE_ALLOCATION_API_QUEUE_ADMIN
+    queueAdminRole: ROLE_TIER_API_QUEUE_ADMIN
     queues:
       hmppsoffenderqueue:
         asyncQueueClient: true
