@@ -25,20 +25,50 @@ class TriggerCalculationUpload : MockedEndpointsTestBase() {
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890")
     setupOutdatedAssessment(crn, "1234567890")
 
-    val cases = listOf(TriggerCsv(crn))
-    val csvFile = generateCsv(cases)
-    val multipartBodyBuilder = MultipartBodyBuilder()
-    multipartBodyBuilder.part("file", FileSystemResource(csvFile))
-
     webTestClient.post()
       .uri("/crn/upload")
       .contentType(MediaType.MULTIPART_FORM_DATA)
-      .body(BodyInserters.fromMultipartData(multipartBodyBuilder.build()))
+      .body(generateMultipartBody(crn))
       .exchange()
       .expectStatus()
       .isOk
 
     expectTierCalculationById("A2")
+  }
+
+  @Test
+  fun `must write back even if tier is unchanged when flag is true`() {
+    val crn = "X432769"
+
+    setupSCCustodialSentence(crn)
+    setupRegistrations(registrationsResponseWithMappa(), crn)
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890")
+    setupOutdatedAssessment(crn, "1234567890")
+
+    calculateTierFor(crn)
+    expectTierCalculationById("A2")
+
+    setupSCCustodialSentence(crn)
+    setupMaleOffenderWithRegistrations(crn, false, "4234568890")
+    setupOutdatedAssessment(crn, "1234567890")
+
+    webTestClient.post()
+      .uri("/crn/upload")
+      .contentType(MediaType.MULTIPART_FORM_DATA)
+      .body(generateMultipartBody(crn, true))
+      .exchange()
+      .expectStatus()
+      .isOk
+
+    expectTierCalculationById("A2")
+  }
+
+  private fun generateMultipartBody(crn: String, writeBackIfUnchanged: Boolean = false): BodyInserters.MultipartInserter {
+    val cases = listOf(TriggerCsv(crn, writeBackIfUnchanged))
+    val csvFile = generateCsv(cases)
+    val multipartBodyBuilder = MultipartBodyBuilder()
+    multipartBodyBuilder.part("file", FileSystemResource(csvFile))
+    return BodyInserters.fromMultipartData(multipartBodyBuilder.build())
   }
 
   fun generateCsv(unallocatedCases: List<TriggerCsv>): File {

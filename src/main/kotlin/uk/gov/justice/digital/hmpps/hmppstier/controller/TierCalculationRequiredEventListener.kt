@@ -16,19 +16,19 @@ class TierCalculationRequiredEventListener(
 
   @MessageExceptionHandler()
   fun errorHandler(e: Exception, msg: String) {
-    log.warn("Failed to calculate tier for CRN ${getCrn(msg)} with error: ${e.message}")
+    log.warn("Failed to calculate tier for CRN ${getCrn(msg).crn} with error: ${e.message}")
     throw e
   }
 
   @JmsListener(destination = "hmppsoffenderqueue", containerFactory = "hmppsQueueContainerFactoryProxy")
   fun listen(msg: String) {
-    calculator.calculateTierForCrn(getCrn(msg))
+    val (crn, writeBackIfUnchanged) = getCrn(msg)
+    calculator.calculateTierForCrn(crn, writeBackIfUnchanged ?: false)
   }
 
-  private fun getCrn(msg: String): String {
+  private fun getCrn(msg: String): TierCalculationMessage {
     val (message) = objectMapper.readValue(msg, SQSMessage::class.java)
-    return objectMapper.readValue(message, TierCalculationMessage::class.java).crn
-      .also { log.debug("Tier calculation message decoded for $it") }
+    return objectMapper.readValue(message, TierCalculationMessage::class.java)
   }
 
   companion object {
@@ -36,6 +36,6 @@ class TierCalculationRequiredEventListener(
   }
 }
 
-data class TierCalculationMessage(val crn: String)
+data class TierCalculationMessage(val crn: String, val writeBackIfUnchanged: Boolean? = false)
 
 data class SQSMessage(@JsonProperty("Message") val message: String)

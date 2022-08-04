@@ -39,14 +39,14 @@ class TierCalculationService(
     }
 
   @Transactional
-  fun calculateTierForCrn(crn: String) =
+  fun calculateTierForCrn(crn: String, writeBackIfUnchanged: Boolean) =
     calculateTier(crn).let {
       val isUpdated = isUpdated(it, crn)
       tierCalculationRepository.save(it)
       when {
-        isUpdated -> successUpdater.update(crn, it.uuid)
+        isUpdated || writeBackIfUnchanged -> successUpdater.update(crn, it.uuid)
       }
-      log.info("Tier calculated for $crn. Different from previous tier: $isUpdated")
+      log.info("Tier calculated for $crn. Different from previous tier: $isUpdated. write back if unchanged: $writeBackIfUnchanged")
       telemetryService.trackTierCalculated(it, isUpdated)
     }
 
