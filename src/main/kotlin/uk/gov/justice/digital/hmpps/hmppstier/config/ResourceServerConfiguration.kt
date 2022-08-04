@@ -37,7 +37,7 @@ class ResourceServerConfiguration {
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
-            "/queue-admin/**",
+            "/queue-admin/retry-all-dlqs",
             "/crn/upload"
           )
           .permitAll()
