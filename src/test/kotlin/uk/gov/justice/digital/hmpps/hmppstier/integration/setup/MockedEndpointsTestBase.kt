@@ -185,33 +185,38 @@ abstract class MockedEndpointsTestBase {
     communityApiResponseWithQs(
       restrictiveRequirementsResponse(),
       "/secure/offenders/crn/$crn/convictions/\\d+/requirements",
-      Parameter("activeOnly", "true")
+      Parameter("activeOnly", "true"),
+      Parameter("excludeSoftDeleted", "true")
     )
 
   fun setupAdditionalRequirements(crn: String) =
     communityApiResponseWithQs(
       additionalRequirementsResponse(),
       "/secure/offenders/crn/$crn/convictions/\\d+/requirements",
-      Parameter("activeOnly", "true")
+      Parameter("activeOnly", "true"),
+      Parameter("excludeSoftDeleted", "true")
     )
 
   fun setupNoRequirements(crn: String) =
     communityApiResponseWithQs(
       noRequirementsResponse(),
       "/secure/offenders/crn/$crn/convictions/\\d+/requirements",
-      Parameter("activeOnly", "true")
+      Parameter("activeOnly", "true"),
+      Parameter("excludeSoftDeleted", "true")
     )
 
   fun setupRestrictiveAndNonRestrictiveRequirements(crn: String) =
     communityApiResponseWithQs(
       restrictiveAndNonRestrictiveRequirementsResponse(),
-      "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true")
+      "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true"),
+      Parameter("excludeSoftDeleted", "true")
     )
 
   fun setupNonRestrictiveRequirements(crn: String) =
     communityApiResponseWithQs(
       nonRestrictiveRequirementsResponse(),
-      "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true")
+      "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true"),
+      Parameter("excludeSoftDeleted", "true")
     )
 
   fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true, assessmentId: String) {
@@ -298,8 +303,8 @@ abstract class MockedEndpointsTestBase {
   private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
     clientAndServer.`when`(request().withPath(urlTemplate), exactly(1)).respond(response)
 
-  private fun communityApiResponseWithQs(response: HttpResponse, urlTemplate: String, qs: Parameter) =
-    communityApi.`when`(request().withPath(urlTemplate).withQueryStringParameter(qs), exactly(1)).respond(response)
+  private fun communityApiResponseWithQs(response: HttpResponse, urlTemplate: String, vararg qs: Parameter) =
+    communityApi.`when`(request().withPath(urlTemplate).withQueryStringParameters(*qs), exactly(1)).respond(response)
 
   private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
     httpSetup(response, urlTemplate, communityApi)

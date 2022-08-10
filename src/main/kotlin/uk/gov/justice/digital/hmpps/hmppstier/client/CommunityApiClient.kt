@@ -58,7 +58,12 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
   fun getRequirements(crn: String, convictionId: Long): List<RequirementDto> =
     webClient
       .get()
-      .uri("/offenders/crn/$crn/convictions/$convictionId/requirements?activeOnly=true")
+      .uri { uriBuilder ->
+        uriBuilder.path("/offenders/crn/{crn}/convictions/{convictionId}/requirements")
+          .queryParam("activeOnly", true)
+          .queryParam("excludeSoftDeleted", true)
+          .build(crn, convictionId)
+      }
       .retrieve()
       .bodyToMono(Requirements::class.java)
       .block()?.requirements ?: listOf()
