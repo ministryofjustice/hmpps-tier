@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiNoSeverityNeedsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.historicRegistrationsResponseWithMappa
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithNoLevel
 
@@ -39,5 +40,17 @@ class RegistrationEdgeCasesTest : MockedEndpointsTestBase() {
     setupNoDeliusAssessment(crn)
     calculateTierFor(crn)
     expectTierCalculationById("A2")
+  }
+
+  @Test
+  fun `exclude historic registrations from tier calculation`() {
+    val crn = "X445599"
+    setupNCCustodialSentence(crn)
+    setupRegistrations(historicRegistrationsResponseWithMappa(), crn)
+    setupMaleOffender(crn)
+    setupNeeds(assessmentsApiNoSeverityNeedsResponse(), "6234507890")
+    setupNoDeliusAssessment(crn)
+    calculateTierFor(crn)
+    expectLatestTierCalculation("D2")
   }
 }

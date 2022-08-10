@@ -25,7 +25,9 @@ class CommunityApiService(
     communityApiClient.getConvictions(crn).filterNot { it.sentence == null }.map { Conviction.from(it) }
 
   fun getRegistrations(crn: String): Registrations {
-    val registrations = communityApiClient.getRegistrations(crn).sortedByDescending { it.startDate }
+    val registrations = communityApiClient.getRegistrations(crn)
+      .filter { registration -> registration.type.code != "HREG" }
+      .sortedByDescending { it.startDate }
     return Registrations(
       hasIomNominal(registrations),
       getComplexityFactors(registrations),

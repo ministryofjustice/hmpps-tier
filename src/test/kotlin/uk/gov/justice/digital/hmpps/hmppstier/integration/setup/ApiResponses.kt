@@ -37,6 +37,11 @@ fun registrationsResponseWithMappa(mappa: String? = "M2"): HttpResponse = regist
     .replace("mappaToReplace", mappa!!)
 )
 
+fun historicRegistrationsResponseWithMappa(mappa: String? = "M2"): HttpResponse = registrations(
+  responseFrom("$communityApiPath/historic-registrations-mappa.json")
+    .replace("mappaToReplace", mappa!!)
+)
+
 fun registrationsResponseWithRosh(rosh: String): HttpResponse = registrations(
   responseFrom("$communityApiPath/registrations-rosh.json")
     .replace("roshToReplace", rosh)
