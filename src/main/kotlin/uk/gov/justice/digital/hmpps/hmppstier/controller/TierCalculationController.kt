@@ -31,7 +31,7 @@ class TierCalculationController(private val tierCalculationService: TierCalculat
   @GetMapping("crn/{crn}/tier")
   fun getLatestTierCalculation(@PathVariable(required = true) crn: String): ResponseEntity<TierDto> = ResponseEntity.ok(tierCalculationService.getLatestTierByCrn(crn) ?: throw EntityNotFoundException("Tier Result Not Found for $crn"))
 
-  @Operation(summary = "Retrieve tiering score by crn and calulation ID")
+  @Operation(summary = "Retrieve tiering score by crn and calculation ID")
   @ApiResponses(
     value = [
       ApiResponse(responseCode = "200", description = "OK"),
