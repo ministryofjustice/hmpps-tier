@@ -7,7 +7,7 @@
 https://app.circleci.com/pipelines/github/ministryofjustice/hmpps-tier
 
 ### Prerequisites  
-* Java JDK 16+  
+* Java JDK 18  
 * An editor/IDE
 * Gradle  
 * Docker  
@@ -18,9 +18,10 @@ https://app.circleci.com/pipelines/github/ministryofjustice/hmpps-tier
 Listens to events from Delius, calculates a new offender tier and writes it back into Delius
 
 Integration points:
-Delius via SQS
-Community-api read and write
-Assessment-api read
+- tier calculation events from Delius via SQS
+- Community-api read
+- Assessment-api read
+- writes updated tiers to SNS for https://github.com/ministryofjustice/hmpps-tier-to-delius-update to consume
   
 ### How to run the app locally 
 
@@ -76,6 +77,7 @@ AWS_ACCESS_KEY_ID=key AWS_SECRET_ACCESS_KEY=secret aws sqs receive-message --que
 #### testing and code coverage
 
 Run lint and test
+
 The integration and cucumber tests need localstack running
 
 ```sh

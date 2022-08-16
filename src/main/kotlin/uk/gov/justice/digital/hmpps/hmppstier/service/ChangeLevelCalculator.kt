@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.IOM
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.NEEDS
@@ -18,15 +17,15 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 class ChangeLevelCalculator {
 
   fun calculate(
-    offenderAssessment: OffenderAssessment?,
     ogrsScore: Int,
     hasIomNominal: Boolean,
     needs: Map<Need, NeedSeverity>,
-    hasNoMandateForChange: Boolean
+    hasNoMandateForChange: Boolean,
+    hasNoAssessment: Boolean
   ): TierLevel<ChangeLevel> =
     when {
       hasNoMandateForChange -> TIER_NO_MANDATE
-      hasNoAssessment(offenderAssessment) -> TIER_NO_ASSESSMENT
+      hasNoAssessment -> TIER_NO_ASSESSMENT
 
       else -> {
         val points = mapOf(
@@ -44,9 +43,6 @@ class ChangeLevelCalculator {
         }
       }
     }
-
-  private fun hasNoAssessment(offenderAssessment: OffenderAssessment?): Boolean =
-    (offenderAssessment == null)
 
   private fun getAssessmentNeedsPoints(needs: Map<Need, NeedSeverity>): Int =
     needs.entries.sumOf {
