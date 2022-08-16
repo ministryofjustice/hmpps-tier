@@ -50,7 +50,6 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       expectNoUpdatedTierCalculation()
     }
 
-
     @Disabled
     @Test
     fun `writes back when tier is unchanged but is different from Delius`() {
