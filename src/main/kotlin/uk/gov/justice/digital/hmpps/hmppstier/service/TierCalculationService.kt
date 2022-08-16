@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
@@ -74,11 +75,11 @@ class TierCalculationService(
 
     val protectLevel = protectLevelCalculator.calculate(rsr, additionalFactorsPoints, registrations)
     val changeLevel = changeLevelCalculator.calculate(
-      offenderAssessment,
       ogrs,
       registrations.hasIomNominal,
       assessmentApiService.getAssessmentNeeds(offenderAssessment),
-      mandateForChange.hasNoMandate(crn, convictions)
+      mandateForChange.hasNoMandate(crn, convictions),
+      hasNoAssessment(offenderAssessment)
     )
 
     return TierCalculationEntity(
@@ -95,6 +96,8 @@ class TierCalculationService(
   private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
     tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
 
+  private fun hasNoAssessment(offenderAssessment: OffenderAssessment?): Boolean =
+    (offenderAssessment == null)
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
   }
