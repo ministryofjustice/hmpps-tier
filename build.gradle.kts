@@ -74,7 +74,6 @@ jacoco {
 detekt {
   config = files("src/test/resources/detekt-config.yml")
   buildUponDefaultConfig = true
-  ignoreFailures = true
 }
 
 task("cucumber") {
