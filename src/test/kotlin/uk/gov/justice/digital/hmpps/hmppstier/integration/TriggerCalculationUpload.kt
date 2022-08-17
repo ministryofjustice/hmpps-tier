@@ -33,11 +33,11 @@ class TriggerCalculationUpload : MockedEndpointsTestBase() {
       .expectStatus()
       .isOk
 
-    expectTierCalculationById("A2")
+    expectTierChangedById("A2")
   }
 
   @Test
-  fun `must write back even if tier is unchanged when flag is true`() {
+  fun `must not write back even if tier is unchanged`() {
     val crn = "X432769"
 
     setupSCCustodialSentence(crn)
@@ -46,7 +46,7 @@ class TriggerCalculationUpload : MockedEndpointsTestBase() {
     setupOutdatedAssessment(crn, "1234567890")
 
     calculateTierFor(crn)
-    expectTierCalculationById("A2")
+    expectTierChangedById("A2")
 
     setupSCCustodialSentence(crn)
     setupMaleOffenderWithRegistrations(crn, false, "4234568890")
@@ -60,7 +60,7 @@ class TriggerCalculationUpload : MockedEndpointsTestBase() {
       .expectStatus()
       .isOk
 
-    expectTierCalculationById("A2")
+    expectNoUpdatedTierCalculation()
   }
 
   private fun generateMultipartBody(crn: String): BodyInserters.MultipartInserter {

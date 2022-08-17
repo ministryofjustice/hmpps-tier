@@ -241,7 +241,7 @@ abstract class MockedEndpointsTestBase {
     noMessagesCurrentlyOnQueue(offenderEventsClient, eventQueueUrl)
   }
 
-  fun expectTierCalculationById(tierScore: String) {
+  fun expectTierChangedById(tierScore: String) {
     oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
     val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
     val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
