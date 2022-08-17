@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
@@ -48,27 +47,6 @@ class TierCalculationTest : MockedEndpointsTestBase() {
 
       calculateTierFor(crn)
       expectNoUpdatedTierCalculation()
-    }
-
-    @Disabled
-    @Test
-    fun `writes back when tier is unchanged but is different from Delius`() {
-      val crn = "X432769"
-
-      setupSCCustodialSentence(crn)
-      setupRegistrations(registrationsResponseWithMappa(), crn)
-      restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890")
-      setupOutdatedAssessment(crn, "1234567890")
-
-      calculateTierFor(crn)
-      expectTierCalculationById("A2")
-
-      setupSCCustodialSentence(crn)
-      setupMaleOffenderWithRegistrations(crn, false, "4234568890")
-      setupOutdatedAssessment(crn, "1234567890")
-
-      calculateTierFor(crn)
-      expectTierCalculationById("A2")
     }
 
     @Test
