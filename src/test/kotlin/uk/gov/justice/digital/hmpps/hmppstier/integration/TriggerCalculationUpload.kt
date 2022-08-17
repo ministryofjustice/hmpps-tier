@@ -55,7 +55,7 @@ class TriggerCalculationUpload : MockedEndpointsTestBase() {
     webTestClient.post()
       .uri("/crn/upload")
       .contentType(MediaType.MULTIPART_FORM_DATA)
-      .body(generateMultipartBody(crn, true))
+      .body(generateMultipartBody(crn))
       .exchange()
       .expectStatus()
       .isOk
@@ -63,8 +63,8 @@ class TriggerCalculationUpload : MockedEndpointsTestBase() {
     expectTierCalculationById("A2")
   }
 
-  private fun generateMultipartBody(crn: String, writeBackIfUnchanged: Boolean = false): BodyInserters.MultipartInserter {
-    val cases = listOf(TriggerCsv(crn, writeBackIfUnchanged))
+  private fun generateMultipartBody(crn: String): BodyInserters.MultipartInserter {
+    val cases = listOf(TriggerCsv(crn))
     val csvFile = generateCsv(cases)
     val multipartBodyBuilder = MultipartBodyBuilder()
     multipartBodyBuilder.part("file", FileSystemResource(csvFile))

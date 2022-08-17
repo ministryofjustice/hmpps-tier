@@ -37,6 +37,4 @@ class TriggerTierCalculationController(private val triggerCalculationService: Tr
 data class TriggerCsv(
   @CsvBindByPosition(position = 0)
   var crn: String? = null,
-  @CsvBindByPosition(position = 1)
-  var writeBackIfUnchanged: Boolean? = false
 )
