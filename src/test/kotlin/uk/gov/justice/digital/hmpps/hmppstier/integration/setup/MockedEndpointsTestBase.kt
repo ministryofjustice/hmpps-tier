@@ -125,16 +125,16 @@ abstract class MockedEndpointsTestBase {
   }
 
   fun setupMaleOffender(crn: String) {
-    communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
+    communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn/all")
   }
 
   fun setupMaleOffenderNotFound(crn: String) {
-    communityApiResponse(notFoundResponse(), "/secure/offenders/crn/$crn")
+    communityApiResponse(notFoundResponse(), "/secure/offenders/crn/$crn/all")
   }
 
   fun restOfSetupWithFemaleOffender(crn: String, assessmentId: String) {
     setupNoDeliusAssessment(crn)
-    communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
+    communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn/all")
     setupCurrentAssessment(crn, assessmentId)
     setupNeeds(notFoundResponse(), assessmentId)
   }
