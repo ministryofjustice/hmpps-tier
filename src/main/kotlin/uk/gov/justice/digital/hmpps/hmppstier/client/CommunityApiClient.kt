@@ -50,7 +50,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
 
   fun getOffender(crn: String): Offender? = webClient
     .get()
-    .uri("/offenders/crn/$crn")
+    .uri("/offenders/crn/$crn/all")
     .retrieve()
     .bodyToMono(Offender::class.java)
     .block()

@@ -157,13 +157,13 @@ class SetupData(
     requirementsResponse()
 
     when (gender) {
-      "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn")
+      "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn/all")
       else -> femaleWithBreachAndRecall()
     }
   }
 
   private fun femaleWithBreachAndRecall() {
-    communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn")
+    communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn/all")
     if (outcomes.isNotEmpty()) {
       outcomes.forEach {
         breachAndRecall(nsisResponse(it.value), it.key)
