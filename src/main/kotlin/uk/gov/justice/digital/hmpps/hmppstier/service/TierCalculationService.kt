@@ -12,7 +12,6 @@ import java.time.Clock
 import java.time.LocalDateTime
 import java.util.UUID
 
-
 @Service
 class TierCalculationService(
   private val clock: Clock,
