@@ -10,7 +10,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEn
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import java.time.Clock
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Service
 class TierCalculationService(
@@ -40,14 +40,14 @@ class TierCalculationService(
     }
 
   @Transactional
-  fun calculateTierForCrn(crn: String, writeBackIfUnchanged: Boolean) =
+  fun calculateTierForCrn(crn: String) =
     calculateTier(crn).let {
       val isUpdated = isUpdated(it, crn)
       tierCalculationRepository.save(it)
       when {
-        isUpdated || writeBackIfUnchanged -> successUpdater.update(crn, it.uuid)
+        isUpdated -> successUpdater.update(crn, it.uuid)
       }
-      log.info("Tier calculated for $crn. Different from previous tier: $isUpdated. write back if unchanged: $writeBackIfUnchanged")
+      log.info("Tier calculated for $crn. Different from previous tier: $isUpdated.")
       telemetryService.trackTierCalculated(it, isUpdated)
     }
 

@@ -22,8 +22,8 @@ class TierCalculationRequiredEventListener(
 
   @JmsListener(destination = "hmppsoffenderqueue", containerFactory = "hmppsQueueContainerFactoryProxy")
   fun listen(msg: String) {
-    val (crn, writeBackIfUnchanged) = getCrn(msg)
-    calculator.calculateTierForCrn(crn, writeBackIfUnchanged ?: false)
+    val (crn) = getCrn(msg)
+    calculator.calculateTierForCrn(crn)
   }
 
   private fun getCrn(msg: String): TierCalculationMessage {
@@ -36,6 +36,6 @@ class TierCalculationRequiredEventListener(
   }
 }
 
-data class TierCalculationMessage(val crn: String, val writeBackIfUnchanged: Boolean? = false)
+data class TierCalculationMessage(val crn: String)
 
 data class SQSMessage(@JsonProperty("Message") val message: String)
