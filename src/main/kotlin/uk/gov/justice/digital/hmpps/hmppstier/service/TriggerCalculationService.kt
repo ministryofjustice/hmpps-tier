@@ -45,7 +45,7 @@ class TriggerCalculationService(
 
   private fun crnToOffenderSqsMessage(crn: TriggerCsv): SQSMessage = SQSMessage(
     objectMapper.writeValueAsString(
-      TierCalculationMessage(crn.crn!!, crn.writeBackIfUnchanged)
+      TierCalculationMessage(crn.crn!!)
     )
   )
 

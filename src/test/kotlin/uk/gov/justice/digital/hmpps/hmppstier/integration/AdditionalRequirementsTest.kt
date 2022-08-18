@@ -14,6 +14,6 @@ class AdditionalRequirementsTest : MockedEndpointsTestBase() {
     setupAdditionalRequirements(crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "4234567890")
     calculateTierFor(crn)
-    expectTierCalculationById("A0")
+    expectTierChangedById("A0")
   }
 }

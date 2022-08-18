@@ -14,6 +14,6 @@ class NoAssessmentFoundTest : MockedEndpointsTestBase() {
     setupRegistrations(registrationsResponseWithMappa(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "8234567890")
     calculateTierFor(crn)
-    expectTierCalculationById("A2")
+    expectTierChangedById("A2")
   }
 }

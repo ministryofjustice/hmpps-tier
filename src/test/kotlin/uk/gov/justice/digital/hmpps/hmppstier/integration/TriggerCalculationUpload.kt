@@ -33,11 +33,11 @@ class TriggerCalculationUpload : MockedEndpointsTestBase() {
       .expectStatus()
       .isOk
 
-    expectTierCalculationById("A2")
+    expectTierChangedById("A2")
   }
 
   @Test
-  fun `must write back even if tier is unchanged when flag is true`() {
+  fun `must not write back even if tier is unchanged`() {
     val crn = "X432769"
 
     setupSCCustodialSentence(crn)
@@ -46,7 +46,7 @@ class TriggerCalculationUpload : MockedEndpointsTestBase() {
     setupOutdatedAssessment(crn, "1234567890")
 
     calculateTierFor(crn)
-    expectTierCalculationById("A2")
+    expectTierChangedById("A2")
 
     setupSCCustodialSentence(crn)
     setupMaleOffenderWithRegistrations(crn, false, "4234568890")
@@ -55,16 +55,16 @@ class TriggerCalculationUpload : MockedEndpointsTestBase() {
     webTestClient.post()
       .uri("/crn/upload")
       .contentType(MediaType.MULTIPART_FORM_DATA)
-      .body(generateMultipartBody(crn, true))
+      .body(generateMultipartBody(crn))
       .exchange()
       .expectStatus()
       .isOk
 
-    expectTierCalculationById("A2")
+    expectNoUpdatedTierCalculation()
   }
 
-  private fun generateMultipartBody(crn: String, writeBackIfUnchanged: Boolean = false): BodyInserters.MultipartInserter {
-    val cases = listOf(TriggerCsv(crn, writeBackIfUnchanged))
+  private fun generateMultipartBody(crn: String): BodyInserters.MultipartInserter {
+    val cases = listOf(TriggerCsv(crn))
     val csvFile = generateCsv(cases)
     val multipartBodyBuilder = MultipartBodyBuilder()
     multipartBodyBuilder.part("file", FileSystemResource(csvFile))

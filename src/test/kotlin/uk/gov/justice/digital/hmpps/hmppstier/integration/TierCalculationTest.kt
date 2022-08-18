@@ -23,7 +23,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupEmptyNsisResponse(crn)
 
       calculateTierFor(crn)
-      expectTierCalculationById("D2")
+      expectTierChangedById("D2")
     }
   }
 
@@ -39,7 +39,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupOutdatedAssessment(crn, "1234567890")
 
       calculateTierFor(crn)
-      expectTierCalculationById("A2")
+      expectTierChangedById("A2")
 
       setupSCCustodialSentence(crn)
       setupMaleOffenderWithRegistrations(crn, false, "4234568890")
@@ -58,7 +58,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupOutdatedAssessment(crn, "1234567890")
 
       calculateTierFor(crn)
-      expectTierCalculationById("A2")
+      expectTierChangedById("A2")
 
       setupSCCustodialSentence(crn)
       setupRegistrations(registrationsResponseWithMappa(), crn)
@@ -80,14 +80,14 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupOutdatedAssessment(crn, "4234568890")
 
       calculateTierFor(crn)
-      expectTierCalculationById("A2")
+      expectTierChangedById("A2")
 
       setupSCCustodialSentence(crn)
       setupMaleOffenderWithRegistrations(crn, false, "4234568891")
 
       setupCurrentAssessment(crn, "4234568891") // assessment not out of date
       calculateTierFor(crn)
-      expectTierCalculationById("A1")
+      expectTierChangedById("A1")
     }
 
     @Test
@@ -98,14 +98,14 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupMaleOffenderWithRegistrations(crn, assessmentId = "4234568890")
 
       calculateTierFor(crn)
-      expectTierCalculationById("A1")
+      expectTierChangedById("A1")
 
       setupSCCustodialSentence(crn)
       setupRegistrations(registrationsResponseWithMappa("M1"), crn)
       restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "4234568890")
 
       calculateTierFor(crn)
-      expectTierCalculationById("B1")
+      expectTierChangedById("B1")
     }
   }
 

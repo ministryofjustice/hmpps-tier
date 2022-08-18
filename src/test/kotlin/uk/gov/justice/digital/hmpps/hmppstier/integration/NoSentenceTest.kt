@@ -13,6 +13,6 @@ class NoSentenceTest : MockedEndpointsTestBase() {
     setupRegistrations(registrationsResponseWithMappa(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "5234567890")
     calculateTierFor(crn)
-    expectTierCalculationById("A0")
+    expectTierChangedById("A0")
   }
 }
