@@ -37,7 +37,7 @@ class TriggerCalculationUpload : MockedEndpointsTestBase() {
   }
 
   @Test
-  fun `must not write back even if tier is unchanged`() {
+  fun `must not write back if tier is unchanged`() {
     val crn = "X432769"
 
     setupSCCustodialSentence(crn)
@@ -49,7 +49,8 @@ class TriggerCalculationUpload : MockedEndpointsTestBase() {
     expectTierChangedById("A2")
 
     setupSCCustodialSentence(crn)
-    setupMaleOffenderWithRegistrations(crn, false, "4234568890")
+    setupRegistrations(registrationsResponseWithMappa(), crn)
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890", "A2")
     setupOutdatedAssessment(crn, "1234567890")
 
     webTestClient.post()

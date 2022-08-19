@@ -51,12 +51,17 @@ class TierCalculationService(
       telemetryService.trackTierCalculated(it, isUpdated)
     }
 
+  private fun tierIsDifferentThanDelius(crn: String, tier: TierCalculationEntity) : Boolean {
+    return communityApiService.getTier(crn) != tier.data.protect.tier.value + tier.data.change.tier.value
+  }
+
   private fun isUpdated(
-    it: TierCalculationEntity,
+    newTierCal: TierCalculationEntity,
     crn: String
   ): Boolean {
-    val latestTierCalculation = getLatestTierCalculation(crn)
-    return it.data.protect.tier != latestTierCalculation?.data?.protect?.tier || it.data.change.tier != latestTierCalculation.data.change.tier
+    val oldTierCal = getLatestTierCalculation(crn)
+    return newTierCal.data.protect.tier != oldTierCal?.data?.protect?.tier || newTierCal.data.change.tier != oldTierCal.data.change.tier ||
+      tierIsDifferentThanDelius(crn, newTierCal)
   }
 
   private fun calculateTier(crn: String): TierCalculationEntity {

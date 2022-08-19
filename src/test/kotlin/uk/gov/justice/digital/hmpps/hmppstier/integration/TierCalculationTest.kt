@@ -42,7 +42,8 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       expectTierChangedById("A2")
 
       setupSCCustodialSentence(crn)
-      setupMaleOffenderWithRegistrations(crn, false, "4234568890")
+      setupRegistrations(registrationsResponseWithMappa(), crn)
+      restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890", "A2")
       setupOutdatedAssessment(crn, "1234567890")
 
       calculateTierFor(crn)
@@ -83,7 +84,7 @@ class TierCalculationTest : MockedEndpointsTestBase() {
       setupSCCustodialSentence(crn)
       setupRegistrations(registrationsResponseWithMappa(), crn)
       setupCommunityApiAssessment(crn, ogrs = "0")
-      setupMaleOffender(crn)
+      setupMaleOffender(crn, "A2")
       setupNeeds(assessmentsApiHighSeverityNeedsResponse(), "4234568899")
       setupCurrentAssessment(crn, "4234568899") // assessment not out of date
 

@@ -116,6 +116,8 @@ data class SentenceDto @JsonCreator constructor(
 data class Offender @JsonCreator constructor(
   @JsonProperty("gender")
   val gender: String?,
+  @JsonProperty("currentTier")
+  val tier: String?
 )
 
 data class DeliusAssessmentsDto @JsonCreator constructor(

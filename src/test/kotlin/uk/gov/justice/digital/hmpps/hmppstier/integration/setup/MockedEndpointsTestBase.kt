@@ -78,6 +78,8 @@ abstract class MockedEndpointsTestBase {
     offenderEventsClient.purgeQueue(PurgeQueueRequest(eventQueueUrl))
     calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
     tierCalculationRepository.deleteAll()
+    communityApi.reset()
+    assessmentApi.reset()
     setupOauth()
   }
 
@@ -126,6 +128,7 @@ abstract class MockedEndpointsTestBase {
   }
 
   fun setupMaleOffender(crn: String, tier: String = "A1") {
+    communityApiResponse(maleOffenderResponse(tier), "/secure/offenders/crn/$crn/all")
     communityApiResponse(maleOffenderResponse(tier), "/secure/offenders/crn/$crn/all")
   }
 
