@@ -43,7 +43,7 @@
   "currentDisposal": 1,
   "currentExclusion": true,
   "currentRestriction": true,
-  "currentTier": "D2",
+  "currentTier": "tierToReplace",
   "dateOfBirth": "1982-10-24",
   "exclusionMessage": "string",
   "firstName": "John",

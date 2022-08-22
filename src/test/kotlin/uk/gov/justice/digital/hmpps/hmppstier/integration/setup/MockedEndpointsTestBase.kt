@@ -78,6 +78,8 @@ abstract class MockedEndpointsTestBase {
     offenderEventsClient.purgeQueue(PurgeQueueRequest(eventQueueUrl))
     calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
     tierCalculationRepository.deleteAll()
+    communityApi.reset()
+    assessmentApi.reset()
     setupOauth()
   }
 
@@ -110,10 +112,11 @@ abstract class MockedEndpointsTestBase {
   fun restOfSetupWithMaleOffenderNoSevereNeeds(
     crn: String,
     includeAssessmentApi: Boolean = true,
-    assessmentId: String
+    assessmentId: String,
+    tier: String = "A1"
   ) {
     setupCommunityApiAssessment(crn)
-    setupMaleOffender(crn)
+    setupMaleOffender(crn, tier)
     if (includeAssessmentApi) {
       setupCurrentAssessment(crn, assessmentId)
     }
@@ -124,8 +127,9 @@ abstract class MockedEndpointsTestBase {
     communityApiResponse(communityApiAssessmentsResponse(rsr, ogrs), "/secure/offenders/crn/$crn/assessments")
   }
 
-  fun setupMaleOffender(crn: String) {
-    communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn/all")
+  fun setupMaleOffender(crn: String, tier: String = "A1") {
+    communityApiResponse(maleOffenderResponse(tier), "/secure/offenders/crn/$crn/all")
+    communityApiResponse(maleOffenderResponse(tier), "/secure/offenders/crn/$crn/all")
   }
 
   fun setupMaleOffenderNotFound(crn: String) {
@@ -219,9 +223,9 @@ abstract class MockedEndpointsTestBase {
       Parameter("excludeSoftDeleted", "true")
     )
 
-  fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true, assessmentId: String) {
+  fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true, assessmentId: String, tier: String = "A1") {
     setupRegistrations(registrationsResponseWithMappa(), crn)
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, includeAssessmentApi, assessmentId)
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, includeAssessmentApi, assessmentId, tier)
   }
 
   fun setupSCCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialSCConvictionResponse())

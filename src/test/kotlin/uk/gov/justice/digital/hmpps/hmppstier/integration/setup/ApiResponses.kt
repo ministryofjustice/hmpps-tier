@@ -14,11 +14,11 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter.ISO_DATE
 import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 
-const val communityApiPath: String = "src/test/resources/fixtures/community-api"
-const val assessmentApiPath: String = "src/test/resources/fixtures/assessment-api"
+const val COMMUNITY_API_FIXTURES: String = "src/test/resources/fixtures/community-api"
+const val ASSESSMENT_API_FIXTURES: String = "src/test/resources/fixtures/assessment-api"
 
 fun communityApiAssessmentsResponse(rsr: BigDecimal, ogrs: String): HttpResponse = jsonResponseOf(
-  responseFrom("$communityApiPath/assessments.json")
+  responseFrom("$COMMUNITY_API_FIXTURES/assessments.json")
     .replace("rsrScoreToReplace", rsr.toPlainString())
     .replace("ogrsScoreToReplace", ogrs)
 )
@@ -28,42 +28,42 @@ fun emptyCommunityApiAssessmentsResponse(): HttpResponse = jsonResponseOf("{}")
 fun emptyNsisResponse(): HttpResponse = jsonResponseOf("{\"nsis\": []}")
 
 fun nsisResponse(outcome: String): HttpResponse = jsonResponseOf(
-  responseFrom("$communityApiPath/nsi-breach.json")
+  responseFrom("$COMMUNITY_API_FIXTURES/nsi-breach.json")
     .replace("nsiOutcomeToReplace", outcome)
 )
 
 fun registrationsResponseWithMappa(mappa: String? = "M2"): HttpResponse = registrations(
-  responseFrom("$communityApiPath/registrations-mappa.json")
+  responseFrom("$COMMUNITY_API_FIXTURES/registrations-mappa.json")
     .replace("mappaToReplace", mappa!!)
 )
 
 fun historicRegistrationsResponseWithMappa(mappa: String? = "M2"): HttpResponse = registrations(
-  responseFrom("$communityApiPath/historic-registrations-mappa.json")
+  responseFrom("$COMMUNITY_API_FIXTURES/historic-registrations-mappa.json")
     .replace("mappaToReplace", mappa!!)
 )
 
 fun registrationsResponseWithRosh(rosh: String): HttpResponse = registrations(
-  responseFrom("$communityApiPath/registrations-rosh.json")
+  responseFrom("$COMMUNITY_API_FIXTURES/registrations-rosh.json")
     .replace("roshToReplace", rosh)
 )
 
 fun registrationsResponseWithRoshMappaAndAdditionalFactors(rosh: String, mappa: String, factors: List<String>) =
   registrations(
-    responseFrom("$communityApiPath/registrations-rosh.json")
-      .replace("roshToReplace", rosh) + "," + responseFrom("$communityApiPath/registrations-mappa.json")
+    responseFrom("$COMMUNITY_API_FIXTURES/registrations-rosh.json")
+      .replace("roshToReplace", rosh) + "," + responseFrom("$COMMUNITY_API_FIXTURES/registrations-mappa.json")
       .replace("mappaToReplace", mappa) + "," + additionalFactors(factors)
   )
 
 fun registrationsResponseWithMappaAndAdditionalFactors(mappa: String, factors: List<String>) =
   registrations(
-    responseFrom("$communityApiPath/registrations-mappa.json")
+    responseFrom("$COMMUNITY_API_FIXTURES/registrations-mappa.json")
       .replace("mappaToReplace", mappa) + "," + additionalFactors(factors)
   )
 
 fun emptyRegistrationsResponse(): HttpResponse = jsonResponseOf("{}")
 
 fun registrationsResponseWithNoLevel(): HttpResponse =
-  registrations(responseFrom("$communityApiPath/registrations-no-level.json"))
+  registrations(responseFrom("$COMMUNITY_API_FIXTURES/registrations-no-level.json"))
 
 fun registrationsResponseWithAdditionalFactors(additionalFactors: List<String>): HttpResponse {
   val factors: String = additionalFactors(additionalFactors)
@@ -72,7 +72,7 @@ fun registrationsResponseWithAdditionalFactors(additionalFactors: List<String>):
 
 fun needsResponse(needs: Map<String, String>): HttpResponse {
   val needsResponse: List<String> = needs.map {
-    responseFrom("$assessmentApiPath/needs-additional.json")
+    responseFrom("$ASSESSMENT_API_FIXTURES/needs-additional.json")
       .replace("needToReplace", it.key)
       .replace("severityToReplace", it.value)
   }
@@ -84,7 +84,7 @@ fun needsResponse(needs: Map<String, String>): HttpResponse {
 }
 
 private fun additionalFactors(additionalFactors: List<String>): String = additionalFactors.map {
-  responseFrom("$communityApiPath/registrations-additional.json")
+  responseFrom("$COMMUNITY_API_FIXTURES/registrations-additional.json")
     .replace("additionalFactorsToReplace", it)
 }.toTypedArray().joinToString(separator = ",")
 
@@ -99,14 +99,14 @@ fun custodialTerminatedConvictionResponse(
   convictionId: String = "2500222290"
 ): HttpResponse =
   jsonResponseOf(
-    responseFrom("$communityApiPath/convictions-custodial-terminated.json")
+    responseFrom("$COMMUNITY_API_FIXTURES/convictions-custodial-terminated.json")
       .replace("terminationDateToReplace", terminatedDate.format(ISO_DATE))
       .replace("\"convictionIdToReplace\"", convictionId)
   )
 
 fun nonCustodialConvictionResponse(convictionId: String = "2500222290"): HttpResponse =
   jsonResponseOf(
-    responseFrom("$communityApiPath/convictions-non-custodial.json")
+    responseFrom("$COMMUNITY_API_FIXTURES/convictions-non-custodial.json")
       .replace("\"convictionIdToReplace\"", convictionId)
   )
 
@@ -115,7 +115,7 @@ fun custodialAndNonCustodialConvictions(
   secondConvictionId: String = "2500409601"
 ): HttpResponse =
   jsonResponseOf(
-    responseFrom("$communityApiPath/convictions-custodial-and-non-custodial.json")
+    responseFrom("$COMMUNITY_API_FIXTURES/convictions-custodial-and-non-custodial.json")
       .replace("\"firstConvictionIdToReplace\"", firstConvictionId)
       .replace("\"secondConvictionIdToReplace\"", secondConvictionId)
   )
@@ -126,7 +126,7 @@ fun custodialNCConvictionResponse(
   convictionId: String = "2500222290"
 ): HttpResponse =
   jsonResponseOf(
-    responseFrom("$communityApiPath/convictions-custodial-nc.json")
+    responseFrom("$COMMUNITY_API_FIXTURES/convictions-custodial-nc.json")
       .replace("startDateToReplace", LocalDate.of(2021, 4, 30).format(ISO_DATE))
       .replace(
         "expectedSentenceEndDateToReplace",
@@ -140,7 +140,7 @@ fun custodialSCConvictionResponse(
   convictionId: String = "2500222290"
 ): HttpResponse =
   jsonResponseOf(
-    responseFrom("$communityApiPath/convictions-custodial-sc.json")
+    responseFrom("$COMMUNITY_API_FIXTURES/convictions-custodial-sc.json")
       .replace("\"convictionIdToReplace\"", convictionId)
   )
 
@@ -152,7 +152,9 @@ fun noSentenceConvictionResponse(): HttpResponse = communityApiResponse("convict
 fun nonCustodialTerminatedConvictionResponse(): HttpResponse =
   communityApiResponse("convictions-non-custodial-terminated.json")
 
-fun maleOffenderResponse(): HttpResponse = communityApiResponse("offender-male.json")
+fun maleOffenderResponse(tier: String = "A1"): HttpResponse = jsonResponseOf(
+  responseFrom("$COMMUNITY_API_FIXTURES/offender-male.json").replace("tierToReplace", tier)
+)
 
 fun femaleOffenderResponse(): HttpResponse = communityApiResponse("offender-female.json")
 
@@ -178,7 +180,7 @@ fun additionalRequirementsResponse(): HttpResponse = communityApiResponse("requi
 
 fun assessmentsApiAssessmentsResponse(assessmentDate: LocalDateTime, assessmentId: String): HttpResponse =
   jsonResponseOf(
-    responseFrom("$assessmentApiPath/assessments.json")
+    responseFrom("$ASSESSMENT_API_FIXTURES/assessments.json")
       .replace("completedDate", assessmentDate.format(ISO_DATE_TIME))
       .replace("voidedDate", "")
       .replace("\"assessmentIdToReplace\"", assessmentId)
@@ -192,7 +194,7 @@ fun assessmentsApiHighSeverityNeedsResponse(): HttpResponse =
 
 fun assessmentsApiFemaleAnswersResponse(assessmentAnswers: Map<String, String>, assessmentId: String): HttpResponse =
   jsonResponseOf(
-    responseFrom("$assessmentApiPath/female-answers.json")
+    responseFrom("$ASSESSMENT_API_FIXTURES/female-answers.json")
       .replace("6.9AnswerToReplace", assessmentAnswers[PARENTING_RESPONSIBILITIES.answerCode]!!)
       .replace("11.2AnswerToReplace", assessmentAnswers[IMPULSIVITY.answerCode]!!)
       .replace("11.4AnswerToReplace", assessmentAnswers[TEMPER_CONTROL.answerCode]!!)
@@ -210,7 +212,7 @@ private fun jsonResponseFromPath(path: String): HttpResponse =
   jsonResponseOf(responseFrom(path))
 
 private fun communityApiResponse(path: String): HttpResponse =
-  jsonResponseFromPath("$communityApiPath/$path")
+  jsonResponseFromPath("$COMMUNITY_API_FIXTURES/$path")
 
 private fun assessmentApiResponse(path: String): HttpResponse =
-  jsonResponseFromPath("$assessmentApiPath/$path")
+  jsonResponseFromPath("$ASSESSMENT_API_FIXTURES/$path")
