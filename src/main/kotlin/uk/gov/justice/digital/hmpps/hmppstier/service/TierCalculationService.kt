@@ -51,7 +51,7 @@ class TierCalculationService(
       telemetryService.trackTierCalculated(it, isUpdated)
     }
 
-  private fun tierIsDifferentThanDelius(crn: String, tier: TierCalculationEntity) : Boolean {
+  private fun tierIsDifferentThanDelius(crn: String, tier: TierCalculationEntity): Boolean {
     return communityApiService.getTier(crn) != tier.data.protect.tier.value + tier.data.change.tier.value
   }
 
