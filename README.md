@@ -3,6 +3,14 @@
 [![CircleCI](https://circleci.com/gh/ministryofjustice/hmpps-tier/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/hmpps-tier)
 [![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://hmpps-tier-dev.hmpps.service.justice.gov.uk/swagger-ui.html)
 
+### [MAS-452](https://dsdmoj.atlassian.net/browse/MAS-452) instructions 
+
+How to get details of CRNs with different tier calculations in UTM and Delius
+1. Download the latest NART report as per [these instructions](https://dsdmoj.atlassian.net/wiki/spaces/MaS/pages/3533964702/WMT+Run+book#Getting-the-latest-NART-extracts) and put it into src/test/resources/compare-tiers/delius
+2. Get the latest tiers by following [these instructions](https://dsdmoj.atlassian.net/wiki/spaces/MaS/pages/2963734549/Tiering+Run+book#Accessing-the-database) and put that file into src/test/resources/compare-tiers/utm
+3. Run ./gradlew compareTiers
+
+
 ## Continuous Integration  
 https://app.circleci.com/pipelines/github/ministryofjustice/hmpps-tier
 

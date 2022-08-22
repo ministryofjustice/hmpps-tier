@@ -90,9 +90,14 @@ task("cucumber") {
     }
   }
 }
+task<JavaExec>("compareTiers") {}
 
 tasks {
-
+  getByName<JavaExec>("compareTiers") {
+    dependsOn("assemble", "testClasses")
+    mainClass.set("uk.gov.justice.digital.hmpps.hmppstier.compare.CompareTiersKt")
+    classpath = sourceSets["test"].runtimeClasspath
+  }
   getByName("check") {
     dependsOn(":ktlintCheck", detekt)
     finalizedBy("cucumber")
