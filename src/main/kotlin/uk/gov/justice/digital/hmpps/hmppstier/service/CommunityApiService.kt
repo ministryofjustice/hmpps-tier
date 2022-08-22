@@ -45,7 +45,11 @@ class CommunityApiService(
   fun hasBreachedConvictions(crn: String, convictions: List<Conviction>): Boolean =
     convictions.any { hasBreachOrRecallNsis(crn, it.convictionId) }
 
-  fun offenderIsFemale(crn: String): Boolean = communityApiClient.getOffender(crn)?.gender.equals("female", true)
+  fun offenderIsFemale(crn: String): Boolean = getOffender(crn)?.gender.equals("female", true)
+
+  fun getTier(crn: String): String? = getOffender(crn)?.tier
+
+  private fun getOffender(crn: String) = communityApiClient.getOffender(crn)
 
   private fun getRosh(registrations: Collection<Registration>): Rosh? =
     registrations.mapNotNull { Rosh.from(it.type.code) }.firstOrNull()
