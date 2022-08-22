@@ -65,6 +65,9 @@ dependencies {
   testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
   testImplementation("org.junit.platform:junit-platform-console:1.9.0")
+
+  testImplementation("org.apache.poi:poi:5.2.2")
+  testImplementation("org.apache.poi:poi-ooxml:5.2.2")
 }
 
 jacoco {
