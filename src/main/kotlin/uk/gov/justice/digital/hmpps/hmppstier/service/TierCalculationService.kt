@@ -52,7 +52,7 @@ class TierCalculationService(
     }
 
   private fun tierIsDifferentThanDelius(crn: String, tier: TierCalculationEntity): Boolean {
-    return communityApiService.getTier(crn) != tier.data.protect.tier.value + tier.data.change.tier.value
+    return communityApiService.getTier(crn) != tier.data.protect.tier.value.plus('_').plus(tier.data.change.tier.value)
   }
 
   private fun isUpdated(
