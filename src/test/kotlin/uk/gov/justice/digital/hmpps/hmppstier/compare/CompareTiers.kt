@@ -75,10 +75,6 @@ data class UtmTier(
   var change: String? = null
 )
 
-fun main() {
-  CompareTiers().loadDeliusTiers("src/test/resources/compare-tiers/")
-}
-
 val DeliusTierConverter = mapOf(
   "1" to "A3", "2" to "A2", "3" to "A1", "4" to "A0",
   "5" to "B3", "6" to "B2", "7" to "B1", "8" to "B0",
@@ -105,3 +101,8 @@ data class TierDiffs(val tierdiffs: List<TierDiff>)
 data class TierDiff(val crn: String, val deliusTier: String, val utmTier: String?)
 
 private const val Flag_Warr_4_N = 4
+
+fun main() {
+  //CompareTiers().compare("src/test/resources/compare-tiers/")
+  print(CompareTiers().compare("src/test/resources/compare-tiers/test/"))
+}
