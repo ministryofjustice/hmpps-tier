@@ -4,11 +4,12 @@ import com.opencsv.bean.CsvToBeanBuilder
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import java.io.File
 import java.io.InputStreamReader
+import java.time.LocalDateTime
 
 class CompareTiers {
 
   fun loadDeliusTiers(path: String): Tiers {
-    val deliusTiersFile = File(path + "wmt_ps.xlsx")
+    val deliusTiersFile = File(path.plus("delius/wmt_ps.xlsx"))
 
     val xlWb = WorkbookFactory.create(deliusTiersFile)
 
@@ -21,22 +22,27 @@ class CompareTiers {
     val tiers: MutableList<Tier> = mutableListOf()
 
     xlWs.iterator().forEach {
-      val tierCell = it.getCell(tierColumnNumber).stringCellValue
-      if (tierCell != "Tier_Code" && tierCell.isNotEmpty()) {
-        tiers.add(
-          Tier(
-            it.getCell(crnColumnNumber).stringCellValue,
-            deliusTierFrom(tierCell)
+      try {
+        val tierCell = it.getCell(tierColumnNumber).stringCellValue
+        if (tierCell != "Tier_Code" && tierCell.isNotEmpty()) {
+          tiers.add(
+            Tier(
+              it.getCell(crnColumnNumber).stringCellValue,
+              deliusTierFrom(tierCell)
+            )
           )
-        )
+        }
+      }
+      catch(e: NullPointerException){
+        println("empty cell?")
       }
     }
-
+    println("Finished reading delius tiers ${tiers.size} at ${LocalDateTime.now()}")
     return Tiers(tiers)
   }
 
   fun loadUtmTiers(path: String): Tiers {
-    val utmTiersFile = File(path + "utm.csv")
+    val utmTiersFile = File(path.plus("utm/utm.csv"))
     val reader = InputStreamReader(utmTiersFile.inputStream())
 
     try {
@@ -48,6 +54,7 @@ class CompareTiers {
       reader.close()
 
       val utmTiers = tiers.map { Tier(it.crn!!, utmTierFrom(it)) }
+      println("Finished reading utm tiers ${utmTiers.size}  at ${LocalDateTime.now()}")
       return Tiers(utmTiers)
     } catch (e: NullPointerException) {
       println("Check instructions in the README for removing the BOM from utm.csv")
@@ -61,8 +68,9 @@ class CompareTiers {
     DeliusTierConverter.getOrDefault(deliusTier, "No tier converted for $deliusTier")
 
   fun compare(path: String): TierDiffs {
-    val deliusTiers = loadDeliusTiers(path + "delius/")
-    val utmTiers = loadUtmTiers(path.plus("utm/"))
+    println("starting at ${LocalDateTime.now()}")
+    val deliusTiers = loadDeliusTiers(path )
+    val utmTiers = loadUtmTiers(path)
     val deliusDiffs = deliusTiers.tiers.filter { !utmTiers.matches(it) }.map { TierDiff(it.crn, it.tier, utmTiers.find(it)?.tier) }
 
     return TierDiffs(deliusDiffs)
@@ -103,6 +111,6 @@ data class TierDiff(val crn: String, val deliusTier: String, val utmTier: String
 private const val Flag_Warr_4_N = 4
 
 fun main() {
-  //CompareTiers().compare("src/test/resources/compare-tiers/")
-  print(CompareTiers().compare("src/test/resources/compare-tiers/test/"))
+  print(CompareTiers().compare("src/test/resources/compare-tiers/"))
+  // print(CompareTiers().compare("src/test/resources/compare-tiers/test/"))
 }
