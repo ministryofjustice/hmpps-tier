@@ -38,8 +38,8 @@ class CompareTiersTest {
 
     val expectedTiers = Tiers(
       listOf(
-        Tier("X123400", "C0"),
-        Tier("X123401", "A2"),
+        Tier("X123400", "A2"),
+        Tier("X123401", "C0"),
         Tier("X123402", "A0"),
         Tier("X123403", "B2"),
         Tier("X123404", "B0"),
@@ -57,5 +57,11 @@ class CompareTiersTest {
       )
     )
     assertEquals(utmTiers, expectedTiers)
+  }
+
+  @Test
+  fun outputsTierDifferences() {
+    val tierDiffs = CompareTiers().compare("src/test/resources/compare-tiers/test/")
+    assertEquals(TierDiffs(listOf(TierDiff("X123400", "C0", "A2"), TierDiff("X123401", "A2", "C0"))), tierDiffs)
   }
 }

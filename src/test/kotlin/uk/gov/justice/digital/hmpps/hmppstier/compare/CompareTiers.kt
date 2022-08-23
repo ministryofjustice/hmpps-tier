@@ -59,6 +59,14 @@ class CompareTiers {
 
   private fun deliusTierFrom(deliusTier: String) =
     DeliusTierConverter.getOrDefault(deliusTier, "No tier converted for $deliusTier")
+
+  fun compare(path: String): TierDiffs {
+    val deliusTiers = loadDeliusTiers(path + "delius/")
+    val utmTiers = loadUtmTiers(path.plus("utm/"))
+    val deliusDiffs = deliusTiers.tiers.filter { !utmTiers.matches(it) }.map { TierDiff(it.crn, it.tier, utmTiers.find(it)?.tier) }
+
+    return TierDiffs(deliusDiffs)
+  }
 }
 
 data class UtmTier(
@@ -68,7 +76,7 @@ data class UtmTier(
 )
 
 fun main() {
-  CompareTiers().loadDeliusTiers("src/test/resources/compare-tiers/delius/")
+  CompareTiers().loadDeliusTiers("src/test/resources/compare-tiers/")
 }
 
 val DeliusTierConverter = mapOf(
@@ -80,6 +88,20 @@ val DeliusTierConverter = mapOf(
 
 val UtmTierConverter = mapOf("ZERO" to "0", "ONE" to "1", "TWO" to "2", "THREE" to "3")
 
-data class Tiers(val tiers: List<Tier>)
+data class Tiers(val tiers: List<Tier>) {
+
+  fun matches(tier: Tier): Boolean {
+    return tiers.contains(tier)
+  }
+
+  fun find(tier: Tier): Tier? {
+    return tiers.find { it.crn == tier.crn }
+  }
+}
+
 data class Tier(val crn: String, val tier: String)
+
+data class TierDiffs(val tierdiffs: List<TierDiff>)
+data class TierDiff(val crn: String, val deliusTier: String, val utmTier: String?)
+
 private const val Flag_Warr_4_N = 4
