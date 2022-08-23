@@ -31,4 +31,31 @@ class CompareTiersTest {
     )
     assertEquals(deliusTiers, expectedTiers)
   }
+
+  @Test
+  fun getsListOfUTMTiers() {
+    val utmTiers = CompareTiers().loadUtmTiers("src/test/resources/compare-tiers/test/")
+
+    val expectedTiers = Tiers(
+      listOf(
+        Tier("X123400", "C0"),
+        Tier("X123401", "A2"),
+        Tier("X123402", "A0"),
+        Tier("X123403", "B2"),
+        Tier("X123404", "B0"),
+        Tier("X123405", "C2"),
+        Tier("X123406", "D2"),
+        Tier("X123407", "D0"),
+        Tier("X123408", "D1"),
+        Tier("X123409", "D3"),
+        Tier("X123410", "C1"),
+        Tier("X123411", "C3"),
+        Tier("X123412", "B1"),
+        Tier("X123413", "B3"),
+        Tier("X123414", "A1"),
+        Tier("X123415", "A3")
+      )
+    )
+    assertEquals(utmTiers, expectedTiers)
+  }
 }
