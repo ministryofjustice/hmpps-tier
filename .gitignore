@@ -69,4 +69,4 @@ ecr.repo
 
 src/test/resources/compare-tiers/delius
 src/test/resources/compare-tiers/utm
-src/test/resources/compare-tiers/output.csv
+src/test/resources/compare-tiers/diffs.csv

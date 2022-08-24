@@ -135,7 +135,7 @@ data class TierDiff(val crn: String, val deliusTier: String, val utmTier: String
 private const val Flag_Warr_4_N = 4
 
 fun main() {
-  val tierDiffs = CompareTiers().compare("src/test/resources/compare-tiers/test/")
+  val tierDiffs = CompareTiers().compare("src/test/resources/compare-tiers/")
   val csvWriter = CSVWriter(FileWriter( File("src/test/resources/compare-tiers/diffs.csv") ))
 
   StatefulBeanToCsvBuilder<TierDiff>(csvWriter)
@@ -144,5 +144,4 @@ fun main() {
     .write(tierDiffs.tierdiffs)
 
   csvWriter.close()
-  // print(CompareTiers().compare("src/test/resources/compare-tiers/test/"))
 }
