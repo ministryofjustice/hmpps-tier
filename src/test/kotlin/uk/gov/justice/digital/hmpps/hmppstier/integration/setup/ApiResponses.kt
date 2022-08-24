@@ -153,7 +153,7 @@ fun nonCustodialTerminatedConvictionResponse(): HttpResponse =
   communityApiResponse("convictions-non-custodial-terminated.json")
 
 fun maleOffenderResponse(tier: String = "A1"): HttpResponse = jsonResponseOf(
-  responseFrom("$COMMUNITY_API_FIXTURES/offender-male.json").replace("tierToReplace", tier)
+  responseFrom("$COMMUNITY_API_FIXTURES/offender-male.json").replace("tierToReplace", tier.replaceFirstChar { it.plus("_") })
 )
 
 fun femaleOffenderResponse(): HttpResponse = communityApiResponse("offender-female.json")
