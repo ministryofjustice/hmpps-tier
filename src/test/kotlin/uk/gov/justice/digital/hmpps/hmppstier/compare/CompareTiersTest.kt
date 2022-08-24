@@ -26,7 +26,8 @@ class CompareTiersTest {
         Tier("X123412", "B1"),
         Tier("X123413", "B3"),
         Tier("X123414", "A1"),
-        Tier("X123415", "A3")
+        Tier("X123415", "A3"),
+        Tier("X123499", "A3")
       )
     )
     assertEquals(deliusTiers, expectedTiers)
@@ -62,6 +63,6 @@ class CompareTiersTest {
   @Test
   fun outputsTierDifferences() {
     val tierDiffs = CompareTiers().compare("src/test/resources/compare-tiers/test/")
-    assertEquals(TierDiffs(listOf(TierDiff("X123400", "C0", "A2"), TierDiff("X123401", "A2", "C0"))), tierDiffs)
+    assertEquals(TierDiffs(listOf(TierDiff("X123400", "C0", "A2"), TierDiff("X123401", "A2", "C0"), TierDiff("X123499", "A3", null))), tierDiffs)
   }
 }

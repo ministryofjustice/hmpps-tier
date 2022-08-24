@@ -99,14 +99,31 @@ val DeliusTierConverter = mapOf(
 
 val UtmTierConverter = mapOf("ZERO" to "0", "ONE" to "1", "TWO" to "2", "THREE" to "3")
 
-data class Tiers(val tiers: List<Tier>) {
-
+class Tiers() {
+  lateinit var tiers: List<Tier>
+  lateinit var tiersByCrn: Map<String, String>
+  constructor(tiers: List<Tier>) : this() {
+    this.tiers = tiers
+    tiersByCrn = tiers.associate { it.crn to it.tier }
+  }
   fun matches(tier: Tier): Boolean {
-    return tiers.contains(tier)
+    return tiersByCrn[tier.crn].equals(tier.tier)
+    //return tiers.contains(tier)
   }
 
   fun find(tier: Tier): Tier? {
     return tiers.find { it.crn == tier.crn }
+  }
+
+  override fun toString(): String {
+    return tiers.toString()
+  }
+
+  override fun equals(other: Any?): Boolean {
+    if(other is Tiers) {
+      return tiers == other.tiers
+    }
+    return false
   }
 }
 
