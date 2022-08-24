@@ -7,24 +7,24 @@
 
 How to get details of CRNs with different tier calculations in UTM and Delius
 1. Download the latest NART report as per [these instructions](https://dsdmoj.atlassian.net/wiki/spaces/MaS/pages/3533964702/WMT+Run+book#Getting-the-latest-NART-extracts) and put it into `src/test/resources/compare-tiers/delius/wmt_ps.xslx`
-2. Get the latest tiers by running this query and exporting it as a CSV. Make sure you change the date to the date and time of the last NART extract.
+2. Get the latest tiers by running this query and exporting it as a CSV (takes around 40 seconds to run). Make sure you change the date to the date and time of the last NART extract.
 
 ```   
    SELECT tc.CRN, data->'protect'->>'tier' AS Protect,
    data->'change'->>'tier' AS change
    FROM tier_calculation as tc
    INNER JOIN (SELECT CRN, MAX(created) AS maxCreated
-   FROM tier_calculation where created <= '2022-08-21 18:30:00' GROUP BY CRN) AS tc_latest
+   FROM tier_calculation where created <= '2022-08-23 18:30:00' GROUP BY CRN) AS tc_latest
    ON tc.CRN=tc_latest.CRN AND tc.created=tc_latest.maxCreated```
    ```
 You can do this in dBeaver or [adapt the instructions here](https://dsdmoj.atlassian.net/wiki/spaces/MaS/pages/2963734549/Tiering+Run+book#Accessing-the-database) 
 
-Put the csv file into `src/test/resources/compare-tiers/delius/utm.csv`
+Put the csv file into `src/test/resources/compare-tiers/utm/utm.csv`
 NB the csv may possibly have a BOM at the start. This will cause all CRNs to be null so you will see nullpointers - you can check this by running
-`hexdump -n 3 -C src/test/resources/compare-tiers/delius/utm.csv`
+`hexdump -n 3 -C src/test/resources/compare-tiers/utm/utm.csv`
 If the output contains `00000000  ef bb bf`then there is a BOM, which you can remove like this:
 
-`vi -c ":set nobomb" -c ":wq" src/test/resources/compare-tiers/test/utm.csv`
+`vi -c ":set nobomb" -c ":wq" src/test/resources/compare-tiers/utm/utm.csv`
 
 3. Run ./gradlew compareTiers
 

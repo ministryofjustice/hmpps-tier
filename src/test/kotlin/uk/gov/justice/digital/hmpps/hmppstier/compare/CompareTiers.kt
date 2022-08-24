@@ -1,8 +1,11 @@
 package uk.gov.justice.digital.hmpps.hmppstier.compare
 
+import com.opencsv.CSVWriter
 import com.opencsv.bean.CsvToBeanBuilder
+import com.opencsv.bean.StatefulBeanToCsvBuilder
 import org.apache.poi.ss.usermodel.WorkbookFactory
 import java.io.File
+import java.io.FileWriter
 import java.io.InputStreamReader
 import java.time.LocalDateTime
 
@@ -38,7 +41,7 @@ class CompareTiers {
       }
     }
     println("Finished reading delius tiers ${tiers.size} at ${LocalDateTime.now()}")
-    return Tiers(tiers)
+    return Tiers(tiers.sortedBy { it.crn })
   }
 
   fun loadUtmTiers(path: String): Tiers {
@@ -55,7 +58,7 @@ class CompareTiers {
 
       val utmTiers = tiers.map { Tier(it.crn!!, utmTierFrom(it)) }
       println("Finished reading utm tiers ${utmTiers.size}  at ${LocalDateTime.now()}")
-      return Tiers(utmTiers)
+      return Tiers(utmTiers.sortedBy { it.crn })
     } catch (e: NullPointerException) {
       println("Check instructions in the README for removing the BOM from utm.csv")
       throw e
@@ -69,11 +72,15 @@ class CompareTiers {
 
   fun compare(path: String): TierDiffs {
     println("starting at ${LocalDateTime.now()}")
-    val deliusTiers = loadDeliusTiers(path )
-    val utmTiers = loadUtmTiers(path)
-    val deliusDiffs = deliusTiers.tiers.filter { !utmTiers.matches(it) }.map { TierDiff(it.crn, it.tier, utmTiers.find(it)?.tier) }
+    val deliusTiers = loadDeliusTiers(path) // 10 seconds
+    val utmTiers = loadUtmTiers(path) // 2 seconds
+    val nonMatchingTiers = deliusTiers.tiers.filter { !utmTiers.matches(it) } // > 1 hour
+    println("Finished getting list of non-matching tiers ${nonMatchingTiers.size}  at ${LocalDateTime.now()}")
+    // should have written to disk here. There are 120 in all
+    val deliusDiffs = nonMatchingTiers.map { TierDiff(it.crn, it.tier, utmTiers.find(it)?.tier) }
 
     return TierDiffs(deliusDiffs)
+
   }
 }
 
@@ -111,6 +118,14 @@ data class TierDiff(val crn: String, val deliusTier: String, val utmTier: String
 private const val Flag_Warr_4_N = 4
 
 fun main() {
-  print(CompareTiers().compare("src/test/resources/compare-tiers/"))
+  val tierDiffs = CompareTiers().compare("src/test/resources/compare-tiers/test/")
+  val csvWriter = CSVWriter(FileWriter( File("src/test/resources/compare-tiers/diffs.csv") ))
+
+  StatefulBeanToCsvBuilder<TierDiff>(csvWriter)
+    .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+    .build()
+    .write(tierDiffs.tierdiffs)
+
+  csvWriter.close()
   // print(CompareTiers().compare("src/test/resources/compare-tiers/test/"))
 }

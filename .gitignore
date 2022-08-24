@@ -66,3 +66,7 @@ dist
 ecr.repo
 /dps-gradle-spring-boot-suppressions.xml
 .editorconfig
+
+src/test/resources/compare-tiers/delius
+src/test/resources/compare-tiers/utm
+src/test/resources/compare-tiers/output.csv
