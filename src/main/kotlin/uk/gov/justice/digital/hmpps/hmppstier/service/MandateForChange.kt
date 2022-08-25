@@ -1,11 +1,9 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
 
-@Service
 class MandateForChange(
   private val communityApiService: CommunityApiService
 ) {
