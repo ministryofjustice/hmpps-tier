@@ -19,13 +19,13 @@ class TierCalculationService(
   private val assessmentApiService: AssessmentApiService,
   private val communityApiService: CommunityApiService,
   private val successUpdater: SuccessUpdater,
-  private val telemetryService: TelemetryService,
-  private val additionalFactorsForWomen: AdditionalFactorsForWomen
+  private val telemetryService: TelemetryService
 ) {
 
   private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator()
   private val changeLevelCalculator: ChangeLevelCalculator = ChangeLevelCalculator()
   private val mandateForChange: MandateForChange = MandateForChange(communityApiService)
+  private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(clock, assessmentApiService, communityApiService)
 
   fun getLatestTierByCrn(crn: String): TierDto? =
     getLatestTierCalculation(crn)?.let {

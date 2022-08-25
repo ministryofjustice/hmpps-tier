@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
@@ -10,7 +9,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWo
 import java.time.Clock
 import java.time.LocalDate
 
-@Service
 class AdditionalFactorsForWomen(
   private val clock: Clock,
   private val assessmentApiService: AssessmentApiService,
