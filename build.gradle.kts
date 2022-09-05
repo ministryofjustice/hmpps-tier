@@ -46,7 +46,7 @@ dependencies {
   implementation("com.google.code.gson:gson")
   implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:1.1.8")
 
-  implementation("com.opencsv:opencsv:5.6")
+  implementation("com.opencsv:opencsv:5.7.0")
 
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
