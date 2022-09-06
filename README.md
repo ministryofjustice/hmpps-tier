@@ -15,19 +15,20 @@ How to get details of CRNs with different tier calculations in UTM and Delius
    FROM tier_calculation as tc
    INNER JOIN (SELECT CRN, MAX(created) AS maxCreated
    FROM tier_calculation where created <= '2022-08-23 18:30:00' GROUP BY CRN) AS tc_latest
-   ON tc.CRN=tc_latest.CRN AND tc.created=tc_latest.maxCreated```
+   ON tc.CRN=tc_latest.CRN AND tc.created=tc_latest.maxCreated
    ```
 You can do this in dBeaver or [adapt the instructions here](https://dsdmoj.atlassian.net/wiki/spaces/MaS/pages/2963734549/Tiering+Run+book#Accessing-the-database) 
 
-Put the csv file into `src/test/resources/compare-tiers/utm/utm.csv`
-NB the csv may possibly have a BOM at the start. This will cause all CRNs to be null so you will see nullpointers - you can check this by running
-`hexdump -n 3 -C src/test/resources/compare-tiers/utm/utm.csv`
-If the output contains `00000000  ef bb bf`then there is a BOM, which you can remove like this:
+Put the csv file into `src/test/resources/compare-tiers/utm/utm.csv`. Make sure this file has header names
 
-`vi -c ":set nobomb" -c ":wq" src/test/resources/compare-tiers/utm/utm.csv`
 
 3. Run ./gradlew compareTiers
 
+NB the csv may possibly have a BOM at the start. This will cause all CRNs to be null so you will see nullpointers - you can check this by running
+`hexdump -n 3 -C src/test/resources/compare-tiers/utm/utm.csv`.
+If the output contains `00000000  ef bb bf`then there is a BOM, which you can remove like this:
+
+`vi -c ":set nobomb" -c ":wq" src/test/resources/compare-tiers/utm/utm.csv`
 
 ## Continuous Integration  
 https://app.circleci.com/pipelines/github/ministryofjustice/hmpps-tier

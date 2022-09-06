@@ -44,6 +44,40 @@ class CompareTiers {
     return Tiers(tiers.sortedBy { it.crn })
   }
 
+  fun loadEpsigTiers(path: String): Tiers {
+    val epsigTiersFile = File(path.plus("epsig/report.xlsx"))
+
+    val xlWb = WorkbookFactory.create(epsigTiersFile)
+
+    // Row index specifies the row in the worksheet (starting at 0):
+    val crnColumnNumber = 0
+    val protectColumnNumber = 2
+    val changeColumnNumber = 3
+
+    val xlWs = xlWb.getSheetAt(1)
+    val tiers: MutableList<Tier> = mutableListOf()
+
+    xlWs.iterator().forEach {
+      try {
+
+        val tierCell = it.getCell(protectColumnNumber).stringCellValue + it.getCell(changeColumnNumber).stringCellValue
+        if (tierCell != "Calc A&P TierExpected change tier" && tierCell.isNotEmpty()) {
+          tiers.add(
+            Tier(
+              it.getCell(crnColumnNumber).stringCellValue,
+              tierCell
+            )
+          )
+        }
+      }
+      catch(e: NullPointerException){
+        println("empty cell?")
+      }
+    }
+    println("Finished reading epsig tiers ${tiers.size} at ${LocalDateTime.now()}")
+    return Tiers(tiers.sortedBy { it.crn })
+  }
+
   fun loadUtmTiers(path: String): Tiers {
     val utmTiersFile = File(path.plus("utm/utm.csv"))
     val reader = InputStreamReader(utmTiersFile.inputStream())
@@ -56,7 +90,7 @@ class CompareTiers {
       val tiers = cb.parse()
       reader.close()
 
-      val utmTiers = tiers.map { Tier(it.crn!!, utmTierFrom(it)) }
+      val utmTiers = tiers.map { Tier(it.crn!!, utmTierFrom(it), it.created) }
       println("Finished reading utm tiers ${utmTiers.size}  at ${LocalDateTime.now()}")
       return Tiers(utmTiers.sortedBy { it.crn })
     } catch (e: NullPointerException) {
@@ -70,6 +104,22 @@ class CompareTiers {
   private fun deliusTierFrom(deliusTier: String) =
     DeliusTierConverter.getOrDefault(deliusTier, "No tier converted for $deliusTier")
 
+  fun compareEpsig(path: String) {
+    println("starting at ${LocalDateTime.now()}")
+    val epsigTiers = loadEpsigTiers(path) // 10 seconds
+    val utmTiers = loadUtmTiers(path) // 2 seconds
+    val nonMatchingTiers = epsigTiers.tiers.map { EpsigTier(it.crn, it.tier, utmTiers.find(it)?.tier, utmTiers.find(it)?.created) }
+    println("Finished getting list of non-matching tiers ${nonMatchingTiers.size}  at ${LocalDateTime.now()}")
+
+    val csvWriter = CSVWriter(FileWriter( File("src/test/resources/compare-tiers/epsigTiers.csv") ))
+
+    StatefulBeanToCsvBuilder<EpsigTier>(csvWriter)
+      .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
+      .build()
+      .write(nonMatchingTiers)
+
+    csvWriter.close()
+  }
   fun compare(path: String): TierDiffs {
     println("starting at ${LocalDateTime.now()}")
     val deliusTiers = loadDeliusTiers(path) // 10 seconds
@@ -84,10 +134,18 @@ class CompareTiers {
   }
 }
 
+data class EpsigTier(
+  var crn: String? = null,
+  var epsigTier: String? = null,
+  var utmTier: String? = null,
+  var utmCalculatedDate: String? = null,
+)
+
 data class UtmTier(
   var crn: String? = null,
   var protect: String? = null,
-  var change: String? = null
+  var change: String? = null,
+  var created: String? = null
 )
 
 val DeliusTierConverter = mapOf(
@@ -127,7 +185,7 @@ class Tiers() {
   }
 }
 
-data class Tier(val crn: String, val tier: String)
+data class Tier(val crn: String, val tier: String, val created: String? = null)
 
 data class TierDiffs(val tierdiffs: List<TierDiff>)
 data class TierDiff(val crn: String, val deliusTier: String, val utmTier: String?)
