@@ -323,6 +323,5 @@ abstract class MockedEndpointsTestBase {
 }
 
 data class SQSMessage(
-  val Message: String,
-  val MessageId: String
+  val Message: String
 )
