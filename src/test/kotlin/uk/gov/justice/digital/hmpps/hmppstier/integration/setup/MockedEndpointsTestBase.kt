@@ -1,11 +1,12 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 
+import com.amazonaws.services.sqs.AmazonSQS
 import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.amazonaws.services.sqs.model.PurgeQueueRequest
 import com.google.gson.Gson
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.TestInstance.Lifecycle
+import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.matchers.Times.exactly
 import org.mockserver.model.HttpRequest.request
@@ -31,12 +32,11 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Month.JANUARY
 
-@TestInstance(Lifecycle.PER_CLASS)
+@TestInstance(PER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
 abstract class MockedEndpointsTestBase {
 
-  @Suppress("SpringJavaInjectionPointsAutowiringInspection")
   @Autowired
   lateinit var webTestClient: WebTestClient
 
@@ -47,7 +47,7 @@ abstract class MockedEndpointsTestBase {
   @Autowired
   lateinit var calculationCompleteClient: AmazonSQSAsync
 
-  protected val calculationCompleteUrl by lazy { hmppsQueueService.findByQueueId("hmppscalculationcompletequeue")?.queueUrl ?: throw MissingQueueException("HmppsQueue tiercalculationqueue not found") }
+  protected val calculationCompleteUrl by lazy { hmppsQueueService.findByQueueId("hmppscalculationcompletequeue")?.queueUrl ?: throw MissingQueueException("HmppsQueue hmppscalculationcompletequeue not found") }
 
   @Autowired
   protected lateinit var hmppsQueueService: HmppsQueueService
@@ -56,7 +56,9 @@ abstract class MockedEndpointsTestBase {
   @Autowired
   lateinit var offenderEventsClient: AmazonSQSAsync
 
-  protected val eventQueueUrl by lazy { hmppsQueueService.findByQueueId("hmppsoffenderqueue")?.queueUrl ?: throw MissingQueueException("HmppsQueue tiercalculationqueue not found") }
+  private val offenderEventsQueue by lazy { hmppsQueueService.findByQueueId("hmppsoffenderqueue") ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found") }
+
+  private val offenderEventsDlqClient by lazy { offenderEventsQueue.sqsDlqClient as AmazonSQS }
 
   @Autowired
   internal lateinit var jwtHelper: JwtAuthHelper
@@ -75,8 +77,9 @@ abstract class MockedEndpointsTestBase {
 
   @BeforeEach
   fun `purge Queues`() {
-    offenderEventsClient.purgeQueue(PurgeQueueRequest(eventQueueUrl))
+    offenderEventsClient.purgeQueue(PurgeQueueRequest(offenderEventsQueue.queueUrl))
     calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
+    offenderEventsDlqClient.purgeQueue(PurgeQueueRequest(offenderEventsQueue.dlqUrl))
     tierCalculationRepository.deleteAll()
     communityApi.reset()
     assessmentApi.reset()
@@ -233,16 +236,15 @@ abstract class MockedEndpointsTestBase {
   private fun setupActiveConvictions(crn: String, response: HttpResponse) =
     communityApiResponseWithQs(response, "/secure/offenders/crn/$crn/convictions", Parameter("activeOnly", "true"))
 
-  fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, eventQueueUrl, crn)
+  fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl, crn)
 
-  // the message goes back on the queue but is not visible until after the test ends
-  fun expectTierCalculationToHaveFailed() = oneMessageNotVisibleOnQueue(offenderEventsClient, eventQueueUrl)
+  fun expectTierCalculationToHaveFailed() = oneMessageCurrentlyOnDeadletterQueue(offenderEventsDlqClient, offenderEventsQueue.dlqUrl!!)
 
   fun expectNoUpdatedTierCalculation() {
     // calculation succeeded but is unchanged, so no calculation complete events
     // and message is not returned to the event queue
     noMessagesCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
-    noMessagesCurrentlyOnQueue(offenderEventsClient, eventQueueUrl)
+    noMessagesCurrentlyOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl)
   }
 
   fun expectTierChangedById(tierScore: String) {
