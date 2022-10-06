@@ -18,5 +18,5 @@ spec:
               args:
                 - /bin/sh
                 - -c
-                - curl -XPUT http://hmpps-tier/queue-admin/retry-all-dlqs
+                - curl -XPUT --connect-timeout 5 --max-time 10 --retry 5 --retry-delay 0 --retry-max-time 40 http://hmpps-tier/queue-admin/retry-all-dlqs
           restartPolicy: Never
