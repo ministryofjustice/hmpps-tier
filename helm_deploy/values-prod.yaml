@@ -10,3 +10,7 @@ generic-service:
     COMMUNITY_ENDPOINT_URL: https://community-api.probation.service.justice.gov.uk/secure
     ASSESSMENT_ENDPOINT_URL: https://offender-prod.aks-live-1.studio-hosting.service.justice.gov.uk
 
+  allowlist:
+    delius-prod-1: "52.56.115.146/32"
+    delius-prod-2: "35.178.104.253/32"
+    delius-prod-3: "35.177.47.45/32"
