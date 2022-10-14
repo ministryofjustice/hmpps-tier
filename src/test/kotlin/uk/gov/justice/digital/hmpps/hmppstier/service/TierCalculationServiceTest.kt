@@ -37,14 +37,12 @@ internal class TierCalculationServiceTest {
   private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
   private val communityApiService: CommunityApiService = mockk(relaxUnitFun = true)
   private val telemetryService: TelemetryService = mockk(relaxUnitFun = true)
-  private val successUpdater: SuccessUpdater = mockk(relaxUnitFun = true)
 
   private val service = TierCalculationService(
     clock,
     tierCalculationRepository,
     assessmentApiService,
     communityApiService,
-    successUpdater,
     telemetryService
   )
 

@@ -6,12 +6,14 @@ import org.slf4j.LoggerFactory
 import org.springframework.jms.annotation.JmsListener
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.hmppstier.service.SuccessUpdater
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 
 @Service
 class TierCalculationRequiredEventListener(
   private val calculator: TierCalculationService,
   private val objectMapper: ObjectMapper,
+  private val successUpdater: SuccessUpdater,
 ) {
 
   @MessageExceptionHandler()
@@ -23,7 +25,9 @@ class TierCalculationRequiredEventListener(
   @JmsListener(destination = "hmppsoffenderqueue", containerFactory = "hmppsQueueContainerFactoryProxy")
   fun listen(msg: String) {
     val (crn) = getCrn(msg)
-    calculator.calculateTierForCrn(crn)
+    calculator.calculateTierForCrn(crn)?.let {
+      successUpdater.update(crn, it.uuid)
+    }
   }
 
   private fun getCrn(msg: String): TierCalculationMessage {

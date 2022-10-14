@@ -18,8 +18,7 @@ class TierCalculationService(
   private val tierCalculationRepository: TierCalculationRepository,
   private val assessmentApiService: AssessmentApiService,
   private val communityApiService: CommunityApiService,
-  private val successUpdater: SuccessUpdater,
-  private val telemetryService: TelemetryService
+  private val telemetryService: TelemetryService,
 ) {
 
   private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator()
@@ -40,16 +39,14 @@ class TierCalculationService(
     }
 
   @Transactional
-  fun calculateTierForCrn(crn: String) =
-    calculateTier(crn).let {
-      val isUpdated = isUpdated(it, crn)
-      tierCalculationRepository.save(it)
-      when {
-        isUpdated -> successUpdater.update(crn, it.uuid)
-      }
-      log.info("Tier calculated for $crn. Different from previous tier: $isUpdated.")
-      telemetryService.trackTierCalculated(it, isUpdated)
-    }
+  fun calculateTierForCrn(crn: String): TierCalculationEntity? {
+    val calculation = calculateTier(crn)
+    val isUpdated = isUpdated(calculation, crn)
+    tierCalculationRepository.save(calculation)
+    log.info("Tier calculated for $crn. Different from previous tier: $isUpdated.")
+    telemetryService.trackTierCalculated(calculation, isUpdated)
+    return if (isUpdated) calculation else null
+  }
 
   private fun tierIsDifferentThanDelius(crn: String, tier: TierCalculationEntity): Boolean {
     return communityApiService.getTier(crn) != tier.data.protect.tier.value.plus('_').plus(tier.data.change.tier.value)
