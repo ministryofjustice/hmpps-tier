@@ -3,18 +3,14 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
-import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import java.time.Clock
 import java.time.LocalDateTime
-import java.util.UUID
 
 @Service
 class TierCalculationService(
   private val clock: Clock,
-  private val tierCalculationRepository: TierCalculationRepository,
   private val assessmentApiService: AssessmentApiService,
   private val communityApiService: CommunityApiService,
   private val successUpdater: SuccessUpdater,
@@ -26,18 +22,6 @@ class TierCalculationService(
   private val changeLevelCalculator: ChangeLevelCalculator = ChangeLevelCalculator()
   private val mandateForChange: MandateForChange = MandateForChange(communityApiService)
   private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(clock, assessmentApiService, communityApiService)
-
-  fun getLatestTierByCrn(crn: String): TierDto? =
-    getLatestTierCalculation(crn)?.let {
-      log.info("Found latest tier calculation for $crn")
-      TierDto.from(it)
-    }
-
-  fun getTierByCalculationId(crn: String, calculationId: UUID): TierDto? =
-    tierCalculationRepository.findByCrnAndUuid(crn, calculationId)?.let {
-      log.info("Found tier for $crn and $calculationId")
-      TierDto.from(it)
-    }
 
   fun calculateTierForCrn(crn: String) =
     calculateTier(crn).let {
@@ -82,9 +66,6 @@ class TierCalculationService(
       )
     )
   }
-
-  private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
-    tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
 
   private fun hasNoAssessment(offenderAssessment: OffenderAssessment?): Boolean =
     (offenderAssessment == null)
