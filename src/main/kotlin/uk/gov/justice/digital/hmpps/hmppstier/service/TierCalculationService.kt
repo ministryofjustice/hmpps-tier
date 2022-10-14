@@ -2,24 +2,20 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
-import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import java.time.Clock
 import java.time.LocalDateTime
-import java.util.UUID
 
 @Service
 class TierCalculationService(
   private val clock: Clock,
-  private val tierCalculationRepository: TierCalculationRepository,
   private val assessmentApiService: AssessmentApiService,
   private val communityApiService: CommunityApiService,
   private val successUpdater: SuccessUpdater,
-  private val telemetryService: TelemetryService
+  private val telemetryService: TelemetryService,
+  private val tierUpdater: TierUpdater
 ) {
 
   private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator()
@@ -27,49 +23,15 @@ class TierCalculationService(
   private val mandateForChange: MandateForChange = MandateForChange(communityApiService)
   private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(clock, assessmentApiService, communityApiService)
 
-  fun getLatestTierByCrn(crn: String): TierDto? =
-    getLatestTierCalculation(crn)?.let {
-      log.info("Found latest tier calculation for $crn")
-      TierDto.from(it)
-    }
-
-  fun getTierByCalculationId(crn: String, calculationId: UUID): TierDto? =
-    tierCalculationRepository.findByCrnAndUuid(crn, calculationId)?.let {
-      log.info("Found tier for $crn and $calculationId")
-      TierDto.from(it)
-    }
-
   fun calculateTierForCrn(crn: String) =
     calculateTier(crn).let {
-      val isUpdated = updateTier(it, crn)
+      val isUpdated = tierUpdater.updateTier(it, crn)
       when {
         isUpdated -> successUpdater.update(crn, it.uuid)
       }
       telemetryService.trackTierCalculated(it, isUpdated)
       log.info("Tier calculated for $crn. Different from previous tier: $isUpdated.")
     }
-  @Transactional
-  private fun updateTier(
-    it: TierCalculationEntity,
-    crn: String
-  ): Boolean {
-    val isUpdated = isUpdated(it, crn)
-    tierCalculationRepository.save(it)
-    return isUpdated
-  }
-
-  private fun tierIsDifferentThanDelius(crn: String, tier: TierCalculationEntity): Boolean {
-    return communityApiService.getTier(crn) != tier.data.protect.tier.value.plus('_').plus(tier.data.change.tier.value)
-  }
-
-  private fun isUpdated(
-    newTierCal: TierCalculationEntity,
-    crn: String
-  ): Boolean {
-    val oldTierCal = getLatestTierCalculation(crn)
-    return newTierCal.data.protect.tier != oldTierCal?.data?.protect?.tier || newTierCal.data.change.tier != oldTierCal.data.change.tier ||
-      tierIsDifferentThanDelius(crn, newTierCal)
-  }
 
   private fun calculateTier(crn: String): TierCalculationEntity {
 
@@ -104,9 +66,6 @@ class TierCalculationService(
       )
     )
   }
-
-  private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
-    tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
 
   private fun hasNoAssessment(offenderAssessment: OffenderAssessment?): Boolean =
     (offenderAssessment == null)
