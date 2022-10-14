@@ -39,17 +39,24 @@ class TierCalculationService(
       TierDto.from(it)
     }
 
-  @Transactional
   fun calculateTierForCrn(crn: String) =
     calculateTier(crn).let {
-      val isUpdated = isUpdated(it, crn)
-      tierCalculationRepository.save(it)
+      val isUpdated = updateTier(it, crn)
       when {
         isUpdated -> successUpdater.update(crn, it.uuid)
       }
-      log.info("Tier calculated for $crn. Different from previous tier: $isUpdated.")
       telemetryService.trackTierCalculated(it, isUpdated)
+      log.info("Tier calculated for $crn. Different from previous tier: $isUpdated.")
     }
+  @Transactional
+  private fun updateTier(
+    it: TierCalculationEntity,
+    crn: String
+  ): Boolean {
+    val isUpdated = isUpdated(it, crn)
+    tierCalculationRepository.save(it)
+    return isUpdated
+  }
 
   private fun tierIsDifferentThanDelius(crn: String, tier: TierCalculationEntity): Boolean {
     return communityApiService.getTier(crn) != tier.data.protect.tier.value.plus('_').plus(tier.data.change.tier.value)
@@ -104,6 +111,7 @@ class TierCalculationService(
   private fun hasNoAssessment(offenderAssessment: OffenderAssessment?): Boolean =
     (offenderAssessment == null)
   companion object {
-    private val log = LoggerFactory.getLogger(this::class.java)
+    private val log =
+      LoggerFactory.getLogger(this::class.java)
   }
 }
