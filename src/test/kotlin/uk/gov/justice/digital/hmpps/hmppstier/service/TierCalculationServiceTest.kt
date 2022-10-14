@@ -45,7 +45,8 @@ internal class TierCalculationServiceTest {
     assessmentApiService,
     communityApiService,
     successUpdater,
-    telemetryService
+    telemetryService,
+    mockk()
   )
 
   private val calculationId = UUID.randomUUID()
