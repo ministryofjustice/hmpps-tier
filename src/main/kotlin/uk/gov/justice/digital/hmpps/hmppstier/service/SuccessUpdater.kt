@@ -19,12 +19,7 @@ class SuccessUpdater(
 
   fun update(crn: String, calculationId: UUID) {
     val event = PublishRequest(calculationCompleteTopic.arn, gson.toJson(TierChangeEvent(crn, calculationId)))
-    val messageAttributeValue = MessageAttributeValue()
-    with(messageAttributeValue) {
-      stringValue = TIER_CALCULATION_COMPLETE.toString()
-      dataType = "String"
-    }
-    event.addMessageAttributesEntry("eventType", messageAttributeValue)
+    event.withMessageAttributes(mapOf("eventType" to MessageAttributeValue().withDataType("String").withStringValue(TIER_CALCULATION_COMPLETE.toString())))
     calculationCompleteTopic.snsClient.publish(event)
   }
 }
