@@ -260,9 +260,10 @@ abstract class MockedEndpointsTestBase {
     assertThat(changeEvent.eventType).isEqualTo("tier.calculation.complete")
     assertThat(ZonedDateTime.parse(changeEvent.occurredAt, DateTimeFormatter.ISO_OFFSET_DATE_TIME)).isNotNull()
     val crn = changeEvent.personReference.identifiers[0].value
+    val calculationId = changeEvent.additionalInformation.calculationId
     webTestClient
       .get()
-      .uri("crn/$crn/tier/${changeEvent.calculationId}")
+      .uri("crn/$crn/tier/$calculationId")
       .headers(setAuthorisation())
       .exchange()
       .expectStatus()

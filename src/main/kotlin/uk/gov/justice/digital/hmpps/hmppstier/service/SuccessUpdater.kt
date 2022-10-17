@@ -31,6 +31,7 @@ class SuccessUpdater(
       "Tier calculation complete",
       ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
       detailUrl,
+      AdditionalInformation(calculationId),
       PersonReference(listOf(PersonReferenceType("CRN", crn)))
     )
     val event = PublishRequest(calculationCompleteTopic.arn, gson.toJson(message))
@@ -47,7 +48,12 @@ data class TierChangeEvent(
   val description: String,
   val occurredAt: String,
   val detailUrl: String,
+  val additionalInformation: AdditionalInformation,
   val personReference: PersonReference
+)
+
+data class AdditionalInformation(
+  val calculationId: UUID
 )
 
 data class PersonReference(
