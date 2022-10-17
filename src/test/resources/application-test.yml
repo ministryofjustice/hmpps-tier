@@ -48,7 +48,7 @@ hmpps.sqs:
       queueName: hmpps_calculation_complete_event_queue
       dlqName: hmpps_calculation_complete_event_dlq
       subscribeTopicId: hmppscalculationcompletetopic
-      subscribeFilter: '{"eventType":[ "TIER_CALCULATION_COMPLETE"] }'
+      subscribeFilter: '{"eventType":[ "tier.calculation.complete"] }'
       asyncQueueClient: true
       dlqMaxReceiveCount: 1
   topics:
