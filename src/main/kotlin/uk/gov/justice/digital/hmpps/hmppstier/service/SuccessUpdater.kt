@@ -21,7 +21,8 @@ class SuccessUpdater(
 
   fun update(crn: String, calculationId: UUID) {
     val detailUrl = "$hmppsTierEndpointUrl/crn/$crn/tier/$calculationId"
-    val event = PublishRequest(calculationCompleteTopic.arn, gson.toJson(TierChangeEvent(crn, calculationId, detailUrl)))
+    val message = TierChangeEvent(crn, calculationId, "tier.calculation.complete", 2, "Tier calculation complete", detailUrl)
+    val event = PublishRequest(calculationCompleteTopic.arn, gson.toJson(message))
     event.withMessageAttributes(mapOf("eventType" to MessageAttributeValue().withDataType("String").withStringValue(TIER_CALCULATION_COMPLETE.toString())))
     calculationCompleteTopic.snsClient.publish(event)
   }
@@ -30,7 +31,19 @@ class SuccessUpdater(
 data class TierChangeEvent(
   val crn: String,
   val calculationId: UUID,
+  val eventType: String,
+  val version: Int,
+  val description: String,
   val detailUrl: String
+)
+
+data class PersonReference(
+  val identifiers: List<PersonReferenceType>
+)
+
+data class PersonReferenceType(
+  val type: String,
+  val value: String
 )
 
 private enum class EventType {

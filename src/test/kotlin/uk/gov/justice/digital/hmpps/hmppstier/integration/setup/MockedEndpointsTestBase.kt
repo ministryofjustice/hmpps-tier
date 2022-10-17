@@ -255,6 +255,7 @@ abstract class MockedEndpointsTestBase {
     val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
     val detailUrl = "http://localhost:8080/crn/${changeEvent.crn}/tier/${changeEvent.calculationId}"
     assertThat(changeEvent.detailUrl).isEqualTo(detailUrl)
+    assertThat(changeEvent.eventType).isEqualTo("tier.calculation.complete")
     webTestClient
       .get()
       .uri("crn/${changeEvent.crn}/tier/${changeEvent.calculationId}")
