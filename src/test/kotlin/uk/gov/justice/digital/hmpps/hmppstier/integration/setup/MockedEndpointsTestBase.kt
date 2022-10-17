@@ -256,9 +256,10 @@ abstract class MockedEndpointsTestBase {
     val detailUrl = "http://localhost:8080/crn/${changeEvent.crn}/tier/${changeEvent.calculationId}"
     assertThat(changeEvent.detailUrl).isEqualTo(detailUrl)
     assertThat(changeEvent.eventType).isEqualTo("tier.calculation.complete")
+    val crn = changeEvent.personReference.identifiers[0].value
     webTestClient
       .get()
-      .uri("crn/${changeEvent.crn}/tier/${changeEvent.calculationId}")
+      .uri("crn/$crn/tier/${changeEvent.calculationId}")
       .headers(setAuthorisation())
       .exchange()
       .expectStatus()
