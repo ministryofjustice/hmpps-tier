@@ -4,6 +4,7 @@ import com.amazonaws.services.sqs.AmazonSQS
 import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.amazonaws.services.sqs.model.PurgeQueueRequest
 import com.google.gson.Gson
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
@@ -252,6 +253,8 @@ abstract class MockedEndpointsTestBase {
     val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
     val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
     val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
+    val detailUrl = "http://localhost:8080/crn/${changeEvent.crn}/tier/${changeEvent.calculationId}"
+    assertThat(changeEvent.detailUrl).isEqualTo(detailUrl)
     webTestClient
       .get()
       .uri("crn/${changeEvent.crn}/tier/${changeEvent.calculationId}")
