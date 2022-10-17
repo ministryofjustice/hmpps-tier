@@ -32,6 +32,8 @@ import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Month.JANUARY
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 @TestInstance(PER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -256,6 +258,7 @@ abstract class MockedEndpointsTestBase {
     val detailUrl = "http://localhost:8080/crn/${changeEvent.crn}/tier/${changeEvent.calculationId}"
     assertThat(changeEvent.detailUrl).isEqualTo(detailUrl)
     assertThat(changeEvent.eventType).isEqualTo("tier.calculation.complete")
+    assertThat(ZonedDateTime.parse(changeEvent.occurredAt, DateTimeFormatter.ISO_OFFSET_DATE_TIME)).isNotNull()
     val crn = changeEvent.personReference.identifiers[0].value
     webTestClient
       .get()

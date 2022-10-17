@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.service.EventType.TIER_CALCULATION_COMPLETE
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingTopicException
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.UUID
 
 @Service
@@ -27,6 +29,7 @@ class SuccessUpdater(
       "tier.calculation.complete",
       2,
       "Tier calculation complete",
+      ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
       detailUrl,
       PersonReference(listOf(PersonReferenceType("CRN", crn)))
     )
@@ -42,6 +45,7 @@ data class TierChangeEvent(
   val eventType: String,
   val version: Int,
   val description: String,
+  val occurredAt: String,
   val detailUrl: String,
   val personReference: PersonReference
 )
