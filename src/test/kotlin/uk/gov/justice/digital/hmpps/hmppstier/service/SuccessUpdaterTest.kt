@@ -18,7 +18,7 @@ class SuccessUpdaterTest {
     every { hmppsQueueService.findByTopicId("hmppscalculationcompletetopic") } returns null
 
     Assertions.assertThrows(MissingTopicException::class.java) {
-      SuccessUpdater(hmppsQueueService, gson)
+      SuccessUpdater(hmppsQueueService, gson, "")
     }
   }
 }

@@ -15,6 +15,11 @@ oauth:
 community:
   endpoint:
     url: http://localhost:8091/secure
+
 assessment:
   endpoint:
     url: http://localhost:8092
+
+hmpps.tier:
+  endpoint:
+    url: http://localhost:8080
