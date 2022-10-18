@@ -1,13 +1,13 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.bdd
 
 import com.amazonaws.services.sqs.AmazonSQSAsync
-import com.google.gson.Gson
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.cucumber.java8.En
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
+import uk.gov.justice.digital.hmpps.hmppstier.controller.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.oneMessageCurrentlyOnQueue
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
@@ -17,7 +17,7 @@ import uk.gov.justice.hmpps.sqs.MissingQueueException
 
 class ThenSteps : En {
   @Autowired
-  lateinit var gson: Gson
+  lateinit var objectMapper: ObjectMapper
 
   @Qualifier("hmppscalculationcompletequeue-sqs-client")
   @Autowired
@@ -71,8 +71,8 @@ class ThenSteps : En {
   private fun getTier(): TierCalculationEntity {
     oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
     val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
-    val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
-    val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
+    val sqsMessage: SQSMessage = objectMapper.readValue(message.messages[0].body, SQSMessage::class.java)
+    val changeEvent: TierChangeEvent = objectMapper.readValue(sqsMessage.message, TierChangeEvent::class.java)
 
     return tierCalculationRepository.findByCrnAndUuid(changeEvent.crn, changeEvent.calculationId)!!
   }

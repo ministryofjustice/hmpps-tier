@@ -3,7 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 import com.amazonaws.services.sqs.AmazonSQS
 import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.amazonaws.services.sqs.model.PurgeQueueRequest
-import com.google.gson.Gson
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.TestInstance
@@ -24,6 +24,7 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
+import uk.gov.justice.digital.hmpps.hmppstier.controller.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
@@ -44,7 +45,7 @@ abstract class IntegrationTestBase {
   lateinit var webTestClient: WebTestClient
 
   @Autowired
-  lateinit var gson: Gson
+  lateinit var objectMapper: ObjectMapper
 
   @Qualifier("hmppscalculationcompletequeue-sqs-client")
   @Autowired
@@ -91,7 +92,7 @@ abstract class IntegrationTestBase {
 
   private fun setupOauth() {
     val response = response().withContentType(APPLICATION_JSON)
-      .withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
+      .withBody(objectMapper.writeValueAsString(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
     oauthMock.`when`(request().withPath("/auth/oauth/token").withBody("grant_type=client_credentials"))
       .respond(response)
   }
@@ -252,9 +253,7 @@ abstract class IntegrationTestBase {
 
   fun expectTierChangedById(tierScore: String) {
     oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
-    val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
-    val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
-    val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
+    val changeEvent: TierChangeEvent = tierChangeEvent()
     val detailUrl = "http://localhost:8080/crn/${changeEvent.crn}/tier/${changeEvent.calculationId}"
     assertThat(changeEvent.detailUrl).isEqualTo(detailUrl)
     assertThat(changeEvent.eventType).isEqualTo("tier.calculation.complete")
@@ -301,9 +300,7 @@ abstract class IntegrationTestBase {
 
   fun expectLatestTierCalculation(tierScore: String) {
     oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
-    val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
-    val sqsMessage: SQSMessage = gson.fromJson(message.messages[0].body, SQSMessage::class.java)
-    val changeEvent: TierChangeEvent = gson.fromJson(sqsMessage.Message, TierChangeEvent::class.java)
+    val changeEvent: TierChangeEvent = tierChangeEvent()
     webTestClient
       .get()
       .uri("crn/${changeEvent.crn}/tier")
@@ -313,6 +310,13 @@ abstract class IntegrationTestBase {
       .isOk
       .expectBody()
       .jsonPath("tierScore").isEqualTo(tierScore)
+  }
+
+  private fun tierChangeEvent(): TierChangeEvent {
+    val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
+    val sqsMessage: SQSMessage = objectMapper.readValue(message.messages[0].body, SQSMessage::class.java)
+    val changeEvent: TierChangeEvent = objectMapper.readValue(sqsMessage.message, TierChangeEvent::class.java)
+    return changeEvent
   }
 
   private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
@@ -332,7 +336,3 @@ abstract class IntegrationTestBase {
     return { it.set(AUTHORIZATION, "Bearer $token") }
   }
 }
-
-data class SQSMessage(
-  val Message: String
-)
