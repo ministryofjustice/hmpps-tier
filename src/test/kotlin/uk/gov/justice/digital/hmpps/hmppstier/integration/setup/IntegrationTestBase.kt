@@ -35,6 +35,7 @@ import java.time.LocalDateTime
 import java.time.Month.JANUARY
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
+import java.util.UUID
 
 @TestInstance(PER_CLASS)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -254,12 +255,12 @@ abstract class IntegrationTestBase {
   fun expectTierChangedById(tierScore: String) {
     oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
     val changeEvent: TierChangeEvent = tierChangeEvent()
-    val detailUrl = "http://localhost:8080/crn/${changeEvent.crn}/tier/${changeEvent.calculationId}"
+    val crn = changeEvent.crn()
+    val calculationId = changeEvent.calculationId()
+    val detailUrl = "http://localhost:8080/crn/$crn/tier/$calculationId"
     assertThat(changeEvent.detailUrl).isEqualTo(detailUrl)
     assertThat(changeEvent.eventType).isEqualTo("tier.calculation.complete")
     assertThat(ZonedDateTime.parse(changeEvent.occurredAt, ISO_OFFSET_DATE_TIME)).isNotNull()
-    val crn = changeEvent.personReference.identifiers[0].value
-    val calculationId = changeEvent.additionalInformation.calculationId
     webTestClient
       .get()
       .uri("crn/$crn/tier/$calculationId")
@@ -303,7 +304,7 @@ abstract class IntegrationTestBase {
     val changeEvent: TierChangeEvent = tierChangeEvent()
     webTestClient
       .get()
-      .uri("crn/${changeEvent.crn}/tier")
+      .uri("crn/${changeEvent.crn()}/tier")
       .headers(setAuthorisation())
       .exchange()
       .expectStatus()
@@ -315,9 +316,12 @@ abstract class IntegrationTestBase {
   private fun tierChangeEvent(): TierChangeEvent {
     val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
     val sqsMessage: SQSMessage = objectMapper.readValue(message.messages[0].body, SQSMessage::class.java)
-    val changeEvent: TierChangeEvent = objectMapper.readValue(sqsMessage.message, TierChangeEvent::class.java)
-    return changeEvent
+    return objectMapper.readValue(sqsMessage.message, TierChangeEvent::class.java)
   }
+
+  fun TierChangeEvent.crn(): String = this.personReference.identifiers[0].value
+
+  fun TierChangeEvent.calculationId(): UUID = this.additionalInformation.calculationId
 
   private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
     clientAndServer.`when`(request().withPath(urlTemplate), exactly(1)).respond(response)

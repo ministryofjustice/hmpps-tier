@@ -14,6 +14,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepo
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
+import java.util.UUID
 
 class ThenSteps : En {
   @Autowired
@@ -74,6 +75,10 @@ class ThenSteps : En {
     val sqsMessage: SQSMessage = objectMapper.readValue(message.messages[0].body, SQSMessage::class.java)
     val changeEvent: TierChangeEvent = objectMapper.readValue(sqsMessage.message, TierChangeEvent::class.java)
 
-    return tierCalculationRepository.findByCrnAndUuid(changeEvent.crn, changeEvent.calculationId)!!
+    return tierCalculationRepository.findByCrnAndUuid(changeEvent.crn(), changeEvent.calculationId())!!
   }
+
+  private fun TierChangeEvent.crn(): String = this.personReference.identifiers[0].value
+
+  private fun TierChangeEvent.calculationId(): UUID = this.additionalInformation.calculationId
 }

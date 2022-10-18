@@ -24,8 +24,6 @@ class SuccessUpdater(
     val eventType = "tier.calculation.complete"
     val detailUrl = "$hmppsTierEndpointUrl/crn/$crn/tier/$calculationId"
     val message = TierChangeEvent(
-      crn,
-      calculationId,
       eventType,
       2,
       "Tier calculation complete",
@@ -41,8 +39,6 @@ class SuccessUpdater(
 }
 
 data class TierChangeEvent(
-  val crn: String,
-  val calculationId: UUID,
   val eventType: String,
   val version: Int,
   val description: String,
