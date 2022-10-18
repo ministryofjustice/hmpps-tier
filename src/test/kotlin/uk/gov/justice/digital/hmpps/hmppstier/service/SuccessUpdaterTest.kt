@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import com.google.gson.Gson
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions
@@ -13,12 +12,11 @@ class SuccessUpdaterTest {
   @Test
   fun `Missing Topic exception thrown when calculation complete topic is not configured`() {
     val hmppsQueueService = mockk<HmppsQueueService>()
-    val gson = Gson()
 
     every { hmppsQueueService.findByTopicId("hmppscalculationcompletetopic") } returns null
 
     Assertions.assertThrows(MissingTopicException::class.java) {
-      SuccessUpdater(hmppsQueueService, gson, "")
+      SuccessUpdater(hmppsQueueService, mockk(), "")
     }
   }
 }

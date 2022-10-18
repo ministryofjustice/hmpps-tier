@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration.bdd
 
 import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.amazonaws.services.sqs.model.PurgeQueueRequest
-import com.google.gson.Gson
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.cucumber.java8.En
 import io.cucumber.java8.Scenario
 import org.mockserver.integration.ClientAndServer
@@ -27,7 +27,7 @@ import java.util.UUID
 class BddSteps : En {
 
   @Autowired
-  lateinit var gson: Gson
+  lateinit var objectMapper: ObjectMapper
 
   @Qualifier("hmppscalculationcompletequeue-sqs-client")
   @Autowired
@@ -61,7 +61,7 @@ class BddSteps : En {
 
   private fun setupOauth() {
     val response = response().withContentType(APPLICATION_JSON)
-      .withBody(gson.toJson(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
+      .withBody(objectMapper.writeValueAsString(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
     oauthMock.`when`(HttpRequest.request().withPath("/auth/oauth/token").withBody("grant_type=client_credentials"))
       .respond(response)
   }
