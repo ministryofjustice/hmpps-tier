@@ -2,7 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import com.amazonaws.services.sns.model.MessageAttributeValue
 import com.amazonaws.services.sns.model.PublishRequest
-import com.google.gson.Gson
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
@@ -14,7 +14,7 @@ import java.util.UUID
 @Service
 class SuccessUpdater(
   hmppsQueueService: HmppsQueueService,
-  private val gson: Gson,
+  private val objectMapper: ObjectMapper,
   @Value("\${hmpps.tier.endpoint.url}") private val hmppsTierEndpointUrl: String,
 ) {
 
@@ -34,7 +34,7 @@ class SuccessUpdater(
       AdditionalInformation(calculationId),
       PersonReference(listOf(PersonReferenceType("CRN", crn)))
     )
-    val event = PublishRequest(calculationCompleteTopic.arn, gson.toJson(message))
+    val event = PublishRequest(calculationCompleteTopic.arn, objectMapper.writeValueAsString(message))
     event.withMessageAttributes(mapOf("eventType" to MessageAttributeValue().withDataType("String").withStringValue(eventType)))
     calculationCompleteTopic.snsClient.publish(event)
   }
