@@ -1,9 +1,9 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 
-class MandateForChangeTest : MockedEndpointsTestBase() {
+class MandateForChangeTest : IntegrationTestBase() {
 
   @Test
   fun `calculate change for concurrent custodial and non-custodial sentence`() {

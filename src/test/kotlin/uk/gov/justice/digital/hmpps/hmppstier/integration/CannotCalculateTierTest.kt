@@ -1,10 +1,10 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
 
-class CannotCalculateTierTest : MockedEndpointsTestBase() {
+class CannotCalculateTierTest : IntegrationTestBase() {
 
   @Test
   fun `Offender does not exist`() {

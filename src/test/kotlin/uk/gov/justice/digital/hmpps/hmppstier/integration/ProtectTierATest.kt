@@ -3,12 +3,12 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.HIGH
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.VERY_HIGH
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRosh
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRoshMappaAndAdditionalFactors
 
-class ProtectTierATest : MockedEndpointsTestBase() {
+class ProtectTierATest : IntegrationTestBase() {
 
   @Test
   fun `Tier is A with Mappa M2`() {

@@ -9,12 +9,12 @@ import org.springframework.http.MediaType
 import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppstier.controller.TriggerCsv
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 import java.io.File
 import java.io.FileWriter
 
-class TriggerCalculationUpload : MockedEndpointsTestBase() {
+class TriggerCalculationUpload : IntegrationTestBase() {
 
   @Test
   fun `trigger a tier calculation from upload`() {

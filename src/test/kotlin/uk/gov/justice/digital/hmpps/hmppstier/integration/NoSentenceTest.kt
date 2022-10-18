@@ -1,10 +1,10 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 
-class NoSentenceTest : MockedEndpointsTestBase() {
+class NoSentenceTest : IntegrationTestBase() {
 
   @Test
   fun `Tier is calculated with change level zero when no sentence is found`() {

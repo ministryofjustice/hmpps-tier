@@ -1,10 +1,10 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.MockedEndpointsTestBase
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 
-class AdditionalRequirementsTest : MockedEndpointsTestBase() {
+class AdditionalRequirementsTest : IntegrationTestBase() {
 
   @Test
   fun `Additional requirements do not cause a processing error`() {
