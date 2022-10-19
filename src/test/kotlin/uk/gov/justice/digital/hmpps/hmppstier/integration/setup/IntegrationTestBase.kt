@@ -56,12 +56,9 @@ abstract class IntegrationTestBase {
   @Autowired
   protected lateinit var hmppsQueueService: HmppsQueueService
 
-  @Qualifier("hmppsoffenderqueue-sqs-client")
-  @Autowired
-  lateinit var offenderEventsClient: AmazonSQSAsync
-
   private val offenderEventsQueue by lazy { hmppsQueueService.findByQueueId("hmppsoffenderqueue") ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found") }
   private val offenderEventsDlqClient by lazy { offenderEventsQueue.sqsDlqClient as AmazonSQS }
+  private val offenderEventsClient by lazy { offenderEventsQueue.sqsClient as AmazonSQSAsync }
 
   @Autowired
   internal lateinit var jwtHelper: JwtAuthHelper
@@ -182,12 +179,7 @@ abstract class IntegrationTestBase {
     setupActiveConvictions(crn, nonCustodialTerminatedConvictionResponse())
 
   fun setupRestrictiveRequirements(crn: String) =
-    communityApiResponseWithQs(
-      restrictiveRequirementsResponse(),
-      "/secure/offenders/crn/$crn/convictions/\\d+/requirements",
-      Parameter("activeOnly", "true"),
-      Parameter("excludeSoftDeleted", "true")
-    )
+    setupRequirementsResponse(crn, restrictiveRequirementsResponse())
 
   fun setupAdditionalRequirements(crn: String) =
     setupRequirementsResponse(crn, additionalRequirementsResponse())
@@ -202,19 +194,9 @@ abstract class IntegrationTestBase {
     Parameter("excludeSoftDeleted", "true")
   )
 
-  fun setupRestrictiveAndNonRestrictiveRequirements(crn: String) =
-    communityApiResponseWithQs(
-      restrictiveAndNonRestrictiveRequirementsResponse(),
-      "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true"),
-      Parameter("excludeSoftDeleted", "true")
-    )
+  fun setupRestrictiveAndNonRestrictiveRequirements(crn: String) = setupRequirementsResponse(crn, restrictiveAndNonRestrictiveRequirementsResponse())
 
-  fun setupNonRestrictiveRequirements(crn: String) =
-    communityApiResponseWithQs(
-      nonRestrictiveRequirementsResponse(),
-      "/secure/offenders/crn/$crn/convictions/\\d+/requirements", Parameter("activeOnly", "true"),
-      Parameter("excludeSoftDeleted", "true")
-    )
+  fun setupNonRestrictiveRequirements(crn: String) = setupRequirementsResponse(crn, nonRestrictiveRequirementsResponse())
 
   fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true, assessmentId: String, tier: String = "A1") {
     setupRegistrations(registrationsResponseWithMappa(), crn)
@@ -231,8 +213,7 @@ abstract class IntegrationTestBase {
   fun expectTierCalculationToHaveFailed() = oneMessageCurrentlyOnDeadletterQueue(offenderEventsDlqClient, offenderEventsQueue.dlqUrl!!)
 
   fun expectNoUpdatedTierCalculation() {
-    // calculation succeeded but is unchanged, so no calculation complete events
-    // and message is not returned to the event queue
+    // calculation succeeded but is unchanged, so no calculation complete events and message is not returned to the event queue
     noMessagesCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
     noMessagesCurrentlyOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl)
   }
@@ -270,17 +251,17 @@ abstract class IntegrationTestBase {
   fun expectLatestTierCalculation(tierScore: String) {
     oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
     val crn: String = tierChangeEvent().crn()
-    getLatestTierCalculation(crn)
+    latestTierCalculationResult(crn)
       .isOk
       .expectBody()
       .jsonPath("tierScore").isEqualTo(tierScore)
   }
 
   fun expectLatestTierCalculationNotFound(crn: String) =
-    getLatestTierCalculation(crn)
+    latestTierCalculationResult(crn)
       .isNotFound
 
-  private fun getLatestTierCalculation(crn: String) = webTestClient
+  private fun latestTierCalculationResult(crn: String) = webTestClient
     .get()
     .uri("crn/$crn/tier")
     .headers(setAuthorisation())
