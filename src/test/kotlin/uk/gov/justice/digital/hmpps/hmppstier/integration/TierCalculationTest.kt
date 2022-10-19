@@ -155,7 +155,7 @@ class TierCalculationTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `404 from named tier calculation if there is no calculation`() {
+  fun `404 from specified tier calculation`() {
     val crn = "XNOCALC"
     expectTierCalculationNotFound(crn, "5118f557-211e-4457-b75b-6df1f996d308")
   }

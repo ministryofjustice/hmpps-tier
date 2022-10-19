@@ -260,58 +260,47 @@ abstract class IntegrationTestBase {
     val detailUrl = "http://localhost:8080/crn/$crn/tier/$calculationId"
     assertThat(changeEvent.detailUrl).isEqualTo(detailUrl)
     assertThat(changeEvent.eventType).isEqualTo("tier.calculation.complete")
-    assertThat(ZonedDateTime.parse(changeEvent.occurredAt, ISO_OFFSET_DATE_TIME)).isNotNull()
-    webTestClient
-      .get()
-      .uri("crn/$crn/tier/$calculationId")
-      .headers(setAuthorisation())
-      .exchange()
-      .expectStatus()
+    assertThat(ZonedDateTime.parse(changeEvent.occurredAt, ISO_OFFSET_DATE_TIME)).isNotNull
+    tierCalculationResult(crn, calculationId.toString())
+      .isOk
+      .expectBody()
+      .jsonPath("tierScore").isEqualTo(tierScore)
+  }
+
+  fun expectTierCalculationNotFound(crn: String, calculationId: String) =
+    tierCalculationResult(crn, calculationId)
+      .isNotFound
+
+  fun expectTierCalculationBadRequest(crn: String, calculationId: String) =
+    tierCalculationResult(crn, calculationId)
+      .isBadRequest
+
+  private fun tierCalculationResult(crn: String, calculationId: String) = webTestClient
+    .get()
+    .uri("crn/$crn/tier/$calculationId")
+    .headers(setAuthorisation())
+    .exchange()
+    .expectStatus()
+
+  fun expectLatestTierCalculation(tierScore: String) {
+    oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
+    val crn: String = tierChangeEvent().crn()
+    getLatestTierCalculation(crn)
       .isOk
       .expectBody()
       .jsonPath("tierScore").isEqualTo(tierScore)
   }
 
   fun expectLatestTierCalculationNotFound(crn: String) =
-    webTestClient
-      .get()
-      .uri("crn/$crn/tier")
-      .headers(setAuthorisation())
-      .exchange()
-      .expectStatus()
+    getLatestTierCalculation(crn)
       .isNotFound
 
-  fun expectTierCalculationNotFound(crn: String, calculationId: String) =
-    webTestClient
-      .get()
-      .uri("crn/$crn/tier/$calculationId")
-      .headers(setAuthorisation())
-      .exchange()
-      .expectStatus()
-      .isNotFound
-
-  fun expectTierCalculationBadRequest(crn: String, calculationId: String) =
-    webTestClient
-      .get()
-      .uri("crn/$crn/tier/$calculationId")
-      .headers(setAuthorisation())
-      .exchange()
-      .expectStatus()
-      .isBadRequest
-
-  fun expectLatestTierCalculation(tierScore: String) {
-    oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
-    val changeEvent: TierChangeEvent = tierChangeEvent()
-    webTestClient
-      .get()
-      .uri("crn/${changeEvent.crn()}/tier")
-      .headers(setAuthorisation())
-      .exchange()
-      .expectStatus()
-      .isOk
-      .expectBody()
-      .jsonPath("tierScore").isEqualTo(tierScore)
-  }
+  private fun getLatestTierCalculation(crn: String) = webTestClient
+    .get()
+    .uri("crn/$crn/tier")
+    .headers(setAuthorisation())
+    .exchange()
+    .expectStatus()
 
   private fun tierChangeEvent(): TierChangeEvent {
     val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
