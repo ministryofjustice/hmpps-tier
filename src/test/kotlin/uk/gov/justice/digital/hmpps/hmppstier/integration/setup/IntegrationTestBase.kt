@@ -29,7 +29,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepo
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
-import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.Month.JANUARY
@@ -62,7 +61,6 @@ abstract class IntegrationTestBase {
   lateinit var offenderEventsClient: AmazonSQSAsync
 
   private val offenderEventsQueue by lazy { hmppsQueueService.findByQueueId("hmppsoffenderqueue") ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found") }
-
   private val offenderEventsDlqClient by lazy { offenderEventsQueue.sqsDlqClient as AmazonSQS }
 
   @Autowired
@@ -131,7 +129,7 @@ abstract class IntegrationTestBase {
     setupNeeds(assessmentsApiNoSeverityNeedsResponse(), assessmentId)
   }
 
-  fun setupCommunityApiAssessment(crn: String, rsr: BigDecimal = BigDecimal(23.0), ogrs: String = "21") {
+  fun setupCommunityApiAssessment(crn: String, rsr: String = "23.0", ogrs: String = "21") {
     communityApiResponse(communityApiAssessmentsResponse(rsr, ogrs), "/secure/offenders/crn/$crn/assessments")
   }
 
@@ -192,20 +190,17 @@ abstract class IntegrationTestBase {
     )
 
   fun setupAdditionalRequirements(crn: String) =
-    communityApiResponseWithQs(
-      additionalRequirementsResponse(),
-      "/secure/offenders/crn/$crn/convictions/\\d+/requirements",
-      Parameter("activeOnly", "true"),
-      Parameter("excludeSoftDeleted", "true")
-    )
+    setupRequirementsResponse(crn, additionalRequirementsResponse())
 
   fun setupNoRequirements(crn: String) =
-    communityApiResponseWithQs(
-      noRequirementsResponse(),
-      "/secure/offenders/crn/$crn/convictions/\\d+/requirements",
-      Parameter("activeOnly", "true"),
-      Parameter("excludeSoftDeleted", "true")
-    )
+    setupRequirementsResponse(crn, noRequirementsResponse())
+
+  private fun setupRequirementsResponse(crn: String, response: HttpResponse): Array<out Any>? = communityApiResponseWithQs(
+    response,
+    "/secure/offenders/crn/$crn/convictions/\\d+/requirements",
+    Parameter("activeOnly", "true"),
+    Parameter("excludeSoftDeleted", "true")
+  )
 
   fun setupRestrictiveAndNonRestrictiveRequirements(crn: String) =
     communityApiResponseWithQs(

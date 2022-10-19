@@ -6,7 +6,6 @@ import org.mockserver.model.MediaType.APPLICATION_JSON
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.TEMPER_CONTROL
-import java.math.BigDecimal
 import java.nio.file.Files.readString
 import java.nio.file.Paths
 import java.time.LocalDate
@@ -17,9 +16,9 @@ import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 const val COMMUNITY_API_FIXTURES: String = "src/test/resources/fixtures/community-api"
 const val ASSESSMENT_API_FIXTURES: String = "src/test/resources/fixtures/assessment-api"
 
-fun communityApiAssessmentsResponse(rsr: BigDecimal, ogrs: String): HttpResponse = jsonResponseOf(
+fun communityApiAssessmentsResponse(rsr: String, ogrs: String): HttpResponse = jsonResponseOf(
   responseFrom("$COMMUNITY_API_FIXTURES/assessments.json")
-    .replace("rsrScoreToReplace", rsr.toPlainString())
+    .replace("rsrScoreToReplace", rsr)
     .replace("ogrsScoreToReplace", ogrs)
 )
 

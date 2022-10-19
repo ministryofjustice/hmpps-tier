@@ -31,7 +31,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsRes
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRoshMappaAndAdditionalFactors
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.unpaidWorkRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse
-import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -61,7 +60,7 @@ class SetupData(
   private var mappa: String = "NO_MAPPA"
   private var ogrs: String = "0"
   private var rosh: String = "NO_ROSH"
-  private var rsr: BigDecimal = BigDecimal(0)
+  private var rsr: String = "0"
   private var assessmentAnswers: MutableMap<String, String> = mutableMapOf(
     IMPULSIVITY.answerCode to "0",
     TEMPER_CONTROL.answerCode to "0",
@@ -69,7 +68,7 @@ class SetupData(
   )
 
   fun setRsr(rsr: String) {
-    this.rsr = BigDecimal(rsr)
+    this.rsr = rsr
   }
 
   fun setRosh(rosh: String) {
