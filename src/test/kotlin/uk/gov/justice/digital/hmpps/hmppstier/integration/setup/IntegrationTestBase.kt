@@ -140,9 +140,7 @@ abstract class IntegrationTestBase {
     communityApiResponse(maleOffenderResponse(tier), "/secure/offenders/crn/$crn/all")
   }
 
-  fun setupMaleOffenderNotFound(crn: String) {
-    communityApiResponse(notFoundResponse(), "/secure/offenders/crn/$crn/all")
-  }
+  fun setupMaleOffenderNotFound(crn: String) = communityApiResponse(notFoundResponse(), "/secure/offenders/crn/$crn/all")
 
   fun restOfSetupWithFemaleOffender(crn: String, assessmentId: String) {
     setupNoDeliusAssessment(crn)
@@ -151,21 +149,13 @@ abstract class IntegrationTestBase {
     setupNeeds(notFoundResponse(), assessmentId)
   }
 
-  fun setupNoDeliusAssessment(crn: String) {
-    communityApiResponse(emptyCommunityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments")
-  }
+  fun setupNoDeliusAssessment(crn: String) = communityApiResponse(emptyCommunityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments")
 
-  fun setupNeeds(needs: HttpResponse, assessmentId: String) {
-    assessmentApiResponse(needs, "/assessments/oasysSetId/$assessmentId/needs")
-  }
+  fun setupNeeds(needs: HttpResponse, assessmentId: String) = assessmentApiResponse(needs, "/assessments/oasysSetId/$assessmentId/needs")
 
-  fun setupCurrentAssessment(crn: String, assessmentId: String) {
-    setupLatestAssessment(crn, LocalDate.now().year, assessmentId)
-  }
+  fun setupCurrentAssessment(crn: String, assessmentId: String) = setupLatestAssessment(crn, LocalDate.now().year, assessmentId)
 
-  fun setupOutdatedAssessment(crn: String, assessmentId: String) {
-    setupLatestAssessment(crn, 2018, assessmentId)
-  }
+  fun setupOutdatedAssessment(crn: String, assessmentId: String) = setupLatestAssessment(crn, 2018, assessmentId)
 
   private fun setupLatestAssessment(crn: String, year: Int, assessmentId: String) =
     assessmentApiResponse(
