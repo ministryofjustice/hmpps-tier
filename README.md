@@ -6,8 +6,10 @@
 ### [MAS-452](https://dsdmoj.atlassian.net/browse/MAS-452) instructions 
 
 How to get details of CRNs with different tier calculations in UTM and Delius
-1. Download the latest NART report as per [these instructions](https://dsdmoj.atlassian.net/wiki/spaces/MaS/pages/3533964702/WMT+Run+book#Getting-the-latest-NART-extracts) and put it into `src/test/resources/compare-tiers/delius/wmt_ps.xslx`
-2. Get the latest tiers by running this query and exporting it as a CSV (takes around 40 seconds to run). Make sure you change the date to the date and time of the last NART extract.
+1. Download the latest NART report as per [these instructions](https://dsdmoj.atlassian.net/wiki/spaces/MaS/pages/3533964702/WMT+Run+book#Getting-the-latest-NART-extracts) and put it into `src/test/resources/compare-tiers/delius/wmt_ps.xlsx`
+2. Get the latest tiers by running this query and exporting it as a CSV (takes around 40 seconds to run). 
+
+#### Make sure you change the date to the date and time of the last NART extract.
 
 ```   
    SELECT tc.CRN, data->'protect'->>'tier' AS Protect,
