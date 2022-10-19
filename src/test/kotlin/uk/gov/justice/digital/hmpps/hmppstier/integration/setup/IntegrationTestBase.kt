@@ -17,7 +17,6 @@ import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.mockserver.model.Parameter
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.http.HttpHeaders
@@ -47,18 +46,14 @@ abstract class IntegrationTestBase {
   @Autowired
   lateinit var objectMapper: ObjectMapper
 
-  @Qualifier("hmppscalculationcompletequeue-sqs-client")
-  @Autowired
-  lateinit var calculationCompleteClient: AmazonSQSAsync
-
-  protected val calculationCompleteUrl by lazy { hmppsQueueService.findByQueueId("hmppscalculationcompletequeue")?.queueUrl ?: throw MissingQueueException("HmppsQueue hmppscalculationcompletequeue not found") }
-
   @Autowired
   protected lateinit var hmppsQueueService: HmppsQueueService
 
   private val offenderEventsQueue by lazy { hmppsQueueService.findByQueueId("hmppsoffenderqueue") ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found") }
   private val offenderEventsDlqClient by lazy { offenderEventsQueue.sqsDlqClient as AmazonSQS }
   private val offenderEventsClient by lazy { offenderEventsQueue.sqsClient as AmazonSQSAsync }
+  private val calculationCompleteQueue by lazy { hmppsQueueService.findByQueueId("hmppscalculationcompletequeue") ?: throw MissingQueueException("HmppsQueue hmppscalculationcompletequeue not found") }
+  private val calculationCompleteClient by lazy { calculationCompleteQueue.sqsClient as AmazonSQSAsync }
 
   @Autowired
   internal lateinit var jwtHelper: JwtAuthHelper
@@ -78,7 +73,7 @@ abstract class IntegrationTestBase {
   @BeforeEach
   fun `purge Queues`() {
     offenderEventsClient.purgeQueue(PurgeQueueRequest(offenderEventsQueue.queueUrl))
-    calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
+    calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteQueue.queueUrl))
     offenderEventsDlqClient.purgeQueue(PurgeQueueRequest(offenderEventsQueue.dlqUrl))
     tierCalculationRepository.deleteAll()
     communityApi.reset()
@@ -214,12 +209,12 @@ abstract class IntegrationTestBase {
 
   fun expectNoUpdatedTierCalculation() {
     // calculation succeeded but is unchanged, so no calculation complete events and message is not returned to the event queue
-    noMessagesCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
+    noMessagesCurrentlyOnQueue(calculationCompleteClient, calculationCompleteQueue.queueUrl)
     noMessagesCurrentlyOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl)
   }
 
   fun expectTierChangedById(tierScore: String) {
-    oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
+    oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteQueue.queueUrl)
     val changeEvent: TierChangeEvent = tierChangeEvent()
     val crn = changeEvent.crn()
     val calculationId = changeEvent.calculationId()
@@ -249,7 +244,7 @@ abstract class IntegrationTestBase {
     .expectStatus()
 
   fun expectLatestTierCalculation(tierScore: String) {
-    oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
+    oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteQueue.queueUrl)
     val crn: String = tierChangeEvent().crn()
     latestTierCalculationResult(crn)
       .isOk
@@ -269,7 +264,7 @@ abstract class IntegrationTestBase {
     .expectStatus()
 
   private fun tierChangeEvent(): TierChangeEvent {
-    val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
+    val message = calculationCompleteClient.receiveMessage(calculationCompleteQueue.queueUrl)
     val sqsMessage: SQSMessage = objectMapper.readValue(message.messages[0].body, SQSMessage::class.java)
     return objectMapper.readValue(sqsMessage.message, TierChangeEvent::class.java)
   }
