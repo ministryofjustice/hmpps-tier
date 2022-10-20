@@ -1,12 +1,9 @@
-# hmpps-tier
+# DO NOT MERGE
 
-[![CircleCI](https://circleci.com/gh/ministryofjustice/hmpps-tier/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/hmpps-tier)
-[![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://hmpps-tier-dev.hmpps.service.justice.gov.uk/swagger-ui.html)
-
-### [MAS-452](https://dsdmoj.atlassian.net/browse/MAS-452) instructions 
+## [MAS-452](https://dsdmoj.atlassian.net/browse/MAS-452) instructions for comparing tiers
 
 How to get details of CRNs with different tier calculations in UTM and Delius
-1. Download the latest NART report as per [these instructions](https://dsdmoj.atlassian.net/wiki/spaces/MaS/pages/3533964702/WMT+Run+book#Getting-the-latest-NART-extracts) and put it into `src/test/resources/compare-tiers/delius/wmt_ps.xlsx`
+1. Download the latest NART report as per [these instructions](https://dsdmoj.atlassian.net/wiki/spaces/MaS/pages/3533964702/WMT+Run+book#Getting-the-latest-NART-extract) and put it into `src/test/resources/compare-tiers/delius/wmt_ps.xlsx`
 2. Get the latest tiers by running this query and exporting it as a CSV (takes around 40 seconds to run). 
 
 #### Make sure you change the date to the date and time of the last NART extract.
@@ -21,7 +18,7 @@ How to get details of CRNs with different tier calculations in UTM and Delius
    ```
 You can do this in dBeaver or [adapt the instructions here](https://dsdmoj.atlassian.net/wiki/spaces/MaS/pages/2963734549/Tiering+Run+book#Accessing-the-database) 
 
-Put the csv file into `src/test/resources/compare-tiers/utm/utm.csv`. Make sure this file has header names
+Put the csv file into `src/test/resources/compare-tiers/utm/utm.csv`. Make sure this file has the column names as headers.
 
 
 3. Run ./gradlew compareTiers
