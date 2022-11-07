@@ -240,12 +240,16 @@ abstract class IntegrationTestBase {
     tierCalculationResult(crn, calculationId)
       .isBadRequest
 
-  private fun tierCalculationResult(crn: String, calculationId: String) = webTestClient
+  private fun tierCalculationResult(crn: String, calculationId: String) = request("crn/$crn/tier/$calculationId")
+
+  private fun request(uri: String) = webTestClient
     .get()
-    .uri("crn/$crn/tier/$calculationId")
+    .uri(uri)
     .headers(setAuthorisation())
     .exchange()
     .expectStatus()
+
+  private fun latestTierCalculationResult(crn: String) = request("crn/$crn/tier")
 
   fun expectLatestTierCalculation(tierScore: String) {
     oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteQueue.queueUrl)
@@ -259,13 +263,6 @@ abstract class IntegrationTestBase {
   fun expectLatestTierCalculationNotFound(crn: String) =
     latestTierCalculationResult(crn)
       .isNotFound
-
-  private fun latestTierCalculationResult(crn: String) = webTestClient
-    .get()
-    .uri("crn/$crn/tier")
-    .headers(setAuthorisation())
-    .exchange()
-    .expectStatus()
 
   private fun tierChangeEvent(): TierChangeEvent {
     val message = calculationCompleteClient.receiveMessage(calculationCompleteQueue.queueUrl)
