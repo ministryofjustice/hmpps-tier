@@ -27,6 +27,7 @@ class TriggerTierCalculationController(private val triggerCalculationService: Tr
     val reader = InputStreamReader(file.inputStream)
     val cb = CsvToBeanBuilder<TriggerCsv>(reader)
       .withType(TriggerCsv::class.java)
+      .withIgnoreEmptyLine(true)
       .build()
     val unallocatedCases = cb.parse()
     reader.close()

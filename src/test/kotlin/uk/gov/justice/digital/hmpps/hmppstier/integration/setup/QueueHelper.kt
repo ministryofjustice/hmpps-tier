@@ -40,6 +40,15 @@ fun oneMessageCurrentlyOnDeadletterQueue(client: AmazonSQS, queueUrl: String) {
   } matches { it == 1 }
 }
 
+fun noMessagesCurrentlyOnDeadletterQueue(client: AmazonSQS, queueUrl: String) {
+  await untilCallTo {
+    getNumberOfMessagesCurrentlyOnDeadLetterQueue(
+      client,
+      queueUrl
+    )
+  } matches { it == 0 }
+}
+
 private fun getNumberOfMessagesCurrentlyOnQueue(client: AmazonSQSAsync, queueUrl: String): Int? {
   val queueAttributes = client.getQueueAttributes(queueUrl, listOf("ApproximateNumberOfMessages"))
   return queueAttributes.attributes["ApproximateNumberOfMessages"]?.toInt()

@@ -207,6 +207,10 @@ abstract class IntegrationTestBase {
 
   fun expectTierCalculationToHaveFailed() = oneMessageCurrentlyOnDeadletterQueue(offenderEventsDlqClient, offenderEventsQueue.dlqUrl!!)
 
+  fun expectNoMessagesOnQueueOrDeadLetterQueue() {
+    noMessagesCurrentlyOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl)
+    noMessagesCurrentlyOnDeadletterQueue(offenderEventsDlqClient, offenderEventsQueue.dlqUrl!!)
+  }
   fun expectNoUpdatedTierCalculation() {
     // calculation succeeded but is unchanged, so no calculation complete events and message is not returned to the event queue
     noMessagesCurrentlyOnQueue(calculationCompleteClient, calculationCompleteQueue.queueUrl)

@@ -5,7 +5,7 @@ import com.opencsv.bean.StatefulBeanToCsv
 import com.opencsv.bean.StatefulBeanToCsvBuilder
 import org.junit.jupiter.api.Test
 import org.springframework.core.io.FileSystemResource
-import org.springframework.http.MediaType
+import org.springframework.http.MediaType.MULTIPART_FORM_DATA
 import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppstier.controller.TriggerCsv
@@ -27,13 +27,33 @@ class TriggerCalculationUpload : IntegrationTestBase() {
 
     webTestClient.post()
       .uri("/crn/upload")
-      .contentType(MediaType.MULTIPART_FORM_DATA)
+      .contentType(MULTIPART_FORM_DATA)
       .body(generateMultipartBody(crn))
+      .exchange()
+      .expectStatus()
+      .isOk
+    expectTierChangedById("A2")
+  }
+
+  @Test
+  fun `do not trigger a calculation for blank rows`() {
+    val crn = "X546739"
+
+    setupSCCustodialSentence(crn)
+    setupRegistrations(registrationsResponseWithMappa(), crn)
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890")
+    setupOutdatedAssessment(crn, "1234567890")
+
+    webTestClient.post()
+      .uri("/crn/upload")
+      .contentType(MULTIPART_FORM_DATA)
+      .body(generateMultipartBody("", crn))
       .exchange()
       .expectStatus()
       .isOk
 
     expectTierChangedById("A2")
+    expectNoMessagesOnQueueOrDeadLetterQueue()
   }
 
   @Test
@@ -55,7 +75,7 @@ class TriggerCalculationUpload : IntegrationTestBase() {
 
     webTestClient.post()
       .uri("/crn/upload")
-      .contentType(MediaType.MULTIPART_FORM_DATA)
+      .contentType(MULTIPART_FORM_DATA)
       .body(generateMultipartBody(crn))
       .exchange()
       .expectStatus()
@@ -64,8 +84,8 @@ class TriggerCalculationUpload : IntegrationTestBase() {
     expectNoUpdatedTierCalculation()
   }
 
-  private fun generateMultipartBody(crn: String): BodyInserters.MultipartInserter {
-    val cases = listOf(TriggerCsv(crn))
+  private fun generateMultipartBody(crn1: String, crn2: String = ""): BodyInserters.MultipartInserter {
+    val cases = listOf(TriggerCsv(crn1), TriggerCsv(crn2))
     val csvFile = generateCsv(cases)
     val multipartBodyBuilder = MultipartBodyBuilder()
     multipartBodyBuilder.part("file", FileSystemResource(csvFile))
