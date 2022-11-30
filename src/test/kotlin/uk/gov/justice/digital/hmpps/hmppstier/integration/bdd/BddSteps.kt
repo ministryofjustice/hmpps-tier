@@ -102,7 +102,7 @@ class BddSteps : En {
       setupData.setRosh(roshCode)
     }
     Given("an active MAPPA registration of M Level {string}") { mappa: String ->
-      val mappaCode = Mappa.from("M$mappa")?.registerCode
+      val mappaCode = Mappa.from("M$mappa", "MAPP")?.registerCode
       setupData.setMappa(mappaCode!!)
     }
     Given("no active MAPPA Registration") {

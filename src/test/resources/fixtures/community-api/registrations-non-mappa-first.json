@@ -1,0 +1,222 @@
+{
+  "registrations": [
+    {
+      "registrationId": 1503887049,
+      "offenderId": 1234567890,
+      "register": {
+        "code": "5",
+        "description": "Public Protection"
+      },
+      "type": {
+        "code": "AVIS",
+        "description": "ViSOR"
+      },
+      "riskColour": "Amber",
+      "startDate": "2020-02-18",
+      "nextReviewDate": "2030-02-18",
+      "reviewPeriodMonths": 6,
+      "registeringTeam": {
+        "code": "N03MPP",
+        "description": "Wales - MAPPA Team"
+      },
+      "registeringOfficer": {
+        "code": "ABC1235",
+        "forenames": "Tim",
+        "surname": "Smith",
+        "unallocated": false
+      },
+      "registeringProbationArea": {
+        "code": "N03",
+        "description": "Wales"
+      },
+      "warnUser": false,
+      "active": true,
+      "numberOfPreviousDeregistrations": 0
+    },
+    {
+      "registrationId": 1502006175,
+      "offenderId": 1234567890,
+      "register": {
+        "code": "2",
+        "description": "Alerts"
+      },
+      "type": {
+        "code": "WEAP",
+        "description": "Weapons"
+      },
+      "riskColour": "Red",
+      "startDate": "2016-06-28",
+      "nextReviewDate": "2025-11-14",
+      "reviewPeriodMonths": 3,
+      "registeringTeam": {
+        "code": "N03F01",
+        "description": "Wrexham - Team 1"
+      },
+      "registeringOfficer": {
+        "code": "ABC1235",
+        "forenames": "Tim",
+        "surname": "Smith",
+        "unallocated": false
+      },
+      "registeringProbationArea": {
+        "code": "N03",
+        "description": "Wales"
+      },
+      "warnUser": false,
+      "active": true,
+      "numberOfPreviousDeregistrations": 0
+    },
+    {
+      "registrationId": 1502005737,
+      "offenderId": 1234567890,
+      "register": {
+        "code": "2",
+        "description": "Alerts"
+      },
+      "type": {
+        "code": "INLL",
+        "description": "Lifer"
+      },
+      "riskColour": "Red",
+      "startDate": "2016-06-28",
+      "nextReviewDate": "2025-11-14",
+      "reviewPeriodMonths": 12,
+      "notes": "IPP case",
+      "registeringTeam": {
+        "code": "N03F01",
+        "description": "Wrexham - Team 1"
+      },
+      "registeringOfficer": {
+        "code": "ABC1235",
+        "forenames": "Tim",
+        "surname": "Smith",
+        "unallocated": false
+      },
+      "registeringProbationArea": {
+        "code": "N03",
+        "description": "Wales"
+      },
+      "registerLevel": {
+        "code": "M2",
+        "description": "MAPPA Level 2"
+      },
+      "registerCategory": {
+        "code": "LF01",
+        "description": "Lifer - IPP"
+      },
+      "warnUser": false,
+      "active": true,
+      "numberOfPreviousDeregistrations": 0
+    },
+    {
+      "registrationId": 1300019957,
+      "offenderId": 1234567890,
+      "register": {
+        "code": "1",
+        "description": "RoSH"
+      },
+      "type": {
+        "code": "RHRH",
+        "description": "High RoSH"
+      },
+      "riskColour": "Red",
+      "startDate": "2011-11-17",
+      "nextReviewDate": "2024-11-14",
+      "reviewPeriodMonths": 6,
+      "notes": "IPP case",
+      "registeringTeam": {
+        "code": "N03UAT",
+        "description": "Unallocated Team(N03)"
+      },
+      "registeringOfficer": {
+        "code": "ABC1235",
+        "forenames": "Tim",
+        "surname": "Smith",
+        "unallocated": false
+      },
+      "registeringProbationArea": {
+        "code": "N03",
+        "description": "Wales"
+      },
+      "warnUser": false,
+      "active": true,
+      "numberOfPreviousDeregistrations": 0
+    },
+    {
+      "registrationId": 1300011575,
+      "offenderId": 1234567890,
+      "register": {
+        "code": "4",
+        "description": "Information"
+      },
+      "type": {
+        "code": "OMP3",
+        "description": "OM Phase 3 Case"
+      },
+      "riskColour": "Amber",
+      "startDate": "2011-11-15",
+      "nextReviewDate": "2024-11-14",
+      "reviewPeriodMonths": 6,
+      "notes": "IPP\nRegistering Staff ID re-assigned in TR Migration",
+      "registeringTeam": {
+        "code": "N03UAT",
+        "description": "Unallocated Team(N03)"
+      },
+      "registeringOfficer": {
+        "code": "ABC1235",
+        "forenames": "Tim",
+        "surname": "Smith",
+        "unallocated": false
+      },
+      "registeringProbationArea": {
+        "code": "N03",
+        "description": "Wales"
+      },
+      "warnUser": false,
+      "active": true,
+      "numberOfPreviousDeregistrations": 0
+    },
+    {
+      "registrationId": 1500830808,
+      "offenderId": 1234567890,
+      "register": {
+        "code": "5",
+        "description": "Public Protection"
+      },
+      "type": {
+        "code": "MAPP",
+        "description": "MAPPA"
+      },
+      "riskColour": "Red",
+      "startDate": "2008-10-24",
+      "nextReviewDate": "2022-09-08",
+      "reviewPeriodMonths": 3,
+      "notes": "IPP case",
+      "registeringTeam": {
+        "code": "C10WR2",
+        "description": "Wrexham Team 2"
+      },
+      "registeringOfficer": {
+        "code": "ABC1235",
+        "forenames": "Tim",
+        "surname": "Smith",
+        "unallocated": false
+      },
+      "registeringProbationArea": {
+        "code": "C10",
+        "description": "CPA Wales"
+      },
+      "registerLevel": {
+        "code": "M0",
+        "description": "MAPPA Nominal (level to be determined)"
+      },
+      "registerCategory": {
+        "code": "M2",
+        "description": "MAPPA Cat 2"
+      },
+      "warnUser": false,
+      "active": true,
+      "numberOfPreviousDeregistrations": 0
+    }
+  ]
+}
