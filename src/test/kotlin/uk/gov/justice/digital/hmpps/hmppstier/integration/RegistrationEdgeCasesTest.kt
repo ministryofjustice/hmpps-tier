@@ -5,7 +5,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestB
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiNoSeverityNeedsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.historicRegistrationsResponseWithMappa
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithLatestNonMappa
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithNoLevel
 
@@ -41,18 +40,6 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
     setupNoDeliusAssessment(crn)
     calculateTierFor(crn)
     expectTierChangedById("A2")
-  }
-
-  @Test
-  fun `uses mappa registration when latest is non-mappa but has mappa registration level`() {
-    val crn = "X445599"
-    setupNCCustodialSentence(crn)
-    setupRegistrations(registrationsResponseWithLatestNonMappa(), crn)
-    setupMaleOffender(crn)
-    setupNeeds(assessmentsApiNoSeverityNeedsResponse(), "6234507890")
-    setupNoDeliusAssessment(crn)
-    calculateTierFor(crn)
-    expectTierChangedById("B2")
   }
 
   @Test
