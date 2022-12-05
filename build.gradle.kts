@@ -7,7 +7,7 @@ plugins {
   id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
   jacoco
   java
-  id("io.gitlab.arturbosch.detekt").version("1.20.0")
+  id("io.gitlab.arturbosch.detekt").version("1.22.0")
 }
 
 configurations {
