@@ -92,12 +92,15 @@ workflows:
             - hmpps-common-vars
             - hmpps-tier-preprod
           requires:
-            - deploy_dev
+            - validate
+            - build_docker
+            - helm_lint
           helm_timeout: 5m
       - request-prod-approval:
           type: approval
           requires:
             - deploy_preprod
+            - deploy_dev
       - hmpps/deploy_env:
           name: deploy_prod
           env: "prod"
