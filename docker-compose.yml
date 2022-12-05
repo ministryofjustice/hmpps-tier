@@ -1,7 +1,7 @@
 version: "3"
 services:
   postgres:
-    image: postgres:14
+    image: postgres:11
     networks:
       - hmpps
     container_name: hmpps-tier-postgres
@@ -25,7 +25,7 @@ services:
       - DOCKER_HOST=unix:///var/run/docker.sock
       - DEFAULT_REGION=eu-west-2
     volumes:
-      - "${TMPDIR:-/tmp/localstack}:/tmp/localstack"
+      - "${TMPDIR:-/tmp/localstack}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
   community-api:
     image: quay.io/hmpps/community-api:latest
