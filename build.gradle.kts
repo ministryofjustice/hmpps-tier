@@ -16,7 +16,7 @@ configurations {
   }
 }
 val cucumberVersion by extra("7.3.3")
-val springDocVersion by extra("1.6.9")
+val springDocVersion by extra("1.6.13")
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
