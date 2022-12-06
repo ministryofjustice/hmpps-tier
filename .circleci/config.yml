@@ -91,6 +91,10 @@ workflows:
           context:
             - hmpps-common-vars
             - hmpps-tier-preprod
+          filters:
+            branches:
+              only:
+                - main
           requires:
             - validate
             - build_docker
@@ -133,23 +137,22 @@ workflows:
           slack_channel: << pipeline.parameters.alerts-slack-channel >>
           context:
             - hmpps-common-vars
-# currently disabled as no support for jdk 18 or kotlin 1.7
-#      - hmpps/veracode_pipeline_scan:
-#          slack_channel: << pipeline.parameters.alerts-slack-channel >>
-#          context:
-#            - hmpps-common-vars
-#            - veracode-credentials
-#  security-weekly:
-#    triggers:
-#      - schedule:
-#          cron: "32 5 * * 1"
-#          filters:
-#            branches:
-#              only:
-#                - main
-#    jobs:
-#      - hmpps/veracode_policy_scan:
-#          slack_channel: << pipeline.parameters.alerts-slack-channel >>
-#          context:
-#            - veracode-credentials
-#            - hmpps-common-vars
+      - hmpps/veracode_pipeline_scan:
+          slack_channel: << pipeline.parameters.alerts-slack-channel >>
+          context:
+            - hmpps-common-vars
+            - veracode-credentials
+  security-weekly:
+    triggers:
+      - schedule:
+          cron: "32 5 * * 1"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - hmpps/veracode_policy_scan:
+          slack_channel: << pipeline.parameters.alerts-slack-channel >>
+          context:
+            - veracode-credentials
+            - hmpps-common-vars
