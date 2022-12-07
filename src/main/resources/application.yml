@@ -57,6 +57,8 @@ hmpps:
     queues:
       hmppsoffenderqueue:
         asyncQueueClient: true
+      hmppsdomaineventsqueue:
+        asyncQueueClient: true
     topics:
       hmppscalculationcompletetopic:
         asyncClient: true

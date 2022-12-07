@@ -61,6 +61,14 @@ generic-service:
       HMPPS_SQS_QUEUES_HMPPSOFFENDERQUEUE_DLQ_ACCESS_KEY_ID: "access_key_id"
       HMPPS_SQS_QUEUES_HMPPSOFFENDERQUEUE_DLQ_SECRET_ACCESS_KEY: "secret_access_key"
       HMPPS_SQS_QUEUES_HMPPSOFFENDERQUEUE_DLQ_NAME: "sqs_ptpu_name"
+    hmpps-tier-domain-events-sqs-instance-output:
+      HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_QUEUE_ACCESS_KEY_ID: "access_key_id"
+      HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_QUEUE_SECRET_ACCESS_KEY: "secret_access_key"
+      HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_QUEUE_NAME: "sqs_queue_name"
+    hmpps-tier-domain-events-sqs-dl-instance-output:
+      HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_DLQ_ACCESS_KEY_ID: "access_key_id"
+      HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_DLQ_SECRET_ACCESS_KEY: "secret_access_key"
+      HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_DLQ_NAME: "sqs_queue_name"
     rds-instance-output:
       DATABASE_USERNAME: "database_username"
       DATABASE_PASSWORD: "database_password"
