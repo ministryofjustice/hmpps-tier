@@ -13,6 +13,11 @@ fun putMessageOnQueue(client: AmazonSQSAsync, queueUrl: String, crn: String) {
   client.sendMessage(queueUrl, message)
 }
 
+fun putMessageOnDomainQueue(client: AmazonSQSAsync, queueUrl: String, crn: String) {
+  val message = calculationDomainMessage(crn)
+  client.sendMessage(queueUrl, message)
+}
+
 fun noMessagesCurrentlyOnQueue(client: AmazonSQSAsync, queueUrl: String) {
   await untilCallTo {
     getNumberOfMessagesCurrentlyOnQueue(
@@ -61,5 +66,10 @@ private fun getNumberOfMessagesCurrentlyOnDeadLetterQueue(client: AmazonSQS, que
 
 private fun calculationMessage(crn: String): String {
   return Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
+    .replace("X373878", crn)
+}
+
+private fun calculationDomainMessage(crn: String): String {
+  return Files.readString(Paths.get("src/test/resources/fixtures/sqs/domain-calculation-event.json"))
     .replace("X373878", crn)
 }

@@ -52,6 +52,11 @@ abstract class IntegrationTestBase {
   private val offenderEventsQueue by lazy { hmppsQueueService.findByQueueId("hmppsoffenderqueue") ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found") }
   private val offenderEventsDlqClient by lazy { offenderEventsQueue.sqsDlqClient as AmazonSQS }
   private val offenderEventsClient by lazy { offenderEventsQueue.sqsClient as AmazonSQSAsync }
+
+  private val domainEventQueue by lazy { hmppsQueueService.findByQueueId("hmppsdomaineventsqueue") ?: throw MissingQueueException("HmppsQueue hmppsdomaineventsqueue not found") }
+  private val domainEventQueueDlqClient by lazy { domainEventQueue.sqsDlqClient as AmazonSQS }
+  private val domainEventQueueClient by lazy { domainEventQueue.sqsClient as AmazonSQSAsync }
+
   private val calculationCompleteQueue by lazy { hmppsQueueService.findByQueueId("hmppscalculationcompletequeue") ?: throw MissingQueueException("HmppsQueue hmppscalculationcompletequeue not found") }
   private val calculationCompleteClient by lazy { calculationCompleteQueue.sqsClient as AmazonSQSAsync }
 
@@ -75,6 +80,8 @@ abstract class IntegrationTestBase {
     offenderEventsClient.purgeQueue(PurgeQueueRequest(offenderEventsQueue.queueUrl))
     calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteQueue.queueUrl))
     offenderEventsDlqClient.purgeQueue(PurgeQueueRequest(offenderEventsQueue.dlqUrl))
+    domainEventQueueClient.purgeQueue(PurgeQueueRequest(domainEventQueue.queueUrl))
+    domainEventQueueDlqClient.purgeQueue(PurgeQueueRequest(domainEventQueue.dlqUrl))
     tierCalculationRepository.deleteAll()
     communityApi.reset()
     assessmentApi.reset()
@@ -204,6 +211,7 @@ abstract class IntegrationTestBase {
     communityApiResponseWithQs(response, "/secure/offenders/crn/$crn/convictions", Parameter("activeOnly", "true"))
 
   fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl, crn)
+  fun calculateTierForDomainEvent(crn: String) = putMessageOnDomainQueue(domainEventQueueClient, domainEventQueue.queueUrl, crn)
 
   fun expectTierCalculationToHaveFailed() = oneMessageCurrentlyOnDeadletterQueue(offenderEventsDlqClient, offenderEventsQueue.dlqUrl!!)
 
