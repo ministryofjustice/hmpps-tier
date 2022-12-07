@@ -27,7 +27,7 @@ class DomainEventsListener(
   private fun getCrn(msg: String): String {
     val (message) = objectMapper.readValue(msg, SQSMessage::class.java)
     return objectMapper.readValue(message, DomainEventsMessage::class.java)
-      .personReference.identifiers.first { it.type=="CRN" }.value
+      .personReference.identifiers.first { it.type == "CRN" }.value
   }
 
   companion object {
