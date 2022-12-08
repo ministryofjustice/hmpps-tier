@@ -23,14 +23,14 @@ class TierCalculationService(
   private val mandateForChange: MandateForChange = MandateForChange(communityApiService)
   private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(clock, assessmentApiService, communityApiService)
 
-  fun calculateTierForCrn(crn: String) =
+  fun calculateTierForCrn(crn: String, listener: String) =
     calculateTier(crn).let {
       val isUpdated = tierUpdater.updateTier(it, crn)
       when {
         isUpdated -> successUpdater.update(crn, it.uuid)
       }
       telemetryService.trackTierCalculated(it, isUpdated)
-      log.info("Tier calculated for $crn. Different from previous tier: $isUpdated.")
+      log.info("Tier calculated for $crn. Different from previous tier: $isUpdated from listener: $listener.")
     }
 
   private fun calculateTier(crn: String): TierCalculationEntity {

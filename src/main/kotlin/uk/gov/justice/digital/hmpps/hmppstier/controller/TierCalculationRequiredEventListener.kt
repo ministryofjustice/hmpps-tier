@@ -23,7 +23,7 @@ class TierCalculationRequiredEventListener(
   @JmsListener(destination = "hmppsoffenderqueue", containerFactory = "hmppsQueueContainerFactoryProxy")
   fun listen(msg: String) {
     val (crn) = getCrn(msg)
-    calculator.calculateTierForCrn(crn)
+    calculator.calculateTierForCrn(crn, "TierCalculationRequiredEventListener")
   }
 
   private fun getCrn(msg: String): TierCalculationMessage {
