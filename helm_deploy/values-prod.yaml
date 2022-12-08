@@ -19,8 +19,10 @@ generic-service:
 generic-prometheus-alerts:
   sqsOldestAlertQueueNames:
     - "Digital-Prison-Services-prod-hmpps_tier_offender_events_queue"
+    - "Digital-Prison-Services-prod-hmpps_tier_calculation_domain_events_queue"
   sqsNumberAlertQueueNames:
     - "Digital-Prison-Services-prod-hmpps_tier_offender_events_queue_dl"
+    - "Digital-Prison-Services-prod-hmpps_tier_domain_events_allocation_dlq"
   sqsAlertsOldestThreshold: 15
   sqsAlertsTotalMessagesThreshold: 1
   ingress5xxErrorWindowMinutes: 4
