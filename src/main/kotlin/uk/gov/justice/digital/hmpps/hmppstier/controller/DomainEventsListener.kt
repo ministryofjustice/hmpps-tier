@@ -13,7 +13,7 @@ class DomainEventsListener(
 
   @JmsListener(destination = "hmppsdomaineventsqueue", containerFactory = "hmppsQueueContainerFactoryProxy")
   fun listen(msg: String) {
-    calculator.calculateTierForCrn(getCrn(msg))
+    calculator.calculateTierForCrn(getCrn(msg), "DomainEventsListener")
   }
 
   private fun getCrn(msg: String): String {
