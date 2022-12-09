@@ -1,8 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
-import com.opencsv.CSVWriter
-import com.opencsv.bean.StatefulBeanToCsv
-import com.opencsv.bean.StatefulBeanToCsvBuilder
 import org.junit.jupiter.api.Test
 import org.springframework.core.io.FileSystemResource
 import org.springframework.http.MediaType.MULTIPART_FORM_DATA
@@ -12,7 +9,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.controller.TriggerCsv
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 import java.io.File
-import java.io.FileWriter
 
 class TriggerCalculationUpload : IntegrationTestBase() {
 
@@ -94,13 +90,11 @@ class TriggerCalculationUpload : IntegrationTestBase() {
 
   fun generateCsv(unallocatedCases: List<TriggerCsv>): File {
     val tempFile = kotlin.io.path.createTempFile().toFile()
-    val writer = FileWriter(tempFile)
-
-    val sbc: StatefulBeanToCsv<TriggerCsv> = StatefulBeanToCsvBuilder<TriggerCsv>(writer)
-      .withSeparator(CSVWriter.DEFAULT_SEPARATOR)
-      .build()
-    sbc.write(unallocatedCases)
-    writer.close()
+    tempFile.printWriter().use { out ->
+      unallocatedCases.forEach {
+        out.println(it.crn)
+      }
+    }
     return tempFile
   }
 }

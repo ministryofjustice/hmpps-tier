@@ -45,8 +45,6 @@ dependencies {
 
   implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:1.2.0")
 
-  implementation("com.opencsv:opencsv:5.7.1")
-
   testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test") {
