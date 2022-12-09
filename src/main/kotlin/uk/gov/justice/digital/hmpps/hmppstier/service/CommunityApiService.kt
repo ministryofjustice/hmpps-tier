@@ -47,8 +47,6 @@ class CommunityApiService(
 
   fun offenderIsFemale(crn: String): Boolean = getOffender(crn)?.gender.equals("female", true)
 
-  fun getTier(crn: String): String? = getOffender(crn)?.tier
-
   private fun getOffender(crn: String) = communityApiClient.getOffender(crn)
 
   private fun getRosh(registrations: Collection<Registration>): Rosh? =

@@ -51,26 +51,6 @@ class TierCalculationTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `writes back when tier is unchanged but is different from Delius`() {
-      val crn = "X432769"
-
-      setupSCCustodialSentence(crn)
-      setupRegistrations(registrationsResponseWithMappa(), crn)
-      restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890")
-      setupOutdatedAssessment(crn, "1234567890")
-
-      calculateTierFor(crn)
-      expectTierChangedById("A2")
-
-      setupSCCustodialSentence(crn)
-      setupMaleOffenderWithRegistrations(crn, false, "4234568890", "A3")
-      setupOutdatedAssessment(crn, "1234567890")
-
-      calculateTierFor(crn)
-      expectTierChangedById("A2")
-    }
-
-    @Test
     fun `Does not write back when calculation result differs but tier is unchanged`() {
       val crn = "X432779"
 

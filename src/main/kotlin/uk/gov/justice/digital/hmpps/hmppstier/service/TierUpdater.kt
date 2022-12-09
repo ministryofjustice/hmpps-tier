@@ -7,8 +7,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepo
 
 @Service
 class TierUpdater(
-  private val tierCalculationRepository: TierCalculationRepository,
-  private val communityApiService: CommunityApiService
+  private val tierCalculationRepository: TierCalculationRepository
 ) {
 
   @Transactional
@@ -26,11 +25,6 @@ class TierUpdater(
     crn: String
   ): Boolean {
     val oldTierCal = tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
-    return newTierCal.data.protect.tier != oldTierCal?.data?.protect?.tier || newTierCal.data.change.tier != oldTierCal.data.change.tier ||
-      tierIsDifferentThanDelius(crn, newTierCal)
-  }
-
-  private fun tierIsDifferentThanDelius(crn: String, tier: TierCalculationEntity): Boolean {
-    return communityApiService.getTier(crn) != tier.data.protect.tier.value.plus('_').plus(tier.data.change.tier.value)
+    return newTierCal.data.protect.tier != oldTierCal?.data?.protect?.tier || newTierCal.data.change.tier != oldTierCal.data.change.tier
   }
 }
