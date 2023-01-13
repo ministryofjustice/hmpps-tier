@@ -54,7 +54,7 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.mock-server:mockserver-netty:5.14.0")
 
-  testImplementation("com.ninja-squad:springmockk:3.1.2")
+  testImplementation("com.ninja-squad:springmockk:4.0.0")
   testImplementation("org.assertj:assertj-core:3.24.0")
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
