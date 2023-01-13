@@ -15,7 +15,7 @@ configurations {
     exclude(group = "org.junit.vintage")
   }
 }
-val cucumberVersion by extra("7.10.0")
+val cucumberVersion by extra("7.11.0")
 val springDocVersion by extra("1.6.14")
 
 dependencies {
