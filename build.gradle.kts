@@ -1,9 +1,9 @@
 
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.7.4"
-  kotlin("plugin.spring") version "1.7.22"
-  kotlin("plugin.jpa") version "1.7.22"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.1"
+  kotlin("plugin.spring") version "1.8.0"
+  kotlin("plugin.jpa") version "1.8.0"
   id("org.jlleitschuh.gradle.ktlint") version "11.0.0"
   jacoco
   java
@@ -37,7 +37,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-  implementation("com.vladmihalcea:hibernate-types-52:2.20.0")
+  implementation("com.vladmihalcea:hibernate-types-52:2.21.1")
 
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
@@ -54,14 +54,14 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.mock-server:mockserver-netty:5.14.0")
 
-  testImplementation("com.ninja-squad:springmockk:3.1.2")
-  testImplementation("org.assertj:assertj-core:3.24.0")
+  testImplementation("com.ninja-squad:springmockk:4.0.0")
+  testImplementation("org.assertj:assertj-core:3.24.1")
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
   testImplementation("io.jsonwebtoken:jjwt:0.9.1")
   testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
-  testImplementation("org.junit.platform:junit-platform-console:1.9.1")
+  testImplementation("org.junit.platform:junit-platform-console:1.9.2")
 }
 
 jacoco {
