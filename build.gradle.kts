@@ -52,7 +52,7 @@ dependencies {
     exclude(module = "mockito-core")
   }
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("org.mock-server:mockserver-netty:5.14.0")
+  testImplementation("org.mock-server:mockserver-netty:5.15.0")
 
   testImplementation("com.ninja-squad:springmockk:4.0.0")
   testImplementation("org.assertj:assertj-core:3.24.1")
