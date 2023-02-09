@@ -15,6 +15,11 @@ configurations {
     exclude(group = "org.junit.vintage")
   }
 }
+
+dependencyCheck {
+  suppressionFiles.add("suppressions.xml")
+}
+
 val cucumberVersion by extra("7.11.1")
 val springDocVersion by extra("1.6.14")
 
