@@ -29,13 +29,12 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
   }
 
   suspend fun getAssessmentNeeds(assessmentId: String): Collection<AssessmentNeed> {
-    val responseType = object : ParameterizedTypeReference<Collection<AssessmentNeed>>() {}
     return webClient
       .get()
       .uri("/assessments/oasysSetId/$assessmentId/needs")
       .retrieve()
-      .bodyToMono(responseType)
-      .block() ?: emptyList()
+      .bodyToFlow<AssessmentNeed>()
+      .toList()
   }
 
   suspend fun getAssessmentSummaries(crn: String): Collection<OffenderAssessment> {
