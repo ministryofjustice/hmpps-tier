@@ -2,12 +2,19 @@ package uk.gov.justice.digital.hmpps.hmppstier.client
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.OK
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
-import reactor.core.publisher.Mono
+import org.springframework.web.reactive.function.client.awaitBodyOrNull
+import org.springframework.web.reactive.function.client.bodyToFlow
+import org.springframework.web.reactive.function.client.createExceptionAndAwait
+import org.springframework.web.reactive.function.client.exchangeToFlow
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
@@ -16,41 +23,35 @@ import java.time.LocalDateTime
 @Component
 class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val webClient: WebClient) {
 
-  fun getAssessmentAnswers(assessmentId: String): Collection<Question> {
+  suspend fun getAssessmentAnswers(assessmentId: String): Collection<Question> {
     return getAssessmentAnswersCall(assessmentId)
   }
 
-  fun getAssessmentNeeds(assessmentId: String): Collection<AssessmentNeed> {
-    val responseType = object : ParameterizedTypeReference<Collection<AssessmentNeed>>() {}
+  suspend fun getAssessmentNeeds(assessmentId: String): Collection<AssessmentNeed> {
     return webClient
       .get()
       .uri("/assessments/oasysSetId/$assessmentId/needs")
       .retrieve()
-      .bodyToMono(responseType)
-      .block() ?: emptyList()
+      .bodyToFlow<AssessmentNeed>()
+      .toList()
   }
 
-  fun getAssessmentSummaries(crn: String): Collection<OffenderAssessment> {
-    val responseType = object : ParameterizedTypeReference<Collection<OffenderAssessment>>() {}
+  suspend fun getAssessmentSummaries(crn: String): Collection<OffenderAssessment> {
     return webClient
       .get()
       .uri("/offenders/crn/$crn/assessments/summary?assessmentType=LAYER_3")
-      .retrieve()
-      .onStatus(
-        { httpStatus -> NOT_FOUND == httpStatus },
-        { Mono.error(MissingAssessmentError("No assessment found for $crn")) }
-      )
-      .bodyToMono(responseType)
-      .onErrorResume { ex ->
-        when (ex) {
-          is MissingAssessmentError -> Mono.empty()
-          else -> Mono.error(ex)
+      .exchangeToFlow<OffenderAssessment> { response ->
+        flow {
+          when (response.statusCode()) {
+            OK -> emitAll(response.bodyToFlow())
+            NOT_FOUND -> emptyFlow<OffenderAssessment>()
+            else -> throw response.createExceptionAndAwait()
+          }
         }
-      }
-      .block() ?: emptyList()
+      }.toList()
   }
 
-  private fun getAssessmentAnswersCall(assessmentId: String): Collection<Question> {
+  private suspend fun getAssessmentAnswersCall(assessmentId: String): Collection<Question> {
     return webClient
       .post()
       .uri("/assessments/oasysSetId/$assessmentId/answers")
@@ -59,12 +60,9 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
           .mapValues { it.value.map { q -> q.answerCode } }
       )
       .retrieve()
-      .bodyToMono(Answers::class.java)
-      .block()?.questionAnswers ?: emptyList()
+      .awaitBodyOrNull<Answers>()?.questionAnswers ?: emptyList()
   }
 }
-
-private class MissingAssessmentError(msg: String) : RuntimeException(msg)
 
 data class OffenderAssessment @JsonCreator constructor(
   @JsonProperty("assessmentId")

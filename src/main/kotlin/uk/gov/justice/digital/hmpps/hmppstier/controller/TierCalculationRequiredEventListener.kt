@@ -2,6 +2,9 @@ package uk.gov.justice.digital.hmpps.hmppstier.controller
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.future.future
 import org.slf4j.LoggerFactory
 import org.springframework.jms.annotation.JmsListener
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler
@@ -23,7 +26,9 @@ class TierCalculationRequiredEventListener(
   @JmsListener(destination = "hmppsoffenderqueue", containerFactory = "hmppsQueueContainerFactoryProxy")
   fun listen(msg: String) {
     val (crn) = getCrn(msg)
-    calculator.calculateTierForCrn(crn, "TierCalculationRequiredEventListener")
+    CoroutineScope(Dispatchers.Default).future {
+      calculator.calculateTierForCrn(crn, "TierCalculationRequiredEventListener")
+    }.get()
   }
 
   private fun getCrn(msg: String): TierCalculationMessage {

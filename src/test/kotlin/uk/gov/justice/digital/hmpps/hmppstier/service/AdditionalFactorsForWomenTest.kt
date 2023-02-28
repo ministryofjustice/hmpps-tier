@@ -1,10 +1,11 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import io.mockk.clearMocks
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.confirmVerified
-import io.mockk.every
 import io.mockk.mockk
-import io.mockk.verify
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -53,10 +54,10 @@ class AdditionalFactorsForWomenTest {
     private val crn = "Any Crn"
 
     @Test
-    fun `should not count assessment additional factors duplicates`() {
+    fun `should not count assessment additional factors duplicates`() = runBlocking {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
+      coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
           AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
@@ -73,14 +74,14 @@ class AdditionalFactorsForWomenTest {
       )
       assertThat(result).isEqualTo(2)
 
-      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+      coVerify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
-    fun `should not count assessment additional factors duplicates mixed answers`() {
+    fun `should not count assessment additional factors duplicates mixed answers`() = runBlocking {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
+      coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "YES",
           AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
@@ -93,14 +94,14 @@ class AdditionalFactorsForWomenTest {
       )
       assertThat(result).isEqualTo(2)
 
-      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+      coVerify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
-    fun `should add multiple additional factors`() {
+    fun `should add multiple additional factors`() = runBlocking {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
+      coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
           AdditionalFactorForWomen.TEMPER_CONTROL to "1",
@@ -113,11 +114,11 @@ class AdditionalFactorsForWomenTest {
       )
       assertThat(result).isEqualTo(4)
 
-      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+      coVerify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
-    fun `should not include additional factors if no valid assessment`() {
+    fun `should not include additional factors if no valid assessment`() = runBlocking {
       val assessment = null
 
       val result = additionalFactorsForWomen.calculate(
@@ -130,10 +131,10 @@ class AdditionalFactorsForWomenTest {
     }
 
     @Test
-    fun `should count both Temper and Impulsivity as max '1'`() {
+    fun `should count both Temper and Impulsivity as max '1'`() = runBlocking {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
+      coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.IMPULSIVITY to "2",
           AdditionalFactorForWomen.TEMPER_CONTROL to "1",
@@ -146,14 +147,14 @@ class AdditionalFactorsForWomenTest {
       )
       assertThat(result).isEqualTo(2) // 1 * 2 weighting for all additional factors
 
-      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+      coVerify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
-    fun `should count Temper without Impulsivity as max '2'`() {
+    fun `should count Temper without Impulsivity as max '2'`() = runBlocking {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
+      coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.TEMPER_CONTROL to "1",
         )
@@ -165,14 +166,14 @@ class AdditionalFactorsForWomenTest {
       )
       assertThat(result).isEqualTo(2) // 1 * 2 weighting for all additional factors
 
-      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+      coVerify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
-    fun `should count Impulsivity without Temper as max '1'`() {
+    fun `should count Impulsivity without Temper as max '1'`() = runBlocking {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
+      coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.IMPULSIVITY to "2",
         )
@@ -184,14 +185,14 @@ class AdditionalFactorsForWomenTest {
       )
       assertThat(result).isEqualTo(2) // 1 * 2 weighting for all additional factors
 
-      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+      coVerify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
-    fun `should ignore negative Parenting`() {
+    fun `should ignore negative Parenting`() = runBlocking {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
+      coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "N",
         )
@@ -203,14 +204,14 @@ class AdditionalFactorsForWomenTest {
       )
       assertThat(result).isEqualTo(0)
 
-      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+      coVerify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
-    fun `should ignore negative Impulsivity`() {
+    fun `should ignore negative Impulsivity`() = runBlocking {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
+      coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.IMPULSIVITY to "0",
         )
@@ -222,14 +223,14 @@ class AdditionalFactorsForWomenTest {
       )
       assertThat(result).isEqualTo(0)
 
-      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+      coVerify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
 
     @Test
-    fun `should ignore negative Temper`() {
+    fun `should ignore negative Temper`() = runBlocking {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
 
-      every { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
+      coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
           AdditionalFactorForWomen.TEMPER_CONTROL to "0",
         )
@@ -241,7 +242,7 @@ class AdditionalFactorsForWomenTest {
       )
       assertThat(result).isEqualTo(0)
 
-      verify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
+      coVerify { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) }
     }
   }
 
@@ -251,14 +252,14 @@ class AdditionalFactorsForWomenTest {
     private val irrelevantSentenceType = "Irrelevant"
 
     @Test
-    fun `Should return Breach true if present and valid terminationDate after cutoff`() {
+    fun `Should return Breach true if present and valid terminationDate after cutoff`() = runBlocking {
       val crn = "123"
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock).minusYears(1)
       val sentence = Sentence(terminationDate, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
       val breaches = listOf(Nsi(status = KeyValue("BRE08")))
-      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+      coEvery { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
 
       val result = additionalFactorsForWomen.calculate(
         crn,
@@ -267,11 +268,11 @@ class AdditionalFactorsForWomenTest {
         true
       )
       assertThat(result).isEqualTo(2)
-      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      coVerify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
     }
 
     @Test
-    fun `Should return Breach false if present and valid terminationDate on cutoff`() {
+    fun `Should return Breach false if present and valid terminationDate on cutoff`() = runBlocking {
       val crn = "123"
       val convictionId = 54321L
       val terminationDate = LocalDate.now(clock).minusYears(1).minusDays(1)
@@ -288,13 +289,13 @@ class AdditionalFactorsForWomenTest {
     }
 
     @Test
-    fun `Should return Breach true if present and valid not terminated`() {
+    fun `Should return Breach true if present and valid not terminated`() = runBlocking {
       val crn = "123"
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
       val conviction = Conviction(convictionId, sentence)
       val breaches = listOf(Nsi(status = KeyValue("BRE08")))
-      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+      coEvery { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
 
       val result = additionalFactorsForWomen.calculate(
         crn,
@@ -303,11 +304,11 @@ class AdditionalFactorsForWomenTest {
         true
       )
       assertThat(result).isEqualTo(2)
-      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      coVerify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
     }
 
     @Test
-    fun `Should return Breach true if multiple convictions, one valid`() {
+    fun `Should return Breach true if multiple convictions, one valid`() = runBlocking {
       val crn = "123"
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
@@ -315,8 +316,8 @@ class AdditionalFactorsForWomenTest {
       val unrelatedConviction = Conviction(convictionId.plus(1), sentence)
       val unrelatedBreaches = listOf(Nsi(status = KeyValue("BRE99")))
       val breaches = listOf(Nsi(status = KeyValue("BRE08")))
-      every { communityApiClient.getBreachRecallNsis(crn, convictionId.plus(1)) } returns unrelatedBreaches
-      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+      coEvery { communityApiClient.getBreachRecallNsis(crn, convictionId.plus(1)) } returns unrelatedBreaches
+      coEvery { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
 
       val result = additionalFactorsForWomen.calculate(
         crn,
@@ -325,11 +326,11 @@ class AdditionalFactorsForWomenTest {
         true
       )
       assertThat(result).isEqualTo(2)
-      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      coVerify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
     }
 
     @Test
-    fun `Should return Breach false if no conviction`() {
+    fun `Should return Breach false if no conviction`() = runBlocking {
       val crn = "123"
 
       val result = additionalFactorsForWomen.calculate(
@@ -342,7 +343,7 @@ class AdditionalFactorsForWomenTest {
     }
 
     @Test
-    fun `Should return Breach true if one conviction, multiple breaches, one valid`() {
+    fun `Should return Breach true if one conviction, multiple breaches, one valid`() = runBlocking {
       val crn = "123"
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
@@ -351,7 +352,7 @@ class AdditionalFactorsForWomenTest {
         Nsi(status = KeyValue("BRE54")),
         Nsi(status = KeyValue("BRE08"))
       )
-      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+      coEvery { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
 
       val result = additionalFactorsForWomen.calculate(
         crn,
@@ -360,11 +361,11 @@ class AdditionalFactorsForWomenTest {
         true
       )
       assertThat(result).isEqualTo(2)
-      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      coVerify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
     }
 
     @Test
-    fun `Should return Breach true if one conviction, multiple breaches, one valid case insensitive`() {
+    fun `Should return Breach true if one conviction, multiple breaches, one valid case insensitive`() = runBlocking {
       val crn = "123"
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
@@ -373,7 +374,7 @@ class AdditionalFactorsForWomenTest {
         Nsi(status = KeyValue("BRE54")),
         Nsi(status = KeyValue("bre08"))
       )
-      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+      coEvery { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
 
       val result = additionalFactorsForWomen.calculate(
         crn,
@@ -382,11 +383,11 @@ class AdditionalFactorsForWomenTest {
         true
       )
       assertThat(result).isEqualTo(2)
-      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      coVerify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
     }
 
     @Test
-    fun `Should return Breach false if one conviction, multiple breaches, none valid`() {
+    fun `Should return Breach false if one conviction, multiple breaches, none valid`() = runBlocking {
       val crn = "123"
       val convictionId = 54321L
       val sentence = Sentence(null, irrelevantSentenceType)
@@ -395,7 +396,7 @@ class AdditionalFactorsForWomenTest {
         Nsi(status = KeyValue("BRE99")),
         Nsi(status = KeyValue("BRE99"))
       )
-      every { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
+      coEvery { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
 
       val result = additionalFactorsForWomen.calculate(
         crn,
@@ -404,7 +405,7 @@ class AdditionalFactorsForWomenTest {
         true
       )
       assertThat(result).isEqualTo(0)
-      verify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
+      coVerify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
     }
   }
 }

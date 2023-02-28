@@ -1,10 +1,11 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import io.mockk.clearMocks
-import io.mockk.every
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import io.mockk.verify
+import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -35,7 +36,7 @@ internal class CommunityApiServiceTest {
 
   @AfterEach
   fun confirmVerified() {
-    verify { communityApiClient.getRegistrations(crn) }
+    coVerify { communityApiClient.getRegistrations(crn) }
     // Check we don't add any more calls without updating the tests
     io.mockk.confirmVerified(communityApiClient)
   }
@@ -45,15 +46,15 @@ internal class CommunityApiServiceTest {
   inner class SimpleRoshTests {
 
     @Test
-    fun `should return null for No Rosh`() {
-      every { communityApiClient.getRegistrations(crn) } returns listOf()
+    fun `should return null for No Rosh`() = runBlocking {
+      coEvery { communityApiClient.getRegistrations(crn) } returns listOf()
 
       val result = communityApiService.getRegistrations(crn).rosh
       assertThat(result).isNull()
     }
 
     @Test
-    fun `Should return RoSH level if present`() {
+    fun `Should return RoSH level if present`() = runBlocking {
       val registrations =
         listOf(
           Registration(
@@ -62,14 +63,14 @@ internal class CommunityApiServiceTest {
             LocalDate.now()
           )
         )
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      coEvery { communityApiClient.getRegistrations(crn) } returns registrations
 
       val result = communityApiService.getRegistrations(crn).rosh
       assertThat(result).isEqualTo(Rosh.MEDIUM)
     }
 
     @Test
-    fun `Should return RoSH level Case Insensitive`() {
+    fun `Should return RoSH level Case Insensitive`() = runBlocking {
       val registrations =
         listOf(
           Registration(
@@ -78,14 +79,14 @@ internal class CommunityApiServiceTest {
             LocalDate.now()
           )
         )
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      coEvery { communityApiClient.getRegistrations(crn) } returns registrations
 
       val result = communityApiService.getRegistrations(crn).rosh
       assertThat(result).isEqualTo(Rosh.MEDIUM)
     }
 
     @Test
-    fun `Should return RoSH level if present as first value in list`() {
+    fun `Should return RoSH level if present as first value in list`() = runBlocking {
       val registrations =
         listOf(
           Registration(
@@ -107,14 +108,14 @@ internal class CommunityApiServiceTest {
             LocalDate.now()
           ),
         )
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      coEvery { communityApiClient.getRegistrations(crn) } returns registrations
 
       val result = communityApiService.getRegistrations(crn).rosh
       assertThat(result).isEqualTo(Rosh.MEDIUM)
     }
 
     @Test
-    fun `Should return RoSH level if present as middle value in list`() {
+    fun `Should return RoSH level if present as middle value in list`() = runBlocking {
       val registrations =
         listOf(
           Registration(
@@ -137,7 +138,7 @@ internal class CommunityApiServiceTest {
           ),
 
         )
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      coEvery { communityApiClient.getRegistrations(crn) } returns registrations
 
       val result = communityApiService.getRegistrations(crn).rosh
       assertThat(result).isEqualTo(Rosh.MEDIUM)
@@ -149,15 +150,15 @@ internal class CommunityApiServiceTest {
   inner class SimpleMappaTests {
 
     @Test
-    fun `should return null for No Mappa`() {
-      every { communityApiClient.getRegistrations(crn) } returns listOf()
+    fun `should return null for No Mappa`() = runBlocking {
+      coEvery { communityApiClient.getRegistrations(crn) } returns listOf()
 
       val result = communityApiService.getRegistrations(crn).mappa
       assertThat(result).isNull()
     }
 
     @Test
-    fun `Should return Mappa level if present`() {
+    fun `Should return Mappa level if present`() = runBlocking {
       val registrations =
         listOf(
           Registration(
@@ -166,14 +167,14 @@ internal class CommunityApiServiceTest {
             LocalDate.now()
           )
         )
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      coEvery { communityApiClient.getRegistrations(crn) } returns registrations
 
       val result = communityApiService.getRegistrations(crn).mappa
       assertThat(result).isEqualTo(Mappa.M3)
     }
 
     @Test
-    fun `Should return Mappa level Case Insensitive`() {
+    fun `Should return Mappa level Case Insensitive`() = runBlocking {
       val registrations =
         listOf(
           Registration(
@@ -182,14 +183,14 @@ internal class CommunityApiServiceTest {
             LocalDate.now()
           )
         )
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      coEvery { communityApiClient.getRegistrations(crn) } returns registrations
 
       val result = communityApiService.getRegistrations(crn).mappa
       assertThat(result).isEqualTo(Mappa.M3)
     }
 
     @Test
-    fun `Should return Mappa level if present as first value in list`() {
+    fun `Should return Mappa level if present as first value in list`() = runBlocking {
       val registrations =
         listOf(
           Registration(
@@ -212,14 +213,14 @@ internal class CommunityApiServiceTest {
           ),
 
         )
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      coEvery { communityApiClient.getRegistrations(crn) } returns registrations
 
       val result = communityApiService.getRegistrations(crn).mappa
       assertThat(result).isEqualTo(Mappa.M3)
     }
 
     @Test
-    fun `Should return null for invalid Mappa code`() {
+    fun `Should return null for invalid Mappa code`() = runBlocking {
       val registrations =
         listOf(
           Registration(
@@ -241,7 +242,7 @@ internal class CommunityApiServiceTest {
             LocalDate.now()
           ),
         )
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      coEvery { communityApiClient.getRegistrations(crn) } returns registrations
 
       val result = communityApiService.getRegistrations(crn).mappa
       assertThat(result).isNull()
@@ -253,8 +254,8 @@ internal class CommunityApiServiceTest {
   inner class SimpleComplexityTests {
 
     @Test
-    fun `should count complexity factors `() {
-      every { communityApiClient.getRegistrations(crn) } returns getValidRegistrations(
+    fun `should count complexity factors `() = runBlocking {
+      coEvery { communityApiClient.getRegistrations(crn) } returns getValidRegistrations(
         listOf(
           ComplexityFactor.VULNERABILITY_ISSUE,
           ComplexityFactor.ADULT_AT_RISK,
@@ -265,8 +266,8 @@ internal class CommunityApiServiceTest {
     }
 
     @Test
-    fun `should not count complexity factors duplicates`() {
-      every { communityApiClient.getRegistrations(crn) } returns
+    fun `should not count complexity factors duplicates`() = runBlocking {
+      coEvery { communityApiClient.getRegistrations(crn) } returns
         getValidRegistrations(
           listOf(
             ComplexityFactor.VULNERABILITY_ISSUE,
@@ -280,15 +281,15 @@ internal class CommunityApiServiceTest {
     }
 
     @Test
-    fun `should not count complexity factors none`() {
-      every { communityApiClient.getRegistrations(crn) } returns listOf()
+    fun `should not count complexity factors none`() = runBlocking {
+      coEvery { communityApiClient.getRegistrations(crn) } returns listOf()
       val result = communityApiService.getRegistrations(crn).complexityFactors
 
       assertThat(result.size).isEqualTo(0)
     }
 
     @Test
-    fun `Should return Complexity Factor Case Insensitive`() {
+    fun `Should return Complexity Factor Case Insensitive`() = runBlocking {
       val registrations =
         listOf(
           Registration(
@@ -298,14 +299,14 @@ internal class CommunityApiServiceTest {
             LocalDate.now()
           )
         )
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      coEvery { communityApiClient.getRegistrations(crn) } returns registrations
       val result = communityApiService.getRegistrations(crn).complexityFactors
 
       assertThat(result.size).isEqualTo(1)
     }
 
     @Test
-    fun `Should return Complexity Factor if present as first value in list`() {
+    fun `Should return Complexity Factor if present as first value in list`() = runBlocking {
       val registrations =
         listOf(
           Registration(
@@ -328,13 +329,13 @@ internal class CommunityApiServiceTest {
           ),
 
         )
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      coEvery { communityApiClient.getRegistrations(crn) } returns registrations
       val result = communityApiService.getRegistrations(crn).complexityFactors
       assertThat(result.size).isEqualTo(1)
     }
 
     @Test
-    fun `Should return empty List if no Complexity Factors present`() {
+    fun `Should return empty List if no Complexity Factors present`() = runBlocking {
 
       val registrations =
         listOf(
@@ -345,7 +346,7 @@ internal class CommunityApiServiceTest {
             LocalDate.now()
           )
         )
-      every { communityApiClient.getRegistrations(crn) } returns registrations
+      coEvery { communityApiClient.getRegistrations(crn) } returns registrations
       val result = communityApiService.getRegistrations(crn).complexityFactors
       assertThat(result.size).isEqualTo(0)
     }

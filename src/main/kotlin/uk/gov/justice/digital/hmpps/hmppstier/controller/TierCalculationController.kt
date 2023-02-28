@@ -4,7 +4,6 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
-import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -29,7 +28,7 @@ class TierCalculationController(private val tierReader: TierReader) {
 
   @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
   @GetMapping("crn/{crn}/tier")
-  fun getLatestTierCalculation(@PathVariable(required = true) crn: String): ResponseEntity<TierDto> = ResponseEntity.ok(tierReader.getLatestTierByCrn(crn) ?: throw EntityNotFoundException("Tier Result Not Found for $crn"))
+  suspend fun getLatestTierCalculation(@PathVariable(required = true) crn: String): TierDto = tierReader.getLatestTierByCrn(crn) ?: throw EntityNotFoundException("Tier Result Not Found for $crn")
 
   @Operation(summary = "Retrieve tiering score by crn and calculation ID")
   @ApiResponses(
@@ -40,8 +39,6 @@ class TierCalculationController(private val tierReader: TierReader) {
   )
   @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
   @GetMapping("crn/{crn}/tier/{calculationId}")
-  fun getTierCalculationById(@PathVariable(required = true) crn: String, @PathVariable(required = true) calculationId: UUID): ResponseEntity<TierDto> = ResponseEntity.ok(
-    tierReader.getTierByCalculationId(crn, calculationId)
-      ?: throw EntityNotFoundException("Tier Result Not Found for $crn, $calculationId")
-  )
+  suspend fun getTierCalculationById(@PathVariable(required = true) crn: String, @PathVariable(required = true) calculationId: UUID): TierDto = tierReader.getTierByCalculationId(crn, calculationId)
+    ?: throw EntityNotFoundException("Tier Result Not Found for $crn, $calculationId")
 }

@@ -4,9 +4,11 @@ import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.amazonaws.services.sqs.model.MessageAttributeValue
 import com.amazonaws.services.sqs.model.SendMessageRequest
 import com.fasterxml.jackson.databind.ObjectMapper
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.controller.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationMessage
@@ -23,10 +25,11 @@ class TriggerCalculationService(
 
   private val hmppsOffenderQueueUrl = hmppsQueueService.findByQueueId("hmppsoffenderqueue")?.queueUrl ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found")
 
-  @Async
-  fun sendEvents(crns: List<TriggerCsv>) {
-    crns.forEach { crn ->
-      publishToHMPPSOffenderQueue(crn)
+  suspend fun sendEvents(crns: List<TriggerCsv>) {
+    CoroutineScope(Dispatchers.IO).launch {
+      crns.forEach { crn ->
+        publishToHMPPSOffenderQueue(crn)
+      }
     }
   }
 
