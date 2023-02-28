@@ -11,6 +11,10 @@ plugins {
 }
 
 configurations {
+  implementation { exclude(module = "spring-boot-starter-web") }
+  implementation { exclude(module = "spring-boot-starter-tomcat") }
+  implementation { exclude(module = "applicationinsights-spring-boot-starter") }
+  implementation { exclude(module = "applicationinsights-logging-logback") }
   testImplementation {
     exclude(group = "org.junit.vintage")
   }
@@ -24,18 +28,13 @@ val cucumberVersion by extra("7.11.1")
 val springDocVersion by extra("1.6.14")
 
 dependencies {
-  annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 
   runtimeOnly("org.postgresql:postgresql:42.5.3")
   runtimeOnly("com.zaxxer:HikariCP")
   runtimeOnly("org.flywaydb:flyway-core")
 
-  implementation("org.springframework:spring-webflux")
-  implementation("org.springframework.boot:spring-boot-starter-reactor-netty")
-
-  implementation("org.springdoc:springdoc-openapi-ui:$springDocVersion")
-  implementation("org.springdoc:springdoc-openapi-kotlin:$springDocVersion")
-  implementation("org.springdoc:springdoc-openapi-data-rest:$springDocVersion")
+  implementation("org.springdoc:springdoc-openapi-webflux-ui:1.6.14")
+  implementation("org.springdoc:springdoc-openapi-kotlin:1.6.14")
 
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -50,7 +49,14 @@ dependencies {
 
   implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:1.2.0")
 
-  testAnnotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.4")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4")
+
+  // go to open telemetry, when upgrading to spring boot 3 these can be removed
+  implementation("io.opentelemetry:opentelemetry-api:1.23.1")
+  implementation("com.microsoft.azure:applicationinsights-core:3.4.10")
+  agentDeps("com.microsoft.azure:applicationinsights-agent:3.4.10")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test") {
     exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -67,6 +73,7 @@ dependencies {
   testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
   testImplementation("org.junit.platform:junit-platform-console:1.9.2")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
 }
 
 jacoco {

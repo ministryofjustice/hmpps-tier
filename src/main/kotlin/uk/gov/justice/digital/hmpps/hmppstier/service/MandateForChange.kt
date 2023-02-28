@@ -7,7 +7,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
 class MandateForChange(
   private val communityApiService: CommunityApiService
 ) {
-  fun hasNoMandate(crn: String, convictions: Collection<Conviction>): Boolean =
+  suspend fun hasNoMandate(crn: String, convictions: Collection<Conviction>): Boolean =
     convictions
       .filter { isCurrent(it.sentence) }
       .none {
@@ -17,7 +17,7 @@ class MandateForChange(
   private fun isCurrent(sentence: Sentence): Boolean =
     sentence.terminationDate == null
 
-  private fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
+  private suspend fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
     communityApiService.getRequirements(crn, convictionId)
       .filter { excludeUnpaidWork(it) }
       .any { isNonRestrictive(it) }

@@ -18,13 +18,13 @@ class CommunityApiService(
   private val communityApiClient: CommunityApiClient,
 ) {
 
-  fun getDeliusAssessments(crn: String): DeliusAssessments =
+  suspend fun getDeliusAssessments(crn: String): DeliusAssessments =
     DeliusAssessments.from(communityApiClient.getDeliusAssessments(crn))
 
-  fun getConvictionsWithSentences(crn: String): List<Conviction> =
+  suspend fun getConvictionsWithSentences(crn: String): List<Conviction> =
     communityApiClient.getConvictions(crn).filterNot { it.sentence == null }.map { Conviction.from(it) }
 
-  fun getRegistrations(crn: String): Registrations {
+  suspend fun getRegistrations(crn: String): Registrations {
     val registrations = communityApiClient.getRegistrations(crn)
       .filter { registration -> registration.type.code != "HREG" }
       .sortedByDescending { it.startDate }
@@ -36,18 +36,18 @@ class CommunityApiService(
     )
   }
 
-  fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
+  suspend fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
     return communityApiClient.getRequirements(crn, convictionId)
       .filterNot { it.requirementTypeMainCategory == null && it.restrictive == null }
       .map { Requirement(it.restrictive!!, it.requirementTypeMainCategory!!.code) }
   }
 
-  fun hasBreachedConvictions(crn: String, convictions: List<Conviction>): Boolean =
+  suspend fun hasBreachedConvictions(crn: String, convictions: List<Conviction>): Boolean =
     convictions.any { hasBreachOrRecallNsis(crn, it.convictionId) }
 
-  fun offenderIsFemale(crn: String): Boolean = getOffender(crn)?.gender.equals("female", true)
+  suspend fun offenderIsFemale(crn: String): Boolean = getOffender(crn)?.gender.equals("female", true)
 
-  private fun getOffender(crn: String) = communityApiClient.getOffender(crn)
+  private suspend fun getOffender(crn: String) = communityApiClient.getOffender(crn)
 
   private fun getRosh(registrations: Collection<Registration>): Rosh? =
     registrations.mapNotNull { Rosh.from(it.type.code) }.firstOrNull()
@@ -61,7 +61,7 @@ class CommunityApiService(
   private fun hasIomNominal(registrations: Collection<Registration>): Boolean =
     registrations.any { it.type.code == IOM_NOMINAL.registerCode }
 
-  private fun hasBreachOrRecallNsis(crn: String, convictionId: Long): Boolean =
+  private suspend fun hasBreachOrRecallNsis(crn: String, convictionId: Long): Boolean =
     communityApiClient.getBreachRecallNsis(crn, convictionId)
       .any { NsiOutcome.from(it.status?.code) != null }
 }

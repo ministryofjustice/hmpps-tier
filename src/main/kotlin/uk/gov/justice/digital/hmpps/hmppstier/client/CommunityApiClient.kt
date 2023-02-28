@@ -2,60 +2,57 @@ package uk.gov.justice.digital.hmpps.hmppstier.client
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
+import kotlinx.coroutines.flow.toList
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.core.ParameterizedTypeReference
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.awaitBody
+import org.springframework.web.reactive.function.client.bodyToFlow
 import java.math.BigDecimal
 import java.time.LocalDate
 
 @Component
 class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val webClient: WebClient) {
 
-  fun getRegistrations(crn: String): Collection<Registration> =
+  suspend fun getRegistrations(crn: String): Collection<Registration> =
     webClient
       .get()
       .uri("/offenders/crn/$crn/registrations?activeOnly=true")
       .retrieve()
-      .bodyToMono(Registrations::class.java)
-      .block()?.registrations ?: listOf()
+      .awaitBody<Registrations>().registrations ?: listOf()
 
-  fun getDeliusAssessments(crn: String): DeliusAssessmentsDto? {
+  suspend fun getDeliusAssessments(crn: String): DeliusAssessmentsDto? {
     return webClient
       .get()
       .uri("/offenders/crn/$crn/assessments")
       .retrieve()
-      .bodyToMono(DeliusAssessmentsDto::class.java)
-      .block()
+      .awaitBody()
   }
 
-  fun getConvictions(crn: String): List<ConvictionDto> {
-    val responseType = object : ParameterizedTypeReference<List<ConvictionDto>>() {}
+  suspend fun getConvictions(crn: String): List<ConvictionDto> {
     return webClient
       .get()
       .uri("/offenders/crn/$crn/convictions?activeOnly=true")
       .retrieve()
-      .bodyToMono(responseType)
-      .block() ?: listOf()
+      .bodyToFlow<ConvictionDto>()
+      .toList()
   }
 
-  fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
+  suspend fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
     return webClient
       .get()
       .uri("/offenders/crn/$crn/convictions/$convictionId/nsis?nsiCodes=BRE,BRES,REC,RECS")
       .retrieve()
-      .bodyToMono(NsiWrapper::class.java)
-      .block()?.nsis ?: listOf()
+      .awaitBody<NsiWrapper>().nsis
   }
 
-  fun getOffender(crn: String): Offender? = webClient
+  suspend fun getOffender(crn: String): Offender? = webClient
     .get()
     .uri("/offenders/crn/$crn/all")
     .retrieve()
-    .bodyToMono(Offender::class.java)
-    .block()
+    .awaitBody()
 
-  fun getRequirements(crn: String, convictionId: Long): List<RequirementDto> =
+  suspend fun getRequirements(crn: String, convictionId: Long): List<RequirementDto> =
     webClient
       .get()
       .uri { uriBuilder ->
@@ -65,8 +62,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
           .build(crn, convictionId)
       }
       .retrieve()
-      .bodyToMono(Requirements::class.java)
-      .block()?.requirements ?: listOf()
+      .awaitBody<Requirements>().requirements
 }
 
 private data class Requirements @JsonCreator constructor(

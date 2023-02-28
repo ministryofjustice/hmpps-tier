@@ -14,7 +14,7 @@ class AdditionalFactorsForWomen(
   private val assessmentApiService: AssessmentApiService,
   private val communityApiService: CommunityApiService
 ) {
-  fun calculate(
+  suspend fun calculate(
     crn: String,
     convictions: Collection<Conviction>,
     offenderAssessment: OffenderAssessment?,
@@ -30,7 +30,7 @@ class AdditionalFactorsForWomen(
       else -> 0
     }
 
-  private fun getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment: OffenderAssessment?): Int =
+  private suspend fun getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment: OffenderAssessment?): Int =
     when (offenderAssessment) {
       null -> 0
       else -> {
@@ -50,7 +50,7 @@ class AdditionalFactorsForWomen(
       }
     }
 
-  private fun getBreachRecallComplexityPoints(crn: String, convictions: Collection<Conviction>): Int =
+  private suspend fun getBreachRecallComplexityPoints(crn: String, convictions: Collection<Conviction>): Int =
     convictions
       .filter { qualifyingConvictions(it.sentence) }
       .let {
@@ -64,7 +64,7 @@ class AdditionalFactorsForWomen(
     value.equals("YES", true) || value.equals("Y", true)
 
   private fun isAnswered(value: String?): Boolean =
-    value?.toInt() ?: 0 > 0
+    (value?.toInt() ?: 0) > 0
 
   private fun qualifyingConvictions(sentence: Sentence): Boolean =
     sentence.terminationDate == null ||

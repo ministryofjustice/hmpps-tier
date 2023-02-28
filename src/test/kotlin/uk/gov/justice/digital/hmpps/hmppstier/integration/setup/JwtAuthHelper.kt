@@ -3,8 +3,8 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.context.annotation.Bean
-import org.springframework.security.oauth2.jwt.JwtDecoder
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
+import org.springframework.security.oauth2.jwt.NimbusReactiveJwtDecoder
+import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder
 import org.springframework.stereotype.Component
 import java.security.KeyPair
 import java.security.KeyPairGenerator
@@ -24,12 +24,13 @@ class JwtAuthHelper {
   }
 
   @Bean
-  fun jwtDecoder(): JwtDecoder = NimbusJwtDecoder.withPublicKey(keyPair.public as RSAPublicKey).build()
+  fun jwtDecoder(): ReactiveJwtDecoder = NimbusReactiveJwtDecoder.withPublicKey(keyPair.public as RSAPublicKey).build()
 
   fun createJwt(): String {
 
     val claims = mapOf(
       "authorities" to listOf("ROLE_HMPPS_TIER"),
+      "client_id" to "hmpps-tier-client",
     )
 
     return Jwts.builder()

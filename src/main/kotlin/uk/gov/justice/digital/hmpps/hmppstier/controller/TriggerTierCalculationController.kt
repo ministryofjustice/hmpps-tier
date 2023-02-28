@@ -1,12 +1,15 @@
 package uk.gov.justice.digital.hmpps.hmppstier.controller
 
+import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.reactive.asFlow
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.http.codec.multipart.FilePart
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
-import org.springframework.web.multipart.MultipartFile
+import reactor.core.publisher.Mono
 import uk.gov.justice.digital.hmpps.hmppstier.service.TriggerCalculationService
 
 @RestController
@@ -14,18 +17,22 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.TriggerCalculationService
 class TriggerTierCalculationController(private val triggerCalculationService: TriggerCalculationService) {
 
   @PostMapping("/crn/upload")
-  fun uploadCrns(@RequestParam("file") file: MultipartFile): ResponseEntity<Void> {
+  suspend fun uploadCrns(@RequestPart("file") file: Mono<FilePart>): ResponseEntity<Void> {
     triggerCalculationService.sendEvents(fileToCases(file))
     return ResponseEntity.ok().build()
   }
 
-  @Throws(Exception::class)
-  fun fileToCases(file: MultipartFile): List<TriggerCsv> {
-    return file.inputStream.bufferedReader().use { reader ->
-      reader.lineSequence()
-        .filter { it.isNotBlank() }
-        .map { TriggerCsv(it) }.toList()
-    }
+  private suspend fun fileToCases(filePart: Mono<FilePart>): List<TriggerCsv> {
+    return filePart.flatMapMany { file ->
+      file.content().flatMapIterable { dataBuffer ->
+        dataBuffer.asInputStream().bufferedReader().use { reader ->
+          reader.lineSequence()
+            .filter { it.isNotBlank() }
+            .map { TriggerCsv(it) }
+            .toList()
+        }
+      }
+    }.asFlow().toList()
   }
 }
 
