@@ -7,7 +7,7 @@ enum class Mappa(val registerCode: String) {
 
   companion object {
     fun from(value: String?, typeCode: String?): Mappa? {
-      return if(typeCode != "MAPP") null else values()
+      return if (typeCode != "MAPP") null else values()
         .firstOrNull { code -> code.registerCode.equals(value, true) }
     }
   }
