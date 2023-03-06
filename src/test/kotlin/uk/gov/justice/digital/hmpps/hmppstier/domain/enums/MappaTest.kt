@@ -12,37 +12,27 @@ class MappaTest {
   inner class ValuesTest {
     @Test
     fun `It should find M1`() {
-      assertThat(Mappa.from("M1", "MAPP")).isEqualTo(Mappa.M1)
+      assertThat(Mappa.from("M1")).isEqualTo(Mappa.M1)
     }
 
     @Test
     fun `It should find M2`() {
-      assertThat(Mappa.from("M2", "MAPP")).isEqualTo(Mappa.M2)
+      assertThat(Mappa.from("M2")).isEqualTo(Mappa.M2)
     }
 
     @Test
     fun `It should find M3`() {
-      assertThat(Mappa.from("M3", "MAPP")).isEqualTo(Mappa.M3)
+      assertThat(Mappa.from("M3")).isEqualTo(Mappa.M3)
     }
 
     @Test
     fun `null in null out`() {
-      assertThat(Mappa.from(null, "MAPP")).isEqualTo(null)
+      assertThat(Mappa.from(null)).isEqualTo(null)
     }
 
     @Test
     fun `invalid in null out`() {
-      assertThat(Mappa.from("FISH", "MAPP")).isEqualTo(null)
-    }
-
-    @Test
-    fun `null when type code is null`() {
-      assertThat(Mappa.from("M1", null)).isEqualTo(null)
-    }
-
-    @Test
-    fun `null when type code is invalid`() {
-      assertThat(Mappa.from("M1", "FISH")).isEqualTo(null)
+      assertThat(Mappa.from("FISH")).isEqualTo(null)
     }
   }
 
@@ -51,12 +41,12 @@ class MappaTest {
   inner class CaseInsensitiveFrom {
     @Test
     fun `It should match case insensitive lower`() {
-      assertThat(Mappa.from("m1", "MAPP")).isEqualTo(Mappa.M1)
+      assertThat(Mappa.from("m1")).isEqualTo(Mappa.M1)
     }
 
     @Test
     fun `It should match case insensitive upper`() {
-      assertThat(Mappa.from("M1", "MAPP")).isEqualTo(Mappa.M1)
+      assertThat(Mappa.from("M1")).isEqualTo(Mappa.M1)
     }
   }
 }
