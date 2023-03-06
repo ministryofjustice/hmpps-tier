@@ -162,7 +162,7 @@ internal class CommunityApiServiceTest {
       val registrations =
         listOf(
           Registration(
-            KeyValue("Not Used"),
+            KeyValue("MAPP"),
             KeyValue("M3"),
             LocalDate.now()
           )
@@ -178,7 +178,7 @@ internal class CommunityApiServiceTest {
       val registrations =
         listOf(
           Registration(
-            KeyValue("Not Used"),
+            KeyValue("MAPP"),
             KeyValue("m3"),
             LocalDate.now()
           )
@@ -194,7 +194,7 @@ internal class CommunityApiServiceTest {
       val registrations =
         listOf(
           Registration(
-            KeyValue("Not Used"),
+            KeyValue("MAPP"),
             KeyValue("M3"),
 
             LocalDate.now()
