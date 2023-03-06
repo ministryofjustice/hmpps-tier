@@ -36,10 +36,6 @@ fun registrationsResponseWithMappa(mappa: String? = "M2"): HttpResponse = regist
     .replace("mappaToReplace", mappa!!)
 )
 
-fun registrationsResponseWithLatestNonMappa(): HttpResponse = jsonResponseOf(
-  responseFrom("$COMMUNITY_API_FIXTURES/registrations-non-mappa-first.json")
-)
-
 fun historicRegistrationsResponseWithMappa(mappa: String? = "M2"): HttpResponse = registrations(
   responseFrom("$COMMUNITY_API_FIXTURES/historic-registrations-mappa.json")
     .replace("mappaToReplace", mappa!!)
