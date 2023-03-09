@@ -53,7 +53,7 @@ class CommunityApiService(
     registrations.mapNotNull { Rosh.from(it.type.code) }.firstOrNull()
 
   private fun getMappa(registrations: Collection<Registration>): Mappa? =
-    registrations.mapNotNull { Mappa.from(it.registerLevel?.code) }.firstOrNull()
+    registrations.mapNotNull { Mappa.from(it.registerLevel?.code, it.type.code) }.firstOrNull()
 
   private fun getComplexityFactors(registrations: Collection<Registration>): Collection<ComplexityFactor> =
     registrations.mapNotNull { ComplexityFactor.from(it.type.code) }.distinct()

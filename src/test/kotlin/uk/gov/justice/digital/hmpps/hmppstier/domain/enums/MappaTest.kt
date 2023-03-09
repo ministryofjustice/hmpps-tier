@@ -4,36 +4,36 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 
 class MappaTest {
 
-  @Nested
-  @DisplayName("Values test")
-  inner class ValuesTest {
-    @Test
-    fun `It should find M1`() {
-      assertThat(Mappa.from("M1")).isEqualTo(Mappa.M1)
-    }
+  @ParameterizedTest(name = "It should find {0} {1} type code")
+  @MethodSource("getMappaCombinations")
+  fun `It should find mappa`(value: String, typeCode: String, expectedMappa: Mappa) {
+    assertThat(Mappa.from(value, typeCode)).isEqualTo(expectedMappa)
+  }
 
-    @Test
-    fun `It should find M2`() {
-      assertThat(Mappa.from("M2")).isEqualTo(Mappa.M2)
-    }
+  @Test
+  fun `null in null out`() {
+    assertThat(Mappa.from(null, "MAPP")).isEqualTo(null)
+  }
 
-    @Test
-    fun `It should find M3`() {
-      assertThat(Mappa.from("M3")).isEqualTo(Mappa.M3)
-    }
+  @Test
+  fun `invalid in null out`() {
+    assertThat(Mappa.from("FISH", "MAPP")).isEqualTo(null)
+  }
 
-    @Test
-    fun `null in null out`() {
-      assertThat(Mappa.from(null)).isEqualTo(null)
-    }
+  @Test
+  fun `null when type code is null`() {
+    assertThat(Mappa.from("M1", null)).isEqualTo(null)
+  }
 
-    @Test
-    fun `invalid in null out`() {
-      assertThat(Mappa.from("FISH")).isEqualTo(null)
-    }
+  @Test
+  fun `null when type code is invalid`() {
+    assertThat(Mappa.from("M1", "FISH")).isEqualTo(null)
   }
 
   @Nested
@@ -41,12 +41,26 @@ class MappaTest {
   inner class CaseInsensitiveFrom {
     @Test
     fun `It should match case insensitive lower`() {
-      assertThat(Mappa.from("m1")).isEqualTo(Mappa.M1)
+      assertThat(Mappa.from("m1", "MAPP")).isEqualTo(Mappa.M1)
     }
 
     @Test
     fun `It should match case insensitive upper`() {
-      assertThat(Mappa.from("M1")).isEqualTo(Mappa.M1)
+      assertThat(Mappa.from("M1", "MAPP")).isEqualTo(Mappa.M1)
+    }
+  }
+
+  companion object {
+    @JvmStatic
+    fun getMappaCombinations(): List<Arguments> {
+      return listOf(
+        Arguments.of("M1", "MAPP", Mappa.M1),
+        Arguments.of("M1", "M1", Mappa.M1),
+        Arguments.of("M2", "MAPP", Mappa.M2),
+        Arguments.of("M2", "M2", Mappa.M2),
+        Arguments.of("M3", "MAPP", Mappa.M3),
+        Arguments.of("M3", "M3", Mappa.M3),
+      )
     }
   }
 }
