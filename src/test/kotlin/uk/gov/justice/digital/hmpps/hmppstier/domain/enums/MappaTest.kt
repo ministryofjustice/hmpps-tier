@@ -10,32 +10,31 @@ import org.junit.jupiter.params.provider.MethodSource
 
 class MappaTest {
 
-    @ParameterizedTest(name = "It should find {0} {1} type code")
-    @MethodSource("getMappaCombinations")
-    fun `It should find mappa`(value: String, typeCode: String, expectedMapp: Mappa) {
-      assertThat(Mappa.from(value, typeCode)).isEqualTo(expectedMapp)
-    }
+  @ParameterizedTest(name = "It should find {0} {1} type code")
+  @MethodSource("getMappaCombinations")
+  fun `It should find mappa`(value: String, typeCode: String, expectedMappa: Mappa) {
+    assertThat(Mappa.from(value, typeCode)).isEqualTo(expectedMappa)
+  }
 
-    @Test
-    fun `null in null out`() {
-      assertThat(Mappa.from(null, "MAPP")).isEqualTo(null)
-    }
+  @Test
+  fun `null in null out`() {
+    assertThat(Mappa.from(null, "MAPP")).isEqualTo(null)
+  }
 
-    @Test
-    fun `invalid in null out`() {
-      assertThat(Mappa.from("FISH", "MAPP")).isEqualTo(null)
-    }
+  @Test
+  fun `invalid in null out`() {
+    assertThat(Mappa.from("FISH", "MAPP")).isEqualTo(null)
+  }
 
-    @Test
-    fun `null when type code is null`() {
-      assertThat(Mappa.from("M1", null)).isEqualTo(null)
-    }
+  @Test
+  fun `null when type code is null`() {
+    assertThat(Mappa.from("M1", null)).isEqualTo(null)
+  }
 
-    @Test
-    fun `null when type code is invalid`() {
-      assertThat(Mappa.from("M1", "FISH")).isEqualTo(null)
-    }
-
+  @Test
+  fun `null when type code is invalid`() {
+    assertThat(Mappa.from("M1", "FISH")).isEqualTo(null)
+  }
 
   @Nested
   @DisplayName("Case Insensitive From")
