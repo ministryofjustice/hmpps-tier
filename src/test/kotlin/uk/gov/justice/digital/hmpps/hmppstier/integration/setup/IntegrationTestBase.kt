@@ -103,14 +103,14 @@ abstract class IntegrationTestBase {
     communityApiResponseWithQs(
       registrationsResponse,
       "/secure/offenders/crn/$crn/registrations",
-      Parameter("activeOnly", "true")
+      Parameter("activeOnly", "true"),
     )
 
   fun setupEmptyNsisResponse(crn: String) {
     communityApiResponseWithQs(
       emptyNsisResponse(),
       "/secure/offenders/crn/$crn/convictions/2500222290/nsis",
-      Parameter("nsiCodes", "BRE,BRES,REC,RECS")
+      Parameter("nsiCodes", "BRE,BRES,REC,RECS"),
     )
   }
 
@@ -118,7 +118,7 @@ abstract class IntegrationTestBase {
     crn: String,
     includeAssessmentApi: Boolean = true,
     assessmentId: String,
-    tier: String = "A1"
+    tier: String = "A1",
   ) {
     setupCommunityApiAssessment(crn)
     setupMaleOffender(crn, tier)
@@ -158,9 +158,9 @@ abstract class IntegrationTestBase {
     assessmentApiResponse(
       assessmentsApiAssessmentsResponse(
         LocalDateTime.of(year, JANUARY, 1, 0, 0)!!,
-        assessmentId
+        assessmentId,
       ),
-      "/offenders/crn/$crn/assessments/summary"
+      "/offenders/crn/$crn/assessments/summary",
     )
 
   fun setupAssessmentNotFound(crn: String) =
@@ -193,7 +193,7 @@ abstract class IntegrationTestBase {
     response,
     "/secure/offenders/crn/$crn/convictions/\\d+/requirements",
     Parameter("activeOnly", "true"),
-    Parameter("excludeSoftDeleted", "true")
+    Parameter("excludeSoftDeleted", "true"),
   )
 
   fun setupRestrictiveAndNonRestrictiveRequirements(crn: String) = setupRequirementsResponse(crn, restrictiveAndNonRestrictiveRequirementsResponse())

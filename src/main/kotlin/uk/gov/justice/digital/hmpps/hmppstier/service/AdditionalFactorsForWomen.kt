@@ -12,13 +12,13 @@ import java.time.LocalDate
 class AdditionalFactorsForWomen(
   private val clock: Clock,
   private val assessmentApiService: AssessmentApiService,
-  private val communityApiService: CommunityApiService
+  private val communityApiService: CommunityApiService,
 ) {
   suspend fun calculate(
     crn: String,
     convictions: Collection<Conviction>,
     offenderAssessment: OffenderAssessment?,
-    offenderIsFemale: Boolean
+    offenderIsFemale: Boolean,
   ): Int =
     when {
       offenderIsFemale -> {

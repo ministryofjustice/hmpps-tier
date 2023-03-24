@@ -28,7 +28,7 @@ data class TierDto @JsonCreator constructor(
       return TierDto(
         calculation.data.protect.tier.value.plus(calculation.data.change.tier.value),
         calculation.uuid,
-        calculation.created
+        calculation.created,
       )
     }
   }

@@ -30,7 +30,7 @@ class SuccessUpdater(
       ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),
       detailUrl,
       AdditionalInformation(calculationId),
-      PersonReference(listOf(PersonReferenceType("CRN", crn)))
+      PersonReference(listOf(PersonReferenceType("CRN", crn))),
     )
     val event = PublishRequest(calculationCompleteTopic.arn, objectMapper.writeValueAsString(message))
     event.withMessageAttributes(mapOf("eventType" to MessageAttributeValue().withDataType("String").withStringValue(eventType)))
@@ -45,18 +45,18 @@ data class TierChangeEvent(
   val occurredAt: String,
   val detailUrl: String,
   val additionalInformation: AdditionalInformation,
-  val personReference: PersonReference
+  val personReference: PersonReference,
 )
 
 data class AdditionalInformation(
-  val calculationId: UUID
+  val calculationId: UUID,
 )
 
 data class PersonReference(
-  val identifiers: List<PersonReferenceType>
+  val identifiers: List<PersonReferenceType>,
 )
 
 data class PersonReferenceType(
   val type: String,
-  val value: String
+  val value: String,
 )

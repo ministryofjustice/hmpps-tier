@@ -67,7 +67,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
 
 private data class Requirements @JsonCreator constructor(
   @JsonProperty("requirements")
-  val requirements: List<RequirementDto>
+  val requirements: List<RequirementDto>,
 )
 
 data class RequirementDto @JsonCreator constructor(
@@ -75,12 +75,12 @@ data class RequirementDto @JsonCreator constructor(
   val restrictive: Boolean?,
 
   @JsonProperty("requirementTypeMainCategory")
-  val requirementTypeMainCategory: RequirementTypeMainCategory?
+  val requirementTypeMainCategory: RequirementTypeMainCategory?,
 )
 
 data class RequirementTypeMainCategory @JsonCreator constructor(
   @JsonProperty("code")
-  val code: String
+  val code: String,
 )
 
 private data class NsiWrapper @JsonCreator constructor(
@@ -90,7 +90,7 @@ private data class NsiWrapper @JsonCreator constructor(
 
 data class Nsi @JsonCreator constructor(
   @JsonProperty("nsiOutcome")
-  val status: KeyValue?
+  val status: KeyValue?,
 )
 
 data class ConvictionDto @JsonCreator constructor(
@@ -106,26 +106,26 @@ data class SentenceDto @JsonCreator constructor(
   val terminationDate: LocalDate?,
 
   @JsonProperty("sentenceType")
-  val sentenceType: KeyValue
+  val sentenceType: KeyValue,
 )
 
 data class Offender @JsonCreator constructor(
   @JsonProperty("gender")
   val gender: String?,
   @JsonProperty("currentTier")
-  val tier: String?
+  val tier: String?,
 )
 
 data class DeliusAssessmentsDto @JsonCreator constructor(
   @JsonProperty("rsrScore")
   val rsr: BigDecimal?,
   @JsonProperty("ogrsScore")
-  val ogrs: Int?
+  val ogrs: Int?,
 )
 
 data class KeyValue @JsonCreator constructor(
   @JsonProperty("code")
-  val code: String
+  val code: String,
 )
 
 data class Registration @JsonCreator constructor(
@@ -136,10 +136,10 @@ data class Registration @JsonCreator constructor(
   val registerLevel: KeyValue?,
 
   @JsonProperty("startDate")
-  val startDate: LocalDate
+  val startDate: LocalDate,
 )
 
 private data class Registrations @JsonCreator constructor(
   @JsonProperty("registrations")
-  val registrations: List<Registration>?
+  val registrations: List<Registration>?,
 )

@@ -56,7 +56,7 @@ class MappaTest {
       return listOf(
         Arguments.of("M1", "MAPP", Mappa.M1),
         Arguments.of("M2", "MAPP", Mappa.M2),
-        Arguments.of("M3", "MAPP", Mappa.M3)
+        Arguments.of("M3", "MAPP", Mappa.M3),
       )
     }
   }

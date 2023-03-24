@@ -37,10 +37,10 @@ class TriggerCalculationService(
     val sendMessage = SendMessageRequest(
       hmppsOffenderQueueUrl,
       objectMapper.writeValueAsString(
-        crnToOffenderSqsMessage(crn)
-      )
+        crnToOffenderSqsMessage(crn),
+      ),
     ).withMessageAttributes(
-      mapOf("eventType" to MessageAttributeValue().withDataType("String").withStringValue("OFFENDER_MANAGEMENT_TIER_CALCULATION_REQUIRED"))
+      mapOf("eventType" to MessageAttributeValue().withDataType("String").withStringValue("OFFENDER_MANAGEMENT_TIER_CALCULATION_REQUIRED")),
     )
     log.info("publishing event type {} for crn {}", "OFFENDER_MANAGEMENT_TIER_CALCULATION_REQUIRED", crn.crn)
     hmppsOffenderSqsClient.sendMessage(sendMessage)
@@ -48,8 +48,8 @@ class TriggerCalculationService(
 
   private fun crnToOffenderSqsMessage(crn: TriggerCsv): SQSMessage = SQSMessage(
     objectMapper.writeValueAsString(
-      TierCalculationMessage(crn.crn!!)
-    )
+      TierCalculationMessage(crn.crn!!),
+    ),
   )
 
   companion object {

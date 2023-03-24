@@ -11,7 +11,8 @@ enum class ComplexityFactor(val registerCode: String) {
   PUBLIC_INTEREST("RPIR"),
   ADULT_AT_RISK("RVAD"),
   STREET_GANGS("STRG"),
-  TERRORISM("RTAO");
+  TERRORISM("RTAO"),
+  ;
 
   companion object {
     fun from(value: String?): ComplexityFactor? {

@@ -27,7 +27,6 @@ class JwtAuthHelper {
   fun jwtDecoder(): ReactiveJwtDecoder = NimbusReactiveJwtDecoder.withPublicKey(keyPair.public as RSAPublicKey).build()
 
   fun createJwt(): String {
-
     val claims = mapOf(
       "authorities" to listOf("ROLE_HMPPS_TIER"),
       "client_id" to "hmpps-tier-client",

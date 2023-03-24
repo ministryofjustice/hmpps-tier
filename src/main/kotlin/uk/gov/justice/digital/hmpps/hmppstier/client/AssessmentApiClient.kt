@@ -57,7 +57,7 @@ class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val 
       .uri("/assessments/oasysSetId/$assessmentId/answers")
       .bodyValue(
         AdditionalFactorForWomen.values().groupBy { it.section }
-          .mapValues { it.value.map { q -> q.answerCode } }
+          .mapValues { it.value.map { q -> q.answerCode } },
       )
       .retrieve()
       .awaitBodyOrNull<Answers>()?.questionAnswers ?: emptyList()
@@ -75,7 +75,7 @@ data class OffenderAssessment @JsonCreator constructor(
   val voided: LocalDateTime?,
 
   @JsonProperty("assessmentStatus")
-  val assessmentStatus: String?
+  val assessmentStatus: String?,
 )
 
 data class AssessmentNeed @JsonCreator constructor(
@@ -83,7 +83,7 @@ data class AssessmentNeed @JsonCreator constructor(
   val need: Need?,
 
   @JsonProperty("severity")
-  val severity: NeedSeverity?
+  val severity: NeedSeverity?,
 )
 
 data class Question @JsonCreator constructor(
@@ -91,12 +91,12 @@ data class Question @JsonCreator constructor(
   val questionCode: String?,
 
   @JsonProperty("answers")
-  val answers: Set<Answer>
+  val answers: Set<Answer>,
 )
 
 data class Answer @JsonCreator constructor(
   @JsonProperty("refAnswerCode")
-  val refAnswerCode: String?
+  val refAnswerCode: String?,
 )
 
 private data class Answers @JsonCreator constructor(

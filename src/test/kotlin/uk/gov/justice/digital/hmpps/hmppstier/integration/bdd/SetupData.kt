@@ -37,7 +37,7 @@ import java.time.LocalDateTime
 class SetupData(
   private val communityApi: ClientAndServer,
   private val assessmentApi: ClientAndServer,
-  ids: Map<String, String>
+  ids: Map<String, String>,
 ) {
   private var assessmentDate: LocalDateTime = LocalDateTime.now()
   private var hasNonRestrictiveRequirement: Boolean = false
@@ -64,7 +64,7 @@ class SetupData(
   private var assessmentAnswers: MutableMap<String, String> = mutableMapOf(
     IMPULSIVITY.answerCode to "0",
     TEMPER_CONTROL.answerCode to "0",
-    PARENTING_RESPONSIBILITIES.answerCode to "NO"
+    PARENTING_RESPONSIBILITIES.answerCode to "NO",
   )
 
   fun setRsr(rsr: String) {
@@ -175,7 +175,7 @@ class SetupData(
   private fun requirementsResponse() {
     when {
       hasOrderExtended && hasUnpaidWork -> requirementsResponse(
-        unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse()
+        unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse(),
       )
       hasUnpaidWork -> requirementsResponse(unpaidWorkRequirementsResponse())
       hasNonRestrictiveRequirement -> requirementsResponse(nonRestrictiveRequirementsResponse())
@@ -185,16 +185,16 @@ class SetupData(
   private fun convictionsResponse() =
     when {
       activeConvictions == 2 -> convictionsResponse(
-        custodialAndNonCustodialConvictions(convictionId, secondConvictionId)
+        custodialAndNonCustodialConvictions(convictionId, secondConvictionId),
       )
       null != convictionTerminatedDate ->
         convictionsResponse(custodialTerminatedConvictionResponse(convictionTerminatedDate!!, convictionId))
       sentenceLengthIndeterminate -> convictionsResponse(
-        custodialNCConvictionResponse(courtAppearanceOutcome = "303", convictionId = convictionId)
+        custodialNCConvictionResponse(courtAppearanceOutcome = "303", convictionId = convictionId),
       )
       sentenceType == "SC" -> convictionsResponse(custodialSCConvictionResponse(convictionId))
       sentenceType == "NC" -> convictionsResponse(
-        custodialNCConvictionResponse(sentenceLength, convictionId = convictionId)
+        custodialNCConvictionResponse(sentenceLength, convictionId = convictionId),
       )
       else -> convictionsResponse(nonCustodialConvictionResponse(convictionId))
     }
@@ -203,12 +203,12 @@ class SetupData(
     if (hasValidAssessment) {
       assessmentApiResponse(
         assessmentsApiAssessmentsResponse(assessmentDate, assessmentId),
-        "/offenders/crn/$crn/assessments/summary"
+        "/offenders/crn/$crn/assessments/summary",
       )
       if (gender == "Female") {
         assessmentApiResponse(
           assessmentsApiFemaleAnswersResponse(assessmentAnswers, assessmentId),
-          "/assessments/oasysSetId/$assessmentId/answers"
+          "/assessments/oasysSetId/$assessmentId/answers",
         )
       }
       assessmentApiResponse(
@@ -216,7 +216,7 @@ class SetupData(
           needs.any() -> needsResponse(needs)
           else -> assessmentsApiNoSeverityNeedsResponse()
         },
-        "/assessments/oasysSetId/$assessmentId/needs"
+        "/assessments/oasysSetId/$assessmentId/needs",
       )
     }
   }
@@ -224,15 +224,15 @@ class SetupData(
   private fun registrationsResponse(registrationsSetup: RegistrationsSetup) =
     when {
       registrationsSetup.allRegistrationsPresent() -> registrationsResponse(
-        registrationsResponseWithRoshMappaAndAdditionalFactors(rosh, mappa, additionalFactors)
+        registrationsResponseWithRoshMappaAndAdditionalFactors(rosh, mappa, additionalFactors),
       )
       registrationsSetup.mappaAndAdditionalFactors() -> registrationsResponse(
-        registrationsResponseWithMappaAndAdditionalFactors(mappa, additionalFactors)
+        registrationsResponseWithMappaAndAdditionalFactors(mappa, additionalFactors),
       )
       registrationsSetup.hasRosh() -> registrationsResponse(registrationsResponseWithRosh(rosh))
       registrationsSetup.hasMappa() -> registrationsResponse(registrationsResponseWithMappa(mappa))
       registrationsSetup.hasAdditionalFactors() -> registrationsResponse(
-        registrationsResponseWithAdditionalFactors(additionalFactors)
+        registrationsResponseWithAdditionalFactors(additionalFactors),
       )
       else -> registrationsResponse(emptyRegistrationsResponse())
     }
@@ -241,7 +241,7 @@ class SetupData(
     communityApiResponseWithQs(
       response,
       "/secure/offenders/crn/$crn/convictions/$convictionId/nsis",
-      Parameter("nsiCodes", "BRE,BRES,REC,RECS")
+      Parameter("nsiCodes", "BRE,BRES,REC,RECS"),
     )
 
   private fun convictionsResponse(response: HttpResponse) =
@@ -271,7 +271,7 @@ class SetupData(
 class RegistrationsSetup(
   private val rosh: String,
   private val mappa: String,
-  private val additionalFactors: List<String>
+  private val additionalFactors: List<String>,
 ) {
   fun allRegistrationsPresent() = hasRosh() && hasMappa() && hasAdditionalFactors()
   fun mappaAndAdditionalFactors() = hasMappa() && hasAdditionalFactors()

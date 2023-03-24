@@ -26,7 +26,7 @@ class ResourceServerConfiguration {
           "/swagger-ui/**",
           "/swagger-ui.html",
           "/queue-admin/retry-all-dlqs",
-          "/crn/upload"
+          "/crn/upload",
         ).permitAll().anyExchange().authenticated()
       }
       .oauth2ResourceServer {

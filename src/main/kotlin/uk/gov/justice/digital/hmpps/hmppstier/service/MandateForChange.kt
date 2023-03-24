@@ -5,7 +5,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
 
 class MandateForChange(
-  private val communityApiService: CommunityApiService
+  private val communityApiService: CommunityApiService,
 ) {
   suspend fun hasNoMandate(crn: String, convictions: Collection<Conviction>): Boolean =
     convictions

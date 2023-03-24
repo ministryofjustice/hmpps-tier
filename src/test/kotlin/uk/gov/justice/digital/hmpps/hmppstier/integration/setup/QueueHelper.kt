@@ -22,7 +22,7 @@ fun noMessagesCurrentlyOnQueue(client: AmazonSQSAsync, queueUrl: String) {
   await untilCallTo {
     getNumberOfMessagesCurrentlyOnQueue(
       client,
-      queueUrl
+      queueUrl,
     )
   } matches { it == 0 }
 }
@@ -31,7 +31,7 @@ fun oneMessageCurrentlyOnQueue(client: AmazonSQSAsync, queueUrl: String) {
   await untilCallTo {
     getNumberOfMessagesCurrentlyOnQueue(
       client,
-      queueUrl
+      queueUrl,
     )
   } matches { it == 1 }
 }
@@ -40,7 +40,7 @@ fun oneMessageCurrentlyOnDeadletterQueue(client: AmazonSQS, queueUrl: String) {
   await untilCallTo {
     getNumberOfMessagesCurrentlyOnDeadLetterQueue(
       client,
-      queueUrl
+      queueUrl,
     )
   } matches { it == 1 }
 }
@@ -49,7 +49,7 @@ fun noMessagesCurrentlyOnDeadletterQueue(client: AmazonSQS, queueUrl: String) {
   await untilCallTo {
     getNumberOfMessagesCurrentlyOnDeadLetterQueue(
       client,
-      queueUrl
+      queueUrl,
     )
   } matches { it == 0 }
 }

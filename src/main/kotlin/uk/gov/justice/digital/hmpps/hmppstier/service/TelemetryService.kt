@@ -12,16 +12,17 @@ class TelemetryService(@Autowired private val telemetryClient: TelemetryClient) 
 
   fun trackTierCalculated(calculation: TierCalculationEntity, isUpdated: Boolean) {
     trackEvent(
-      if (isUpdated)
+      if (isUpdated) {
         TIER_CHANGED
-      else
-        TIER_UNCHANGED,
+      } else {
+        TIER_UNCHANGED
+      },
       mapOf(
         "crn" to calculation.crn,
         "protect" to calculation.data.protect.tier.value,
         "change" to calculation.data.change.tier.value.toString(),
-        "version" to calculation.data.calculationVersion
-      )
+        "version" to calculation.data.calculationVersion,
+      ),
     )
   }
 

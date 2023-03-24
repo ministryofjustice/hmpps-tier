@@ -15,18 +15,18 @@ import org.springframework.web.reactive.function.client.WebClient
 @Configuration
 class WebClientConfiguration(
   @Value("\${community.endpoint.url}") private val communityApiRootUri: String,
-  @Value("\${assessment.endpoint.url}") private val assessmentApiRootUri: String
+  @Value("\${assessment.endpoint.url}") private val assessmentApiRootUri: String,
 ) {
 
   @Bean
   fun authorizedClientManagerAppScope(
     clientRegistrationRepository: ReactiveClientRegistrationRepository,
-    oAuth2AuthorizedClientService: ReactiveOAuth2AuthorizedClientService
+    oAuth2AuthorizedClientService: ReactiveOAuth2AuthorizedClientService,
   ): ReactiveOAuth2AuthorizedClientManager {
     val authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder.builder().clientCredentials().build()
     val authorizedClientManager = AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(
       clientRegistrationRepository,
-      oAuth2AuthorizedClientService
+      oAuth2AuthorizedClientService,
     )
     authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
     return authorizedClientManager
@@ -35,7 +35,7 @@ class WebClientConfiguration(
   @Bean
   fun communityWebClientAppScope(
     @Qualifier(value = "authorizedClientManagerAppScope") authorizedClientManager: ReactiveOAuth2AuthorizedClientManager,
-    builder: WebClient.Builder
+    builder: WebClient.Builder,
   ): WebClient {
     return getOAuthWebClient(authorizedClientManager, builder, communityApiRootUri, "community-api")
   }
@@ -43,7 +43,7 @@ class WebClientConfiguration(
   @Bean
   fun assessmentWebClientAppScope(
     @Qualifier(value = "authorizedClientManagerAppScope") authorizedClientManager: ReactiveOAuth2AuthorizedClientManager,
-    builder: WebClient.Builder
+    builder: WebClient.Builder,
   ): WebClient {
     return getOAuthWebClient(authorizedClientManager, builder, assessmentApiRootUri, "assessment-api")
   }
@@ -52,7 +52,7 @@ class WebClientConfiguration(
     authorizedClientManager: ReactiveOAuth2AuthorizedClientManager,
     builder: WebClient.Builder,
     rootUri: String,
-    registrationId: String
+    registrationId: String,
   ): WebClient {
     val oauth2Client = ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager)
     oauth2Client.setDefaultClientRegistrationId(registrationId)

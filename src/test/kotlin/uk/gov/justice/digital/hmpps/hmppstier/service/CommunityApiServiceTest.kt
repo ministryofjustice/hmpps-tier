@@ -60,8 +60,8 @@ internal class CommunityApiServiceTest {
           Registration(
             KeyValue("RMRH"),
             KeyValue("Not Used"),
-            LocalDate.now()
-          )
+            LocalDate.now(),
+          ),
         )
       coEvery { communityApiClient.getRegistrations(crn) } returns registrations
 
@@ -76,8 +76,8 @@ internal class CommunityApiServiceTest {
           Registration(
             KeyValue("rmrh"),
             KeyValue("Not Used"),
-            LocalDate.now()
-          )
+            LocalDate.now(),
+          ),
         )
       coEvery { communityApiClient.getRegistrations(crn) } returns registrations
 
@@ -93,19 +93,19 @@ internal class CommunityApiServiceTest {
             KeyValue("RMRH"),
             KeyValue("Not Used"),
 
-            LocalDate.now()
+            LocalDate.now(),
           ),
           Registration(
             KeyValue("AV2S"),
             KeyValue("Not Used"),
 
-            LocalDate.now()
+            LocalDate.now(),
           ),
           Registration(
             KeyValue("AV2S"),
             KeyValue("Not Used"),
 
-            LocalDate.now()
+            LocalDate.now(),
           ),
         )
       coEvery { communityApiClient.getRegistrations(crn) } returns registrations
@@ -122,19 +122,19 @@ internal class CommunityApiServiceTest {
             KeyValue("AV2S"),
             KeyValue("Not Used"),
 
-            LocalDate.now()
+            LocalDate.now(),
           ),
           Registration(
             KeyValue("RMRH"),
             KeyValue("Not Used"),
 
-            LocalDate.now()
+            LocalDate.now(),
           ),
           Registration(
             KeyValue("AV2S"),
             KeyValue("Not Used"),
 
-            LocalDate.now()
+            LocalDate.now(),
           ),
 
         )
@@ -164,8 +164,8 @@ internal class CommunityApiServiceTest {
           Registration(
             KeyValue("MAPP"),
             KeyValue("M3"),
-            LocalDate.now()
-          )
+            LocalDate.now(),
+          ),
         )
       coEvery { communityApiClient.getRegistrations(crn) } returns registrations
 
@@ -180,8 +180,8 @@ internal class CommunityApiServiceTest {
           Registration(
             KeyValue("MAPP"),
             KeyValue("m3"),
-            LocalDate.now()
-          )
+            LocalDate.now(),
+          ),
         )
       coEvery { communityApiClient.getRegistrations(crn) } returns registrations
 
@@ -197,19 +197,19 @@ internal class CommunityApiServiceTest {
             KeyValue("MAPP"),
             KeyValue("M3"),
 
-            LocalDate.now()
+            LocalDate.now(),
           ),
           Registration(
             KeyValue("AV2S"),
             KeyValue("BD"),
 
-            LocalDate.now()
+            LocalDate.now(),
           ),
           Registration(
             KeyValue("AV2S"),
             KeyValue("12"),
 
-            LocalDate.now()
+            LocalDate.now(),
           ),
 
         )
@@ -227,19 +227,19 @@ internal class CommunityApiServiceTest {
             KeyValue("AV2S"),
             KeyValue("Not Used"),
 
-            LocalDate.now()
+            LocalDate.now(),
           ),
           Registration(
             KeyValue("AV2S"),
             KeyValue("Not Used"),
 
-            LocalDate.now()
+            LocalDate.now(),
           ),
           Registration(
             KeyValue("Not Used"),
             KeyValue("INVALID"),
 
-            LocalDate.now()
+            LocalDate.now(),
           ),
         )
       coEvery { communityApiClient.getRegistrations(crn) } returns registrations
@@ -259,7 +259,7 @@ internal class CommunityApiServiceTest {
         listOf(
           ComplexityFactor.VULNERABILITY_ISSUE,
           ComplexityFactor.ADULT_AT_RISK,
-        )
+        ),
       )
       val result = communityApiService.getRegistrations(crn).complexityFactors
       assertThat(result.size).isEqualTo(2)
@@ -272,7 +272,7 @@ internal class CommunityApiServiceTest {
           listOf(
             ComplexityFactor.VULNERABILITY_ISSUE,
             ComplexityFactor.VULNERABILITY_ISSUE,
-          )
+          ),
         )
 
       val result = communityApiService.getRegistrations(crn).complexityFactors
@@ -296,8 +296,8 @@ internal class CommunityApiServiceTest {
             KeyValue("rmdo"),
             KeyValue("Not Used"),
 
-            LocalDate.now()
-          )
+            LocalDate.now(),
+          ),
         )
       coEvery { communityApiClient.getRegistrations(crn) } returns registrations
       val result = communityApiService.getRegistrations(crn).complexityFactors
@@ -313,19 +313,19 @@ internal class CommunityApiServiceTest {
             KeyValue("RMDO"),
             KeyValue("Not Used"),
 
-            LocalDate.now()
+            LocalDate.now(),
           ),
           Registration(
             KeyValue("AV2S"),
             KeyValue("BD"),
 
-            LocalDate.now()
+            LocalDate.now(),
           ),
           Registration(
             KeyValue("AV2S"),
             KeyValue("12"),
 
-            LocalDate.now()
+            LocalDate.now(),
           ),
 
         )
@@ -336,15 +336,14 @@ internal class CommunityApiServiceTest {
 
     @Test
     fun `Should return empty List if no Complexity Factors present`() = runBlocking {
-
       val registrations =
         listOf(
           Registration(
             KeyValue("AV2S"),
             KeyValue("Not Used"),
 
-            LocalDate.now()
-          )
+            LocalDate.now(),
+          ),
         )
       coEvery { communityApiClient.getRegistrations(crn) } returns registrations
       val result = communityApiService.getRegistrations(crn).complexityFactors
