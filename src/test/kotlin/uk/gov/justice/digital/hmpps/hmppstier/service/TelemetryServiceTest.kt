@@ -34,13 +34,17 @@ internal class TelemetryServiceTest {
     LocalDateTime.now(),
     TierCalculationResultEntity(
       TierLevel(
-        ProtectLevel.A, 17, mapOf()
+        ProtectLevel.A,
+        17,
+        mapOf(),
       ),
       TierLevel(
-        ChangeLevel.ONE, 5, mapOf()
+        ChangeLevel.ONE,
+        5,
+        mapOf(),
       ),
-      "77"
-    )
+      "77",
+    ),
   )
 
   @BeforeEach
@@ -56,7 +60,6 @@ internal class TelemetryServiceTest {
 
   @Test
   fun `Should emit TierChanged event when tier HAS changed`() {
-
     service.trackTierCalculated(tierCalculation, true)
 
     verify {
@@ -66,16 +69,15 @@ internal class TelemetryServiceTest {
           "crn" to crn,
           "protect" to tierCalculation.data.protect.tier.value,
           "change" to tierCalculation.data.change.tier.value.toString(),
-          "version" to tierCalculation.data.calculationVersion
+          "version" to tierCalculation.data.calculationVersion,
         ),
-        null
+        null,
       )
     }
   }
 
   @Test
   fun `Should emit TierUnchanged event when tier HAS NOT changed`() {
-
     service.trackTierCalculated(tierCalculation, false)
 
     verify {
@@ -85,9 +87,9 @@ internal class TelemetryServiceTest {
           "crn" to crn,
           "protect" to tierCalculation.data.protect.tier.value,
           "change" to tierCalculation.data.change.tier.value.toString(),
-          "version" to tierCalculation.data.calculationVersion
+          "version" to tierCalculation.data.calculationVersion,
         ),
-        null
+        null,
       )
     }
   }

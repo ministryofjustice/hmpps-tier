@@ -12,7 +12,7 @@ data class Conviction constructor(
     fun from(dto: ConvictionDto): Conviction =
       Conviction(
         dto.convictionId,
-        Sentence.from(dto.sentence!!)
+        Sentence.from(dto.sentence!!),
       )
   }
 }

@@ -32,7 +32,7 @@ class CommunityApiService(
       hasIomNominal(registrations),
       getComplexityFactors(registrations),
       getRosh(registrations),
-      getMappa(registrations)
+      getMappa(registrations),
     )
   }
 

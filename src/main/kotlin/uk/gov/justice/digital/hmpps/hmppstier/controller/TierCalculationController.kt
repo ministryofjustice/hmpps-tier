@@ -22,10 +22,9 @@ class TierCalculationController(private val tierReader: TierReader) {
   @ApiResponses(
     value = [
       ApiResponse(responseCode = "200", description = "OK"),
-      ApiResponse(responseCode = "404", description = "Result Not Found")
-    ]
+      ApiResponse(responseCode = "404", description = "Result Not Found"),
+    ],
   )
-
   @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
   @GetMapping("crn/{crn}/tier")
   suspend fun getLatestTierCalculation(@PathVariable(required = true) crn: String): TierDto = tierReader.getLatestTierByCrn(crn) ?: throw EntityNotFoundException("Tier Result Not Found for $crn")
@@ -34,8 +33,8 @@ class TierCalculationController(private val tierReader: TierReader) {
   @ApiResponses(
     value = [
       ApiResponse(responseCode = "200", description = "OK"),
-      ApiResponse(responseCode = "404", description = "Result Not Found")
-    ]
+      ApiResponse(responseCode = "404", description = "Result Not Found"),
+    ],
   )
   @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
   @GetMapping("crn/{crn}/tier/{calculationId}")

@@ -55,13 +55,13 @@ internal class AssessmentApiServiceTest {
         listOf(
           Question(
             "6.9",
-            setOf(Answer("Yes"))
-          )
+            setOf(Answer("Yes")),
+          ),
         )
 
       coEvery {
         assessmentApiClient.getAssessmentAnswers(
-          assessment.assessmentId
+          assessment.assessmentId,
         )
       } returns answers
       val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
@@ -79,13 +79,13 @@ internal class AssessmentApiServiceTest {
         listOf(
           Question(
             "6.9",
-            setOf(Answer("No"))
-          )
+            setOf(Answer("No")),
+          ),
         )
 
       coEvery {
         assessmentApiClient.getAssessmentAnswers(
-          assessment.assessmentId
+          assessment.assessmentId,
         )
       } returns answers
       val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
@@ -103,13 +103,13 @@ internal class AssessmentApiServiceTest {
         listOf(
           Question(
             "6.9",
-            setOf(Answer("Yes"))
-          )
+            setOf(Answer("Yes")),
+          ),
         )
 
       coEvery {
         assessmentApiClient.getAssessmentAnswers(
-          assessment.assessmentId
+          assessment.assessmentId,
         )
       } returns answers
       val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
@@ -127,13 +127,13 @@ internal class AssessmentApiServiceTest {
         listOf(
           Question(
             "6.9",
-            setOf(Answer("YeS"))
-          )
+            setOf(Answer("YeS")),
+          ),
         )
 
       coEvery {
         assessmentApiClient.getAssessmentAnswers(
-          assessment.assessmentId
+          assessment.assessmentId,
         )
       } returns answers
       val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
@@ -151,13 +151,13 @@ internal class AssessmentApiServiceTest {
         listOf(
           Question(
             "15.3",
-            setOf(Answer("Yes"))
-          )
+            setOf(Answer("Yes")),
+          ),
         )
 
       coEvery {
         assessmentApiClient.getAssessmentAnswers(
-          assessment.assessmentId
+          assessment.assessmentId,
         )
       } returns answers
       val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
@@ -173,8 +173,8 @@ internal class AssessmentApiServiceTest {
         listOf(
           Question(
             "6.9",
-            setOf(Answer("No"), Answer("No"), Answer("Yes"))
-          )
+            setOf(Answer("No"), Answer("No"), Answer("Yes")),
+          ),
         )
 
       coEvery { assessmentApiClient.getAssessmentAnswers(assessment.assessmentId) } returns answers
@@ -193,17 +193,17 @@ internal class AssessmentApiServiceTest {
         listOf(
           Question(
             "6.9",
-            setOf(Answer("No"), Answer("No"), Answer("Yes"))
+            setOf(Answer("No"), Answer("No"), Answer("Yes")),
           ),
           Question(
             "11.4",
-            setOf(Answer("Yes"))
-          )
+            setOf(Answer("Yes")),
+          ),
         )
 
       coEvery {
         assessmentApiClient.getAssessmentAnswers(
-          assessment.assessmentId
+          assessment.assessmentId,
         )
       } returns answers
       val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
@@ -223,7 +223,7 @@ internal class AssessmentApiServiceTest {
 
       coEvery {
         assessmentApiClient.getAssessmentAnswers(
-          assessment.assessmentId
+          assessment.assessmentId,
         )
       } returns answers
       val returnValue = assessmentService.getAssessmentAnswers(assessment.assessmentId)
@@ -257,8 +257,8 @@ internal class AssessmentApiServiceTest {
       val needs = listOf(
         AssessmentNeed(
           Need.ACCOMMODATION,
-          NeedSeverity.NO_NEED
-        )
+          NeedSeverity.NO_NEED,
+        ),
       )
 
       coEvery { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) } returns needs
@@ -276,12 +276,12 @@ internal class AssessmentApiServiceTest {
       val needs = listOf(
         AssessmentNeed(
           Need.ACCOMMODATION,
-          NeedSeverity.NO_NEED
+          NeedSeverity.NO_NEED,
         ),
         AssessmentNeed(
           Need.ALCOHOL_MISUSE,
-          NeedSeverity.SEVERE
-        )
+          NeedSeverity.SEVERE,
+        ),
       )
 
       coEvery { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) } returns needs

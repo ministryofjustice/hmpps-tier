@@ -60,8 +60,8 @@ class HmppsTierExceptionHandler {
         ErrorResponse(
           status = 500,
           developerMessage = "Internal Server Error. Check Logs",
-          userMessage = "An unexpected error has occurred"
-        )
+          userMessage = "An unexpected error has occurred",
+        ),
       )
   }
 }

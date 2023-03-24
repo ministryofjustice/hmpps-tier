@@ -21,7 +21,7 @@ class ChangeLevelCalculator {
     hasIomNominal: Boolean,
     needs: Map<Need, NeedSeverity>,
     hasNoMandateForChange: Boolean,
-    hasNoAssessment: Boolean
+    hasNoAssessment: Boolean,
   ): TierLevel<ChangeLevel> =
     when {
       hasNoMandateForChange -> TIER_NO_MANDATE
@@ -31,7 +31,7 @@ class ChangeLevelCalculator {
         val points = mapOf(
           NEEDS to getAssessmentNeedsPoints(needs),
           OGRS to getOgrsPoints(ogrsScore),
-          IOM to getIomNominalPoints(hasIomNominal)
+          IOM to getIomNominalPoints(hasIomNominal),
         )
 
         val total = points.map { it.value }.sum()

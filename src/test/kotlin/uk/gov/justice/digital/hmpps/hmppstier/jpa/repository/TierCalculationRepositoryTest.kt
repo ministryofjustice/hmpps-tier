@@ -22,7 +22,7 @@ import java.util.UUID
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DataJpaTest
 class TierCalculationRepositoryTest(
-  @Autowired val repository: TierCalculationRepository
+  @Autowired val repository: TierCalculationRepository,
 ) {
 
   @BeforeEach
@@ -36,7 +36,6 @@ class TierCalculationRepositoryTest(
 
     @Test
     fun `Should return latest calculation when only one`() {
-
       val created = LocalDateTime.now()
       val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data, uuid = UUID.randomUUID())
 
@@ -57,7 +56,6 @@ class TierCalculationRepositoryTest(
 
     @Test
     fun `Should return latest calculation when multiple`() {
-
       val created = LocalDateTime.now()
       val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data, uuid = UUID.randomUUID())
       val secondTierCalculation = TierCalculationEntity(crn = crn, created = created.minusSeconds(1), data = data, uuid = UUID.randomUUID())
@@ -79,7 +77,6 @@ class TierCalculationRepositoryTest(
 
     @Test
     fun `Should return calculation by ID when only one`() {
-
       val calculationId = UUID.randomUUID()
       val created = LocalDateTime.now()
       val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data, uuid = calculationId)
@@ -95,7 +92,6 @@ class TierCalculationRepositoryTest(
 
     @Test
     fun `Should return latest calculation none`() {
-
       val calculationId = UUID.randomUUID()
       val calculation = repository.findByCrnAndUuid(crn, calculationId)
       assertThat(calculation).isNull()
@@ -103,7 +99,6 @@ class TierCalculationRepositoryTest(
 
     @Test
     fun `Should return calculation by Id when multiple`() {
-
       val calculationId = UUID.randomUUID()
       val created = LocalDateTime.now()
       val firstTierCalculation = TierCalculationEntity(crn = crn, created = created, data = data, uuid = calculationId)
@@ -125,7 +120,7 @@ class TierCalculationRepositoryTest(
     private val data = TierCalculationResultEntity(
       protect = TierLevel(ProtectLevel.B, 4, mapOf(CalculationRule.ROSH to 4)),
       change = TierLevel(ChangeLevel.TWO, 12, mapOf(CalculationRule.COMPLEXITY to 12)),
-      calculationVersion = "99"
+      calculationVersion = "99",
     )
   }
 }

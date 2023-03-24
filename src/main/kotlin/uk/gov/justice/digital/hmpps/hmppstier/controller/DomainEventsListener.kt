@@ -33,10 +33,10 @@ data class DomainEventsMessage(
 )
 
 data class PersonReference(
-  val identifiers: List<Identifiers>
+  val identifiers: List<Identifiers>,
 )
 
 data class Identifiers(
   val type: String,
-  val value: String
+  val value: String,
 )

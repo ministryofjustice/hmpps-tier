@@ -12,5 +12,5 @@ data class ErrorResponse(
 
   val userMessage: String? = null,
 
-  val moreInfo: String? = null
+  val moreInfo: String? = null,
 )

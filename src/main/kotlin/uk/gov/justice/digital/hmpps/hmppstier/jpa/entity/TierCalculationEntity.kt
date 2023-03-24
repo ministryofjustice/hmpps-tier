@@ -17,7 +17,7 @@ import javax.persistence.Table
 @Entity
 @TypeDefs(
   TypeDef(name = "json", typeClass = JsonStringType::class),
-  TypeDef(name = "jsonb", typeClass = JsonBinaryType::class)
+  TypeDef(name = "jsonb", typeClass = JsonBinaryType::class),
 )
 @Table(name = "tier_calculation")
 data class TierCalculationEntity(
@@ -38,5 +38,5 @@ data class TierCalculationEntity(
 
   @Type(type = "json")
   @Column(columnDefinition = "jsonb")
-  val data: TierCalculationResultEntity
+  val data: TierCalculationResultEntity,
 )

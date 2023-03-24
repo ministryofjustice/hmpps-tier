@@ -15,7 +15,6 @@ internal class TierDtoTest {
 
   @Test
   fun `Should construct TierDTO`() {
-
     val protectLevel = ProtectLevel.A
     val changeLevel = ChangeLevel.TWO
     val calculationId = UUID.randomUUID()
@@ -24,7 +23,7 @@ internal class TierDtoTest {
     val tierDto = TierDto(
       protectLevel.value.plus(changeLevel.value),
       calculationId,
-      calculationDate
+      calculationDate,
     )
 
     assertThat(tierDto.tierScore).isEqualTo(protectLevel.value.plus(changeLevel.value))
@@ -34,7 +33,6 @@ internal class TierDtoTest {
 
   @Test
   fun `Should construct TierDTO from`() {
-
     val protectLevel = ProtectLevel.A
     val changeLevel = ChangeLevel.TWO
     val calculationId = UUID.randomUUID()
@@ -44,7 +42,7 @@ internal class TierDtoTest {
     val data = TierCalculationResultEntity(
       protect = TierLevel(protectLevel, 4, mapOf(CalculationRule.ROSH to 4)),
       change = TierLevel(changeLevel, 12, mapOf(CalculationRule.COMPLEXITY to 12)),
-      calculationVersion = version
+      calculationVersion = version,
     )
 
     val tierDto = TierDto.from(
@@ -53,8 +51,8 @@ internal class TierDtoTest {
         calculationId,
         "Any Crn",
         calculationDate,
-        data
-      )
+        data,
+      ),
     )
 
     assertThat(tierDto.tierScore).isEqualTo(protectLevel.value.plus(changeLevel.value))

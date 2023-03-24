@@ -4,5 +4,5 @@ enum class ProtectLevel(val value: String) {
   A("A"),
   B("B"),
   C("C"),
-  D("D")
+  D("D"),
 }

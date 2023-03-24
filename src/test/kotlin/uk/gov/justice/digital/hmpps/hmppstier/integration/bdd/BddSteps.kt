@@ -86,8 +86,8 @@ class BddSteps : En {
           "crn" to crn,
           "assessmentId" to assessmentId,
           "convictionId" to convictionId,
-          "secondConvictionId" to secondConvictionId
-        )
+          "secondConvictionId" to secondConvictionId,
+        ),
       )
     }
 
@@ -96,8 +96,11 @@ class BddSteps : En {
     }
     Given("a ROSH score of {string}") { rosh: String ->
       val roshCode: String =
-        if (Rosh.values().any { it.name == rosh }) Rosh.valueOf(rosh).registerCode
-        else "NO_ROSH"
+        if (Rosh.values().any { it.name == rosh }) {
+          Rosh.valueOf(rosh).registerCode
+        } else {
+          "NO_ROSH"
+        }
 
       setupData.setRosh(roshCode)
     }
@@ -130,8 +133,8 @@ class BddSteps : En {
           "RELATIONSHIPS" to "SEVERE",
           "LIFESTYLE_AND_ASSOCIATES" to "SEVERE",
           "DRUG_MISUSE" to "SEVERE",
-          "ALCOHOL_MISUSE" to "SEVERE"
-        )
+          "ALCOHOL_MISUSE" to "SEVERE",
+        ),
       ) // 12 points
     }
     Given("an offender scores 20 change points") {
@@ -142,8 +145,8 @@ class BddSteps : En {
           "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "SEVERE",
           "RELATIONSHIPS" to "SEVERE",
           "LIFESTYLE_AND_ASSOCIATES" to "SEVERE",
-          "DRUG_MISUSE" to "SEVERE"
-        )
+          "DRUG_MISUSE" to "SEVERE",
+        ),
       ) // 10 points
     }
     Given("an offender scores 19 change points") {
@@ -154,8 +157,8 @@ class BddSteps : En {
           "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "SEVERE",
           "RELATIONSHIPS" to "SEVERE",
           "LIFESTYLE_AND_ASSOCIATES" to "SEVERE",
-          "DRUG_MISUSE" to "SEVERE"
-        )
+          "DRUG_MISUSE" to "SEVERE",
+        ),
       ) // 10 points
     }
     Given("an offender scores 11 change points") {
@@ -169,8 +172,8 @@ class BddSteps : En {
           "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "SEVERE",
           "RELATIONSHIPS" to "SEVERE",
           "LIFESTYLE_AND_ASSOCIATES" to "SEVERE",
-          "DRUG_MISUSE" to "SEVERE"
-        )
+          "DRUG_MISUSE" to "SEVERE",
+        ),
       ) // 10 points
     }
     Given("an offender scores 9 change points") {
@@ -180,8 +183,8 @@ class BddSteps : En {
           "EDUCATION_TRAINING_AND_EMPLOYABILITY" to "SEVERE",
           "RELATIONSHIPS" to "SEVERE",
           "LIFESTYLE_AND_ASSOCIATES" to "SEVERE",
-          "DRUG_MISUSE" to "STANDARD"
-        )
+          "DRUG_MISUSE" to "STANDARD",
+        ),
       ) // 9 points
     }
     Given("an offender scores 31 protect points") {
@@ -214,8 +217,8 @@ class BddSteps : En {
           "RPIR",
           "RVAD",
           "STRG",
-          "RTAO"
-        )
+          "RTAO",
+        ),
       ) // 20
     }
     Given("an offender scores 21 protect points") {

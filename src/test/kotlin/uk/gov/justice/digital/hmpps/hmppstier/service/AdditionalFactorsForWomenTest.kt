@@ -32,7 +32,7 @@ class AdditionalFactorsForWomenTest {
   private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(
     clock,
     assessmentApiService,
-    CommunityApiService(communityApiClient)
+    CommunityApiService(communityApiClient),
   )
 
   @BeforeEach
@@ -90,7 +90,7 @@ class AdditionalFactorsForWomenTest {
         crn,
         listOf(),
         assessment,
-        true
+        true,
       )
       assertThat(result).isEqualTo(2)
 
@@ -265,7 +265,7 @@ class AdditionalFactorsForWomenTest {
         crn,
         listOf(conviction),
         null,
-        true
+        true,
       )
       assertThat(result).isEqualTo(2)
       coVerify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
@@ -283,7 +283,7 @@ class AdditionalFactorsForWomenTest {
         crn,
         listOf(conviction),
         null,
-        true
+        true,
       )
       assertThat(result).isEqualTo(0)
     }
@@ -301,7 +301,7 @@ class AdditionalFactorsForWomenTest {
         crn,
         listOf(conviction),
         null,
-        true
+        true,
       )
       assertThat(result).isEqualTo(2)
       coVerify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
@@ -323,7 +323,7 @@ class AdditionalFactorsForWomenTest {
         crn,
         listOf(conviction, unrelatedConviction),
         null,
-        true
+        true,
       )
       assertThat(result).isEqualTo(2)
       coVerify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
@@ -337,7 +337,7 @@ class AdditionalFactorsForWomenTest {
         crn,
         listOf(),
         null,
-        true
+        true,
       )
       assertThat(result).isEqualTo(0)
     }
@@ -350,7 +350,7 @@ class AdditionalFactorsForWomenTest {
       val conviction = Conviction(convictionId, sentence)
       val breaches = listOf(
         Nsi(status = KeyValue("BRE54")),
-        Nsi(status = KeyValue("BRE08"))
+        Nsi(status = KeyValue("BRE08")),
       )
       coEvery { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
 
@@ -358,7 +358,7 @@ class AdditionalFactorsForWomenTest {
         crn,
         listOf(conviction),
         null,
-        true
+        true,
       )
       assertThat(result).isEqualTo(2)
       coVerify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
@@ -372,7 +372,7 @@ class AdditionalFactorsForWomenTest {
       val conviction = Conviction(convictionId, sentence)
       val breaches = listOf(
         Nsi(status = KeyValue("BRE54")),
-        Nsi(status = KeyValue("bre08"))
+        Nsi(status = KeyValue("bre08")),
       )
       coEvery { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
 
@@ -380,7 +380,7 @@ class AdditionalFactorsForWomenTest {
         crn,
         listOf(conviction),
         null,
-        true
+        true,
       )
       assertThat(result).isEqualTo(2)
       coVerify { communityApiClient.getBreachRecallNsis(crn, convictionId) }
@@ -394,7 +394,7 @@ class AdditionalFactorsForWomenTest {
       val conviction = Conviction(convictionId, sentence)
       val breaches = listOf(
         Nsi(status = KeyValue("BRE99")),
-        Nsi(status = KeyValue("BRE99"))
+        Nsi(status = KeyValue("BRE99")),
       )
       coEvery { communityApiClient.getBreachRecallNsis(crn, convictionId) } returns breaches
 
@@ -402,7 +402,7 @@ class AdditionalFactorsForWomenTest {
         crn,
         listOf(conviction),
         null,
-        true
+        true,
       )
       assertThat(result).isEqualTo(0)
       coVerify { communityApiClient.getBreachRecallNsis(crn, convictionId) }

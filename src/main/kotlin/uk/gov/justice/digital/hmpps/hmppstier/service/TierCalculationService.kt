@@ -15,7 +15,7 @@ class TierCalculationService(
   private val communityApiService: CommunityApiService,
   private val successUpdater: SuccessUpdater,
   private val telemetryService: TelemetryService,
-  private val tierUpdater: TierUpdater
+  private val tierUpdater: TierUpdater,
 ) {
 
   private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator()
@@ -34,7 +34,6 @@ class TierCalculationService(
     }
 
   private suspend fun calculateTier(crn: String): TierCalculationEntity {
-
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
     val (rsr, ogrs) = communityApiService.getDeliusAssessments(crn)
     val registrations = communityApiService.getRegistrations(crn)
@@ -44,7 +43,7 @@ class TierCalculationService(
       crn,
       convictions,
       offenderAssessment,
-      communityApiService.offenderIsFemale(crn)
+      communityApiService.offenderIsFemale(crn),
     )
 
     val protectLevel = protectLevelCalculator.calculate(rsr, additionalFactorsPoints, registrations)
@@ -53,7 +52,7 @@ class TierCalculationService(
       registrations.hasIomNominal,
       assessmentApiService.getAssessmentNeeds(offenderAssessment),
       mandateForChange.hasNoMandate(crn, convictions),
-      hasNoAssessment(offenderAssessment)
+      hasNoAssessment(offenderAssessment),
     )
 
     return TierCalculationEntity(
@@ -62,8 +61,8 @@ class TierCalculationService(
       data = TierCalculationResultEntity(
         change = changeLevel,
         protect = protectLevel,
-        calculationVersion = "2"
-      )
+        calculationVersion = "2",
+      ),
     )
   }
 

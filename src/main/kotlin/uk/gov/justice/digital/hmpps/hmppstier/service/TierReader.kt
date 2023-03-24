@@ -9,7 +9,7 @@ import java.util.UUID
 
 @Service
 class TierReader(
-  private val tierCalculationRepository: TierCalculationRepository
+  private val tierCalculationRepository: TierCalculationRepository,
 ) {
   fun getLatestTierByCrn(crn: String): TierDto? =
     getLatestTierCalculation(crn)?.let {

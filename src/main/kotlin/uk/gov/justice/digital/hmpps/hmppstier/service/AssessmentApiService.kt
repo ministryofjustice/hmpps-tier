@@ -13,7 +13,7 @@ import java.time.LocalDate
 @Service
 class AssessmentApiService(
   private val assessmentApiClient: AssessmentApiClient,
-  private val clock: Clock
+  private val clock: Clock,
 ) {
 
   suspend fun getRecentAssessment(crn: String): OffenderAssessment? =
@@ -35,7 +35,7 @@ class AssessmentApiService(
   suspend fun getAssessmentAnswers(assessmentId: String): Map<AdditionalFactorForWomen?, String?> =
     assessmentApiClient.getAssessmentAnswers(assessmentId).associateBy(
       { AdditionalFactorForWomen.from(it.questionCode) },
-      { it.answers.firstOrNull()?.refAnswerCode }
+      { it.answers.firstOrNull()?.refAnswerCode },
     ).filterKeys { it != null }
 
   suspend fun getAssessmentNeeds(offenderAssessment: OffenderAssessment?): Map<Need, NeedSeverity> =

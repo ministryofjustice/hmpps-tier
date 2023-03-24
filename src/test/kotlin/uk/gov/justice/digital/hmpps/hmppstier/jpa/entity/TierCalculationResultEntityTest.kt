@@ -11,11 +11,10 @@ internal class TierCalculationResultEntityTest {
 
   @Test
   fun `Should Construct TierCalculationResultEntity`() {
-
     val tierCalculationResultEntity = TierCalculationResultEntity(
       protect = tierLetterResult,
       change = tierNumberResult,
-      calculationVersion = "99"
+      calculationVersion = "99",
     )
 
     assertThat(tierCalculationResultEntity.protect).isEqualTo(tierLetterResult)

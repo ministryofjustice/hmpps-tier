@@ -32,15 +32,14 @@ class ProtectLevelCalculator {
   fun calculate(
     rsr: BigDecimal,
     additionalFactorsPoints: Int,
-    registrations: Registrations
+    registrations: Registrations,
   ): TierLevel<ProtectLevel> {
-
     val points = mapOf(
       RSR to getRsrPoints(rsr),
       ROSH to getRoshPoints(registrations.rosh),
       MAPPA to getMappaPoints(registrations.mappa),
       COMPLEXITY to getComplexityPoints(registrations.complexityFactors),
-      ADDITIONAL_FACTORS_FOR_WOMEN to additionalFactorsPoints
+      ADDITIONAL_FACTORS_FOR_WOMEN to additionalFactorsPoints,
     )
 
     val total = points.map { it.value }.sum()

@@ -6,14 +6,14 @@ import java.math.BigDecimal.ZERO
 
 data class DeliusAssessments(
   val rsr: BigDecimal,
-  val ogrs: Int
+  val ogrs: Int,
 ) {
 
   companion object {
     fun from(dto: DeliusAssessmentsDto?): DeliusAssessments {
       return DeliusAssessments(
         rsr = dto?.rsr ?: ZERO,
-        ogrs = dto?.ogrs ?: 0
+        ogrs = dto?.ogrs ?: 0,
       )
     }
   }
