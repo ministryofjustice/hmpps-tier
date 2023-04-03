@@ -2,7 +2,7 @@
 
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.5"
-  kotlin("plugin.spring") version "1.8.10"
+  kotlin("plugin.spring") version "1.8.20"
   kotlin("plugin.jpa") version "1.8.20"
   id("org.jlleitschuh.gradle.ktlint") version "11.3.1"
   jacoco
