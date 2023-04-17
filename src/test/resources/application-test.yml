@@ -35,6 +35,10 @@ hmpps.tier:
   endpoint:
     url: http://localhost:8080
 
+tier-to-delius:
+  endpoint:
+    url: http://localhost:8084
+
 hmpps.sqs:
   provider: localstack
   queues:

@@ -11,11 +11,13 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClient
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction
 import org.springframework.web.reactive.function.client.WebClient
+import uk.gov.justice.digital.hmpps.hmppstier.client.TierToDeliusApiClient
 
 @Configuration
 class WebClientConfiguration(
   @Value("\${community.endpoint.url}") private val communityApiRootUri: String,
   @Value("\${assessment.endpoint.url}") private val assessmentApiRootUri: String,
+  @Value("\${tier-to-delius.endpoint.url}") private val tierToDeliusApiRootUri: String,
 ) {
 
   @Bean
@@ -46,6 +48,19 @@ class WebClientConfiguration(
     builder: WebClient.Builder,
   ): WebClient {
     return getOAuthWebClient(authorizedClientManager, builder, assessmentApiRootUri, "assessment-api")
+  }
+
+  @Bean
+  fun tierToDeliusApiClientWebClientAppScope(
+    @Qualifier(value = "authorizedClientManagerAppScope") authorizedClientManager: ReactiveOAuth2AuthorizedClientManager,
+    builder: WebClient.Builder,
+  ): WebClient {
+    return getOAuthWebClient(authorizedClientManager, builder, tierToDeliusApiRootUri, "tier-to-delius-api")
+  }
+
+  @Bean
+  fun tierToDeliusApiClient(@Qualifier("tierToDeliusApiClientWebClientAppScope") webClient: WebClient): TierToDeliusApiClient {
+    return TierToDeliusApiClient(webClient)
   }
 
   private fun getOAuthWebClient(
