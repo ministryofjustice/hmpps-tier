@@ -10,15 +10,15 @@ class TierToDeliusApiClientTest : IntegrationTestBase() {
     setupTierToDelius(crn)
 
     webTestClient.get()
-      .uri("/tier-details/$crn")
+      .uri("/tier-details-test/$crn")
       .headers { it.authToken() }
       .exchange()
       .expectStatus()
       .isOk
       .expectBody()
-      .jsonPath("$[0].gender")
+      .jsonPath("$.gender")
       .isEqualTo("Male")
-      .jsonPath("$.[0].currentTier")
+      .jsonPath("$.currentTier")
       .isEqualTo("UD0")
   }
 }

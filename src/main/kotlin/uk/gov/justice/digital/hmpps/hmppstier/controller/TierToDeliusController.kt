@@ -24,7 +24,7 @@ class TierToDeliusController(private val tierToDeliusApiService: TierToDeliusApi
     ],
   )
   @PreAuthorize("hasRole('ROLE_TIER_DETAILS')")
-  @GetMapping("/tier-details/{crn}")
+  @GetMapping("/tier-details-test/{crn}")
   suspend fun getTierToDelius(@PathVariable(required = true) crn: String): TierToDeliusResponse {
     return tierToDeliusApiService.getTierToDelius(crn)
   }

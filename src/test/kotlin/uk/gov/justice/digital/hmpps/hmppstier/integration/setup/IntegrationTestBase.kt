@@ -221,7 +221,7 @@ abstract class IntegrationTestBase {
     communityApiResponseWithQs(response, "/secure/offenders/crn/$crn/convictions", Parameter("activeOnly", "true"))
 
   fun setupTierToDelius(crn: String) {
-    tierToDeliusApiResponse(tierToDeliusFullResponse(), "tier-details/$crn")
+    tierToDeliusApiResponse(tierToDeliusFullResponse(), "/tier-details/$crn")
   }
 
   fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl, crn)
