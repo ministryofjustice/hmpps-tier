@@ -28,7 +28,7 @@ class JwtAuthHelper {
 
   fun createJwt(): String {
     val claims = mapOf(
-      "authorities" to listOf("ROLE_HMPPS_TIER"),
+      "authorities" to listOf("ROLE_HMPPS_TIER", "ROLE_TIER_DETAILS"),
       "client_id" to "hmpps-tier-client",
     )
 

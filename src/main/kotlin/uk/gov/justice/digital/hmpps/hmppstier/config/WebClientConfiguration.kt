@@ -11,7 +11,6 @@ import org.springframework.security.oauth2.client.ReactiveOAuth2AuthorizedClient
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository
 import org.springframework.security.oauth2.client.web.reactive.function.client.ServerOAuth2AuthorizedClientExchangeFilterFunction
 import org.springframework.web.reactive.function.client.WebClient
-import uk.gov.justice.digital.hmpps.hmppstier.client.TierToDeliusApiClient
 
 @Configuration
 class WebClientConfiguration(
@@ -56,11 +55,6 @@ class WebClientConfiguration(
     builder: WebClient.Builder,
   ): WebClient {
     return getOAuthWebClient(authorizedClientManager, builder, tierToDeliusApiRootUri, "tier-to-delius-api")
-  }
-
-  @Bean
-  fun tierToDeliusApiClient(@Qualifier("tierToDeliusApiClientWebClientAppScope") webClient: WebClient): TierToDeliusApiClient {
-    return TierToDeliusApiClient(webClient)
   }
 
   private fun getOAuthWebClient(

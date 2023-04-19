@@ -17,4 +17,7 @@ class ApiConfiguration {
 
   @Bean
   fun assessmentApi(): ClientAndServer = ClientAndServer.startClientAndServer(8092)
+
+  @Bean
+  fun tierToDeliusApi(): ClientAndServer = ClientAndServer.startClientAndServer(8093)
 }

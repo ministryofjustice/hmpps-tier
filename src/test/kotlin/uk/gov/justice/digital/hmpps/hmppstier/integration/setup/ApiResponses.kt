@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 
 const val COMMUNITY_API_FIXTURES: String = "src/test/resources/fixtures/community-api"
 const val ASSESSMENT_API_FIXTURES: String = "src/test/resources/fixtures/assessment-api"
+const val TIERTODELIUS_API_FIXTURES: String = "src/test/resources/fixtures/tierToDelius-api"
 
 fun communityApiAssessmentsResponse(rsr: String, ogrs: String): HttpResponse = jsonResponseOf(
   responseFrom("$COMMUNITY_API_FIXTURES/assessments.json")
@@ -192,6 +193,9 @@ fun assessmentsApiAssessmentsResponse(assessmentDate: LocalDateTime, assessmentI
 fun assessmentsApiNoSeverityNeedsResponse(): HttpResponse =
   assessmentApiResponse("no_severity_needs.json")
 
+fun tierToDeliusFullResponse(): HttpResponse =
+  tierToDeliusApiResponse("tier-to-delius-response.json")
+
 fun assessmentsApiHighSeverityNeedsResponse(): HttpResponse =
   assessmentApiResponse("high_severity_needs_18_points.json")
 
@@ -219,3 +223,6 @@ private fun communityApiResponse(path: String): HttpResponse =
 
 private fun assessmentApiResponse(path: String): HttpResponse =
   jsonResponseFromPath("$ASSESSMENT_API_FIXTURES/$path")
+
+private fun tierToDeliusApiResponse(path: String): HttpResponse =
+  jsonResponseFromPath("$TIERTODELIUS_API_FIXTURES/$path")
