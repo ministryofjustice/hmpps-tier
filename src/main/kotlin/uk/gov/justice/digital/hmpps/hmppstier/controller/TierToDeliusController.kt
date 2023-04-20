@@ -16,7 +16,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.TierToDeliusApiService
 @RequestMapping(produces = [APPLICATION_JSON_VALUE])
 class TierToDeliusController(private val tierToDeliusApiService: TierToDeliusApiService) {
 
-  @Operation(summary = "Retrieve tiering score by crn")
+  @Operation(summary = "Retrieve tiering details by crn - TEST")
   @ApiResponses(
     value = [
       ApiResponse(responseCode = "200", description = "OK"),

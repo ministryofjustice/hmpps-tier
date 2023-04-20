@@ -20,5 +20,9 @@ class TierToDeliusApiClientTest : IntegrationTestBase() {
       .isEqualTo("Male")
       .jsonPath("$.currentTier")
       .isEqualTo("UD0")
+      .jsonPath("$.rsrscore")
+      .isEqualTo(23.0)
+      .jsonPath("$.ogrsscore")
+      .isEqualTo(21)
   }
 }

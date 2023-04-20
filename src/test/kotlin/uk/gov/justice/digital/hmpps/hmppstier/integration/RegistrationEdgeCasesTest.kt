@@ -14,9 +14,13 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
   @Test
   fun `calculate change and protect when no registrations are found`() {
     val crn = "X473878"
+
+    setupTierToDelius(crn)
+
     setupNCCustodialSentence(crn)
     setupRegistrations(emptyRegistrationsResponse(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "7234567890")
+
     calculateTierFor(crn)
     expectTierChangedById("B1")
   }
@@ -24,6 +28,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
   @Test
   fun `calculate change and protect when registration level is missing`() {
     val crn = "X445509"
+    setupTierToDelius(crn)
     setupNCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithNoLevel(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "6234567890")
@@ -34,6 +39,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
   @Test
   fun `uses latest registration - two mappa registrations present`() {
     val crn = "X445599"
+    setupTierToDelius(crn)
     setupNCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithMappa(), crn)
     setupMaleOffender(crn)
@@ -46,18 +52,20 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
   @Test
   fun `exclude historic registrations from tier calculation`() {
     val crn = "X445599"
+    setupTierToDelius(crn)
     setupNCCustodialSentence(crn)
     setupRegistrations(historicRegistrationsResponseWithMappa(), crn)
     setupMaleOffender(crn)
     setupNeeds(assessmentsApiNoSeverityNeedsResponse(), "6234507890")
     setupNoDeliusAssessment(crn)
     calculateTierFor(crn)
-    expectLatestTierCalculation("D2")
+    expectLatestTierCalculation("B2")
   }
 
   @Test
   fun `uses mappa registration when latest is non-mappa but has mappa registration level`() {
     val crn = "X445599"
+    setupTierToDelius(crn)
     setupNCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithLatestNonMappa(), crn)
     setupMaleOffender(crn)

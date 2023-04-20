@@ -9,6 +9,7 @@ class AdditionalRequirementsTest : IntegrationTestBase() {
   @Test
   fun `Additional requirements do not cause a processing error`() {
     val crn = "X833444"
+    setupTierToDelius(crn)
     setupNonCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithMappa(), crn)
     setupAdditionalRequirements(crn)

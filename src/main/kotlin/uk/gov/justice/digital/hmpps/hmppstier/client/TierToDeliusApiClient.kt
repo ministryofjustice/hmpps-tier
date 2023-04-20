@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
+import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.ZonedDateTime
 
@@ -24,8 +25,8 @@ data class TierToDeliusResponse @JsonCreator constructor(
   val currentTier: String,
   val registrations: List<DeliusRegistration>,
   val convictions: List<DeliusConviction>,
-  val rsrscore: Int?,
-  val ogrsscore: Int?,
+  val rsrscore: BigDecimal = BigDecimal.ZERO,
+  val ogrsscore: Int = 0,
 )
 
 data class DeliusRegistration @JsonCreator constructor(

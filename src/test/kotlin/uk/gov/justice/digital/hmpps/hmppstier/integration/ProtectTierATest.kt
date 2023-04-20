@@ -13,6 +13,7 @@ class ProtectTierATest : IntegrationTestBase() {
   @Test
   fun `Tier is A with Mappa M2`() {
     val crn = "X333477"
+    setupTierToDelius(crn)
     setupNCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithMappa("M2"), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "5234567891")
@@ -23,6 +24,7 @@ class ProtectTierATest : IntegrationTestBase() {
   @Test
   fun `Tier is A with Mappa M3`() {
     val crn = "X333478"
+    setupTierToDelius(crn)
     setupNCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithMappa("M3"), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "5234567892")
@@ -33,6 +35,7 @@ class ProtectTierATest : IntegrationTestBase() {
   @Test
   fun `Tier is A with ROSH VERY HIGH`() {
     val crn = "X333479"
+    setupTierToDelius(crn)
     setupNCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithRosh(VERY_HIGH.registerCode), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "5234567893")
@@ -43,6 +46,7 @@ class ProtectTierATest : IntegrationTestBase() {
   @Test
   fun `Tier is B with low Mappa but 31 points`() {
     val crn = "X333480"
+    setupTierToDelius(crn)
     setupNCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithRoshMappaAndAdditionalFactors(HIGH.registerCode, "M1", listOf("RCCO", "RCPR", "RCHD")), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "5234567894")

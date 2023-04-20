@@ -7,7 +7,7 @@ class DomainEventsListenerTest : IntegrationTestBase() {
   @Test
   fun `can calculate tier on domain event`() {
     val crn = "X432777"
-
+    setupTierToDelius(crn)
     setupSCCustodialSentence(crn)
     setupMaleOffenderWithRegistrations(crn, assessmentId = "4234568890")
 
