@@ -41,9 +41,7 @@ class TierCalculationService(
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
 
     val rsr = tierToDeliusResponse.rsrscore ?: BigDecimal.ZERO
-    val ogrs = communityApiService.getDeliusAssessments(crn).ogrs
-
-    // val (rsr, ogrs) = communityApiService.getDeliusAssessments(crn)
+    val ogrs = tierToDeliusResponse.ogrsscore ?: 0
 
     val registrations = communityApiService.getRegistrations(crn)
     val convictions = communityApiService.getConvictionsWithSentences(crn)

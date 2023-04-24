@@ -196,7 +196,7 @@ fun assessmentsApiNoSeverityNeedsResponse(): HttpResponse =
 fun tierToDeliusFullResponse(
   gender: String = "Male",
   currentTier: String = "UD0",
-  ogrsscore: String = 23.toString(),
+  ogrsscore: String = 21.toString(),
   rsrscore: String = 23.toString(),
 ): HttpResponse =
   jsonResponseOf(
