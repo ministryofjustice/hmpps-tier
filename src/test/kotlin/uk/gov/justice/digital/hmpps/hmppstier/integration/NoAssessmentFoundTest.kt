@@ -9,6 +9,7 @@ class NoAssessmentFoundTest : IntegrationTestBase() {
   @Test
   fun `changeLevel should be 2 if assessment returns 404`() {
     val crn = "X273878"
+    setupTierToDeliusFull(crn)
     setupNCCustodialSentence(crn)
     setupAssessmentNotFound(crn)
     setupRegistrations(registrationsResponseWithMappa(), crn)

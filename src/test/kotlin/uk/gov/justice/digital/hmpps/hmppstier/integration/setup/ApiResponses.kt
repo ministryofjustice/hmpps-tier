@@ -193,8 +193,26 @@ fun assessmentsApiAssessmentsResponse(assessmentDate: LocalDateTime, assessmentI
 fun assessmentsApiNoSeverityNeedsResponse(): HttpResponse =
   assessmentApiResponse("no_severity_needs.json")
 
-fun tierToDeliusFullResponse(): HttpResponse =
-  tierToDeliusApiResponse("tier-to-delius-response.json")
+fun tierToDeliusFullResponse(
+  gender: String = "Male",
+  currentTier: String = "UD0",
+  ogrsscore: String = 23.toString(),
+  rsrscore: String = 23.toString(),
+): HttpResponse =
+  jsonResponseOf(
+    responseFrom("$TIERTODELIUS_API_FIXTURES/tier-to-delius-response.json")
+      .replace("genderToReplace", gender)
+      .replace("tierToReplace", currentTier)
+      .replace("\"ogrsToReplace\"", ogrsscore)
+      .replace("\"rsrToReplace\"", rsrscore),
+  )
+
+fun tierToDeliusNoAssessResponse(gender: String, currentTier: String): HttpResponse =
+  jsonResponseOf(
+    responseFrom("$TIERTODELIUS_API_FIXTURES/tier-to-delius-no-assessment-response.json")
+      .replace("genderToReplace", gender)
+      .replace("tierToReplace", currentTier),
+  )
 
 fun assessmentsApiHighSeverityNeedsResponse(): HttpResponse =
   assessmentApiResponse("high_severity_needs_18_points.json")
@@ -223,6 +241,3 @@ private fun communityApiResponse(path: String): HttpResponse =
 
 private fun assessmentApiResponse(path: String): HttpResponse =
   jsonResponseFromPath("$ASSESSMENT_API_FIXTURES/$path")
-
-private fun tierToDeliusApiResponse(path: String): HttpResponse =
-  jsonResponseFromPath("$TIERTODELIUS_API_FIXTURES/$path")
