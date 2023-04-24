@@ -83,8 +83,8 @@ class BddSteps : En {
       secondConvictionId = "1${convictionId.reversed()}"
 
       setupData = SetupData(
-        tierToDeliusApi,
         communityApi,
+        tierToDeliusApi,
         assessmentApi,
         mapOf(
           "crn" to crn,
