@@ -4,7 +4,6 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
@@ -17,9 +16,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 class CommunityApiService(
   private val communityApiClient: CommunityApiClient,
 ) {
-
-  suspend fun getDeliusAssessments(crn: String): DeliusAssessments =
-    DeliusAssessments.from(communityApiClient.getDeliusAssessments(crn))
 
   suspend fun getConvictionsWithSentences(crn: String): List<Conviction> =
     communityApiClient.getConvictions(crn).filterNot { it.sentence == null }.map { Conviction.from(it) }
@@ -44,10 +40,6 @@ class CommunityApiService(
 
   suspend fun hasBreachedConvictions(crn: String, convictions: List<Conviction>): Boolean =
     convictions.any { hasBreachOrRecallNsis(crn, it.convictionId) }
-
-  suspend fun offenderIsFemale(crn: String): Boolean = getOffender(crn)?.gender.equals("female", true)
-
-  private suspend fun getOffender(crn: String) = communityApiClient.getOffender(crn)
 
   private fun getRosh(registrations: Collection<Registration>): Rosh? =
     registrations.mapNotNull { Rosh.from(it.type.code) }.firstOrNull()
