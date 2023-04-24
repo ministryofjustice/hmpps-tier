@@ -1,6 +1,6 @@
 #lang: en
 Feature: Calculate RSR score
-  @single
+
   Scenario: RSR 7.1 No ROSH 20 points scored
     Given an RSR score of "7.1"
     And no ROSH score
