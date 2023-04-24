@@ -50,7 +50,7 @@ class TierCalculationService(
       crn,
       convictions,
       offenderAssessment,
-      communityApiService.offenderIsFemale(crn),
+      tierToDeliusResponse.gender == "Female",
     )
 
     val protectLevel = protectLevelCalculator.calculate(rsr, additionalFactorsPoints, registrations)

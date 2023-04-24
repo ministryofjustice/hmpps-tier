@@ -151,7 +151,7 @@ class SetupData(
   }
 
   fun prepareResponses() {
-    tierToDeliusApiResponse(tierToDeliusFullResponse(ogrsscore = ogrs, rsrscore = rsr), "/tier-details/$crn")
+    tierToDeliusApiResponse(tierToDeliusFullResponse(ogrsscore = ogrs, rsrscore = rsr, gender = gender), "/tier-details/$crn")
     communityApiResponse(communityApiAssessmentsResponse(rsr, ogrs), "/secure/offenders/crn/$crn/assessments")
     registrationsResponse(RegistrationsSetup(rosh, mappa, additionalFactors))
     assessmentsApi()
