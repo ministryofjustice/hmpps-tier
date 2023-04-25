@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.hmppstier.service.CommunityApiService
+import uk.gov.justice.digital.hmpps.hmppstier.service.TierReader
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierToDeliusApiService
 import java.math.BigDecimal
 
@@ -18,6 +19,7 @@ import java.math.BigDecimal
 class GetDataReliability(
   private val communityApiService: CommunityApiService,
   private val tierToDeliusApiService: TierToDeliusApiService,
+  private val tierReader: TierReader,
 ) {
 
   @Operation(summary = "cross-check data between community API and Tier-To-Delius API")
@@ -46,6 +48,42 @@ class GetDataReliability(
       ogrsDelius,
       ogrsCommunity,
     )
+  }
+
+  @Operation(summary = "cross-check all crns between community API and Tier-To-Delius API")
+  @ApiResponses(
+    value = [
+      ApiResponse(responseCode = "200", description = "OK"),
+      ApiResponse(responseCode = "404", description = "Result Not Found"),
+    ],
+  )
+  @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
+  @GetMapping("crn/all")
+  suspend fun getAllDataReliability(): List<CommunityDeliusData> {
+    val crns = tierReader.getCrns()
+    val communityDeliusDataList = mutableListOf<CommunityDeliusData>()
+
+    crns.forEach {
+      val tierToDeliusResponse = tierToDeliusApiService.getTierToDelius(it)
+      val (rsrScoreCommunity, ogrsScoreCommunity) = communityApiService.getDeliusAssessments(it)
+
+      val rsrDelius = tierToDeliusResponse.rsrscore ?: BigDecimal.ZERO
+
+      val ogrsDelius = tierToDeliusResponse.ogrsscore?.div(10)
+      val ogrsCommunity = ogrsScoreCommunity.div(10)
+
+      communityDeliusDataList.add(
+        CommunityDeliusData(
+          rsrDelius.compareTo(rsrScoreCommunity) == 0,
+          ogrsDelius == ogrsCommunity,
+          rsrDelius,
+          rsrScoreCommunity,
+          ogrsDelius,
+          ogrsCommunity,
+        ),
+      )
+    }
+    return communityDeliusDataList
   }
 }
 
