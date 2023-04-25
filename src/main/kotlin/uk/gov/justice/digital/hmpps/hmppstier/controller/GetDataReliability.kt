@@ -39,7 +39,7 @@ class GetDataReliability(
     val ogrsCommunity = ogrsScoreCommunity.div(10)
 
     return CommunityDeliusData(
-      rsrDelius == rsrScoreCommunity,
+      rsrDelius.compareTo(rsrScoreCommunity) == 0,
       ogrsDelius == ogrsCommunity,
       rsrDelius,
       rsrScoreCommunity,
