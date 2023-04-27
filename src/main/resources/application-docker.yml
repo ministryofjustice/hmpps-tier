@@ -20,6 +20,10 @@ assessment:
   endpoint:
     url: http://localhost:8092
 
+tier-to-delius:
+  endpoint:
+    url: http://localhost:8099
+
 hmpps.tier:
   endpoint:
     url: http://localhost:8080

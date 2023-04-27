@@ -15,6 +15,7 @@ class TriggerCalculationUpload : IntegrationTestBase() {
   @Test
   fun `trigger a tier calculation from upload`() {
     val crn = "X546739"
+    setupTierToDeliusFull(crn)
 
     setupSCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithMappa(), crn)
@@ -34,6 +35,7 @@ class TriggerCalculationUpload : IntegrationTestBase() {
   @Test
   fun `do not trigger a calculation for blank rows`() {
     val crn = "X546739"
+    setupTierToDeliusFull(crn)
 
     setupSCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithMappa(), crn)
@@ -55,6 +57,7 @@ class TriggerCalculationUpload : IntegrationTestBase() {
   @Test
   fun `must not write back if tier is unchanged`() {
     val crn = "X432769"
+    setupTierToDeliusFull(crn)
 
     setupSCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithMappa(), crn)

@@ -29,6 +29,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsRes
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappaAndAdditionalFactors
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRosh
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRoshMappaAndAdditionalFactors
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.tierToDeliusFullResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.unpaidWorkRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse
 import java.time.LocalDate
@@ -36,6 +37,7 @@ import java.time.LocalDateTime
 
 class SetupData(
   private val communityApi: ClientAndServer,
+  private val tierToDeliusApi: ClientAndServer,
   private val assessmentApi: ClientAndServer,
   ids: Map<String, String>,
 ) {
@@ -149,6 +151,7 @@ class SetupData(
   }
 
   fun prepareResponses() {
+    tierToDeliusApiResponse(tierToDeliusFullResponse(ogrsscore = ogrs, rsrscore = rsr, gender = gender), "/tier-details/$crn")
     communityApiResponse(communityApiAssessmentsResponse(rsr, ogrs), "/secure/offenders/crn/$crn/assessments")
     registrationsResponse(RegistrationsSetup(rosh, mappa, additionalFactors))
     assessmentsApi()
@@ -156,8 +159,12 @@ class SetupData(
     requirementsResponse()
 
     when (gender) {
-      "Male" -> communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn/all")
-      else -> femaleWithBreachAndRecall()
+      "Male" -> {
+        communityApiResponse(maleOffenderResponse(), "/secure/offenders/crn/$crn/all")
+      }
+      else -> {
+        femaleWithBreachAndRecall()
+      }
     }
   }
 
@@ -265,6 +272,7 @@ class SetupData(
 
   private fun communityApiResponse(response: HttpResponse, url: String) = httpSetup(response, url, communityApi)
 
+  private fun tierToDeliusApiResponse(response: HttpResponse, url: String) = httpSetup(response, url, tierToDeliusApi)
   private fun assessmentApiResponse(response: HttpResponse, url: String) = httpSetup(response, url, assessmentApi)
 }
 

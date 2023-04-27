@@ -23,6 +23,12 @@ class TierReader(
       TierDto.from(it)
     }
 
+  fun getCrns(): List<String> {
+    return tierCalculationRepository.findAll()
+      .distinctBy { it.crn }
+      .map { it.crn }
+  }
+
   private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
     tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
 

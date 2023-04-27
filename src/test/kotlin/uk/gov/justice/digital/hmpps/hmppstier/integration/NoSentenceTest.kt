@@ -9,6 +9,7 @@ class NoSentenceTest : IntegrationTestBase() {
   @Test
   fun `Tier is calculated with change level zero when no sentence is found`() {
     val crn = "X333444"
+    setupTierToDeliusFull(crn)
     setUpNoSentence(crn)
     setupRegistrations(registrationsResponseWithMappa(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "5234567890")

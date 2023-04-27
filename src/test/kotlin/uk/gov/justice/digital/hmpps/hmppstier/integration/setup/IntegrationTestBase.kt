@@ -70,6 +70,9 @@ abstract class IntegrationTestBase {
   lateinit var communityApi: ClientAndServer
 
   @Autowired
+  lateinit var tierToDeliusApi: ClientAndServer
+
+  @Autowired
   lateinit var assessmentApi: ClientAndServer
 
   @Autowired
@@ -85,6 +88,7 @@ abstract class IntegrationTestBase {
     tierCalculationRepository.deleteAll()
     communityApi.reset()
     assessmentApi.reset()
+    tierToDeliusApi.reset()
     setupOauth()
   }
 
@@ -93,6 +97,12 @@ abstract class IntegrationTestBase {
       .withBody(objectMapper.writeValueAsString(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
     oauthMock.`when`(request().withPath("/auth/oauth/token").withBody("grant_type=client_credentials"))
       .respond(response)
+  }
+
+  internal fun HttpHeaders.authToken(roles: List<String> = emptyList()) {
+    this.setBearerAuth(
+      jwtHelper.createJwt(),
+    )
   }
 
   fun setupNCCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialNCConvictionResponse())
@@ -210,6 +220,14 @@ abstract class IntegrationTestBase {
   private fun setupActiveConvictions(crn: String, response: HttpResponse) =
     communityApiResponseWithQs(response, "/secure/offenders/crn/$crn/convictions", Parameter("activeOnly", "true"))
 
+  fun setupTierToDeliusFull(crn: String, ogrsscore: String = 21.toString(), rsrscore: String = 23.toString()) {
+    tierToDeliusApiResponse(tierToDeliusFullResponse(ogrsscore = ogrsscore, rsrscore = rsrscore), "/tier-details/$crn")
+  }
+
+  fun setupTierToDeliusNoAssessment(crn: String, gender: String = "Male", currentTier: String = "UD0") {
+    tierToDeliusApiResponse(tierToDeliusNoAssessmentResponse(gender = gender, currentTier = currentTier), "/tier-details/$crn")
+  }
+
   fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl, crn)
   fun calculateTierForDomainEvent(crn: String) = putMessageOnDomainQueue(domainEventQueueClient, domainEventQueue.queueUrl, crn)
 
@@ -293,6 +311,9 @@ abstract class IntegrationTestBase {
 
   private fun assessmentApiResponse(response: HttpResponse, urlTemplate: String) =
     httpSetup(response, urlTemplate, assessmentApi)
+
+  private fun tierToDeliusApiResponse(response: HttpResponse, urlTemplate: String) =
+    httpSetup(response, urlTemplate, tierToDeliusApi)
 
   private fun setAuthorisation(): (HttpHeaders) -> Unit {
     val token = jwtHelper.createJwt()

@@ -18,9 +18,6 @@ class CommunityApiService(
   private val communityApiClient: CommunityApiClient,
 ) {
 
-  suspend fun getDeliusAssessments(crn: String): DeliusAssessments =
-    DeliusAssessments.from(communityApiClient.getDeliusAssessments(crn))
-
   suspend fun getConvictionsWithSentences(crn: String): List<Conviction> =
     communityApiClient.getConvictions(crn).filterNot { it.sentence == null }.map { Conviction.from(it) }
 
@@ -45,10 +42,6 @@ class CommunityApiService(
   suspend fun hasBreachedConvictions(crn: String, convictions: List<Conviction>): Boolean =
     convictions.any { hasBreachOrRecallNsis(crn, it.convictionId) }
 
-  suspend fun offenderIsFemale(crn: String): Boolean = getOffender(crn)?.gender.equals("female", true)
-
-  private suspend fun getOffender(crn: String) = communityApiClient.getOffender(crn)
-
   private fun getRosh(registrations: Collection<Registration>): Rosh? =
     registrations.mapNotNull { Rosh.from(it.type.code) }.firstOrNull()
 
@@ -64,4 +57,7 @@ class CommunityApiService(
   private suspend fun hasBreachOrRecallNsis(crn: String, convictionId: Long): Boolean =
     communityApiClient.getBreachRecallNsis(crn, convictionId)
       .any { NsiOutcome.from(it.status?.code) != null }
+
+  suspend fun getDeliusAssessments(crn: String): DeliusAssessments =
+    DeliusAssessments.from(communityApiClient.getDeliusAssessments(crn))
 }

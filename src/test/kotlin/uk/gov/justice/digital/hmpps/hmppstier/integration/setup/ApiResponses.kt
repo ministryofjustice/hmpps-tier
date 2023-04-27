@@ -15,6 +15,7 @@ import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 
 const val COMMUNITY_API_FIXTURES: String = "src/test/resources/fixtures/community-api"
 const val ASSESSMENT_API_FIXTURES: String = "src/test/resources/fixtures/assessment-api"
+const val TIERTODELIUS_API_FIXTURES: String = "src/test/resources/fixtures/tierToDelius-api"
 
 fun communityApiAssessmentsResponse(rsr: String, ogrs: String): HttpResponse = jsonResponseOf(
   responseFrom("$COMMUNITY_API_FIXTURES/assessments.json")
@@ -191,6 +192,27 @@ fun assessmentsApiAssessmentsResponse(assessmentDate: LocalDateTime, assessmentI
 
 fun assessmentsApiNoSeverityNeedsResponse(): HttpResponse =
   assessmentApiResponse("no_severity_needs.json")
+
+fun tierToDeliusFullResponse(
+  gender: String = "Male",
+  currentTier: String = "UD0",
+  ogrsscore: String,
+  rsrscore: String,
+): HttpResponse =
+  jsonResponseOf(
+    responseFrom("$TIERTODELIUS_API_FIXTURES/tier-to-delius-response.json")
+      .replace("genderToReplace", gender)
+      .replace("tierToReplace", currentTier)
+      .replace("\"ogrsToReplace\"", ogrsscore)
+      .replace("\"rsrToReplace\"", rsrscore),
+  )
+
+fun tierToDeliusNoAssessmentResponse(gender: String, currentTier: String): HttpResponse =
+  jsonResponseOf(
+    responseFrom("$TIERTODELIUS_API_FIXTURES/tier-to-delius-no-assessment-response.json")
+      .replace("genderToReplace", gender)
+      .replace("tierToReplace", currentTier),
+  )
 
 fun assessmentsApiHighSeverityNeedsResponse(): HttpResponse =
   assessmentApiResponse("high_severity_needs_18_points.json")

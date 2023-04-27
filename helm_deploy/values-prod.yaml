@@ -10,6 +10,7 @@ generic-service:
     COMMUNITY_ENDPOINT_URL: https://community-api.probation.service.justice.gov.uk/secure
     ASSESSMENT_ENDPOINT_URL: https://offender-prod.aks-live-1.studio-hosting.service.justice.gov.uk
     HMPPS_TIER_ENDPOINT_URL: https://hmpps-tier.hmpps.service.justice.gov.uk
+    TIER_TO_DELIUS_URL: https://tier-to-delius.hmpps.service.justice.gov.uk
 
   allowlist:
     delius-prod-1: "52.56.115.146/32"

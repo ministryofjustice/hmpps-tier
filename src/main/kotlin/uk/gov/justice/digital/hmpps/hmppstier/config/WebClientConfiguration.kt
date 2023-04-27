@@ -16,6 +16,7 @@ import org.springframework.web.reactive.function.client.WebClient
 class WebClientConfiguration(
   @Value("\${community.endpoint.url}") private val communityApiRootUri: String,
   @Value("\${assessment.endpoint.url}") private val assessmentApiRootUri: String,
+  @Value("\${tier-to-delius.endpoint.url}") private val tierToDeliusApiRootUri: String,
 ) {
 
   @Bean
@@ -46,6 +47,14 @@ class WebClientConfiguration(
     builder: WebClient.Builder,
   ): WebClient {
     return getOAuthWebClient(authorizedClientManager, builder, assessmentApiRootUri, "assessment-api")
+  }
+
+  @Bean
+  fun tierToDeliusApiClientWebClientAppScope(
+    @Qualifier(value = "authorizedClientManagerAppScope") authorizedClientManager: ReactiveOAuth2AuthorizedClientManager,
+    builder: WebClient.Builder,
+  ): WebClient {
+    return getOAuthWebClient(authorizedClientManager, builder, tierToDeliusApiRootUri, "tier-to-delius-api")
   }
 
   private fun getOAuthWebClient(

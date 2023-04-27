@@ -51,6 +51,9 @@ class BddSteps : En {
   private lateinit var communityApi: ClientAndServer
 
   @Autowired
+  private lateinit var tierToDeliusApi: ClientAndServer
+
+  @Autowired
   private lateinit var assessmentApi: ClientAndServer
 
   private lateinit var setupData: SetupData
@@ -81,6 +84,7 @@ class BddSteps : En {
 
       setupData = SetupData(
         communityApi,
+        tierToDeliusApi,
         assessmentApi,
         mapOf(
           "crn" to crn,

@@ -15,6 +15,7 @@ class TierCalculationTest : IntegrationTestBase() {
     fun `no NSis returned`() {
       val crn = "X386786"
       setupAssessmentNotFound(crn)
+      setupTierToDeliusNoAssessment(crn, gender = "Female")
 
       setupNCCustodialSentence(crn)
       setupRegistrations(emptyRegistrationsResponse(), crn)
@@ -32,6 +33,7 @@ class TierCalculationTest : IntegrationTestBase() {
     @Test
     fun `Does not write back when tier is unchanged`() {
       val crn = "X432769"
+      setupTierToDeliusFull(crn)
 
       setupSCCustodialSentence(crn)
       setupRegistrations(registrationsResponseWithMappa(), crn)
@@ -53,6 +55,7 @@ class TierCalculationTest : IntegrationTestBase() {
     @Test
     fun `Does not write back when calculation result differs but tier is unchanged`() {
       val crn = "X432779"
+      setupTierToDeliusFull(crn)
 
       setupSCCustodialSentence(crn)
       setupMaleOffenderWithRegistrations(crn, false, "4234568890")
@@ -75,6 +78,7 @@ class TierCalculationTest : IntegrationTestBase() {
     @Test
     fun `writes back when change level is changed`() {
       val crn = "X432770"
+      setupTierToDeliusFull(crn)
 
       setupSCCustodialSentence(crn)
       setupMaleOffenderWithRegistrations(crn, false, "4234568890")
@@ -83,6 +87,7 @@ class TierCalculationTest : IntegrationTestBase() {
       calculateTierFor(crn)
       expectTierChangedById("A2")
 
+      setupTierToDeliusFull(crn)
       setupSCCustodialSentence(crn)
       setupMaleOffenderWithRegistrations(crn, false, "4234568891")
 
@@ -94,6 +99,7 @@ class TierCalculationTest : IntegrationTestBase() {
     @Test
     fun `writes back when protect level is changed`() {
       val crn = "X432771"
+      setupTierToDeliusFull(crn)
 
       setupSCCustodialSentence(crn)
       setupMaleOffenderWithRegistrations(crn, assessmentId = "4234568890")
@@ -101,6 +107,7 @@ class TierCalculationTest : IntegrationTestBase() {
       calculateTierFor(crn)
       expectTierChangedById("A1")
 
+      setupTierToDeliusFull(crn)
       setupSCCustodialSentence(crn)
       setupRegistrations(registrationsResponseWithMappa("M1"), crn)
       restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "4234568890")
@@ -113,6 +120,7 @@ class TierCalculationTest : IntegrationTestBase() {
   @Test
   fun `returns latest tier calculation`() {
     val crn = "X432777"
+    setupTierToDeliusFull(crn)
 
     setupSCCustodialSentence(crn)
     setupMaleOffenderWithRegistrations(crn, assessmentId = "4234568890")
@@ -120,6 +128,7 @@ class TierCalculationTest : IntegrationTestBase() {
     calculateTierFor(crn)
     expectLatestTierCalculation("A1")
 
+    setupTierToDeliusFull(crn)
     setupSCCustodialSentence(crn)
     setupRegistrations(registrationsResponseWithMappa("M1"), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "4234568890")
