@@ -16,7 +16,7 @@ import java.math.BigDecimal
 
 @RestController
 @RequestMapping(produces = [APPLICATION_JSON_VALUE])
-class GetDataReliability(
+class DeliusCommunityDataReliability(
   private val communityApiService: CommunityApiService,
   private val tierToDeliusApiService: TierToDeliusApiService,
   private val tierReader: TierReader,
@@ -30,17 +30,18 @@ class GetDataReliability(
     ],
   )
   @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
-  @GetMapping("crn/{crn}")
+  @GetMapping("/crn/{crn}")
   suspend fun getDataReliability(@PathVariable(required = true) crn: String): CommunityDeliusData {
     val tierToDeliusResponse = tierToDeliusApiService.getTierToDelius(crn)
     val (rsrScoreCommunity, ogrsScoreCommunity) = communityApiService.getDeliusAssessments(crn)
 
-    val rsrDelius = tierToDeliusResponse.rsrscore ?: BigDecimal.ZERO
+    val rsrDelius = tierToDeliusResponse.rsrscore!!
 
-    val ogrsDelius = tierToDeliusResponse.ogrsscore?.div(10)
+    val ogrsDelius = tierToDeliusResponse.ogrsscore!!.div(10)
     val ogrsCommunity = ogrsScoreCommunity.div(10)
 
     return CommunityDeliusData(
+      crn,
       rsrDelius.compareTo(rsrScoreCommunity) == 0,
       ogrsDelius == ogrsCommunity,
       rsrDelius,
@@ -58,7 +59,7 @@ class GetDataReliability(
     ],
   )
   @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
-  @GetMapping("crn/all")
+  @GetMapping("/crn/all")
   suspend fun getAllDataReliability(): List<CommunityDeliusData> {
     val crns = tierReader.getCrns()
     val communityDeliusDataList = mutableListOf<CommunityDeliusData>()
@@ -67,13 +68,14 @@ class GetDataReliability(
       val tierToDeliusResponse = tierToDeliusApiService.getTierToDelius(it)
       val (rsrScoreCommunity, ogrsScoreCommunity) = communityApiService.getDeliusAssessments(it)
 
-      val rsrDelius = tierToDeliusResponse.rsrscore ?: BigDecimal.ZERO
+      val rsrDelius = tierToDeliusResponse.rsrscore!!
 
-      val ogrsDelius = tierToDeliusResponse.ogrsscore?.div(10)
+      val ogrsDelius = tierToDeliusResponse.ogrsscore!!.div(10)
       val ogrsCommunity = ogrsScoreCommunity.div(10)
 
       communityDeliusDataList.add(
         CommunityDeliusData(
+          it,
           rsrDelius.compareTo(rsrScoreCommunity) == 0,
           ogrsDelius == ogrsCommunity,
           rsrDelius,
@@ -88,10 +90,11 @@ class GetDataReliability(
 }
 
 data class CommunityDeliusData(
-  private val rsrMatch: Boolean,
-  private val ogrsMatch: Boolean,
-  private val rsrDelius: BigDecimal,
-  private val rsrCommunity: BigDecimal,
-  private val ogrsDelius: Int?,
-  private val ogrsCommunity: Int,
+  val crn: String,
+  val rsrMatch: Boolean,
+  val ogrsMatch: Boolean,
+  val rsrDelius: BigDecimal,
+  val rsrCommunity: BigDecimal,
+  val ogrsDelius: Int?,
+  val ogrsCommunity: Int,
 )

@@ -196,8 +196,8 @@ fun assessmentsApiNoSeverityNeedsResponse(): HttpResponse =
 fun tierToDeliusFullResponse(
   gender: String = "Male",
   currentTier: String = "UD0",
-  ogrsscore: String = 21.toString(),
-  rsrscore: String = 23.toString(),
+  ogrsscore: String,
+  rsrscore: String,
 ): HttpResponse =
   jsonResponseOf(
     responseFrom("$TIERTODELIUS_API_FIXTURES/tier-to-delius-response.json")
@@ -207,7 +207,7 @@ fun tierToDeliusFullResponse(
       .replace("\"rsrToReplace\"", rsrscore),
   )
 
-fun tierToDeliusNoAssessResponse(gender: String, currentTier: String): HttpResponse =
+fun tierToDeliusNoAssessmentResponse(gender: String, currentTier: String): HttpResponse =
   jsonResponseOf(
     responseFrom("$TIERTODELIUS_API_FIXTURES/tier-to-delius-no-assessment-response.json")
       .replace("genderToReplace", gender)

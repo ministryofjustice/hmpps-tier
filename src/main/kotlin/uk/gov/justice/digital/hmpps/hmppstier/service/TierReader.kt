@@ -25,7 +25,6 @@ class TierReader(
 
   fun getCrns(): List<String> {
     return tierCalculationRepository.findAll()
-      .sortedWith(compareByDescending<TierCalculationEntity?> { it?.crn }.thenBy { it?.created })
       .distinctBy { it.crn }
       .map { it.crn }
   }

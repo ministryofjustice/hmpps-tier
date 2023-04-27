@@ -15,7 +15,7 @@ class TierCalculationTest : IntegrationTestBase() {
     fun `no NSis returned`() {
       val crn = "X386786"
       setupAssessmentNotFound(crn)
-      setupTierToDeliusNoAssess(crn, gender = "Female")
+      setupTierToDeliusNoAssessment(crn, gender = "Female")
 
       setupNCCustodialSentence(crn)
       setupRegistrations(emptyRegistrationsResponse(), crn)

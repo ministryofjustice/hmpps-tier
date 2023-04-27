@@ -87,11 +87,10 @@ detekt {
 
 task("cucumber") {
   dependsOn("assemble", "testClasses")
-  // finalizedBy("jacocoTestCoverageVerification")
+  finalizedBy("jacocoTestCoverageVerification")
   doLast {
     javaexec {
       mainClass.set("io.cucumber.core.cli.Main")
-      // args("--tags", "@single")
       classpath = sourceSets["test"].runtimeClasspath
       val jacocoAgent = zipTree(configurations.jacocoAgent.get().singleFile)
         .filter { it.name == "jacocoagent.jar" }

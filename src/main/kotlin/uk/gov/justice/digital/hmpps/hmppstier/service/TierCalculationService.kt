@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
-import java.math.BigDecimal
 import java.time.Clock
 import java.time.LocalDateTime
 
@@ -37,11 +36,7 @@ class TierCalculationService(
 
   private suspend fun calculateTier(crn: String): TierCalculationEntity {
     val tierToDeliusResponse = tierToDeliusApiService.getTierToDelius(crn)
-
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
-
-    val rsr = tierToDeliusResponse.rsrscore ?: BigDecimal.ZERO
-    val ogrs = tierToDeliusResponse.ogrsscore ?: 0
 
     val registrations = communityApiService.getRegistrations(crn)
     val convictions = communityApiService.getConvictionsWithSentences(crn)
@@ -53,9 +48,9 @@ class TierCalculationService(
       tierToDeliusResponse.gender.equals("female", true),
     )
 
-    val protectLevel = protectLevelCalculator.calculate(rsr, additionalFactorsPoints, registrations)
+    val protectLevel = protectLevelCalculator.calculate(tierToDeliusResponse.rsrscore!!, additionalFactorsPoints, registrations)
     val changeLevel = changeLevelCalculator.calculate(
-      ogrs,
+      tierToDeliusResponse.ogrsscore!!,
       registrations.hasIomNominal,
       assessmentApiService.getAssessmentNeeds(offenderAssessment),
       mandateForChange.hasNoMandate(crn, convictions),

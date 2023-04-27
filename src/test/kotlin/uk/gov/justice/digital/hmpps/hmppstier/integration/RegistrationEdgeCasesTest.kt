@@ -49,7 +49,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
   @Test
   fun `exclude historic registrations from tier calculation`() {
     val crn = "X445599"
-    setupTierToDeliusNoAssess(crn)
+    setupTierToDeliusNoAssessment(crn)
     setupNCCustodialSentence(crn)
     setupRegistrations(historicRegistrationsResponseWithMappa(), crn)
     setupMaleOffender(crn)

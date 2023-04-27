@@ -46,12 +46,6 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .awaitBody<NsiWrapper>().nsis
   }
 
-  suspend fun getOffender(crn: String): Offender? = webClient
-    .get()
-    .uri("/offenders/crn/$crn/all")
-    .retrieve()
-    .awaitBody()
-
   suspend fun getRequirements(crn: String, convictionId: Long): List<RequirementDto> =
     webClient
       .get()
@@ -107,13 +101,6 @@ data class SentenceDto @JsonCreator constructor(
 
   @JsonProperty("sentenceType")
   val sentenceType: KeyValue,
-)
-
-data class Offender @JsonCreator constructor(
-  @JsonProperty("gender")
-  val gender: String?,
-  @JsonProperty("currentTier")
-  val tier: String?,
 )
 
 data class DeliusAssessmentsDto @JsonCreator constructor(
