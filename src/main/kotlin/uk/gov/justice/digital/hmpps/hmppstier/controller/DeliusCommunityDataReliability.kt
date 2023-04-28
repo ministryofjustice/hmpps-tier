@@ -3,6 +3,8 @@ package uk.gov.justice.digital.hmpps.hmppstier.controller
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
@@ -60,11 +62,10 @@ class DeliusCommunityDataReliability(
   )
   @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
   @GetMapping("/crn/all")
-  suspend fun getAllDataReliability(): List<CommunityDeliusData> {
+  suspend fun getAllDataReliability(): Flow<CommunityDeliusData> {
     val crns = tierReader.getCrns()
-    val communityDeliusDataList = mutableListOf<CommunityDeliusData>()
 
-    crns.forEach {
+    return crns.map {
       val tierToDeliusResponse = tierToDeliusApiService.getTierToDelius(it)
       val (rsrScoreCommunity, ogrsScoreCommunity) = communityApiService.getDeliusAssessments(it)
 
@@ -73,19 +74,17 @@ class DeliusCommunityDataReliability(
       val ogrsDelius = tierToDeliusResponse.ogrsscore!!.div(10)
       val ogrsCommunity = ogrsScoreCommunity.div(10)
 
-      communityDeliusDataList.add(
-        CommunityDeliusData(
-          it,
-          rsrDelius.compareTo(rsrScoreCommunity) == 0,
-          ogrsDelius == ogrsCommunity,
-          rsrDelius,
-          rsrScoreCommunity,
-          ogrsDelius,
-          ogrsCommunity,
-        ),
+      val communityDeliusData = CommunityDeliusData(
+        it,
+        rsrDelius.compareTo(rsrScoreCommunity) == 0,
+        ogrsDelius == ogrsCommunity,
+        rsrDelius,
+        rsrScoreCommunity,
+        ogrsDelius,
+        ogrsCommunity,
       )
+      communityDeliusData
     }
-    return communityDeliusDataList
   }
 }
 
