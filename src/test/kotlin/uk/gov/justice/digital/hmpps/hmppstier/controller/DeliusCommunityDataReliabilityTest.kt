@@ -79,6 +79,20 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   }
 
   @Test
+  fun `no delius currentTier data`() {
+    setupNoDeliusAssessment(crn1)
+    setupTierToDeliusNoTierResponse(crn1)
+    webTestClient.get()
+      .uri("/crn/$crn1")
+      .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$.crn")
+      .isEqualTo(crn1)
+  }
+
+  @Test
   fun `delius and community assessments do not match`() {
     setupCommunityApiAssessment(crn1)
     setupTierToDeliusNoAssessment(crn1)

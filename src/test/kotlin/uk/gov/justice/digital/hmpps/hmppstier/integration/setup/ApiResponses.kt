@@ -207,6 +207,12 @@ fun tierToDeliusFullResponse(
       .replace("\"rsrToReplace\"", rsrscore),
   )
 
+fun tierToDeliusNoTierResponse(gender: String): HttpResponse =
+  jsonResponseOf(
+    responseFrom("$TIERTODELIUS_API_FIXTURES/tier-to-delius-no-tier-response.json")
+      .replace("genderToReplace", gender),
+  )
+
 fun tierToDeliusNoAssessmentResponse(gender: String, currentTier: String): HttpResponse =
   jsonResponseOf(
     responseFrom("$TIERTODELIUS_API_FIXTURES/tier-to-delius-no-assessment-response.json")

@@ -54,4 +54,23 @@ class TierToDeliusApiServiceTest {
       Assertions.assertThat(result).isEqualTo("UD0")
     }
   }
+
+  @Test
+  fun `Empty currentTier`() {
+    runBlocking {
+      val tierToDeliusResponse = TierToDeliusResponse(
+        "Male",
+        null,
+        emptyList(),
+        emptyList(),
+        BigDecimal.TEN,
+        2,
+      )
+
+      coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+
+      val result = tierToDeliusApiService.getTierToDelius(crn).currentTier
+      Assertions.assertThat(result).isNull()
+    }
+  }
 }
