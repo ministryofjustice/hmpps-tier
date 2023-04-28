@@ -61,7 +61,7 @@ class DeliusCommunityDataReliability(
   @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
   @GetMapping("/crn/all")
   suspend fun getAllDataReliability(): List<CommunityDeliusData> {
-    val crns = tierReader.getCrns()
+    val crns = tierReader.getCrns().take(30)
     val communityDeliusDataList = mutableListOf<CommunityDeliusData>()
 
     crns.forEach {
