@@ -228,6 +228,10 @@ abstract class IntegrationTestBase {
     tierToDeliusApiResponse(tierToDeliusNoAssessmentResponse(gender = gender, currentTier = currentTier), "/tier-details/$crn")
   }
 
+  fun setupTierToDeliusNoTierResponse(crn: String, gender: String = "Male") {
+    tierToDeliusApiResponse(tierToDeliusNoTierResponse(gender = gender), "/tier-details/$crn")
+  }
+
   fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl, crn)
   fun calculateTierForDomainEvent(crn: String) = putMessageOnDomainQueue(domainEventQueueClient, domainEventQueue.queueUrl, crn)
 
