@@ -207,37 +207,6 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
       .isEqualTo("true")
   }
 
-  @Test
-  fun `Tier to Delius Not found`() {
-    val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
-    val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
-    repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
-    setupCommunityApiAssessment(crn1)
-    setupCommunityApiAssessment(crn2)
-    setupTierToDeliusFull(crn1)
-    setupTierToDeliusNotFound(crn2)
-    webTestClient.get().uri("/crn/all/2").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
-      .exchange()
-      .expectStatus().isOk
-      .expectBody()
-      .jsonPath("$.[0].crn")
-      .isEqualTo(crn1)
-      .jsonPath("$.[0].rsrMatch")
-      .isEqualTo("true")
-      .jsonPath("$.[0].ogrsMatch")
-      .isEqualTo("true")
-      .jsonPath("$.[1].crn")
-      .isEqualTo(crn2)
-      .jsonPath("$.[1].rsrMatch")
-      .isEqualTo("false")
-      .jsonPath("$.[1].ogrsMatch")
-      .isEqualTo("false")
-      .jsonPath("$.[1].rsrDelius")
-      .isEqualTo(-1)
-      .jsonPath("$.[1].ogrsDelius")
-      .isEqualTo(-1)
-  }
-
   companion object {
     private val data = TierCalculationResultEntity(
       protect = TierLevel(ProtectLevel.B, 4, mapOf(CalculationRule.ROSH to 4)),

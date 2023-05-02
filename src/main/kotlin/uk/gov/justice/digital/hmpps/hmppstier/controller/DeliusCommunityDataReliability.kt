@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.take
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
@@ -71,9 +70,9 @@ class DeliusCommunityDataReliability(
     ],
   )
   @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
-  @GetMapping("/crn/all/{limit}")
-  suspend fun getAllDataReliability(@PathVariable(required = true) limit: Int): Flow<CommunityDeliusData> {
-    return tierReader.getCrns().take(limit).map {
+  @GetMapping("/crn/all")
+  suspend fun getAllDataReliability(): Flow<CommunityDeliusData> {
+    return tierReader.getCrns().map {
       val tierToDeliusResponse = try {
         tierToDeliusApiService.getTierToDelius(it)
       } catch (e: WebClientException) {
