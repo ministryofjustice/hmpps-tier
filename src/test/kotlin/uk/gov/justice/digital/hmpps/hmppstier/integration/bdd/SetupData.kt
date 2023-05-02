@@ -8,20 +8,16 @@ import org.mockserver.model.Parameter
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.TEMPER_CONTROL
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiFemaleAnswersResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiNoSeverityNeedsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.communityApiAssessmentsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialAndNonCustodialConvictions
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialNCConvictionResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialSCConvictionResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.custodialTerminatedConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyNsisResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.femaleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.maleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.needsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nonCustodialConvictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nsisResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithAdditionalFactors
@@ -191,19 +187,12 @@ class SetupData(
 
   private fun convictionsResponse() =
     when {
-      activeConvictions == 2 -> convictionsResponse(
-        custodialAndNonCustodialConvictions(convictionId, secondConvictionId),
-      )
-      null != convictionTerminatedDate ->
-        convictionsResponse(custodialTerminatedConvictionResponse(convictionTerminatedDate!!, convictionId))
-      sentenceLengthIndeterminate -> convictionsResponse(
-        custodialNCConvictionResponse(courtAppearanceOutcome = "303", convictionId = convictionId),
-      )
-      sentenceType == "SC" -> convictionsResponse(custodialSCConvictionResponse(convictionId))
-      sentenceType == "NC" -> convictionsResponse(
-        custodialNCConvictionResponse(sentenceLength, convictionId = convictionId),
-      )
-      else -> convictionsResponse(nonCustodialConvictionResponse(convictionId))
+      activeConvictions == 2 -> CommunityApiExtension.communityApi.getOneActiveCustodialAndOneActiveCommunityConviction(crn)
+      null != convictionTerminatedDate -> CommunityApiExtension.communityApi.getOneInactiveCustodialConviction(crn)
+      sentenceLengthIndeterminate -> CommunityApiExtension.communityApi.getCustodialNCSentenceConviction(crn)
+      sentenceType == "SC" -> CommunityApiExtension.communityApi.getCustodialScSentenceConviction(crn)
+      sentenceType == "NC" -> CommunityApiExtension.communityApi.getCustodialNCSentenceConviction(crn)
+      else -> CommunityApiExtension.communityApi.getCommunitySentenceConviction(crn)
     }
 
   private fun assessmentsApi() {
@@ -250,9 +239,6 @@ class SetupData(
       "/secure/offenders/crn/$crn/convictions/$convictionId/nsis",
       Parameter("nsiCodes", "BRE,BRES,REC,RECS"),
     )
-
-  private fun convictionsResponse(response: HttpResponse) =
-    communityApiActiveOnlyResponse(response, "/secure/offenders/crn/$crn/convictions")
 
   private fun registrationsResponse(response: HttpResponse) =
     communityApiActiveOnlyResponse(response, "/secure/offenders/crn/$crn/registrations")

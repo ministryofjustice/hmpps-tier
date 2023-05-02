@@ -10,9 +10,6 @@ import org.springframework.context.annotation.Profile
 class ApiConfiguration {
 
   @Bean
-  fun oauthMock(): ClientAndServer = ClientAndServer.startClientAndServer(9090)
-
-  @Bean
   fun communityApi(): ClientAndServer = ClientAndServer.startClientAndServer(8091)
 
   @Bean

@@ -6,15 +6,9 @@ import com.amazonaws.services.sqs.model.PurgeQueueRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.TestInstance
-import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
-import org.mockserver.integration.ClientAndServer
-import org.mockserver.matchers.Times.exactly
-import org.mockserver.model.HttpRequest.request
+import org.junit.jupiter.api.extension.ExtendWith
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.notFoundResponse
-import org.mockserver.model.HttpResponse.response
-import org.mockserver.model.MediaType.APPLICATION_JSON
 import org.mockserver.model.Parameter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -24,6 +18,10 @@ import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.hmppstier.controller.SQSMessage
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.hmppsAuth.HmppsAuthApiExtension
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
@@ -35,7 +33,12 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
 import java.util.UUID
 
-@TestInstance(PER_CLASS)
+@ExtendWith(
+  AssessmentApiExtension::class,
+  CommunityApiExtension::class,
+  HmppsAuthApiExtension::class,
+  TierToDeliusApiExtension::class
+)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
 abstract class IntegrationTestBase {
@@ -63,17 +66,7 @@ abstract class IntegrationTestBase {
   @Autowired
   internal lateinit var jwtHelper: JwtAuthHelper
 
-  @Autowired
-  lateinit var oauthMock: ClientAndServer
 
-  @Autowired
-  lateinit var communityApi: ClientAndServer
-
-  @Autowired
-  lateinit var tierToDeliusApi: ClientAndServer
-
-  @Autowired
-  lateinit var assessmentApi: ClientAndServer
 
   @Autowired
   private lateinit var tierCalculationRepository: TierCalculationRepository
@@ -86,17 +79,7 @@ abstract class IntegrationTestBase {
     domainEventQueueClient.purgeQueue(PurgeQueueRequest(domainEventQueue.queueUrl))
     domainEventQueueDlqClient.purgeQueue(PurgeQueueRequest(domainEventQueue.dlqUrl))
     tierCalculationRepository.deleteAll()
-    communityApi.reset()
-    assessmentApi.reset()
-    tierToDeliusApi.reset()
-    setupOauth()
-  }
 
-  private fun setupOauth() {
-    val response = response().withContentType(APPLICATION_JSON)
-      .withBody(objectMapper.writeValueAsString(mapOf("access_token" to "ABCDE", "token_type" to "bearer")))
-    oauthMock.`when`(request().withPath("/auth/oauth/token").withBody("grant_type=client_credentials"))
-      .respond(response)
   }
 
   internal fun HttpHeaders.authToken(roles: List<String> = emptyList()) {
@@ -104,10 +87,6 @@ abstract class IntegrationTestBase {
       jwtHelper.createJwt(),
     )
   }
-
-  fun setupNCCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialNCConvictionResponse())
-
-  fun setUpNoSentence(crn: String) = setupActiveConvictions(crn, noSentenceConvictionResponse())
 
   fun setupRegistrations(registrationsResponse: HttpResponse, crn: String) =
     communityApiResponseWithQs(
@@ -176,20 +155,6 @@ abstract class IntegrationTestBase {
   fun setupAssessmentNotFound(crn: String) =
     assessmentApiResponse(notFoundResponse(), "/offenders/crn/$crn/assessments/summary")
 
-  fun setupNonCustodialSentence(crn: String) = setupActiveConvictions(crn, nonCustodialConvictionResponse())
-
-  fun setupCurrentNonCustodialSentenceAndTerminatedNonCustodialSentence(crn: String) =
-    setupActiveConvictions(crn, nonCustodialCurrentAndTerminatedConviction())
-
-  fun setupConcurrentCustodialAndNonCustodialSentence(crn: String) =
-    setupActiveConvictions(crn, custodialAndNonCustodialConvictions())
-
-  fun setupTerminatedCustodialSentence(crn: String) =
-    setupActiveConvictions(crn, custodialTerminatedConvictionResponse())
-
-  fun setupTerminatedNonCustodialSentence(crn: String) =
-    setupActiveConvictions(crn, nonCustodialTerminatedConvictionResponse())
-
   fun setupRestrictiveRequirements(crn: String) =
     setupRequirementsResponse(crn, restrictiveRequirementsResponse())
 
@@ -214,11 +179,6 @@ abstract class IntegrationTestBase {
     setupRegistrations(registrationsResponseWithMappa(), crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, includeAssessmentApi, assessmentId, tier)
   }
-
-  fun setupSCCustodialSentence(crn: String) = setupActiveConvictions(crn, custodialSCConvictionResponse())
-
-  private fun setupActiveConvictions(crn: String, response: HttpResponse) =
-    communityApiResponseWithQs(response, "/secure/offenders/crn/$crn/convictions", Parameter("activeOnly", "true"))
 
   fun setupTierToDeliusFull(crn: String, ogrsscore: String = 21.toString(), rsrscore: String = 23.toString()) {
     tierToDeliusApiResponse(tierToDeliusFullResponse(ogrsscore = ogrsscore, rsrscore = rsrscore), "/tier-details/$crn")
@@ -299,21 +259,6 @@ abstract class IntegrationTestBase {
   fun TierChangeEvent.crn(): String = this.personReference.identifiers[0].value
 
   fun TierChangeEvent.calculationId(): UUID = this.additionalInformation.calculationId
-
-  private fun httpSetup(response: HttpResponse, urlTemplate: String, clientAndServer: ClientAndServer) =
-    clientAndServer.`when`(request().withPath(urlTemplate), exactly(1)).respond(response)
-
-  private fun communityApiResponseWithQs(response: HttpResponse, urlTemplate: String, vararg qs: Parameter) =
-    communityApi.`when`(request().withPath(urlTemplate).withQueryStringParameters(*qs), exactly(1)).respond(response)
-
-  private fun communityApiResponse(response: HttpResponse, urlTemplate: String) =
-    httpSetup(response, urlTemplate, communityApi)
-
-  private fun assessmentApiResponse(response: HttpResponse, urlTemplate: String) =
-    httpSetup(response, urlTemplate, assessmentApi)
-
-  private fun tierToDeliusApiResponse(response: HttpResponse, urlTemplate: String) =
-    httpSetup(response, urlTemplate, tierToDeliusApi)
 
   private fun setAuthorisation(): (HttpHeaders) -> Unit {
     val token = jwtHelper.createJwt()

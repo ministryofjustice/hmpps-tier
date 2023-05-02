@@ -148,14 +148,6 @@ fun custodialSCConvictionResponse(
       .replace("\"convictionIdToReplace\"", convictionId),
   )
 
-fun nonCustodialCurrentAndTerminatedConviction(): HttpResponse =
-  communityApiResponse("convictions-non-custodial-current-and-terminated.json")
-
-fun noSentenceConvictionResponse(): HttpResponse = communityApiResponse("convictions-no-sentence.json")
-
-fun nonCustodialTerminatedConvictionResponse(): HttpResponse =
-  communityApiResponse("convictions-non-custodial-terminated.json")
-
 fun maleOffenderResponse(tier: String = "A1"): HttpResponse = jsonResponseOf(
   responseFrom("$COMMUNITY_API_FIXTURES/offender-male.json").replace("tierToReplace", tier.replaceFirstChar { it.plus("_") }),
 )
