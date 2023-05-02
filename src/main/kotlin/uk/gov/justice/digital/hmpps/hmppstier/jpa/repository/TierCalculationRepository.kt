@@ -13,6 +13,6 @@ interface TierCalculationRepository : CrudRepository<TierCalculationEntity, Long
 
   fun findByCrnAndUuid(crn: String, calculationId: UUID): TierCalculationEntity?
 
-  @Query("SELECT DISTINCT crn FROM TierCalculationEntity")
+  @Query("SELECT DISTINCT crn FROM TierCalculationEntity ORDER BY crn DESC")
   fun findDistinctCrn(): List<String>
 }
