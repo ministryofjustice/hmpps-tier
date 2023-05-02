@@ -146,9 +146,6 @@ abstract class IntegrationTestBase {
     communityApiResponse(maleOffenderResponse(tier), "/secure/offenders/crn/$crn/all")
     communityApiResponse(maleOffenderResponse(tier), "/secure/offenders/crn/$crn/all")
   }
-
-  fun setupMaleOffenderNotFound(crn: String) = communityApiResponse(notFoundResponse(), "/secure/offenders/crn/$crn/all")
-
   fun restOfSetupWithFemaleOffender(crn: String, assessmentId: String) {
     setupNoDeliusAssessment(crn)
     communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn/all")
@@ -231,6 +228,8 @@ abstract class IntegrationTestBase {
   fun setupTierToDeliusNoTierResponse(crn: String, gender: String = "Male") {
     tierToDeliusApiResponse(tierToDeliusNoTierResponse(gender = gender), "/tier-details/$crn")
   }
+
+  fun setupTierToDeliusNotFound(crn: String) = tierToDeliusApiResponse(notFoundResponse(), "/tier-details/$crn")
 
   fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl, crn)
   fun calculateTierForDomainEvent(crn: String) = putMessageOnDomainQueue(domainEventQueueClient, domainEventQueue.queueUrl, crn)
