@@ -190,7 +190,7 @@ class SetupData(
       activeConvictions == 2 -> CommunityApiExtension.communityApi.getOneActiveCustodialAndOneActiveCommunityConviction(crn)
       null != convictionTerminatedDate -> CommunityApiExtension.communityApi.getOneInactiveCustodialConviction(crn)
       sentenceLengthIndeterminate -> CommunityApiExtension.communityApi.getCustodialNCSentenceConviction(crn)
-      sentenceType == "SC" -> CommunityApiExtension.communityApi.getCustodialScSentenceConviction(crn)
+      sentenceType == "SC" -> CommunityApiExtension.communityApi.getCustodialSCSentenceConviction(crn)
       sentenceType == "NC" -> CommunityApiExtension.communityApi.getCustodialNCSentenceConviction(crn)
       else -> CommunityApiExtension.communityApi.getCommunitySentenceConviction(crn)
     }

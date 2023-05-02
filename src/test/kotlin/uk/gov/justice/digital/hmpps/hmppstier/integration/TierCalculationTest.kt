@@ -2,6 +2,8 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiHighSeverityNeedsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
@@ -17,8 +19,8 @@ class TierCalculationTest : IntegrationTestBase() {
       setupAssessmentNotFound(crn)
       setupTierToDeliusNoAssessment(crn, gender = "Female")
 
-      setupNCCustodialSentence(crn)
-      setupRegistrations(emptyRegistrationsResponse(), crn)
+      communityApi.getCustodialNCSentenceConviction(crn)
+      communityApi.getEmptyRegistration(crn)
 
       restOfSetupWithFemaleOffender(crn, "2234567890")
       setupEmptyNsisResponse(crn)
@@ -35,16 +37,16 @@ class TierCalculationTest : IntegrationTestBase() {
       val crn = "X432769"
       setupTierToDeliusFull(crn)
 
-      setupSCCustodialSentence(crn)
-      setupRegistrations(registrationsResponseWithMappa(), crn)
+      communityApi.getCustodialSCSentenceConviction(crn)
+      communityApi.getMappaRegistration(crn, "M2")
       restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890")
       setupOutdatedAssessment(crn, "1234567890")
 
       calculateTierFor(crn)
       expectTierChangedById("A2")
 
-      setupSCCustodialSentence(crn)
-      setupRegistrations(registrationsResponseWithMappa(), crn)
+      communityApi.getCustodialSCSentenceConviction(crn)
+      communityApi.getMappaRegistration(crn, "M2")
       restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890", "A2")
       setupOutdatedAssessment(crn, "1234567890")
 
@@ -57,15 +59,15 @@ class TierCalculationTest : IntegrationTestBase() {
       val crn = "X432779"
       setupTierToDeliusFull(crn)
 
-      setupSCCustodialSentence(crn)
+      communityApi.getCustodialSCSentenceConviction(crn)
       setupMaleOffenderWithRegistrations(crn, false, "4234568890")
       setupOutdatedAssessment(crn, "1234567890")
 
       calculateTierFor(crn)
       expectTierChangedById("A2")
 
-      setupSCCustodialSentence(crn)
-      setupRegistrations(registrationsResponseWithMappa(), crn)
+      communityApi.getCustodialSCSentenceConviction(crn)
+      communityApi.getMappaRegistration(crn, "M2")
       setupCommunityApiAssessment(crn, ogrs = "0")
       setupMaleOffender(crn, "A2")
       setupNeeds(assessmentsApiHighSeverityNeedsResponse(), "4234568899")
@@ -80,7 +82,7 @@ class TierCalculationTest : IntegrationTestBase() {
       val crn = "X432770"
       setupTierToDeliusFull(crn)
 
-      setupSCCustodialSentence(crn)
+      communityApi.getCustodialSCSentenceConviction(crn)
       setupMaleOffenderWithRegistrations(crn, false, "4234568890")
       setupOutdatedAssessment(crn, "4234568890")
 
@@ -88,7 +90,7 @@ class TierCalculationTest : IntegrationTestBase() {
       expectTierChangedById("A2")
 
       setupTierToDeliusFull(crn)
-      setupSCCustodialSentence(crn)
+      communityApi.getCustodialSCSentenceConviction(crn)
       setupMaleOffenderWithRegistrations(crn, false, "4234568891")
 
       setupCurrentAssessment(crn, "4234568891") // assessment not out of date
@@ -101,15 +103,15 @@ class TierCalculationTest : IntegrationTestBase() {
       val crn = "X432771"
       setupTierToDeliusFull(crn)
 
-      setupSCCustodialSentence(crn)
+      communityApi.getCustodialSCSentenceConviction(crn)
       setupMaleOffenderWithRegistrations(crn, assessmentId = "4234568890")
 
       calculateTierFor(crn)
       expectTierChangedById("A1")
 
       setupTierToDeliusFull(crn)
-      setupSCCustodialSentence(crn)
-      setupRegistrations(registrationsResponseWithMappa("M1"), crn)
+      communityApi.getCustodialSCSentenceConviction(crn)
+      communityApi.getMappaRegistration(crn, "M1")
       restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "4234568890")
 
       calculateTierFor(crn)
@@ -122,15 +124,15 @@ class TierCalculationTest : IntegrationTestBase() {
     val crn = "X432777"
     setupTierToDeliusFull(crn)
 
-    setupSCCustodialSentence(crn)
+    communityApi.getCustodialSCSentenceConviction(crn)
     setupMaleOffenderWithRegistrations(crn, assessmentId = "4234568890")
 
     calculateTierFor(crn)
     expectLatestTierCalculation("A1")
 
     setupTierToDeliusFull(crn)
-    setupSCCustodialSentence(crn)
-    setupRegistrations(registrationsResponseWithMappa("M1"), crn)
+    communityApi.getCustodialSCSentenceConviction(crn)
+    communityApi.getMappaRegistration(crn, "M1")
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "4234568890")
 
     calculateTierFor(crn)

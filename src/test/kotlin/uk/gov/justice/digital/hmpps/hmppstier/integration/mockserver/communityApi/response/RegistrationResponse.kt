@@ -19,7 +19,7 @@ fun getRegistration(registration: Registration) = """
       "description": "Public Protection"
     },
     "type": {
-      "code": "MAPP",
+      "code": "${registration.typeCode}",
       "description": "MAPPA"
     },
     "riskColour": "Red",
