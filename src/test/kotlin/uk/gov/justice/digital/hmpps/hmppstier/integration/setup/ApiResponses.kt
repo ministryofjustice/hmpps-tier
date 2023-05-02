@@ -32,24 +32,6 @@ fun nsisResponse(outcome: String): HttpResponse = jsonResponseOf(
     .replace("nsiOutcomeToReplace", outcome),
 )
 
-fun registrationsResponseWithMappa(mappa: String? = "M2"): HttpResponse = registrations(
-  responseFrom("$COMMUNITY_API_FIXTURES/registrations-mappa.json")
-    .replace("mappaToReplace", mappa!!),
-)
-
-fun registrationsResponseWithLatestNonMappa(): HttpResponse = jsonResponseOf(
-  responseFrom("$COMMUNITY_API_FIXTURES/registrations-non-mappa-first.json"),
-)
-
-fun historicRegistrationsResponseWithMappa(mappa: String? = "M2"): HttpResponse = registrations(
-  responseFrom("$COMMUNITY_API_FIXTURES/historic-registrations-mappa.json")
-    .replace("mappaToReplace", mappa!!),
-)
-
-fun registrationsResponseWithRosh(rosh: String): HttpResponse = registrations(
-  responseFrom("$COMMUNITY_API_FIXTURES/registrations-rosh.json")
-    .replace("roshToReplace", rosh),
-)
 
 fun registrationsResponseWithRoshMappaAndAdditionalFactors(rosh: String, mappa: String, factors: List<String>) =
   registrations(
@@ -63,11 +45,6 @@ fun registrationsResponseWithMappaAndAdditionalFactors(mappa: String, factors: L
     responseFrom("$COMMUNITY_API_FIXTURES/registrations-mappa.json")
       .replace("mappaToReplace", mappa) + "," + additionalFactors(factors),
   )
-
-fun emptyRegistrationsResponse(): HttpResponse = jsonResponseOf("{}")
-
-fun registrationsResponseWithNoLevel(): HttpResponse =
-  registrations(responseFrom("$COMMUNITY_API_FIXTURES/registrations-no-level.json"))
 
 fun registrationsResponseWithAdditionalFactors(additionalFactors: List<String>): HttpResponse {
   val factors: String = additionalFactors(additionalFactors)
@@ -97,56 +74,6 @@ private fun registrations(registrations: String) = jsonResponseOf(
     registrations +
     "]}",
 )
-
-fun custodialTerminatedConvictionResponse(
-  terminatedDate: LocalDate = LocalDate.now().minusDays(1),
-  convictionId: String = "2500222290",
-): HttpResponse =
-  jsonResponseOf(
-    responseFrom("$COMMUNITY_API_FIXTURES/convictions-custodial-terminated.json")
-      .replace("terminationDateToReplace", terminatedDate.format(ISO_DATE))
-      .replace("\"convictionIdToReplace\"", convictionId),
-  )
-
-fun nonCustodialConvictionResponse(convictionId: String = "2500222290"): HttpResponse =
-  jsonResponseOf(
-    responseFrom("$COMMUNITY_API_FIXTURES/convictions-non-custodial.json")
-      .replace("\"convictionIdToReplace\"", convictionId),
-  )
-
-fun custodialAndNonCustodialConvictions(
-  firstConvictionId: String = "2500409603",
-  secondConvictionId: String = "2500409601",
-): HttpResponse =
-  jsonResponseOf(
-    responseFrom("$COMMUNITY_API_FIXTURES/convictions-custodial-and-non-custodial.json")
-      .replace("\"firstConvictionIdToReplace\"", firstConvictionId)
-      .replace("\"secondConvictionIdToReplace\"", secondConvictionId),
-  )
-
-fun custodialNCConvictionResponse(
-  sentenceLength: Long = 1,
-  courtAppearanceOutcome: String = "428",
-  convictionId: String = "2500222290",
-): HttpResponse =
-  jsonResponseOf(
-    responseFrom("$COMMUNITY_API_FIXTURES/convictions-custodial-nc.json")
-      .replace("startDateToReplace", LocalDate.of(2021, 4, 30).format(ISO_DATE))
-      .replace(
-        "expectedSentenceEndDateToReplace",
-        LocalDate.of(2021, 4, 30).plusMonths(sentenceLength).format(ISO_DATE),
-      )
-      .replace("latestCourtAppearanceOutcomeToReplace", courtAppearanceOutcome)
-      .replace("\"convictionIdToReplace\"", convictionId),
-  )
-
-fun custodialSCConvictionResponse(
-  convictionId: String = "2500222290",
-): HttpResponse =
-  jsonResponseOf(
-    responseFrom("$COMMUNITY_API_FIXTURES/convictions-custodial-sc.json")
-      .replace("\"convictionIdToReplace\"", convictionId),
-  )
 
 fun maleOffenderResponse(tier: String = "A1"): HttpResponse = jsonResponseOf(
   responseFrom("$COMMUNITY_API_FIXTURES/offender-male.json").replace("tierToReplace", tier.replaceFirstChar { it.plus("_") }),

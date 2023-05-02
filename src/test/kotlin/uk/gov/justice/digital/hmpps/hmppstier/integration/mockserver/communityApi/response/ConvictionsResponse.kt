@@ -17,7 +17,7 @@ private fun getConviction(conviction: Conviction) = """
       "index": "1",
       "active": ${conviction.active},
       "inBreach": false,
-      "convictionDate": "${conviction.convictionDate}",
+      "convictionDate": "${conviction.convictionDate.format(DateTimeFormatter.ISO_DATE)}",
       "referralDate": "2018-07-13",
       "offences": [
         {

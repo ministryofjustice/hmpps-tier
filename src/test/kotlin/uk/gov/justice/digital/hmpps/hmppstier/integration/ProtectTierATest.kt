@@ -39,7 +39,7 @@ class ProtectTierATest : IntegrationTestBase() {
     val crn = "X333479"
     setupTierToDeliusFull(crn)
     communityApi.getCustodialNCSentenceConviction(crn)
-    setupRegistrations(registrationsResponseWithRosh(VERY_HIGH.registerCode), crn)
+    communityApi.getRoshRegistration(crn, VERY_HIGH.registerCode)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "5234567893")
     calculateTierFor(crn)
     expectTierChangedById("A1")
@@ -50,7 +50,7 @@ class ProtectTierATest : IntegrationTestBase() {
     val crn = "X333480"
     setupTierToDeliusFull(crn)
     communityApi.getCustodialNCSentenceConviction(crn)
-    setupRegistrations(registrationsResponseWithRoshMappaAndAdditionalFactors(HIGH.registerCode, "M1", listOf("RCCO", "RCPR", "RCHD")), crn)
+    communityApi.getRoshMappaAdditionalFactorsRegistrations(crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "5234567894")
     calculateTierFor(crn)
     expectTierChangedById("B1")

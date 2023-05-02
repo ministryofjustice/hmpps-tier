@@ -89,37 +89,18 @@ abstract class IntegrationTestBase {
     )
   }
 
-  fun setupRegistrations(registrationsResponse: HttpResponse, crn: String) =
-    communityApiResponseWithQs(
-      registrationsResponse,
-      "/secure/offenders/crn/$crn/registrations",
-      Parameter("activeOnly", "true"),
-    )
-
-  fun setupEmptyNsisResponse(crn: String) {
-    communityApiResponseWithQs(
-      emptyNsisResponse(),
-      "/secure/offenders/crn/$crn/convictions/2500222290/nsis",
-      Parameter("nsiCodes", "BRE,BRES,REC,RECS"),
-    )
-  }
-
   fun restOfSetupWithMaleOffenderNoSevereNeeds(
     crn: String,
     includeAssessmentApi: Boolean = true,
     assessmentId: String,
     tier: String = "A1",
   ) {
-    setupCommunityApiAssessment(crn)
+    communityApi.getAssessmentResponse(crn)
     setupMaleOffender(crn, tier)
     if (includeAssessmentApi) {
       setupCurrentAssessment(crn, assessmentId)
     }
     setupNeeds(assessmentsApiNoSeverityNeedsResponse(), assessmentId)
-  }
-
-  fun setupCommunityApiAssessment(crn: String, rsr: String = "23.0", ogrs: String = "21") {
-    communityApiResponse(communityApiAssessmentsResponse(rsr, ogrs), "/secure/offenders/crn/$crn/assessments")
   }
 
   fun setupMaleOffender(crn: String, tier: String = "A1") {
@@ -130,7 +111,7 @@ abstract class IntegrationTestBase {
   fun setupMaleOffenderNotFound(crn: String) = communityApiResponse(notFoundResponse(), "/secure/offenders/crn/$crn/all")
 
   fun restOfSetupWithFemaleOffender(crn: String, assessmentId: String) {
-    setupNoDeliusAssessment(crn)
+    communityApi.getEmptyAssessmentResponse(crn)
     communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn/all")
     setupCurrentAssessment(crn, assessmentId)
     setupNeeds(notFoundResponse(), assessmentId)

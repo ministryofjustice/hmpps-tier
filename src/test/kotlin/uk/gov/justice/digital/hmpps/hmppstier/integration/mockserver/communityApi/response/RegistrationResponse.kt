@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response
 
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Registration
+import java.time.format.DateTimeFormatter
 
 fun registrationResponse(vararg registrations: Registration) = """
   {
@@ -23,7 +24,7 @@ fun getRegistration(registration: Registration) = """
       "description": "MAPPA"
     },
     "riskColour": "Red",
-    "startDate": "2021-02-01",
+    "startDate": "${registration.startDate.format(DateTimeFormatter.ISO_DATE)}",
     "nextReviewDate": "2021-05-01",
     "reviewPeriodMonths": 3,
     "notes": "X320741 registering MAPPA cat 2 level 2",

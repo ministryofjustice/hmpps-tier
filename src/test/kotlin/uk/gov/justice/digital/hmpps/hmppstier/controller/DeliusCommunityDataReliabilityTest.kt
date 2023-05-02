@@ -7,6 +7,8 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
@@ -26,7 +28,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
 
   @Test
   fun `delius assessments data are identical per crn`() {
-    setupCommunityApiAssessment(crn1)
+    communityApi.getAssessmentResponse(crn1)
     setupTierToDeliusFull(crn1)
 
     webTestClient.get()
@@ -54,7 +56,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
 
   @Test
   fun `no delius assessments data`() {
-    setupNoDeliusAssessment(crn1)
+    communityApi.getEmptyAssessmentResponse(crn1)
     setupTierToDeliusNoAssessment(crn1)
     webTestClient.get()
       .uri("/crn/$crn1")
@@ -80,7 +82,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
 
   @Test
   fun `delius and community assessments do not match`() {
-    setupCommunityApiAssessment(crn1)
+    communityApi.getAssessmentResponse(crn1)
     setupTierToDeliusNoAssessment(crn1)
     webTestClient.get()
       .uri("/crn/$crn1")
@@ -111,8 +113,8 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     val thirdTierCalculation = TierCalculationEntity(crn = crn2, created = created.minusDays(1), data = data, uuid = UUID.randomUUID())
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation, thirdTierCalculation))
 
-    setupCommunityApiAssessment(crn1)
-    setupCommunityApiAssessment(crn2)
+    communityApi.getAssessmentResponse(crn1)
+    communityApi.getAssessmentResponse(crn2)
     setupTierToDeliusFull(crn1)
     setupTierToDeliusFull(crn2)
 
@@ -136,8 +138,8 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
-    setupCommunityApiAssessment(crn1)
-    setupCommunityApiAssessment(crn2)
+    communityApi.getAssessmentResponse(crn1)
+    communityApi.getAssessmentResponse(crn2)
     setupTierToDeliusFull(crn1)
     setupTierToDeliusFull(crn2, ogrsscore = "0", rsrscore = "0")
     webTestClient.get().uri("/crn/all").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }

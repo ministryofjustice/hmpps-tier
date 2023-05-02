@@ -29,7 +29,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
     val crn = "X445509"
     setupTierToDeliusFull(crn)
     communityApi.getCustodialNCSentenceConviction(crn)
-    setupRegistrations(registrationsResponseWithNoLevel(), crn)
+    communityApi.getNoLevelRegistration(crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "6234567890")
     calculateTierFor(crn)
     expectTierChangedById("B1")
@@ -40,10 +40,10 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
     val crn = "X445599"
     setupTierToDeliusFull(crn)
     communityApi.getCustodialNCSentenceConviction(crn)
-    setupRegistrations(registrationsResponseWithMappa(), crn)
+    communityApi.getMultipleMappaRegistrations(crn)
     setupMaleOffender(crn)
     setupNeeds(assessmentsApiNoSeverityNeedsResponse(), "6234507890")
-    setupNoDeliusAssessment(crn)
+    communityApi.getEmptyAssessmentResponse(crn)
     calculateTierFor(crn)
     expectTierChangedById("A2")
   }
@@ -53,10 +53,10 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
     val crn = "X445599"
     setupTierToDeliusNoAssessment(crn)
     communityApi.getCustodialNCSentenceConviction(crn)
-    setupRegistrations(historicRegistrationsResponseWithMappa(), crn)
+    communityApi.getHistoricMappaRegistration(crn)
     setupMaleOffender(crn)
     setupNeeds(assessmentsApiNoSeverityNeedsResponse(), "6234507890")
-    setupNoDeliusAssessment(crn)
+    communityApi.getEmptyAssessmentResponse(crn)
     calculateTierFor(crn)
     expectLatestTierCalculation("D2")
   }
@@ -66,10 +66,10 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
     val crn = "X445599"
     setupTierToDeliusFull(crn)
     communityApi.getCustodialNCSentenceConviction(crn)
-    setupRegistrations(registrationsResponseWithLatestNonMappa(), crn)
+    communityApi.getMultipleMappaRegistrationsWithHistoricLatest(crn)
     setupMaleOffender(crn)
     setupNeeds(assessmentsApiNoSeverityNeedsResponse(), "6234507890")
-    setupNoDeliusAssessment(crn)
+    communityApi.getEmptyAssessmentResponse(crn)
     calculateTierFor(crn)
     expectTierChangedById("B2")
   }

@@ -225,12 +225,12 @@ class SetupData(
       registrationsSetup.mappaAndAdditionalFactors() -> registrationsResponse(
         registrationsResponseWithMappaAndAdditionalFactors(mappa, additionalFactors),
       )
-      registrationsSetup.hasRosh() -> registrationsResponse(registrationsResponseWithRosh(rosh))
-      registrationsSetup.hasMappa() -> registrationsResponse(registrationsResponseWithMappa(mappa))
+      registrationsSetup.hasRosh() -> CommunityApiExtension.communityApi.getRoshRegistration(crn, rosh)
+      registrationsSetup.hasMappa() -> CommunityApiExtension.communityApi.getMappaRegistration(crn, mappa)
       registrationsSetup.hasAdditionalFactors() -> registrationsResponse(
         registrationsResponseWithAdditionalFactors(additionalFactors),
       )
-      else -> registrationsResponse(emptyRegistrationsResponse())
+      else -> CommunityApiExtension.communityApi.getEmptyRegistration(crn)
     }
 
   private fun breachAndRecall(response: HttpResponse, convictionId: String) =

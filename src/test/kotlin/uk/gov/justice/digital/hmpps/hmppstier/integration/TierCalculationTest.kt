@@ -23,7 +23,7 @@ class TierCalculationTest : IntegrationTestBase() {
       communityApi.getEmptyRegistration(crn)
 
       restOfSetupWithFemaleOffender(crn, "2234567890")
-      setupEmptyNsisResponse(crn)
+      communityApi.getEmptyNsiResponse(crn)
 
       calculateTierFor(crn)
       expectTierChangedById("D2")
@@ -68,7 +68,7 @@ class TierCalculationTest : IntegrationTestBase() {
 
       communityApi.getCustodialSCSentenceConviction(crn)
       communityApi.getMappaRegistration(crn, "M2")
-      setupCommunityApiAssessment(crn, ogrs = "0")
+      communityApi.getAssessmentResponse(crn, ogrs = "0")
       setupMaleOffender(crn, "A2")
       setupNeeds(assessmentsApiHighSeverityNeedsResponse(), "4234568899")
       setupCurrentAssessment(crn, "4234568899") // assessment not out of date

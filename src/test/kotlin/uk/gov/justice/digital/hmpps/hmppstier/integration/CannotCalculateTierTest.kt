@@ -14,7 +14,7 @@ class CannotCalculateTierTest : IntegrationTestBase() {
     setupCurrentAssessment(crn, "1234567890")
     communityApi.getCustodialSCSentenceConviction(crn)
     communityApi.getEmptyRegistration(crn)
-    setupCommunityApiAssessment(crn)
+    communityApi.getAssessmentResponse(crn)
     setupMaleOffenderNotFound(crn)
     calculateTierFor(crn)
     expectTierCalculationToHaveFailed()

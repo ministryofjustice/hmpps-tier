@@ -9,11 +9,14 @@ import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.MediaType
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.convictionsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.deliusAssessmentResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Sentence
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.nsisResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.registrationResponse
 import java.time.LocalDate
 
@@ -116,6 +119,28 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     )
   }
 
+  fun getMultipleMappaRegistrations(crn: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations").withQueryStringParameter("activeOnly", "true")
+
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(registerLevel = "M1", startDate = LocalDate.of(2020, 2, 1)),Registration(registerLevel = "M2", startDate = LocalDate.of(2021, 2, 1)))
+    ))
+  }
+
+  fun getMultipleMappaRegistrationsWithHistoricLatest(crn: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations").withQueryStringParameter("activeOnly", "true")
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(registerLevel = "M2", typeCode = "HREG", startDate = LocalDate.of(2016,6,28)), Registration(registerLevel = "M0", startDate = LocalDate.of(2008,10,24))))
+    )
+  }
+
+  fun getHistoricMappaRegistration(crn: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations").withQueryStringParameter("activeOnly", "true")
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(registerLevel = "M2", typeCode = "HREG")))
+    )
+  }
+
   fun getEmptyRegistration(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations").withQueryStringParameter("activeOnly", "true")
     communityApi.`when`(request, Times.exactly(1)).respond(
@@ -123,7 +148,50 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     )
   }
 
+  fun getRoshRegistration(crn: String, typeCode: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations").withQueryStringParameter("activeOnly", "true")
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(typeCode = typeCode)))
+    )
+  }
 
+  fun getRoshMappaAdditionalFactorsRegistrations(crn: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations").withQueryStringParameter("activeOnly", "true")
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(registerLevel = "M1"), Registration(typeCode = Rosh.HIGH.registerCode), Registration(typeCode = "RCCO"), Registration(typeCode = "RCPR"), Registration(typeCode = "RCHD")))
+    )
+  }
+
+  fun getNoLevelRegistration(crn: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations").withQueryStringParameter("activeOnly", "true")
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(typeCode = "STRG")))
+    )
+  }
+
+  fun getEmptyNsiResponse(crn: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/2500222290/nsis").withQueryStringParameter("nsiCodes", "BRE,BRES,REC,RECS")
+
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(nsisResponse())
+    )
+  }
+
+  fun getAssessmentResponse(crn: String, rsr: String = "23.0", ogrs: String = "21") {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/assessments")
+
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(deliusAssessmentResponse(rsr, ogrs))
+    )
+  }
+
+  fun getEmptyAssessmentResponse(crn: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/assessments")
+
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(deliusAssessmentResponse(null, null))
+    )
+  }
 
 
 }
