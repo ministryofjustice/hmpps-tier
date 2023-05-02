@@ -131,7 +131,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     setupTierToDeliusFull(crn2)
 
     webTestClient.get()
-      .uri("/crn/all/2")
+      .uri("/crn/all")
       .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus()
@@ -154,7 +154,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     setupCommunityApiAssessment(crn2)
     setupTierToDeliusFull(crn1)
     setupTierToDeliusFull(crn2, ogrsscore = "0", rsrscore = "0")
-    webTestClient.get().uri("/crn/all/2").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+    webTestClient.get().uri("/crn/all").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus().isOk
       .expectBody()
@@ -185,7 +185,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     setupCommunityApiAssessment(crn2)
     setupTierToDeliusFull(crn1)
     setupTierToDeliusNotFound(crn2)
-    webTestClient.get().uri("/crn/all/2").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+    webTestClient.get().uri("/crn/all").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus().isOk
       .expectBody()
