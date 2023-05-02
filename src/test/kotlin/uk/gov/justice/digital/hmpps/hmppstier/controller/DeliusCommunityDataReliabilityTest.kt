@@ -131,7 +131,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     setupTierToDeliusFull(crn2)
 
     webTestClient.get()
-      .uri("/crn/all/2")
+      .uri("/crn/all")
       .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus()
@@ -140,9 +140,9 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
       .jsonPath("$.length()")
       .isEqualTo(2)
       .jsonPath("$.[0].crn")
-      .isEqualTo(crn1)
-      .jsonPath("$.[1].crn")
       .isEqualTo(crn2)
+      .jsonPath("$.[1].crn")
+      .isEqualTo(crn1)
   }
 
   @Test
@@ -154,26 +154,26 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     setupCommunityApiAssessment(crn2)
     setupTierToDeliusFull(crn1)
     setupTierToDeliusFull(crn2, ogrsscore = "0", rsrscore = "0")
-    webTestClient.get().uri("/crn/all/2").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+    webTestClient.get().uri("/crn/all").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus().isOk
       .expectBody()
       .jsonPath("$.[0].crn")
-      .isEqualTo(crn1)
-      .jsonPath("$.[0].rsrMatch")
-      .isEqualTo("true")
-      .jsonPath("$.[0].ogrsMatch")
-      .isEqualTo("true")
-      .jsonPath("$.[1].crn")
       .isEqualTo(crn2)
+      .jsonPath("$.[0].rsrMatch")
+      .isEqualTo("false")
+      .jsonPath("$.[0].ogrsMatch")
+      .isEqualTo("false")
+      .jsonPath("$.[0].rsrDelius")
+      .isEqualTo(0)
+      .jsonPath("$.[0].ogrsDelius")
+      .isEqualTo(0)
+      .jsonPath("$.[1].crn")
+      .isEqualTo(crn1)
       .jsonPath("$.[1].rsrMatch")
-      .isEqualTo("false")
+      .isEqualTo("true")
       .jsonPath("$.[1].ogrsMatch")
-      .isEqualTo("false")
-      .jsonPath("$.[1].rsrDelius")
-      .isEqualTo(0)
-      .jsonPath("$.[1].ogrsDelius")
-      .isEqualTo(0)
+      .isEqualTo("true")
   }
 
   @Test
@@ -185,26 +185,26 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     setupCommunityApiAssessment(crn2)
     setupTierToDeliusFull(crn1)
     setupTierToDeliusNotFound(crn2)
-    webTestClient.get().uri("/crn/all/2").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+    webTestClient.get().uri("/crn/all").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus().isOk
       .expectBody()
       .jsonPath("$.[0].crn")
-      .isEqualTo(crn1)
-      .jsonPath("$.[0].rsrMatch")
-      .isEqualTo("true")
-      .jsonPath("$.[0].ogrsMatch")
-      .isEqualTo("true")
-      .jsonPath("$.[1].crn")
       .isEqualTo(crn2)
+      .jsonPath("$.[0].rsrMatch")
+      .isEqualTo("false")
+      .jsonPath("$.[0].ogrsMatch")
+      .isEqualTo("false")
+      .jsonPath("$.[0].rsrDelius")
+      .isEqualTo(-1)
+      .jsonPath("$.[0].ogrsDelius")
+      .isEqualTo(-1)
+      .jsonPath("$.[1].crn")
+      .isEqualTo(crn1)
       .jsonPath("$.[1].rsrMatch")
-      .isEqualTo("false")
+      .isEqualTo("true")
       .jsonPath("$.[1].ogrsMatch")
-      .isEqualTo("false")
-      .jsonPath("$.[1].rsrDelius")
-      .isEqualTo(-1)
-      .jsonPath("$.[1].ogrsDelius")
-      .isEqualTo(-1)
+      .isEqualTo("true")
   }
 
   companion object {
