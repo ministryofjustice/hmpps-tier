@@ -1,10 +1,10 @@
 
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.5"
-  kotlin("plugin.spring") version "1.8.20"
-  kotlin("plugin.jpa") version "1.8.20"
-  id("org.jlleitschuh.gradle.ktlint") version "11.3.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "4.8.6"
+  kotlin("plugin.spring") version "1.8.21"
+  kotlin("plugin.jpa") version "1.8.21"
+  id("org.jlleitschuh.gradle.ktlint") version "11.3.2"
   jacoco
   java
   id("io.gitlab.arturbosch.detekt").version("1.22.0")
@@ -54,9 +54,9 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4")
 
   // go to open telemetry, when upgrading to spring boot 3 these can be removed
-  implementation("io.opentelemetry:opentelemetry-api:1.24.0")
-  implementation("com.microsoft.azure:applicationinsights-core:3.4.11")
-  agentDeps("com.microsoft.azure:applicationinsights-agent:3.4.11")
+  implementation("io.opentelemetry:opentelemetry-api:1.25.0")
+  implementation("com.microsoft.azure:applicationinsights-core:3.4.12")
+  agentDeps("com.microsoft.azure:applicationinsights-agent:3.4.12")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test") {
     exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -72,12 +72,12 @@ dependencies {
   testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
-  testImplementation("org.junit.platform:junit-platform-console:1.9.2")
+  testImplementation("org.junit.platform:junit-platform-console:1.9.3")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
 }
 
 jacoco {
-  toolVersion = "0.8.9"
+  toolVersion = "0.8.10"
 }
 
 detekt {

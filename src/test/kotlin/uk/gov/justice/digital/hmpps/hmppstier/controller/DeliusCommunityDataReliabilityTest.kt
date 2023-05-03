@@ -83,6 +83,20 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   }
 
   @Test
+  fun `no delius currentTier data`() {
+    setupNoDeliusAssessment(crn1)
+    setupTierToDeliusNoTierResponse(crn1)
+    webTestClient.get()
+      .uri("/crn/$crn1")
+      .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$.crn")
+      .isEqualTo(crn1)
+  }
+
+  @Test
   fun `delius and community assessments do not match`() {
     communityApi.getAssessmentResponse(crn1)
     tierToDeliusApi.getNoAssessment(crn1)
@@ -109,7 +123,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   }
 
   @Test
-  fun `Should return reliability for all distinct crns of latest date`() {
+  fun `Should return reliability for all distinct crns`() {
     val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created.minusHours(1), data = data, uuid = UUID.randomUUID())
     val thirdTierCalculation = TierCalculationEntity(crn = crn2, created = created.minusDays(1), data = data, uuid = UUID.randomUUID())
@@ -164,6 +178,37 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
       .isEqualTo(0)
       .jsonPath("$.[1].ogrsDelius")
       .isEqualTo(0)
+  }
+
+  @Test
+  fun `Tier to Delius Not found`() {
+    val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
+    val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
+    repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
+    setupCommunityApiAssessment(crn1)
+    setupCommunityApiAssessment(crn2)
+    setupTierToDeliusFull(crn1)
+    setupTierToDeliusNotFound(crn2)
+    webTestClient.get().uri("/crn/all").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$.[0].crn")
+      .isEqualTo(crn1)
+      .jsonPath("$.[0].rsrMatch")
+      .isEqualTo("true")
+      .jsonPath("$.[0].ogrsMatch")
+      .isEqualTo("true")
+      .jsonPath("$.[1].crn")
+      .isEqualTo(crn2)
+      .jsonPath("$.[1].rsrMatch")
+      .isEqualTo("false")
+      .jsonPath("$.[1].ogrsMatch")
+      .isEqualTo("false")
+      .jsonPath("$.[1].rsrDelius")
+      .isEqualTo(-1)
+      .jsonPath("$.[1].ogrsDelius")
+      .isEqualTo(-1)
   }
 
   companion object {

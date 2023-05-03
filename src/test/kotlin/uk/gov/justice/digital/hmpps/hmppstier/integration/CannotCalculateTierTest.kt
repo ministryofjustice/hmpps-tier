@@ -11,11 +11,7 @@ class CannotCalculateTierTest : IntegrationTestBase() {
   @Test
   fun `Offender does not exist`() {
     val crn = "X123456"
-    assessmentApi.getCurrentAssessment(crn, 1234567890)
-    communityApi.getCustodialSCSentenceConviction(crn)
-    communityApi.getEmptyRegistration(crn)
-    communityApi.getAssessmentResponse(crn)
-    communityApi.getNotFoundOffenderResponse(crn)
+    setupTierToDeliusNotFound(crn)
     calculateTierFor(crn)
     expectTierCalculationToHaveFailed()
   }
