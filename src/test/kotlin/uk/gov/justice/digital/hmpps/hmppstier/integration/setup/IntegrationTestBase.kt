@@ -96,28 +96,19 @@ abstract class IntegrationTestBase {
     tier: String = "A1",
   ) {
     communityApi.getAssessmentResponse(crn)
-    setupMaleOffender(crn, tier)
+    communityApi.getMaleOffenderResponse(crn, tier)
     if (includeAssessmentApi) {
       setupCurrentAssessment(crn, assessmentId)
     }
     setupNeeds(assessmentsApiNoSeverityNeedsResponse(), assessmentId)
   }
 
-  fun setupMaleOffender(crn: String, tier: String = "A1") {
-    communityApiResponse(maleOffenderResponse(tier), "/secure/offenders/crn/$crn/all")
-    communityApiResponse(maleOffenderResponse(tier), "/secure/offenders/crn/$crn/all")
-  }
-
-  fun setupMaleOffenderNotFound(crn: String) = communityApiResponse(notFoundResponse(), "/secure/offenders/crn/$crn/all")
-
   fun restOfSetupWithFemaleOffender(crn: String, assessmentId: String) {
     communityApi.getEmptyAssessmentResponse(crn)
-    communityApiResponse(femaleOffenderResponse(), "/secure/offenders/crn/$crn/all")
+    communityApi.getFemaleOffenderResponse(crn)
     setupCurrentAssessment(crn, assessmentId)
     setupNeeds(notFoundResponse(), assessmentId)
   }
-
-  fun setupNoDeliusAssessment(crn: String) = communityApiResponse(emptyCommunityApiAssessmentsResponse(), "/secure/offenders/crn/$crn/assessments")
 
   fun setupNeeds(needs: HttpResponse, assessmentId: String) = assessmentApiResponse(needs, "/assessments/oasysSetId/$assessmentId/needs")
 
@@ -136,26 +127,6 @@ abstract class IntegrationTestBase {
 
   fun setupAssessmentNotFound(crn: String) =
     assessmentApiResponse(notFoundResponse(), "/offenders/crn/$crn/assessments/summary")
-
-  fun setupRestrictiveRequirements(crn: String) =
-    setupRequirementsResponse(crn, restrictiveRequirementsResponse())
-
-  fun setupAdditionalRequirements(crn: String) =
-    setupRequirementsResponse(crn, additionalRequirementsResponse())
-
-  fun setupNoRequirements(crn: String) =
-    setupRequirementsResponse(crn, noRequirementsResponse())
-
-  private fun setupRequirementsResponse(crn: String, response: HttpResponse): Array<out Any>? = communityApiResponseWithQs(
-    response,
-    "/secure/offenders/crn/$crn/convictions/\\d+/requirements",
-    Parameter("activeOnly", "true"),
-    Parameter("excludeSoftDeleted", "true"),
-  )
-
-  fun setupRestrictiveAndNonRestrictiveRequirements(crn: String) = setupRequirementsResponse(crn, restrictiveAndNonRestrictiveRequirementsResponse())
-
-  fun setupNonRestrictiveRequirements(crn: String) = setupRequirementsResponse(crn, nonRestrictiveRequirementsResponse())
 
   fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true, assessmentId: String, tier: String = "A1") {
     communityApi.getMappaRegistration(crn, "M2")

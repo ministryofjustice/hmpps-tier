@@ -2,12 +2,9 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiHighSeverityNeedsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 
 class TierCalculationTest : IntegrationTestBase() {
 
@@ -69,7 +66,7 @@ class TierCalculationTest : IntegrationTestBase() {
       communityApi.getCustodialSCSentenceConviction(crn)
       communityApi.getMappaRegistration(crn, "M2")
       communityApi.getAssessmentResponse(crn, ogrs = "0")
-      setupMaleOffender(crn, "A2")
+      communityApi.getMaleOffenderResponse(crn, "A2")
       setupNeeds(assessmentsApiHighSeverityNeedsResponse(), "4234568899")
       setupCurrentAssessment(crn, "4234568899") // assessment not out of date
 

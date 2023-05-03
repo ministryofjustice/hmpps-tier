@@ -14,7 +14,7 @@ class AdditionalRequirementsTest : IntegrationTestBase() {
     setupTierToDeliusFull(crn)
     communityApi.getCommunitySentenceConviction(crn)
     communityApi.getMappaRegistration(crn, "M2")
-    setupAdditionalRequirements(crn)
+    communityApi.getAdditionalRequirements(crn)
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "4234567890")
     calculateTierFor(crn)
     expectTierChangedById("A0")

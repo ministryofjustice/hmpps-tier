@@ -9,15 +9,19 @@ import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.MediaType
+import org.mockserver.model.Parameter
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.convictionsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.deliusAssessmentResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Registration
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.nsisResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.offenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.registrationResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.requirementsResponse
 import java.time.LocalDate
 
 class CommunityApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallback {
@@ -193,5 +197,81 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     )
   }
 
+  fun getMaleOffenderResponse(crn: String, tier: String = "A1") {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/all")
+
+    communityApi.`when`(request, Times.exactly(2)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(offenderResponse("Male", tier))
+    )
+  }
+
+  fun getFemaleOffenderResponse(crn: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/all")
+
+    communityApi.`when`(request, Times.exactly(2)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(offenderResponse("Female", "A1"))
+    )
+  }
+
+  fun getNotFoundOffenderResponse(crn: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/all")
+    communityApi.`when`(request, Times.exactly(2)).respond(
+      HttpResponse.notFoundResponse())
+  }
+
+  fun getRestrictiveRequirement(crn: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements").withQueryStringParameters(
+      Parameter("activeOnly", "true"),
+      Parameter("excludeSoftDeleted", "true")
+    )
+
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementsResponse(Requirement("X", "X01", true)))
+    )
+  }
+
+  fun getNonRestrictiveRequirement(crn: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements").withQueryStringParameters(
+      Parameter("activeOnly", "true"),
+      Parameter("excludeSoftDeleted", "true")
+    )
+
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementsResponse(Requirement("F", "RARREQ", false)))
+    )
+  }
+
+  fun getRestrictiveAndNonRestrictiveRequirements(crn: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements").withQueryStringParameters(
+      Parameter("activeOnly", "true"),
+      Parameter("excludeSoftDeleted", "true")
+    )
+
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementsResponse(Requirement("F", "RARREQ", false), Requirement("X", "X01", true)))
+    )
+  }
+
+  fun getEmptyRequirements(crn: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements").withQueryStringParameters(
+      Parameter("activeOnly", "true"),
+      Parameter("excludeSoftDeleted", "true")
+    )
+
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementsResponse())
+    )
+  }
+
+  fun getAdditionalRequirements(crn: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements").withQueryStringParameters(
+      Parameter("activeOnly", "true"),
+      Parameter("excludeSoftDeleted", "true")
+    )
+
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementsResponse(Requirement(additionalMainTypeCode = "7", additionalSubTypeCode = "AR42")))
+    )
+  }
 
 }

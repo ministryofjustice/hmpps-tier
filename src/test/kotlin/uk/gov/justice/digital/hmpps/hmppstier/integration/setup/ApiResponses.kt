@@ -23,8 +23,6 @@ fun communityApiAssessmentsResponse(rsr: String, ogrs: String): HttpResponse = j
     .replace("ogrsScoreToReplace", ogrs),
 )
 
-fun emptyCommunityApiAssessmentsResponse(): HttpResponse = jsonResponseOf("{}")
-
 fun emptyNsisResponse(): HttpResponse = jsonResponseOf("{\"nsis\": []}")
 
 fun nsisResponse(outcome: String): HttpResponse = jsonResponseOf(

@@ -1,15 +1,9 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiNoSeverityNeedsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.historicRegistrationsResponseWithMappa
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithLatestNonMappa
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithNoLevel
 
 class RegistrationEdgeCasesTest : IntegrationTestBase() {
 
@@ -41,7 +35,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
     setupTierToDeliusFull(crn)
     communityApi.getCustodialNCSentenceConviction(crn)
     communityApi.getMultipleMappaRegistrations(crn)
-    setupMaleOffender(crn)
+    communityApi.getMaleOffenderResponse(crn)
     setupNeeds(assessmentsApiNoSeverityNeedsResponse(), "6234507890")
     communityApi.getEmptyAssessmentResponse(crn)
     calculateTierFor(crn)
@@ -54,7 +48,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
     setupTierToDeliusNoAssessment(crn)
     communityApi.getCustodialNCSentenceConviction(crn)
     communityApi.getHistoricMappaRegistration(crn)
-    setupMaleOffender(crn)
+    communityApi.getMaleOffenderResponse(crn)
     setupNeeds(assessmentsApiNoSeverityNeedsResponse(), "6234507890")
     communityApi.getEmptyAssessmentResponse(crn)
     calculateTierFor(crn)
@@ -67,7 +61,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
     setupTierToDeliusFull(crn)
     communityApi.getCustodialNCSentenceConviction(crn)
     communityApi.getMultipleMappaRegistrationsWithHistoricLatest(crn)
-    setupMaleOffender(crn)
+    communityApi.getMaleOffenderResponse(crn)
     setupNeeds(assessmentsApiNoSeverityNeedsResponse(), "6234507890")
     communityApi.getEmptyAssessmentResponse(crn)
     calculateTierFor(crn)
