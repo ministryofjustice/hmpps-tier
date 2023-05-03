@@ -14,22 +14,22 @@ fun getRequirement(requirement: Requirement) = """
   {
         "requirementId": 2500159141,
         "startDate": "2021-01-19",
-        "active": true,
+        "active": true
         ${getTypeCategory("requirementTypeSubCategory", requirement.subTypeCode)}
         ${getTypeCategory("requirementTypeMainCategory", requirement.mainTypeCode)}
         ${getTypeCategory("adRequirementTypeMainCategory", requirement.additionalMainTypeCode)}
         ${getTypeCategory("adRequirementTypeSubCategory", requirement.additionalSubTypeCode)}
-        ${requirement.length?.let { """ "length": $it, """.trimIndent() } ?: ""}
-        ${requirement.lengthUnit?.let {""" "lengthUnit": "$it", """.trimIndent()} ?: ""}
-        ${requirement.restrictive?.let { """ "restrictive": $it """ } ?: ""}
+        ${requirement.length?.let { """ ,"length": $it """.trimIndent() } ?: ""}
+        ${requirement.lengthUnit?.let {""" ,"lengthUnit": "$it" """.trimIndent()} ?: ""}
+        ${requirement.restrictive?.let { """ ,"restrictive": $it """ } ?: ""}
       }
 """.trimIndent()
 
 fun getTypeCategory(category: String, code: String?) = code?.let {
   """
-    "$category": {
+    ,"$category": {
           "code": "$code",
           "description": "Description"
-        },
+        }
   """.trimIndent()
 } ?: ""

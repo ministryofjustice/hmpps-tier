@@ -82,8 +82,8 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
 
   @Test
   fun `no delius currentTier data`() {
-    setupNoDeliusAssessment(crn1)
-    setupTierToDeliusNoTierResponse(crn1)
+    communityApi.getEmptyAssessmentResponse(crn1)
+    tierToDeliusApi.getNoTier(crn1)
     webTestClient.get()
       .uri("/crn/$crn1")
       .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
@@ -183,10 +183,10 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
-    setupCommunityApiAssessment(crn1)
-    setupCommunityApiAssessment(crn2)
-    setupTierToDeliusFull(crn1)
-    setupTierToDeliusNotFound(crn2)
+    communityApi.getAssessmentResponse(crn1)
+    communityApi.getAssessmentResponse(crn2)
+    tierToDeliusApi.getFullDetails(crn1)
+    tierToDeliusApi.getNotFound(crn2)
     webTestClient.get().uri("/crn/all").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus().isOk

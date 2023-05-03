@@ -47,6 +47,7 @@ private fun getConviction(conviction: Conviction) = """
         "code": "123",
         "description": "Appearance"
       }
+  }
 """.trimIndent()
 
 private fun getSentence(sentence: Sentence?) = sentence?.let {
@@ -94,7 +95,6 @@ private fun getCustody(sentence: Sentence?) = sentence?.takeIf { setOf("NC", "SC
           "description": "Sentenced - In Custody"
         },
         "sentenceStartDate": "2018-07-13"
-      }
-    },
+      },
   """.trimIndent()
 } ?: ""

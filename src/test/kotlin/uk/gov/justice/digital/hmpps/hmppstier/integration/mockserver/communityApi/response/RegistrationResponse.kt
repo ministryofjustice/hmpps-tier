@@ -44,12 +44,12 @@ fun getRegistration(registration: Registration) = """
     },
     ${registration.registerLevel?.let {
   """
-        "registerLevel": {
-          "code": "$it",
-          "description": "MAPPA Level 2"
-        },
+            "registerLevel": {
+              "code": "$it",
+              "description": "MAPPA Level 2"
+            },
   """.trimIndent()
-}}
+} ?: ""}
     "registerCategory": {
       "code": "M2",
       "description": "MAPPA Cat 2"
