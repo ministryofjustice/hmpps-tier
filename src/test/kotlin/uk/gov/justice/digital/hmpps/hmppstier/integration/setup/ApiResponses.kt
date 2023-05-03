@@ -111,16 +111,6 @@ fun tierToDeliusFullResponse(
       .replace("\"rsrToReplace\"", rsrscore),
   )
 
-fun tierToDeliusNoAssessmentResponse(gender: String, currentTier: String): HttpResponse =
-  jsonResponseOf(
-    responseFrom("$TIERTODELIUS_API_FIXTURES/tier-to-delius-no-assessment-response.json")
-      .replace("genderToReplace", gender)
-      .replace("tierToReplace", currentTier),
-  )
-
-fun assessmentsApiHighSeverityNeedsResponse(): HttpResponse =
-  assessmentApiResponse("high_severity_needs_18_points.json")
-
 fun assessmentsApiFemaleAnswersResponse(assessmentAnswers: Map<String, String>, assessmentId: String): HttpResponse =
   jsonResponseOf(
     responseFrom("$ASSESSMENT_API_FIXTURES/female-answers.json")

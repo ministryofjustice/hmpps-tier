@@ -116,14 +116,6 @@ abstract class IntegrationTestBase {
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, includeAssessmentApi, assessmentId, tier)
   }
 
-  fun setupTierToDeliusFull(crn: String, ogrsscore: String = 21.toString(), rsrscore: String = 23.toString()) {
-    tierToDeliusApiResponse(tierToDeliusFullResponse(ogrsscore = ogrsscore, rsrscore = rsrscore), "/tier-details/$crn")
-  }
-
-  fun setupTierToDeliusNoAssessment(crn: String, gender: String = "Male", currentTier: String = "UD0") {
-    tierToDeliusApiResponse(tierToDeliusNoAssessmentResponse(gender = gender, currentTier = currentTier), "/tier-details/$crn")
-  }
-
   fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl, crn)
   fun calculateTierForDomainEvent(crn: String) = putMessageOnDomainQueue(domainEventQueueClient, domainEventQueue.queueUrl, crn)
 

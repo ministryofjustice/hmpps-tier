@@ -9,6 +9,8 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
@@ -29,7 +31,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   @Test
   fun `delius assessments data are identical per crn`() {
     communityApi.getAssessmentResponse(crn1)
-    setupTierToDeliusFull(crn1)
+    tierToDeliusApi.getFullDetails(crn1)
 
     webTestClient.get()
       .uri("/crn/$crn1")
@@ -57,7 +59,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   @Test
   fun `no delius assessments data`() {
     communityApi.getEmptyAssessmentResponse(crn1)
-    setupTierToDeliusNoAssessment(crn1)
+    tierToDeliusApi.getNoAssessment(crn1)
     webTestClient.get()
       .uri("/crn/$crn1")
       .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
@@ -83,7 +85,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   @Test
   fun `delius and community assessments do not match`() {
     communityApi.getAssessmentResponse(crn1)
-    setupTierToDeliusNoAssessment(crn1)
+    tierToDeliusApi.getNoAssessment(crn1)
     webTestClient.get()
       .uri("/crn/$crn1")
       .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
@@ -115,8 +117,8 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
 
     communityApi.getAssessmentResponse(crn1)
     communityApi.getAssessmentResponse(crn2)
-    setupTierToDeliusFull(crn1)
-    setupTierToDeliusFull(crn2)
+    tierToDeliusApi.getFullDetails(crn1)
+    tierToDeliusApi.getFullDetails(crn2)
 
     webTestClient.get()
       .uri("/crn/all")
@@ -140,8 +142,8 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
     communityApi.getAssessmentResponse(crn1)
     communityApi.getAssessmentResponse(crn2)
-    setupTierToDeliusFull(crn1)
-    setupTierToDeliusFull(crn2, ogrsscore = "0", rsrscore = "0")
+    tierToDeliusApi.getFullDetails(crn1)
+    tierToDeliusApi.getZeroAssessmentDetails(crn2)
     webTestClient.get().uri("/crn/all").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus().isOk

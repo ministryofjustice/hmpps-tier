@@ -8,6 +8,8 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppstier.controller.TriggerCsv
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension.Companion.assessmentApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import java.io.File
 
@@ -16,7 +18,7 @@ class TriggerCalculationUpload : IntegrationTestBase() {
   @Test
   fun `trigger a tier calculation from upload`() {
     val crn = "X546739"
-    setupTierToDeliusFull(crn)
+    tierToDeliusApi.getFullDetails(crn)
 
     communityApi.getCustodialSCSentenceConviction(crn)
     communityApi.getMappaRegistration(crn, "M2")
@@ -36,7 +38,7 @@ class TriggerCalculationUpload : IntegrationTestBase() {
   @Test
   fun `do not trigger a calculation for blank rows`() {
     val crn = "X546739"
-    setupTierToDeliusFull(crn)
+    tierToDeliusApi.getFullDetails(crn)
 
     communityApi.getCustodialSCSentenceConviction(crn)
     communityApi.getMappaRegistration(crn, "M2")
@@ -58,7 +60,7 @@ class TriggerCalculationUpload : IntegrationTestBase() {
   @Test
   fun `must not write back if tier is unchanged`() {
     val crn = "X432769"
-    setupTierToDeliusFull(crn)
+    tierToDeliusApi.getFullDetails(crn)
 
     communityApi.getCustodialSCSentenceConviction(crn)
     communityApi.getMappaRegistration(crn, "M2")
