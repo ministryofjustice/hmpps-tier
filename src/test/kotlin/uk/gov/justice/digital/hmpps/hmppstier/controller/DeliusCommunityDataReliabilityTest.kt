@@ -119,7 +119,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   }
 
   @Test
-  fun `Should return reliability for all distinct crns`() {
+  fun `Should return only false reliability for distinct crns`() {
     val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created.minusHours(1), data = data, uuid = UUID.randomUUID())
     val thirdTierCalculation = TierCalculationEntity(crn = crn2, created = created.minusDays(1), data = data, uuid = UUID.randomUUID())
@@ -138,15 +138,11 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
       .isOk
       .expectBody()
       .jsonPath("$.length()")
-      .isEqualTo(2)
-      .jsonPath("$.[0].crn")
-      .isEqualTo(crn1)
-      .jsonPath("$.[1].crn")
-      .isEqualTo(crn2)
+      .isEqualTo(0)
   }
 
   @Test
-  fun `Should return failed reliability for all distinct crns`() {
+  fun `Should return failed reliability for different ogrs and rsr`() {
     val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
@@ -158,20 +154,47 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
       .exchange()
       .expectStatus().isOk
       .expectBody()
+      .jsonPath("$.length()")
+      .isEqualTo(1)
+      .jsonPath("$.[0].crn")
+      .isEqualTo(crn2)
+      .jsonPath("$.[0].rsrMatch")
+      .isEqualTo("false")
+      .jsonPath("$.[0].ogrsMatch")
+      .isEqualTo("false")
+      .jsonPath("$.[0].rsrDelius")
+      .isEqualTo(0)
+      .jsonPath("$.[0].ogrsDelius")
+      .isEqualTo(0)
+  }
+
+  @Test
+  fun `Should return failed reliability when either rsr or ogrs do not match`() {
+    val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
+    val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
+    repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
+    setupCommunityApiAssessment(crn1)
+    setupCommunityApiAssessment(crn2)
+    setupTierToDeliusFull(crn1, rsrscore = "0")
+    setupTierToDeliusFull(crn2, ogrsscore = "0")
+    webTestClient.get().uri("/crn/all").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
       .jsonPath("$.[0].crn")
       .isEqualTo(crn1)
       .jsonPath("$.[0].rsrMatch")
-      .isEqualTo("true")
+      .isEqualTo("false")
       .jsonPath("$.[0].ogrsMatch")
       .isEqualTo("true")
+      .jsonPath("$.[0].rsrDelius")
+      .isEqualTo(0)
       .jsonPath("$.[1].crn")
       .isEqualTo(crn2)
       .jsonPath("$.[1].rsrMatch")
-      .isEqualTo("false")
+      .isEqualTo("true")
       .jsonPath("$.[1].ogrsMatch")
       .isEqualTo("false")
-      .jsonPath("$.[1].rsrDelius")
-      .isEqualTo(0)
       .jsonPath("$.[1].ogrsDelius")
       .isEqualTo(0)
   }
@@ -190,20 +213,14 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
       .expectStatus().isOk
       .expectBody()
       .jsonPath("$.[0].crn")
-      .isEqualTo(crn1)
-      .jsonPath("$.[0].rsrMatch")
-      .isEqualTo("true")
-      .jsonPath("$.[0].ogrsMatch")
-      .isEqualTo("true")
-      .jsonPath("$.[1].crn")
       .isEqualTo(crn2)
-      .jsonPath("$.[1].rsrMatch")
+      .jsonPath("$.[0].rsrMatch")
       .isEqualTo("false")
-      .jsonPath("$.[1].ogrsMatch")
+      .jsonPath("$.[0].ogrsMatch")
       .isEqualTo("false")
-      .jsonPath("$.[1].rsrDelius")
+      .jsonPath("$.[0].rsrDelius")
       .isEqualTo(-1)
-      .jsonPath("$.[1].ogrsDelius")
+      .jsonPath("$.[0].ogrsDelius")
       .isEqualTo(-1)
   }
 

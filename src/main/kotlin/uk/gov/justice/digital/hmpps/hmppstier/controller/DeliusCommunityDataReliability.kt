@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
@@ -62,7 +62,7 @@ class DeliusCommunityDataReliability(
     )
   }
 
-  @Operation(summary = "cross-check all crns between community API and Tier-To-Delius API")
+  @Operation(summary = "find discrepancy between community API and Tier-To-Delius API for Tiering CRNs")
   @ApiResponses(
     value = [
       ApiResponse(responseCode = "200", description = "OK"),
@@ -72,7 +72,7 @@ class DeliusCommunityDataReliability(
   @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
   @GetMapping("/crn/all")
   suspend fun getAllDataReliability(): Flow<CommunityDeliusData> {
-    return tierReader.getCrns().map {
+    return tierReader.getCrns().mapNotNull {
       val tierToDeliusResponse = try {
         tierToDeliusApiService.getTierToDelius(it)
       } catch (e: WebClientException) {
@@ -100,7 +100,7 @@ class DeliusCommunityDataReliability(
         communityAssessment.rsr,
         ogrsDelius,
         ogrsCommunity,
-      )
+      ).takeIf { !it.ogrsMatch || !it.rsrMatch }
     }
   }
 }
