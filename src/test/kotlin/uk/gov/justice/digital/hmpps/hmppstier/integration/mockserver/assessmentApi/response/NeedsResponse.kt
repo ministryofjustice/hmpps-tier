@@ -8,7 +8,6 @@ fun needsResponse(vararg needs: Need) = """
   ]
 """.trimIndent()
 
-
 fun getNeed(need: Need) = """
   {
     "section": "${need.section}",

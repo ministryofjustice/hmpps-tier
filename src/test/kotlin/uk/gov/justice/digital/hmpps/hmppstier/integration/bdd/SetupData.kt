@@ -14,16 +14,13 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiFe
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiNoSeverityNeedsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.communityApiAssessmentsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyNsisResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.emptyRegistrationsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.femaleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.maleOffenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.needsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nonRestrictiveRequirementsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.nsisResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithAdditionalFactors
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappaAndAdditionalFactors
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRosh
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRoshMappaAndAdditionalFactors
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.tierToDeliusFullResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.unpaidWorkRequirementsResponse

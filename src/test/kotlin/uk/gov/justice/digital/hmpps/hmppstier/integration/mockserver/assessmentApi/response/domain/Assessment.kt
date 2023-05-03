@@ -5,6 +5,5 @@ import java.time.LocalDateTime
 data class Assessment(
   val completedDate: LocalDateTime,
   val assessmentId: Long,
-  val status: String
-) {
-}
+  val status: String,
+)

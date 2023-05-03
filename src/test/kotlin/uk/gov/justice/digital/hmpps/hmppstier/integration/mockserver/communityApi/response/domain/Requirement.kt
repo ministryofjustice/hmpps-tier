@@ -7,6 +7,5 @@ data class Requirement(
   val length: Int? = 20,
   val lengthUnit: String? = "Days",
   val additionalMainTypeCode: String? = null,
-  val additionalSubTypeCode: String? = null
-) {
-}
+  val additionalSubTypeCode: String? = null,
+)

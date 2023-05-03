@@ -9,13 +9,10 @@ import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.MediaType
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.convictionsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.tierDetailsResponse
 
-class TierToDeliusApiExtension: BeforeAllCallback, AfterAllCallback, BeforeEachCallback {
+class TierToDeliusApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallback {
 
   companion object {
     lateinit var tierToDeliusApi: TierToDeliusApiMockServer
@@ -33,7 +30,7 @@ class TierToDeliusApiExtension: BeforeAllCallback, AfterAllCallback, BeforeEachC
     tierToDeliusApi.stop()
   }
 }
-class TierToDeliusApiMockServer: ClientAndServer(MOCKSERVER_PORT) {
+class TierToDeliusApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
 
   companion object {
     private const val MOCKSERVER_PORT = 8093
@@ -42,22 +39,21 @@ class TierToDeliusApiMockServer: ClientAndServer(MOCKSERVER_PORT) {
   fun getFullDetails(crn: String) {
     val request = HttpRequest.request().withPath("/tier-details/$crn")
     TierToDeliusApiExtension.tierToDeliusApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(tierDetailsResponse(TierDetails("Male", "UD0","21","23")))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(tierDetailsResponse(TierDetails("Male", "UD0", "21", "23"))),
     )
   }
 
   fun getZeroAssessmentDetails(crn: String) {
     val request = HttpRequest.request().withPath("/tier-details/$crn")
     TierToDeliusApiExtension.tierToDeliusApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(tierDetailsResponse(TierDetails("Male", "UD0","0","0")))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(tierDetailsResponse(TierDetails("Male", "UD0", "0", "0"))),
     )
   }
 
   fun getNoAssessment(crn: String, gender: String = "Male") {
     val request = HttpRequest.request().withPath("/tier-details/$crn")
     TierToDeliusApiExtension.tierToDeliusApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(tierDetailsResponse(TierDetails(gender, "UD0",null,null)))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(tierDetailsResponse(TierDetails(gender, "UD0", null, null))),
     )
   }
-
 }

@@ -21,7 +21,7 @@ fun getRequirement(requirement: Requirement) = """
         ${getTypeCategory("adRequirementTypeSubCategory", requirement.additionalSubTypeCode)}
         ${requirement.length?.let { """ "length": $it, """.trimIndent() } ?: ""}
         ${requirement.lengthUnit?.let {""" "lengthUnit": "$it", """.trimIndent()} ?: ""}
-        ${requirement.restrictive?.let { """ "restrictive": $it """  } ?: ""}
+        ${requirement.restrictive?.let { """ "restrictive": $it """ } ?: ""}
       }
 """.trimIndent()
 

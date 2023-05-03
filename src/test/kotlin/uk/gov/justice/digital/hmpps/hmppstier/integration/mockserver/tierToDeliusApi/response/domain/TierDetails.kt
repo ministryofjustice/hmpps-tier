@@ -4,5 +4,5 @@ data class TierDetails(
   val gender: String,
   val currentTier: String?,
   val ogrsScore: String?,
-  val rsrScore: String?
+  val rsrScore: String?,
 )

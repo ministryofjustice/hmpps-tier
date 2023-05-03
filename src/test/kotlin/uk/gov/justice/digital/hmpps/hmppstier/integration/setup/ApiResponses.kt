@@ -8,9 +8,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWo
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.TEMPER_CONTROL
 import java.nio.file.Files.readString
 import java.nio.file.Paths
-import java.time.LocalDate
 import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter.ISO_DATE
 import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 
 const val COMMUNITY_API_FIXTURES: String = "src/test/resources/fixtures/community-api"
@@ -29,7 +27,6 @@ fun nsisResponse(outcome: String): HttpResponse = jsonResponseOf(
   responseFrom("$COMMUNITY_API_FIXTURES/nsi-breach.json")
     .replace("nsiOutcomeToReplace", outcome),
 )
-
 
 fun registrationsResponseWithRoshMappaAndAdditionalFactors(rosh: String, mappa: String, factors: List<String>) =
   registrations(

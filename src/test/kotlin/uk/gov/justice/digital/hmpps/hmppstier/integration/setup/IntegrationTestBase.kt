@@ -7,9 +7,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockserver.model.HttpResponse
-import org.mockserver.model.HttpResponse.notFoundResponse
-import org.mockserver.model.Parameter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
@@ -28,9 +25,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepo
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.Month.JANUARY
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
 import java.util.UUID
@@ -39,7 +33,7 @@ import java.util.UUID
   AssessmentApiExtension::class,
   CommunityApiExtension::class,
   HmppsAuthApiExtension::class,
-  TierToDeliusApiExtension::class
+  TierToDeliusApiExtension::class,
 )
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @ActiveProfiles("test")
@@ -68,8 +62,6 @@ abstract class IntegrationTestBase {
   @Autowired
   internal lateinit var jwtHelper: JwtAuthHelper
 
-
-
   @Autowired
   private lateinit var tierCalculationRepository: TierCalculationRepository
 
@@ -81,7 +73,6 @@ abstract class IntegrationTestBase {
     domainEventQueueClient.purgeQueue(PurgeQueueRequest(domainEventQueue.queueUrl))
     domainEventQueueDlqClient.purgeQueue(PurgeQueueRequest(domainEventQueue.dlqUrl))
     tierCalculationRepository.deleteAll()
-
   }
 
   internal fun HttpHeaders.authToken(roles: List<String> = emptyList()) {

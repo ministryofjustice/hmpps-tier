@@ -51,14 +51,14 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
   fun getNoSentenceConviction(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionsResponse(Conviction(sentence = null)))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionsResponse(Conviction(sentence = null))),
     )
   }
   fun getCustodialNCSentenceConviction(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
 
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionsResponse(Conviction()))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionsResponse(Conviction())),
     )
   }
 
@@ -66,14 +66,14 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
 
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionsResponse(Conviction(sentence = Sentence(sentenceCode = "SC"))))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionsResponse(Conviction(sentence = Sentence(sentenceCode = "SC")))),
     )
   }
 
   fun getCommunitySentenceConviction(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionsResponse(Conviction(sentence = Sentence(sentenceCode = "SP"))))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionsResponse(Conviction(sentence = Sentence(sentenceCode = "SP")))),
     )
   }
 
@@ -83,9 +83,9 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
       HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(
         convictionsResponse(
           Conviction(id = 2500409583, sentence = Sentence(sentenceCode = "SP")),
-          Conviction(id = 2500409584, active = false, sentence = Sentence(sentenceCode = "SP"))
-        )
-      )
+          Conviction(id = 2500409584, active = false, sentence = Sentence(sentenceCode = "SP")),
+        ),
+      ),
     )
   }
 
@@ -95,23 +95,23 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
       HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(
         convictionsResponse(
           Conviction(id = 2500409583),
-          Conviction(id = 2500409584, convictionDate = LocalDate.of(2021,1,12), sentence = Sentence(sentenceCode = "SP"))
-        )
-      )
+          Conviction(id = 2500409584, convictionDate = LocalDate.of(2021, 1, 12), sentence = Sentence(sentenceCode = "SP")),
+        ),
+      ),
     )
   }
 
   fun getOneInactiveCustodialConviction(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionsResponse(Conviction(id = 2500409583, active = false, sentence = Sentence(terminationDate = LocalDate.now().minusDays(1)))))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionsResponse(Conviction(id = 2500409583, active = false, sentence = Sentence(terminationDate = LocalDate.now().minusDays(1))))),
     )
   }
 
   fun getOneInactiveCommunityConviction(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionsResponse(Conviction(id = 2500409583, active = false, sentence = Sentence(sentenceCode = "SP", terminationDate = LocalDate.now().minusDays(1)))))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionsResponse(Conviction(id = 2500409583, active = false, sentence = Sentence(sentenceCode = "SP", terminationDate = LocalDate.now().minusDays(1))))),
     )
   }
 
@@ -119,7 +119,7 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations").withQueryStringParameter("activeOnly", "true")
 
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(registerLevel = level)))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(registerLevel = level))),
     )
   }
 
@@ -127,49 +127,51 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations").withQueryStringParameter("activeOnly", "true")
 
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(registerLevel = "M1", startDate = LocalDate.of(2020, 2, 1)),Registration(registerLevel = "M2", startDate = LocalDate.of(2021, 2, 1)))
-    ))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(
+        registrationResponse(Registration(registerLevel = "M1", startDate = LocalDate.of(2020, 2, 1)), Registration(registerLevel = "M2", startDate = LocalDate.of(2021, 2, 1))),
+      ),
+    )
   }
 
   fun getMultipleMappaRegistrationsWithHistoricLatest(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations").withQueryStringParameter("activeOnly", "true")
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(registerLevel = "M2", typeCode = "HREG", startDate = LocalDate.of(2016,6,28)), Registration(registerLevel = "M0", startDate = LocalDate.of(2008,10,24))))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(registerLevel = "M2", typeCode = "HREG", startDate = LocalDate.of(2016, 6, 28)), Registration(registerLevel = "M0", startDate = LocalDate.of(2008, 10, 24)))),
     )
   }
 
   fun getHistoricMappaRegistration(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations").withQueryStringParameter("activeOnly", "true")
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(registerLevel = "M2", typeCode = "HREG")))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(registerLevel = "M2", typeCode = "HREG"))),
     )
   }
 
   fun getEmptyRegistration(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations").withQueryStringParameter("activeOnly", "true")
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse())
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse()),
     )
   }
 
   fun getRoshRegistration(crn: String, typeCode: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations").withQueryStringParameter("activeOnly", "true")
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(typeCode = typeCode)))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(typeCode = typeCode))),
     )
   }
 
   fun getRoshMappaAdditionalFactorsRegistrations(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations").withQueryStringParameter("activeOnly", "true")
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(registerLevel = "M1"), Registration(typeCode = Rosh.HIGH.registerCode), Registration(typeCode = "RCCO"), Registration(typeCode = "RCPR"), Registration(typeCode = "RCHD")))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(registerLevel = "M1"), Registration(typeCode = Rosh.HIGH.registerCode), Registration(typeCode = "RCCO"), Registration(typeCode = "RCPR"), Registration(typeCode = "RCHD"))),
     )
   }
 
   fun getNoLevelRegistration(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations").withQueryStringParameter("activeOnly", "true")
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(typeCode = "STRG")))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(Registration(typeCode = "STRG"))),
     )
   }
 
@@ -177,7 +179,7 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/2500222290/nsis").withQueryStringParameter("nsiCodes", "BRE,BRES,REC,RECS")
 
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(nsisResponse())
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(nsisResponse()),
     )
   }
 
@@ -185,7 +187,7 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/assessments")
 
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(deliusAssessmentResponse(rsr, ogrs))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(deliusAssessmentResponse(rsr, ogrs)),
     )
   }
 
@@ -193,7 +195,7 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/assessments")
 
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(deliusAssessmentResponse(null, null))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(deliusAssessmentResponse(null, null)),
     )
   }
 
@@ -201,7 +203,7 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/all")
 
     communityApi.`when`(request, Times.exactly(2)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(offenderResponse("Male", tier))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(offenderResponse("Male", tier)),
     )
   }
 
@@ -209,69 +211,69 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/all")
 
     communityApi.`when`(request, Times.exactly(2)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(offenderResponse("Female", "A1"))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(offenderResponse("Female", "A1")),
     )
   }
 
   fun getNotFoundOffenderResponse(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/all")
     communityApi.`when`(request, Times.exactly(2)).respond(
-      HttpResponse.notFoundResponse())
+      HttpResponse.notFoundResponse(),
+    )
   }
 
   fun getRestrictiveRequirement(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements").withQueryStringParameters(
       Parameter("activeOnly", "true"),
-      Parameter("excludeSoftDeleted", "true")
+      Parameter("excludeSoftDeleted", "true"),
     )
 
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementsResponse(Requirement("X", "X01", true)))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementsResponse(Requirement("X", "X01", true))),
     )
   }
 
   fun getNonRestrictiveRequirement(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements").withQueryStringParameters(
       Parameter("activeOnly", "true"),
-      Parameter("excludeSoftDeleted", "true")
+      Parameter("excludeSoftDeleted", "true"),
     )
 
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementsResponse(Requirement("F", "RARREQ", false)))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementsResponse(Requirement("F", "RARREQ", false))),
     )
   }
 
   fun getRestrictiveAndNonRestrictiveRequirements(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements").withQueryStringParameters(
       Parameter("activeOnly", "true"),
-      Parameter("excludeSoftDeleted", "true")
+      Parameter("excludeSoftDeleted", "true"),
     )
 
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementsResponse(Requirement("F", "RARREQ", false), Requirement("X", "X01", true)))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementsResponse(Requirement("F", "RARREQ", false), Requirement("X", "X01", true))),
     )
   }
 
   fun getEmptyRequirements(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements").withQueryStringParameters(
       Parameter("activeOnly", "true"),
-      Parameter("excludeSoftDeleted", "true")
+      Parameter("excludeSoftDeleted", "true"),
     )
 
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementsResponse())
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementsResponse()),
     )
   }
 
   fun getAdditionalRequirements(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements").withQueryStringParameters(
       Parameter("activeOnly", "true"),
-      Parameter("excludeSoftDeleted", "true")
+      Parameter("excludeSoftDeleted", "true"),
     )
 
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementsResponse(Requirement(additionalMainTypeCode = "7", additionalSubTypeCode = "AR42")))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementsResponse(Requirement(additionalMainTypeCode = "7", additionalSubTypeCode = "AR42"))),
     )
   }
-
 }

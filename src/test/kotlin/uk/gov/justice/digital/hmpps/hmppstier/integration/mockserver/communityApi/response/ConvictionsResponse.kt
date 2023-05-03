@@ -50,7 +50,7 @@ private fun getConviction(conviction: Conviction) = """
 """.trimIndent()
 
 private fun getSentence(sentence: Sentence?) = sentence?.let {
-    """
+  """
       "sentence": {
         "sentenceId": 2500212176,
         "description": "Description",
@@ -60,20 +60,19 @@ private fun getSentence(sentence: Sentence?) = sentence?.let {
         "lengthInDays": 30,
         "expectedSentenceEndDate": "${LocalDate.of(2021, 4, 30).plusMonths(sentence.sentenceLength).format(DateTimeFormatter.ISO_DATE)}",
         "startDate": "${LocalDate.of(2021, 4, 30).format(DateTimeFormatter.ISO_DATE)}",
-        ${it.terminationDate?.let { terminationDate -> 
-          """
+        ${it.terminationDate?.let { terminationDate ->
+    """
             "terminationDate":"${terminationDate.format(DateTimeFormatter.ISO_DATE)}",
             "terminationReason": "Auto Terminated",
-          """.trimIndent()
-    } ?: ""}
+    """.trimIndent()
+  } ?: ""}
         "sentenceType": {
           "code": "${sentence.sentenceCode}",
           "description": "Description"
         }
       },
-    """.trimIndent()
-  } ?: ""
-
+  """.trimIndent()
+} ?: ""
 
 private fun getCustody(sentence: Sentence?) = sentence?.takeIf { setOf("NC", "SC").contains(it.sentenceCode) }?.let {
   """

@@ -5,5 +5,5 @@ import java.time.LocalDate
 data class Registration(
   val registerLevel: String? = null,
   val typeCode: String = "MAPP",
-  val startDate: LocalDate = LocalDate.of(2021, 2, 1)
+  val startDate: LocalDate = LocalDate.of(2021, 2, 1),
 )

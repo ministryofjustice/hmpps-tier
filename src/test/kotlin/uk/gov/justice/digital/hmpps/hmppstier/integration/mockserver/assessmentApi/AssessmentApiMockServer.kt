@@ -14,9 +14,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentA
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Assessment
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Need
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.needsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.convictionsResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Conviction
 import java.time.LocalDateTime
 import java.time.Year
 import java.time.temporal.TemporalAdjusters.firstDayOfYear
@@ -39,7 +36,7 @@ class AssessmentApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCa
     assessmentApi.stop()
   }
 }
-class AssessmentApiMockServer: ClientAndServer(MOCKSERVER_PORT) {
+class AssessmentApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
 
   companion object {
     private const val MOCKSERVER_PORT = 8092
@@ -48,7 +45,7 @@ class AssessmentApiMockServer: ClientAndServer(MOCKSERVER_PORT) {
   fun getNoSeverityNeeds(assessmentId: Long) {
     val request = HttpRequest.request().withPath("/assessments/oasysSetId/$assessmentId/needs")
     assessmentApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(needsResponse(Need("Accommodation","ACCOMMODATION", "NO_NEED")))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(needsResponse(Need("Accommodation", "ACCOMMODATION", "NO_NEED"))),
     )
   }
 
@@ -60,31 +57,51 @@ class AssessmentApiMockServer: ClientAndServer(MOCKSERVER_PORT) {
   fun getHighSeverityNeeds(assessmentId: Long) {
     val request = HttpRequest.request().withPath("/assessments/oasysSetId/$assessmentId/needs")
     assessmentApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(needsResponse(Need("Accommodation","ACCOMMODATION", "SEVERE"),
-        Need("Education, Training and Employability","EDUCATION_TRAINING_AND_EMPLOYABILITY", "SEVERE"),
-        Need("Relationships","RELATIONSHIPS", "SEVERE"),
-        Need("Lifestyle and Associates","LIFESTYLE_AND_ASSOCIATES", "SEVERE"),
-        Need("Drug Misuse","DRUG_MISUSE", "SEVERE"),
-        Need("Thinking and Behaviour","THINKING_AND_BEHAVIOUR", "SEVERE"),
-        Need("Attitudes","ATTITUDES", "SEVERE"),
-        Need("Financial Management and Income","FINANCIAL_MANAGEMENT_AND_INCOME", "SEVERE"),
-        Need("Emotional Well-Being","EMOTIONAL_WELL_BEING", "SEVERE")))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(
+        needsResponse(
+          Need("Accommodation", "ACCOMMODATION", "SEVERE"),
+          Need("Education, Training and Employability", "EDUCATION_TRAINING_AND_EMPLOYABILITY", "SEVERE"),
+          Need("Relationships", "RELATIONSHIPS", "SEVERE"),
+          Need("Lifestyle and Associates", "LIFESTYLE_AND_ASSOCIATES", "SEVERE"),
+          Need("Drug Misuse", "DRUG_MISUSE", "SEVERE"),
+          Need("Thinking and Behaviour", "THINKING_AND_BEHAVIOUR", "SEVERE"),
+          Need("Attitudes", "ATTITUDES", "SEVERE"),
+          Need("Financial Management and Income", "FINANCIAL_MANAGEMENT_AND_INCOME", "SEVERE"),
+          Need("Emotional Well-Being", "EMOTIONAL_WELL_BEING", "SEVERE"),
+        ),
+      ),
     )
   }
 
   fun getCurrentAssessment(crn: String, assessmentId: Long) {
     val request = HttpRequest.request().withPath("/offenders/crn/$crn/assessments/summary")
     assessmentApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(assessmentsResponse(Assessment(
-        getStartOfYear(Year.now().value),assessmentId,"COMPLETE"), Assessment(getStartOfYear(Year.now().value), 1235, "INCOMPLETE_LOCKED")))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(
+        assessmentsResponse(
+          Assessment(
+            getStartOfYear(Year.now().value),
+            assessmentId,
+            "COMPLETE",
+          ),
+          Assessment(getStartOfYear(Year.now().value), 1235, "INCOMPLETE_LOCKED"),
+        ),
+      ),
     )
   }
 
   fun getOutdatedAssessment(crn: String, assessmentId: Long) {
     val request = HttpRequest.request().withPath("/offenders/crn/$crn/assessments/summary")
     assessmentApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(assessmentsResponse(Assessment(
-        getStartOfYear(2018),assessmentId,"COMPLETE"), Assessment(getStartOfYear(2018), 1235, "INCOMPLETE_LOCKED")))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(
+        assessmentsResponse(
+          Assessment(
+            getStartOfYear(2018),
+            assessmentId,
+            "COMPLETE",
+          ),
+          Assessment(getStartOfYear(2018), 1235, "INCOMPLETE_LOCKED"),
+        ),
+      ),
     )
   }
 

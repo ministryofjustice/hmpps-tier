@@ -9,7 +9,6 @@ fun assessmentsResponse(vararg assessments: Assessment) = """
   ]
 """.trimIndent()
 
-
 fun getAssessment(assessment: Assessment) = """
   {
     "assessmentId": ${assessment.assessmentId},
