@@ -19,6 +19,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.hmppstier.controller.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension.Companion.assessmentApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.hmppsAuth.HmppsAuthApiExtension
@@ -92,43 +93,25 @@ abstract class IntegrationTestBase {
   fun restOfSetupWithMaleOffenderNoSevereNeeds(
     crn: String,
     includeAssessmentApi: Boolean = true,
-    assessmentId: String,
+    assessmentId: Long,
     tier: String = "A1",
   ) {
     communityApi.getAssessmentResponse(crn)
     communityApi.getMaleOffenderResponse(crn, tier)
     if (includeAssessmentApi) {
-      setupCurrentAssessment(crn, assessmentId)
+      assessmentApi.getCurrentAssessment(crn, assessmentId)
     }
-    setupNeeds(assessmentsApiNoSeverityNeedsResponse(), assessmentId)
+    assessmentApi.getNoSeverityNeeds(assessmentId)
   }
 
-  fun restOfSetupWithFemaleOffender(crn: String, assessmentId: String) {
+  fun restOfSetupWithFemaleOffender(crn: String, assessmentId: Long) {
     communityApi.getEmptyAssessmentResponse(crn)
     communityApi.getFemaleOffenderResponse(crn)
-    setupCurrentAssessment(crn, assessmentId)
-    setupNeeds(notFoundResponse(), assessmentId)
+    assessmentApi.getCurrentAssessment(crn, assessmentId)
+    assessmentApi.getNotFoundNeeds(assessmentId)
   }
 
-  fun setupNeeds(needs: HttpResponse, assessmentId: String) = assessmentApiResponse(needs, "/assessments/oasysSetId/$assessmentId/needs")
-
-  fun setupCurrentAssessment(crn: String, assessmentId: String) = setupLatestAssessment(crn, LocalDate.now().year, assessmentId)
-
-  fun setupOutdatedAssessment(crn: String, assessmentId: String) = setupLatestAssessment(crn, 2018, assessmentId)
-
-  private fun setupLatestAssessment(crn: String, year: Int, assessmentId: String) =
-    assessmentApiResponse(
-      assessmentsApiAssessmentsResponse(
-        LocalDateTime.of(year, JANUARY, 1, 0, 0)!!,
-        assessmentId,
-      ),
-      "/offenders/crn/$crn/assessments/summary",
-    )
-
-  fun setupAssessmentNotFound(crn: String) =
-    assessmentApiResponse(notFoundResponse(), "/offenders/crn/$crn/assessments/summary")
-
-  fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true, assessmentId: String, tier: String = "A1") {
+  fun setupMaleOffenderWithRegistrations(crn: String, includeAssessmentApi: Boolean = true, assessmentId: Long, tier: String = "A1") {
     communityApi.getMappaRegistration(crn, "M2")
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, includeAssessmentApi, assessmentId, tier)
   }

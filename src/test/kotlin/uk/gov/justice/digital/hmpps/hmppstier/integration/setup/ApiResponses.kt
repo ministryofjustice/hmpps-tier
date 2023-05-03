@@ -79,25 +79,12 @@ fun maleOffenderResponse(tier: String = "A1"): HttpResponse = jsonResponseOf(
 
 fun femaleOffenderResponse(): HttpResponse = communityApiResponse("offender-female.json")
 
-fun restrictiveRequirementsResponse(): HttpResponse = communityApiResponse("requirements-restrictive.json")
-
-fun restrictiveAndNonRestrictiveRequirementsResponse(): HttpResponse =
-  communityApiResponse("requirements-restrictive-and-non-restrictive.json")
-
 fun nonRestrictiveRequirementsResponse(): HttpResponse = communityApiResponse("requirements-non-restrictive.json")
 
 fun unpaidWorkRequirementsResponse(): HttpResponse = communityApiResponse("requirements-unpaid-work.json")
 
 fun unpaidWorkWithOrderLengthExtendedAndAdditionalHoursRequirementsResponse(): HttpResponse =
   communityApiResponse("requirements-unpaid-work-additional-hours-order-length-extended.json")
-
-fun noRequirementsResponse(): HttpResponse = jsonResponseOf(
-  "{\n" +
-    "    \"requirements\": []\n" +
-    "}",
-)
-
-fun additionalRequirementsResponse(): HttpResponse = communityApiResponse("requirements-additional.json")
 
 fun assessmentsApiAssessmentsResponse(assessmentDate: LocalDateTime, assessmentId: String): HttpResponse =
   jsonResponseOf(

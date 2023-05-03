@@ -1,14 +1,9 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.HIGH
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.VERY_HIGH
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRosh
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithRoshMappaAndAdditionalFactors
 
 class ProtectTierATest : IntegrationTestBase() {
 
@@ -18,7 +13,7 @@ class ProtectTierATest : IntegrationTestBase() {
     setupTierToDeliusFull(crn)
     communityApi.getCustodialNCSentenceConviction(crn)
     communityApi.getMappaRegistration(crn, "M2")
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "5234567891")
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 5234567891)
     calculateTierFor(crn)
     expectTierChangedById("A1")
   }
@@ -29,7 +24,7 @@ class ProtectTierATest : IntegrationTestBase() {
     setupTierToDeliusFull(crn)
     communityApi.getCustodialNCSentenceConviction(crn)
     communityApi.getMappaRegistration(crn, "M3")
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "5234567892")
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 5234567892)
     calculateTierFor(crn)
     expectTierChangedById("A1")
   }
@@ -40,7 +35,7 @@ class ProtectTierATest : IntegrationTestBase() {
     setupTierToDeliusFull(crn)
     communityApi.getCustodialNCSentenceConviction(crn)
     communityApi.getRoshRegistration(crn, VERY_HIGH.registerCode)
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "5234567893")
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 5234567893)
     calculateTierFor(crn)
     expectTierChangedById("A1")
   }
@@ -51,7 +46,7 @@ class ProtectTierATest : IntegrationTestBase() {
     setupTierToDeliusFull(crn)
     communityApi.getCustodialNCSentenceConviction(crn)
     communityApi.getRoshMappaAdditionalFactorsRegistrations(crn)
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "5234567894")
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 5234567894)
     calculateTierFor(crn)
     expectTierChangedById("B1")
   }

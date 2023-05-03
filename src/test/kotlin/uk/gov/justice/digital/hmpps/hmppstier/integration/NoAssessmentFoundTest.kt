@@ -1,10 +1,9 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension.Companion.assessmentApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 
 class NoAssessmentFoundTest : IntegrationTestBase() {
 
@@ -13,9 +12,9 @@ class NoAssessmentFoundTest : IntegrationTestBase() {
     val crn = "X273878"
     setupTierToDeliusFull(crn)
     communityApi.getCustodialNCSentenceConviction(crn)
-    setupAssessmentNotFound(crn)
+    assessmentApi.getNotFoundAssessment(crn)
     communityApi.getMappaRegistration(crn, "M2")
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "8234567890")
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 8234567890)
     calculateTierFor(crn)
     expectTierChangedById("A2")
   }

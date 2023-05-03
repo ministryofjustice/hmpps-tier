@@ -13,7 +13,7 @@ class MandateForChangeTest : IntegrationTestBase() {
     setupTierToDeliusFull(crn)
     communityApi.getOneActiveCustodialAndOneActiveCommunityConviction(crn)
     communityApi.getRestrictiveRequirement(crn)
-    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567892")
+    setupMaleOffenderWithRegistrations(crn, assessmentId = 4234567892)
     calculateTierFor(crn)
     expectTierChangedById("A1")
   }
@@ -23,7 +23,7 @@ class MandateForChangeTest : IntegrationTestBase() {
     val crn = "X173878"
     setupTierToDeliusFull(crn)
     communityApi.getOneInactiveCustodialConviction(crn)
-    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567895")
+    setupMaleOffenderWithRegistrations(crn, assessmentId = 4234567895)
     calculateTierFor(crn)
     expectTierChangedById("A0")
   }
@@ -34,7 +34,7 @@ class MandateForChangeTest : IntegrationTestBase() {
     setupTierToDeliusFull(crn)
     communityApi.getOneActiveAndOneInactiveCommunityConviction(crn)
      communityApi.getNonRestrictiveRequirement(crn)
-    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567896")
+    setupMaleOffenderWithRegistrations(crn, assessmentId = 4234567896)
     calculateTierFor(crn)
     expectTierChangedById("A1")
   }
@@ -45,7 +45,7 @@ class MandateForChangeTest : IntegrationTestBase() {
     setupTierToDeliusFull(crn)
     communityApi.getOneInactiveCustodialConviction(crn)
      communityApi.getNonRestrictiveRequirement(crn)
-    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567898")
+    setupMaleOffenderWithRegistrations(crn, assessmentId = 4234567898)
     calculateTierFor(crn)
     expectTierChangedById("A0")
   }
@@ -56,7 +56,7 @@ class MandateForChangeTest : IntegrationTestBase() {
     setupTierToDeliusFull(crn)
     communityApi.getCommunitySentenceConviction(crn)
     communityApi.getRestrictiveRequirement(crn)
-    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234567899")
+    setupMaleOffenderWithRegistrations(crn, assessmentId = 4234567899)
     calculateTierFor(crn)
     expectTierChangedById("A0")
   }
@@ -67,7 +67,7 @@ class MandateForChangeTest : IntegrationTestBase() {
     setupTierToDeliusFull(crn)
     communityApi.getCommunitySentenceConviction(crn)
     communityApi.getRestrictiveAndNonRestrictiveRequirements(crn)
-    setupMaleOffenderWithRegistrations(crn, assessmentId = "4134567890")
+    setupMaleOffenderWithRegistrations(crn, assessmentId = 4134567890)
     calculateTierFor(crn)
     expectTierChangedById("A1")
   }
@@ -78,7 +78,7 @@ class MandateForChangeTest : IntegrationTestBase() {
     setupTierToDeliusFull(crn)
     communityApi.getCommunitySentenceConviction(crn)
     communityApi.getEmptyRequirements(crn)
-    setupMaleOffenderWithRegistrations(crn, assessmentId = "4334567890")
+    setupMaleOffenderWithRegistrations(crn, assessmentId = 4334567890)
     calculateTierFor(crn)
     expectTierChangedById("A0")
   }

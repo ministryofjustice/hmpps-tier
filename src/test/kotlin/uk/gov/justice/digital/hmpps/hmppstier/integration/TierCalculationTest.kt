@@ -2,6 +2,8 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension.Companion.assessmentApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.assessmentsApiHighSeverityNeedsResponse
@@ -13,13 +15,13 @@ class TierCalculationTest : IntegrationTestBase() {
     @Test
     fun `no NSis returned`() {
       val crn = "X386786"
-      setupAssessmentNotFound(crn)
+      assessmentApi.getNotFoundAssessment(crn)
       setupTierToDeliusNoAssessment(crn, gender = "Female")
 
       communityApi.getCustodialNCSentenceConviction(crn)
       communityApi.getEmptyRegistration(crn)
 
-      restOfSetupWithFemaleOffender(crn, "2234567890")
+      restOfSetupWithFemaleOffender(crn, 2234567890)
       communityApi.getEmptyNsiResponse(crn)
 
       calculateTierFor(crn)
@@ -36,16 +38,16 @@ class TierCalculationTest : IntegrationTestBase() {
 
       communityApi.getCustodialSCSentenceConviction(crn)
       communityApi.getMappaRegistration(crn, "M2")
-      restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890")
-      setupOutdatedAssessment(crn, "1234567890")
+      restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
+      assessmentApi.getOutdatedAssessment(crn, 1234567890)
 
       calculateTierFor(crn)
       expectTierChangedById("A2")
 
       communityApi.getCustodialSCSentenceConviction(crn)
       communityApi.getMappaRegistration(crn, "M2")
-      restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890", "A2")
-      setupOutdatedAssessment(crn, "1234567890")
+      restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890, "A2")
+      assessmentApi.getOutdatedAssessment(crn, 1234567890)
 
       calculateTierFor(crn)
       expectNoUpdatedTierCalculation()
@@ -57,8 +59,8 @@ class TierCalculationTest : IntegrationTestBase() {
       setupTierToDeliusFull(crn)
 
       communityApi.getCustodialSCSentenceConviction(crn)
-      setupMaleOffenderWithRegistrations(crn, false, "4234568890")
-      setupOutdatedAssessment(crn, "1234567890")
+      setupMaleOffenderWithRegistrations(crn, false, 4234568890)
+      assessmentApi.getOutdatedAssessment(crn, 1234567890)
 
       calculateTierFor(crn)
       expectTierChangedById("A2")
@@ -67,8 +69,8 @@ class TierCalculationTest : IntegrationTestBase() {
       communityApi.getMappaRegistration(crn, "M2")
       communityApi.getAssessmentResponse(crn, ogrs = "0")
       communityApi.getMaleOffenderResponse(crn, "A2")
-      setupNeeds(assessmentsApiHighSeverityNeedsResponse(), "4234568899")
-      setupCurrentAssessment(crn, "4234568899") // assessment not out of date
+      assessmentApi.getHighSeverityNeeds(4234568899)
+      assessmentApi.getCurrentAssessment(crn, 4234568899) // assessment not out of date
 
       calculateTierFor(crn)
       expectNoUpdatedTierCalculation()
@@ -80,17 +82,16 @@ class TierCalculationTest : IntegrationTestBase() {
       setupTierToDeliusFull(crn)
 
       communityApi.getCustodialSCSentenceConviction(crn)
-      setupMaleOffenderWithRegistrations(crn, false, "4234568890")
-      setupOutdatedAssessment(crn, "4234568890")
+      setupMaleOffenderWithRegistrations(crn, false, 4234568890)
+      assessmentApi.getOutdatedAssessment(crn, 4234568890)
 
       calculateTierFor(crn)
       expectTierChangedById("A2")
 
       setupTierToDeliusFull(crn)
       communityApi.getCustodialSCSentenceConviction(crn)
-      setupMaleOffenderWithRegistrations(crn, false, "4234568891")
-
-      setupCurrentAssessment(crn, "4234568891") // assessment not out of date
+      setupMaleOffenderWithRegistrations(crn, false, 4234568891)
+      assessmentApi.getCurrentAssessment(crn, 4234568891) // assessment not out of date
       calculateTierFor(crn)
       expectTierChangedById("A1")
     }
@@ -101,7 +102,7 @@ class TierCalculationTest : IntegrationTestBase() {
       setupTierToDeliusFull(crn)
 
       communityApi.getCustodialSCSentenceConviction(crn)
-      setupMaleOffenderWithRegistrations(crn, assessmentId = "4234568890")
+      setupMaleOffenderWithRegistrations(crn, assessmentId = 4234568890)
 
       calculateTierFor(crn)
       expectTierChangedById("A1")
@@ -109,7 +110,7 @@ class TierCalculationTest : IntegrationTestBase() {
       setupTierToDeliusFull(crn)
       communityApi.getCustodialSCSentenceConviction(crn)
       communityApi.getMappaRegistration(crn, "M1")
-      restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "4234568890")
+      restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234568890)
 
       calculateTierFor(crn)
       expectTierChangedById("B1")
@@ -122,7 +123,7 @@ class TierCalculationTest : IntegrationTestBase() {
     setupTierToDeliusFull(crn)
 
     communityApi.getCustodialSCSentenceConviction(crn)
-    setupMaleOffenderWithRegistrations(crn, assessmentId = "4234568890")
+    setupMaleOffenderWithRegistrations(crn, assessmentId = 4234568890)
 
     calculateTierFor(crn)
     expectLatestTierCalculation("A1")
@@ -130,7 +131,7 @@ class TierCalculationTest : IntegrationTestBase() {
     setupTierToDeliusFull(crn)
     communityApi.getCustodialSCSentenceConviction(crn)
     communityApi.getMappaRegistration(crn, "M1")
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = "4234568890")
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234568890)
 
     calculateTierFor(crn)
     expectLatestTierCalculation("B1")
