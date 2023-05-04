@@ -9,6 +9,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
@@ -175,10 +176,10 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
-    setupCommunityApiAssessment(crn1)
-    setupCommunityApiAssessment(crn2)
-    setupTierToDeliusFull(crn1, rsrscore = "0")
-    setupTierToDeliusFull(crn2, ogrsscore = "0")
+    communityApi.getAssessmentResponse(crn1)
+    communityApi.getAssessmentResponse(crn2)
+    tierToDeliusApi.getFullDetails(crn1, TierDetails("Male", "UD0", "21", "0"))
+    tierToDeliusApi.getFullDetails(crn2, TierDetails("Male", "UD0", "0", "23"))
     webTestClient.get().uri("/crn/all").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus().isOk
