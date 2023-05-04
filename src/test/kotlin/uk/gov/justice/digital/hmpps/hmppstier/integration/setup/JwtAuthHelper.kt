@@ -37,7 +37,7 @@ class JwtAuthHelper {
       .setSubject("hmpps-tier")
       .addClaims(claims)
       .setExpiration(Date(System.currentTimeMillis() + Duration.ofHours(1).toMillis()))
-      .signWith(SignatureAlgorithm.RS256, keyPair.private)
+      .signWith(keyPair.private, SignatureAlgorithm.RS256)
       .compact()
   }
 }

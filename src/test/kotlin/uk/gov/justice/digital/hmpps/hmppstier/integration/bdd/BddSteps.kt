@@ -1,11 +1,11 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.bdd
 
-import com.amazonaws.services.sqs.AmazonSQSAsync
-import com.amazonaws.services.sqs.model.PurgeQueueRequest
 import io.cucumber.java8.En
 import io.cucumber.java8.Scenario
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
+import software.amazon.awssdk.services.sqs.SqsAsyncClient
+import software.amazon.awssdk.services.sqs.model.PurgeQueueRequest
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M1
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M3
@@ -29,7 +29,7 @@ class BddSteps : En {
 
   @Qualifier("hmppscalculationcompletequeue-sqs-client")
   @Autowired
-  lateinit var calculationCompleteClient: AmazonSQSAsync
+  lateinit var calculationCompleteClient: SqsAsyncClient
 
   private val calculationCompleteUrl by lazy { hmppsQueueService.findByQueueId("hmppscalculationcompletequeue")?.queueUrl ?: throw MissingQueueException("HmppsQueue tiercalculationqueue not found") }
 
@@ -38,7 +38,7 @@ class BddSteps : En {
 
   @Qualifier("hmppsoffenderqueue-sqs-client")
   @Autowired
-  lateinit var offenderEventsClient: AmazonSQSAsync
+  lateinit var offenderEventsClient: SqsAsyncClient
 
   private val eventQueueUrl by lazy { hmppsQueueService.findByQueueId("hmppsoffenderqueue")?.queueUrl ?: throw MissingQueueException("HmppsQueue tiercalculationqueue not found") }
 
@@ -56,8 +56,8 @@ class BddSteps : En {
 
     Before { _: Scenario ->
 
-      offenderEventsClient.purgeQueue(PurgeQueueRequest(eventQueueUrl))
-      calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteUrl))
+      offenderEventsClient.purgeQueue(PurgeQueueRequest.builder().queueUrl(eventQueueUrl).build()).get()
+      calculationCompleteClient.purgeQueue(PurgeQueueRequest.builder().queueUrl(calculationCompleteUrl).build()).get()
 
       crn = UUID.randomUUID().toString().replace("-", "").substring(0, 7)
       assessmentId = "1${UUID.randomUUID().toString().replace("\\D+".toRegex(), "").padEnd(11, '1').substring(0, 11)}"

@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.mockk.every
 import io.mockk.mockk
@@ -15,12 +14,11 @@ class TriggerCalculationServiceTest {
   fun `Missing Queue exception thrown when offender queue is not configured`() {
     val hmppsQueueService = mockk<HmppsQueueService>()
     val objectMapper = ObjectMapper()
-    val hmppsOffenderSqsClient = mockk<AmazonSQSAsync>()
 
     every { hmppsQueueService.findByQueueId("hmppsoffenderqueue") } returns null
 
     Assertions.assertThrows(MissingQueueException::class.java) {
-      TriggerCalculationService(hmppsQueueService, objectMapper, hmppsOffenderSqsClient)
+      TriggerCalculationService(hmppsQueueService, objectMapper)
     }
   }
 }

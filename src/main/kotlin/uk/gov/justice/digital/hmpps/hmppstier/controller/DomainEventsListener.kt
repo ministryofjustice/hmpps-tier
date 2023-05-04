@@ -1,10 +1,10 @@
 package uk.gov.justice.digital.hmpps.hmppstier.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.awspring.cloud.sqs.annotation.SqsListener
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
-import org.springframework.jms.annotation.JmsListener
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 
@@ -14,7 +14,7 @@ class DomainEventsListener(
   private val objectMapper: ObjectMapper,
 ) {
 
-  @JmsListener(destination = "hmppsdomaineventsqueue", containerFactory = "hmppsQueueContainerFactoryProxy")
+  @SqsListener("hmppsdomaineventsqueue", factory = "hmppsQueueContainerFactoryProxy")
   fun listen(msg: String) {
     CoroutineScope(Dispatchers.Default).future {
       calculator.calculateTierForCrn(getCrn(msg), "DomainEventsListener")

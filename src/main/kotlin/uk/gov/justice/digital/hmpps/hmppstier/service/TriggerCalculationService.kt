@@ -1,15 +1,13 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import com.amazonaws.services.sqs.AmazonSQSAsync
-import com.amazonaws.services.sqs.model.MessageAttributeValue
-import com.amazonaws.services.sqs.model.SendMessageRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Service
+import software.amazon.awssdk.services.sqs.model.MessageAttributeValue
+import software.amazon.awssdk.services.sqs.model.SendMessageRequest
 import uk.gov.justice.digital.hmpps.hmppstier.controller.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationMessage
 import uk.gov.justice.digital.hmpps.hmppstier.controller.TriggerCsv
@@ -20,11 +18,11 @@ import uk.gov.justice.hmpps.sqs.MissingQueueException
 class TriggerCalculationService(
   hmppsQueueService: HmppsQueueService,
   private val objectMapper: ObjectMapper,
-  @Qualifier("hmppsoffenderqueue-sqs-client") private val hmppsOffenderSqsClient: AmazonSQSAsync,
 ) {
 
   private val hmppsOffenderQueueUrl = hmppsQueueService.findByQueueId("hmppsoffenderqueue")?.queueUrl ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found")
 
+  private val hmppsOffenderSqsClient = hmppsQueueService.findByQueueId("hmppsoffenderqueue")!!.sqsClient
   suspend fun sendEvents(crns: List<TriggerCsv>) {
     CoroutineScope(Dispatchers.IO).launch {
       crns.forEach { crn ->
@@ -34,14 +32,15 @@ class TriggerCalculationService(
   }
 
   private fun publishToHMPPSOffenderQueue(crn: TriggerCsv) {
-    val sendMessage = SendMessageRequest(
+    val sendMessage = SendMessageRequest.builder().queueUrl(
       hmppsOffenderQueueUrl,
+    ).messageBody(
       objectMapper.writeValueAsString(
         crnToOffenderSqsMessage(crn),
       ),
-    ).withMessageAttributes(
-      mapOf("eventType" to MessageAttributeValue().withDataType("String").withStringValue("OFFENDER_MANAGEMENT_TIER_CALCULATION_REQUIRED")),
-    )
+    ).messageAttributes(
+      mapOf("eventType" to MessageAttributeValue.builder().dataType("String").stringValue("OFFENDER_MANAGEMENT_TIER_CALCULATION_REQUIRED").build()),
+    ).build()
     log.info("publishing event type {} for crn {}", "OFFENDER_MANAGEMENT_TIER_CALCULATION_REQUIRED", crn.crn)
     hmppsOffenderSqsClient.sendMessage(sendMessage)
   }

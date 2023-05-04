@@ -1,67 +1,46 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 
-import com.amazonaws.services.sqs.AmazonSQS
-import com.amazonaws.services.sqs.AmazonSQSAsync
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.matches
 import org.awaitility.kotlin.untilCallTo
+import software.amazon.awssdk.services.sqs.SqsAsyncClient
+import software.amazon.awssdk.services.sqs.model.SendMessageRequest
+import uk.gov.justice.hmpps.sqs.countMessagesOnQueue
 import java.nio.file.Files
 import java.nio.file.Paths
 
-fun putMessageOnQueue(client: AmazonSQSAsync, queueUrl: String, crn: String) {
+fun putMessageOnQueue(client: SqsAsyncClient, queueUrl: String, crn: String) {
   val message = calculationMessage(crn)
-  client.sendMessage(queueUrl, message)
+  client.sendMessage(SendMessageRequest.builder().queueUrl(queueUrl).messageBody(message).build()).get()
 }
 
-fun putMessageOnDomainQueue(client: AmazonSQSAsync, queueUrl: String, crn: String) {
+fun putMessageOnDomainQueue(client: SqsAsyncClient, queueUrl: String, crn: String) {
   val message = calculationDomainMessage(crn)
-  client.sendMessage(queueUrl, message)
+  client.sendMessage(SendMessageRequest.builder().queueUrl(queueUrl).messageBody(message).build()).get()
 }
 
-fun noMessagesCurrentlyOnQueue(client: AmazonSQSAsync, queueUrl: String) {
+fun noMessagesCurrentlyOnQueue(client: SqsAsyncClient, queueUrl: String) {
   await untilCallTo {
-    getNumberOfMessagesCurrentlyOnQueue(
-      client,
-      queueUrl,
-    )
+    client.countMessagesOnQueue(queueUrl).get()
   } matches { it == 0 }
 }
 
-fun oneMessageCurrentlyOnQueue(client: AmazonSQSAsync, queueUrl: String) {
+fun oneMessageCurrentlyOnQueue(client: SqsAsyncClient, queueUrl: String) {
   await untilCallTo {
-    getNumberOfMessagesCurrentlyOnQueue(
-      client,
-      queueUrl,
-    )
+    client.countMessagesOnQueue(queueUrl).get()
   } matches { it == 1 }
 }
 
-fun oneMessageCurrentlyOnDeadletterQueue(client: AmazonSQS, queueUrl: String) {
+fun oneMessageCurrentlyOnDeadletterQueue(client: SqsAsyncClient, queueUrl: String) {
   await untilCallTo {
-    getNumberOfMessagesCurrentlyOnDeadLetterQueue(
-      client,
-      queueUrl,
-    )
+    client.countMessagesOnQueue(queueUrl).get()
   } matches { it == 1 }
 }
 
-fun noMessagesCurrentlyOnDeadletterQueue(client: AmazonSQS, queueUrl: String) {
+fun noMessagesCurrentlyOnDeadletterQueue(client: SqsAsyncClient, queueUrl: String) {
   await untilCallTo {
-    getNumberOfMessagesCurrentlyOnDeadLetterQueue(
-      client,
-      queueUrl,
-    )
+    client.countMessagesOnQueue(queueUrl).get()
   } matches { it == 0 }
-}
-
-private fun getNumberOfMessagesCurrentlyOnQueue(client: AmazonSQSAsync, queueUrl: String): Int? {
-  val queueAttributes = client.getQueueAttributes(queueUrl, listOf("ApproximateNumberOfMessages"))
-  return queueAttributes.attributes["ApproximateNumberOfMessages"]?.toInt()
-}
-
-private fun getNumberOfMessagesCurrentlyOnDeadLetterQueue(client: AmazonSQS, queueUrl: String): Int? {
-  val queueAttributes = client.getQueueAttributes(queueUrl, listOf("ApproximateNumberOfMessages"))
-  return queueAttributes.attributes["ApproximateNumberOfMessages"]?.toInt()
 }
 
 private fun calculationMessage(crn: String): String {
