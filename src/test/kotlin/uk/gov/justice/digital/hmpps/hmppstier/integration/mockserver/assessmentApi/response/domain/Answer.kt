@@ -1,4 +1,8 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain
 
-class Answer {
+data class Answer(
+  val questionCode: String,
+  val questionText: String,
+  val answerCode: String,
+) {
 }

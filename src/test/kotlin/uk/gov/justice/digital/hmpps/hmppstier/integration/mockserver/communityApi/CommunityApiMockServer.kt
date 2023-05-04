@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityAp
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.convictionsResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.deliusAssessmentResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.NSI
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Sentence
@@ -115,6 +116,13 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     )
   }
 
+  fun getRegistrations(crn: String, registrations: List<Registration>) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations").withQueryStringParameter("activeOnly", "true")
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse(*registrations.toTypedArray())),
+    )
+  }
+
   fun getMappaRegistration(crn: String, level: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations").withQueryStringParameter("activeOnly", "true")
 
@@ -176,10 +184,18 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
   }
 
   fun getEmptyNsiResponse(crn: String) {
-    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/2500222290/nsis").withQueryStringParameter("nsiCodes", "BRE,BRES,REC,RECS")
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/nsis").withQueryStringParameter("nsiCodes", "BRE,BRES,REC,RECS")
 
     communityApi.`when`(request, Times.exactly(1)).respond(
       HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(nsisResponse()),
+    )
+  }
+
+  fun getNsi(crn: String, convictionId: String, nsi: NSI) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/$convictionId/nsis").withQueryStringParameter("nsiCodes", "BRE,BRES,REC,RECS")
+
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(nsisResponse(nsi)),
     )
   }
 
@@ -212,13 +228,6 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
 
     communityApi.`when`(request, Times.exactly(2)).respond(
       HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(offenderResponse("Female", "A1")),
-    )
-  }
-
-  fun getNotFoundOffenderResponse(crn: String) {
-    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/all")
-    communityApi.`when`(request, Times.exactly(2)).respond(
-      HttpResponse.notFoundResponse(),
     )
   }
 
@@ -274,6 +283,17 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
 
     communityApi.`when`(request, Times.exactly(1)).respond(
       HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementsResponse(Requirement(additionalMainTypeCode = "7", additionalSubTypeCode = "AR42"))),
+    )
+  }
+
+  fun getRequirements(crn: String, requirements: List<Requirement>) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/\\d+/requirements").withQueryStringParameters(
+      Parameter("activeOnly", "true"),
+      Parameter("excludeSoftDeleted", "true"),
+    )
+
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementsResponse(*requirements.toTypedArray())),
     )
   }
 }
