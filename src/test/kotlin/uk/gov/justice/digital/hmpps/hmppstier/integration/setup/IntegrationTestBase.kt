@@ -1,8 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 
-import com.amazonaws.services.sqs.AmazonSQS
-import com.amazonaws.services.sqs.AmazonSQSAsync
-import com.amazonaws.services.sqs.model.PurgeQueueRequest
 import com.fasterxml.jackson.databind.ObjectMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
@@ -14,6 +11,8 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
+import software.amazon.awssdk.services.sqs.model.PurgeQueueRequest
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest
 import uk.gov.justice.digital.hmpps.hmppstier.controller.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension.Companion.assessmentApi
@@ -49,15 +48,15 @@ abstract class IntegrationTestBase {
   protected lateinit var hmppsQueueService: HmppsQueueService
 
   private val offenderEventsQueue by lazy { hmppsQueueService.findByQueueId("hmppsoffenderqueue") ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found") }
-  private val offenderEventsDlqClient by lazy { offenderEventsQueue.sqsDlqClient as AmazonSQS }
-  private val offenderEventsClient by lazy { offenderEventsQueue.sqsClient as AmazonSQSAsync }
+  private val offenderEventsDlqClient by lazy { offenderEventsQueue.sqsDlqClient }
+  private val offenderEventsClient by lazy { offenderEventsQueue.sqsClient }
 
   private val domainEventQueue by lazy { hmppsQueueService.findByQueueId("hmppsdomaineventsqueue") ?: throw MissingQueueException("HmppsQueue hmppsdomaineventsqueue not found") }
-  private val domainEventQueueDlqClient by lazy { domainEventQueue.sqsDlqClient as AmazonSQS }
-  private val domainEventQueueClient by lazy { domainEventQueue.sqsClient as AmazonSQSAsync }
+  private val domainEventQueueDlqClient by lazy { domainEventQueue.sqsDlqClient }
+  private val domainEventQueueClient by lazy { domainEventQueue.sqsClient }
 
   private val calculationCompleteQueue by lazy { hmppsQueueService.findByQueueId("hmppscalculationcompletequeue") ?: throw MissingQueueException("HmppsQueue hmppscalculationcompletequeue not found") }
-  private val calculationCompleteClient by lazy { calculationCompleteQueue.sqsClient as AmazonSQSAsync }
+  private val calculationCompleteClient by lazy { calculationCompleteQueue.sqsClient }
 
   @Autowired
   internal lateinit var jwtHelper: JwtAuthHelper
@@ -67,11 +66,11 @@ abstract class IntegrationTestBase {
 
   @BeforeEach
   fun `purge Queues`() {
-    offenderEventsClient.purgeQueue(PurgeQueueRequest(offenderEventsQueue.queueUrl))
-    calculationCompleteClient.purgeQueue(PurgeQueueRequest(calculationCompleteQueue.queueUrl))
-    offenderEventsDlqClient.purgeQueue(PurgeQueueRequest(offenderEventsQueue.dlqUrl))
-    domainEventQueueClient.purgeQueue(PurgeQueueRequest(domainEventQueue.queueUrl))
-    domainEventQueueDlqClient.purgeQueue(PurgeQueueRequest(domainEventQueue.dlqUrl))
+    offenderEventsClient.purgeQueue(PurgeQueueRequest.builder().queueUrl(offenderEventsQueue.queueUrl).build()).get()
+    calculationCompleteClient.purgeQueue(PurgeQueueRequest.builder().queueUrl(calculationCompleteQueue.queueUrl).build()).get()
+    offenderEventsDlqClient!!.purgeQueue(PurgeQueueRequest.builder().queueUrl(offenderEventsQueue.dlqUrl).build()).get()
+    domainEventQueueClient.purgeQueue(PurgeQueueRequest.builder().queueUrl(domainEventQueue.queueUrl).build()).get()
+    domainEventQueueDlqClient!!.purgeQueue(PurgeQueueRequest.builder().queueUrl(domainEventQueue.dlqUrl).build()).get()
     tierCalculationRepository.deleteAll()
   }
 
@@ -110,11 +109,11 @@ abstract class IntegrationTestBase {
   fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl, crn)
   fun calculateTierForDomainEvent(crn: String) = putMessageOnDomainQueue(domainEventQueueClient, domainEventQueue.queueUrl, crn)
 
-  fun expectTierCalculationToHaveFailed() = oneMessageCurrentlyOnDeadletterQueue(offenderEventsDlqClient, offenderEventsQueue.dlqUrl!!)
+  fun expectTierCalculationToHaveFailed() = oneMessageCurrentlyOnDeadletterQueue(offenderEventsDlqClient!!, offenderEventsQueue.dlqUrl!!)
 
   fun expectNoMessagesOnQueueOrDeadLetterQueue() {
     noMessagesCurrentlyOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl)
-    noMessagesCurrentlyOnDeadletterQueue(offenderEventsDlqClient, offenderEventsQueue.dlqUrl!!)
+    noMessagesCurrentlyOnDeadletterQueue(offenderEventsDlqClient!!, offenderEventsQueue.dlqUrl!!)
   }
   fun expectNoUpdatedTierCalculation() {
     // calculation succeeded but is unchanged, so no calculation complete events and message is not returned to the event queue
@@ -170,8 +169,8 @@ abstract class IntegrationTestBase {
       .isNotFound
 
   private fun tierChangeEvent(): TierChangeEvent {
-    val message = calculationCompleteClient.receiveMessage(calculationCompleteQueue.queueUrl)
-    val sqsMessage: SQSMessage = objectMapper.readValue(message.messages[0].body, SQSMessage::class.java)
+    val message = calculationCompleteClient.receiveMessage(ReceiveMessageRequest.builder().queueUrl(calculationCompleteQueue.queueUrl).build()).get()
+    val sqsMessage: SQSMessage = objectMapper.readValue(message.messages()[0].body(), SQSMessage::class.java)
     return objectMapper.readValue(sqsMessage.message, TierChangeEvent::class.java)
   }
 

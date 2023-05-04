@@ -1,11 +1,12 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.bdd
 
-import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.cucumber.java8.En
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
+import software.amazon.awssdk.services.sqs.SqsAsyncClient
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest
 import uk.gov.justice.digital.hmpps.hmppstier.controller.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.oneMessageCurrentlyOnQueue
@@ -22,7 +23,7 @@ class ThenSteps : En {
 
   @Qualifier("hmppscalculationcompletequeue-sqs-client")
   @Autowired
-  lateinit var calculationCompleteClient: AmazonSQSAsync
+  lateinit var calculationCompleteClient: SqsAsyncClient
 
   private val calculationCompleteUrl by lazy { hmppsQueueService.findByQueueId("hmppscalculationcompletequeue")?.queueUrl ?: throw MissingQueueException("HmppsQueue tiercalculationqueue not found") }
 
@@ -71,8 +72,8 @@ class ThenSteps : En {
 
   private fun getTier(): TierCalculationEntity {
     oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteUrl)
-    val message = calculationCompleteClient.receiveMessage(calculationCompleteUrl)
-    val sqsMessage: SQSMessage = objectMapper.readValue(message.messages[0].body, SQSMessage::class.java)
+    val message = calculationCompleteClient.receiveMessage(ReceiveMessageRequest.builder().queueUrl(calculationCompleteUrl).build()).get()
+    val sqsMessage: SQSMessage = objectMapper.readValue(message.messages()[0].body(), SQSMessage::class.java)
     val changeEvent: TierChangeEvent = objectMapper.readValue(sqsMessage.message, TierChangeEvent::class.java)
 
     return tierCalculationRepository.findByCrnAndUuid(changeEvent.crn(), changeEvent.calculationId())!!

@@ -1,8 +1,6 @@
 spring:
   config:
     use-legacy-processing: true
-  profiles:
-    include: stdout
   security:
     oauth2:
       resourceserver:
