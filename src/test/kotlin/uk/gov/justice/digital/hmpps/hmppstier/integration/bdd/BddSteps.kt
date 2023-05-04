@@ -17,8 +17,10 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.MEDIUM
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Need
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Requirement
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.hmppsAuth.HmppsAuthApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnQueue
@@ -106,6 +108,7 @@ class BddSteps : En {
       additionalFactor.split(",").forEach { typeCode ->
         setupData.addRegistration(Registration(typeCode = typeCode))
       }
+      setupData.setValidAssessment()
     }
     Given("an offender is {string}") { gender: String ->
       setupData.setGender(gender)
@@ -234,10 +237,10 @@ class BddSteps : En {
       // do nothing
     }
     Given("an offender with a current sentence of type {string}") { sentenceType: String ->
-      setupData.setSentenceType(sentenceType)
+      setupData.addConviction(Conviction(convictionId.toLong(), sentence = Sentence(sentenceCode = sentenceType)))
     }
     Given("an offender with a current non-custodial sentence") {
-      setupData.setSentenceType("SP")
+      setupData.addConviction(Conviction(convictionId.toLong(), sentence = Sentence(sentenceCode = "SP")))
     }
 
     And("unpaid work") {
@@ -269,21 +272,24 @@ class BddSteps : En {
       setupData.setNsiOutcome(outcome, convictionId)
     }
     And("has two active convictions with NSI Outcome codes {string} and {string}") { outcome1: String, outcome2: String ->
-      setupData.setTwoActiveConvictions()
+      setupData.addConviction(Conviction(convictionId.toLong()))
+      setupData.addConviction(Conviction(secondConvictionId.toLong(), convictionDate = LocalDate.of(2021, 1, 12), sentence = Sentence(sentenceCode = "SP")))
+
       setupData.setNsiOutcome(outcome1, convictionId)
       setupData.setNsiOutcome(outcome2, secondConvictionId)
     }
     And("has two active convictions with NSI Outcome code {string}") { outcome: String ->
       setupData.setNsiOutcome(outcome, convictionId)
       setupData.setNsiOutcome(outcome, secondConvictionId)
-      setupData.setTwoActiveConvictions()
+      setupData.addConviction(Conviction(convictionId.toLong()))
+      setupData.addConviction(Conviction(secondConvictionId.toLong(), convictionDate = LocalDate.of(2021, 1, 12), sentence = Sentence(sentenceCode = "SP")))
     }
     And("has a conviction terminated 365 days ago with NSI Outcome code {string}") { outcome: String ->
-      setupData.setConvictionTerminatedDate(LocalDate.now().minusYears(1))
+      setupData.addConviction(Conviction(convictionId.toLong(), sentence = Sentence(terminationDate = LocalDate.now().minusYears(1))))
       setupData.setNsiOutcome(outcome, convictionId)
     }
     And("has a conviction terminated 366 days ago with NSI Outcome code {string}") { outcome: String ->
-      setupData.setConvictionTerminatedDate(LocalDate.now().minusYears(1).minusDays(1))
+      setupData.addConviction(Conviction(convictionId.toLong(), sentence = Sentence(terminationDate = LocalDate.now().minusYears(1).minusDays(1))))
       setupData.setNsiOutcome(outcome, convictionId)
     }
     And("no ROSH score") {
@@ -291,15 +297,6 @@ class BddSteps : En {
     }
     And("no RSR score") {
       setupData.setRsr("0")
-    }
-    And("has a custodial sentence") {
-      // Do nothing
-    }
-    And("has a sentence length of {long} months") { months: Long ->
-      setupData.setSentenceLength(months)
-    }
-    And("has an indeterminate sentence length") {
-      setupData.setSentenceLengthIndeterminate()
     }
 
     When("a tier is calculated") {

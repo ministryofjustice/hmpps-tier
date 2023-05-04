@@ -109,10 +109,11 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     )
   }
 
-  fun getOneInactiveCommunityConviction(crn: String) {
+
+  fun getConvictions(crn: String, convictions: List<Conviction>) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionsResponse(Conviction(id = 2500409583, active = false, sentence = Sentence(sentenceCode = "SP", terminationDate = LocalDate.now().minusDays(1))))),
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionsResponse(*convictions.toTypedArray())),
     )
   }
 

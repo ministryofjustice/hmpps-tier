@@ -8,9 +8,11 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentA
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Assessment
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Need
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.NSI
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Requirement
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
@@ -23,9 +25,9 @@ class SetupData(
   private var assessmentDate: LocalDateTime = LocalDateTime.now()
   private var sentenceType: String = "NC"
   var crn: String = ids["crn"]!!
+  var convictionId: String = ids["convictionId"]!!
   var assessmentId: Long = ids["assessmentId"]!!.toLong()
   private var sentenceLengthIndeterminate: Boolean = false
-  private var sentenceLength: Long = 1
   private var hasValidAssessment: Boolean = false
   private var convictionTerminatedDate: LocalDate? = null
   private var activeConvictions: Int = 1
@@ -35,6 +37,7 @@ class SetupData(
   private var ogrs: String = "0"
   private var registrations: MutableList<Registration> = mutableListOf()
   private var requirements: MutableList<Requirement> = mutableListOf()
+  private var convictions: MutableList<Conviction> = mutableListOf()
   private var rsr: String = "0"
   private var assessmentAnswers: MutableMap<String, Answer> = mutableMapOf(
     IMPULSIVITY.answerCode to Answer(IMPULSIVITY.answerCode, "Impulsivity", "0"),
@@ -52,6 +55,10 @@ class SetupData(
 
   fun addRequirement(requirement: Requirement) {
     this.requirements.add(requirement)
+  }
+
+  fun addConviction(conviction: Conviction) {
+    this.convictions.add(conviction)
   }
 
   fun setOgrs(ogrs: String) {
@@ -72,14 +79,6 @@ class SetupData(
     this.outcomes[conviction] = outcome
   }
 
-  fun setTwoActiveConvictions() {
-    this.activeConvictions = 2
-  }
-
-  fun setConvictionTerminatedDate(convictionTerminated: LocalDate) {
-    this.convictionTerminatedDate = convictionTerminated
-  }
-
   fun setValidAssessment() {
     this.hasValidAssessment = true
   }
@@ -87,18 +86,6 @@ class SetupData(
   fun setAssessmentAnswer(question: String, answer: String) {
     setValidAssessment()
     this.assessmentAnswers[question] = Answer(question, this.assessmentAnswers[question]!!.questionText, answer)
-  }
-
-  fun setSentenceLength(months: Long) {
-    this.sentenceLength = months
-  }
-
-  fun setSentenceLengthIndeterminate() {
-    this.sentenceLengthIndeterminate = true
-  }
-
-  fun setSentenceType(sentenceType: String) {
-    this.sentenceType = sentenceType
   }
 
   fun setAssessmentDate(date: LocalDateTime) {
@@ -110,7 +97,10 @@ class SetupData(
     tierToDeliusApi.getFullDetails(crn, TierDetails(gender, "UD0", ogrs, rsr))
     communityApi.getRegistrations(crn, registrations)
     assessmentsApi()
-    convictionsResponse()
+    if(convictions.isEmpty()) {
+      addConviction(Conviction(convictionId.toLong(), sentence = Sentence(sentenceCode = "SP")))
+    }
+    communityApi.getConvictions(crn, convictions)
     communityApi.getRequirements(crn, requirements)
 
     when (gender) {
@@ -134,16 +124,6 @@ class SetupData(
       communityApi.getEmptyNsiResponse(crn)
     }
   }
-
-  private fun convictionsResponse() =
-    when {
-      activeConvictions == 2 -> communityApi.getOneActiveCustodialAndOneActiveCommunityConviction(crn)
-      null != convictionTerminatedDate -> communityApi.getOneInactiveCustodialConviction(crn)
-      sentenceLengthIndeterminate -> communityApi.getCustodialNCSentenceConviction(crn)
-      sentenceType == "SC" -> communityApi.getCustodialSCSentenceConviction(crn)
-      sentenceType == "NC" -> communityApi.getCustodialNCSentenceConviction(crn)
-      else -> communityApi.getCommunitySentenceConviction(crn)
-    }
 
   private fun assessmentsApi() {
     if (hasValidAssessment) {
