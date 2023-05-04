@@ -98,7 +98,7 @@ class SetupData(
     communityApi.getRegistrations(crn, registrations)
     assessmentsApi()
     if(convictions.isEmpty()) {
-      addConviction(Conviction(convictionId.toLong(), sentence = Sentence(sentenceCode = "SP")))
+      addConviction(Conviction(convictionId.toLong(), sentence = Sentence(sentenceCode = "NC")))
     }
     communityApi.getConvictions(crn, convictions)
     communityApi.getRequirements(crn, requirements)

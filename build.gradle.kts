@@ -72,7 +72,6 @@ dependencies {
   testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
-  testImplementation("org.junit.platform:junit-platform-suite")
   testImplementation("org.junit.platform:junit-platform-console:1.9.3")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
 }
@@ -92,7 +91,6 @@ task("cucumber") {
   doLast {
     javaexec {
       mainClass.set("io.cucumber.core.cli.Main")
-
       classpath = sourceSets["test"].runtimeClasspath
       val jacocoAgent = zipTree(configurations.jacocoAgent.get().singleFile)
         .filter { it.name == "jacocoagent.jar" }
