@@ -51,7 +51,7 @@ class TierToDeliusApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
   fun getFullDetails(crn: String, tierDetails: TierDetails) {
     val request = HttpRequest.request().withPath("/tier-details/$crn")
     TierToDeliusApiExtension.tierToDeliusApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(tierDetailsResponse(tierDetails))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(tierDetailsResponse(tierDetails)),
     )
   }
 

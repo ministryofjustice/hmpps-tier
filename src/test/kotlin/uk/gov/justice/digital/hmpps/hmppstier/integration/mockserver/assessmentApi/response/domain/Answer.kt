@@ -4,5 +4,4 @@ data class Answer(
   val questionCode: String,
   val questionText: String,
   val answerCode: String,
-) {
-}
+)

@@ -4,8 +4,6 @@ import com.amazonaws.services.sqs.AmazonSQSAsync
 import com.amazonaws.services.sqs.model.PurgeQueueRequest
 import io.cucumber.java8.En
 import io.cucumber.java8.Scenario
-import org.junit.jupiter.api.AfterAll
-import org.junit.jupiter.api.BeforeAll
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
@@ -14,15 +12,11 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M3
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.HIGH
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.MEDIUM
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Need
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Sentence
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.hmppsAuth.HmppsAuthApiExtension
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnQueue
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
@@ -54,12 +48,9 @@ class BddSteps : En {
   private lateinit var convictionId: String
   private lateinit var secondConvictionId: String
 
-
   private fun String.capitalize(): String {
     return replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
   }
-
-
 
   init {
 
@@ -83,7 +74,6 @@ class BddSteps : En {
       )
     }
 
-
     Given("an RSR score of {string}") { rsr: String ->
       setupData.setRsr(rsr)
     }
@@ -95,7 +85,6 @@ class BddSteps : En {
           "NO_ROSH"
         }
       setupData.addRegistration(Registration(typeCode = roshCode))
-
     }
     Given("an active MAPPA registration of M Level {string}") { mappa: String ->
       val mappaCode = Mappa.from("M$mappa", "MAPP")?.registerCode
@@ -121,12 +110,13 @@ class BddSteps : En {
     }
     Given("an offender scores 21 change points") {
       setupData.setOgrs("90") // 9 points
-      setupData.setNeeds(Need("Accomodation", "ACCOMMODATION", "SEVERE"),
+      setupData.setNeeds(
+        Need("Accomodation", "ACCOMMODATION", "SEVERE"),
         Need("Education Training and Employability", "EDUCATION_TRAINING_AND_EMPLOYABILITY", "SEVERE"),
         Need("Relationships", "RELATIONSHIPS", "SEVERE"),
         Need("Lifestyle and Associates", "LIFESTYLE_AND_ASSOCIATES", "SEVERE"),
         Need("Drug Misuse", "DRUG_MISUSE", "SEVERE"),
-        Need("Alcohol Misuse", "ALCOHOL_MISUSE", "SEVERE")
+        Need("Alcohol Misuse", "ALCOHOL_MISUSE", "SEVERE"),
       ) // 12 points
     }
     Given("an offender scores 20 change points") {
@@ -159,7 +149,7 @@ class BddSteps : En {
         Need("Education Training and Employability", "EDUCATION_TRAINING_AND_EMPLOYABILITY", "SEVERE"),
         Need("Relationships", "RELATIONSHIPS", "SEVERE"),
         Need("Lifestyle and Associates", "LIFESTYLE_AND_ASSOCIATES", "SEVERE"),
-        Need("Drug Misuse", "DRUG_MISUSE", "SEVERE")
+        Need("Drug Misuse", "DRUG_MISUSE", "SEVERE"),
       ) // 10 points
     }
     Given("an offender scores 9 change points") {
@@ -168,7 +158,7 @@ class BddSteps : En {
         Need("Education Training and Employability", "EDUCATION_TRAINING_AND_EMPLOYABILITY", "SEVERE"),
         Need("Relationships", "RELATIONSHIPS", "SEVERE"),
         Need("Lifestyle and Associates", "LIFESTYLE_AND_ASSOCIATES", "SEVERE"),
-        Need("Drug Misuse", "DRUG_MISUSE", "STANDARD")
+        Need("Drug Misuse", "DRUG_MISUSE", "STANDARD"),
       ) // 9 points
     }
     Given("an offender scores 31 protect points") {

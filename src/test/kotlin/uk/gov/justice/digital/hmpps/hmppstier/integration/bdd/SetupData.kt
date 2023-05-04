@@ -13,14 +13,13 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityAp
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Sentence
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 class SetupData(
-  ids: Map<String, String>
+  ids: Map<String, String>,
 ) {
   private var assessmentDate: LocalDateTime = LocalDateTime.now()
   private var sentenceType: String = "NC"
@@ -97,7 +96,7 @@ class SetupData(
     tierToDeliusApi.getFullDetails(crn, TierDetails(gender, "UD0", ogrs, rsr))
     communityApi.getRegistrations(crn, registrations)
     assessmentsApi()
-    if(convictions.isEmpty()) {
+    if (convictions.isEmpty()) {
       addConviction(Conviction(convictionId.toLong(), sentence = Sentence(sentenceCode = "NC")))
     }
     communityApi.getConvictions(crn, convictions)
@@ -127,17 +126,15 @@ class SetupData(
 
   private fun assessmentsApi() {
     if (hasValidAssessment) {
-      assessmentApi.getAssessment(crn, Assessment(assessmentDate,assessmentId, "COMPLETE"))
+      assessmentApi.getAssessment(crn, Assessment(assessmentDate, assessmentId, "COMPLETE"))
 
       if (gender == "Female") {
         assessmentApi.getAnswers(assessmentId, assessmentAnswers.values)
       }
-        when {
-          needs.any() -> assessmentApi.getNeeds(assessmentId, needs)
-          else ->  assessmentApi.getNoSeverityNeeds(assessmentId)
-        }
+      when {
+        needs.any() -> assessmentApi.getNeeds(assessmentId, needs)
+        else -> assessmentApi.getNoSeverityNeeds(assessmentId)
+      }
     }
   }
-
 }
-

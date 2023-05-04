@@ -109,7 +109,6 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     )
   }
 
-
   fun getConvictions(crn: String, convictions: List<Conviction>) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions").withQueryStringParameter("activeOnly", "true")
     communityApi.`when`(request, Times.exactly(1)).respond(

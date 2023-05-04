@@ -44,7 +44,7 @@ class AssessmentApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     private const val MOCKSERVER_PORT = 8092
   }
 
-  fun getNeeds(assessmentId: Long, needs:List<Need>) {
+  fun getNeeds(assessmentId: Long, needs: List<Need>) {
     val request = HttpRequest.request().withPath("/assessments/oasysSetId/$assessmentId/needs")
     assessmentApi.`when`(request, Times.exactly(1)).respond(
       HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(needsResponse(*needs.toTypedArray())),
@@ -84,7 +84,7 @@ class AssessmentApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
   fun getAnswers(assessmentId: Long, answers: Collection<Answer>) {
     val request = HttpRequest.request().withPath("/assessments/oasysSetId/$assessmentId/answers")
     assessmentApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody( answersResponse(assessmentId, *answers.toTypedArray()))
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(answersResponse(assessmentId, *answers.toTypedArray())),
     )
   }
 
@@ -103,7 +103,6 @@ class AssessmentApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
       ),
     )
   }
-
 
   fun getAssessment(crn: String, assessment: Assessment) {
     val request = HttpRequest.request().withPath("/offenders/crn/$crn/assessments/summary")

@@ -10,7 +10,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityAp
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.hmppsAuth.HmppsAuthApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension
 
-class MockServerPlugin: EventListener {
+class MockServerPlugin : EventListener {
 
   private var tierToDeliusApiExtension: TierToDeliusApiExtension = TierToDeliusApiExtension()
   private var hmppsAuthApiExtension: HmppsAuthApiExtension = HmppsAuthApiExtension()
@@ -18,8 +18,8 @@ class MockServerPlugin: EventListener {
   private var assessmentApiExtension: AssessmentApiExtension = AssessmentApiExtension()
 
   override fun setEventPublisher(publisher: EventPublisher?) {
-    publisher!!.registerHandlerFor(TestRunStarted::class.java,this::testRunStarted)
-    publisher.registerHandlerFor(TestRunFinished::class.java,this::testRunFinished)
+    publisher!!.registerHandlerFor(TestRunStarted::class.java, this::testRunStarted)
+    publisher.registerHandlerFor(TestRunFinished::class.java, this::testRunFinished)
     publisher.registerHandlerFor(TestCaseStarted::class.java, this::testCaseStarted)
   }
 
