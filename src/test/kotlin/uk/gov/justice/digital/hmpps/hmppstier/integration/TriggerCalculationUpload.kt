@@ -6,8 +6,10 @@ import org.springframework.http.MediaType.MULTIPART_FORM_DATA
 import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.digital.hmpps.hmppstier.controller.TriggerCsv
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension.Companion.assessmentApi
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.registrationsResponseWithMappa
 import java.io.File
 
 class TriggerCalculationUpload : IntegrationTestBase() {
@@ -15,12 +17,12 @@ class TriggerCalculationUpload : IntegrationTestBase() {
   @Test
   fun `trigger a tier calculation from upload`() {
     val crn = "X546739"
-    setupTierToDeliusFull(crn)
+    tierToDeliusApi.getFullDetails(crn)
 
-    setupSCCustodialSentence(crn)
-    setupRegistrations(registrationsResponseWithMappa(), crn)
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890")
-    setupOutdatedAssessment(crn, "1234567890")
+    communityApi.getCustodialSCSentenceConviction(crn)
+    communityApi.getMappaRegistration(crn, "M2")
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
+    assessmentApi.getOutdatedAssessment(crn, 1234567890)
 
     webTestClient.post()
       .uri("/crn/upload")
@@ -35,12 +37,12 @@ class TriggerCalculationUpload : IntegrationTestBase() {
   @Test
   fun `do not trigger a calculation for blank rows`() {
     val crn = "X546739"
-    setupTierToDeliusFull(crn)
+    tierToDeliusApi.getFullDetails(crn)
 
-    setupSCCustodialSentence(crn)
-    setupRegistrations(registrationsResponseWithMappa(), crn)
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890")
-    setupOutdatedAssessment(crn, "1234567890")
+    communityApi.getCustodialSCSentenceConviction(crn)
+    communityApi.getMappaRegistration(crn, "M2")
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
+    assessmentApi.getOutdatedAssessment(crn, 1234567890)
 
     webTestClient.post()
       .uri("/crn/upload")
@@ -57,20 +59,20 @@ class TriggerCalculationUpload : IntegrationTestBase() {
   @Test
   fun `must not write back if tier is unchanged`() {
     val crn = "X432769"
-    setupTierToDeliusFull(crn)
+    tierToDeliusApi.getFullDetails(crn)
 
-    setupSCCustodialSentence(crn)
-    setupRegistrations(registrationsResponseWithMappa(), crn)
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890")
-    setupOutdatedAssessment(crn, "1234567890")
+    communityApi.getCustodialSCSentenceConviction(crn)
+    communityApi.getMappaRegistration(crn, "M2")
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
+    assessmentApi.getOutdatedAssessment(crn, 1234567890)
 
     calculateTierFor(crn)
     expectTierChangedById("A2")
 
-    setupSCCustodialSentence(crn)
-    setupRegistrations(registrationsResponseWithMappa(), crn)
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, "4234568890", "A2")
-    setupOutdatedAssessment(crn, "1234567890")
+    communityApi.getCustodialSCSentenceConviction(crn)
+    communityApi.getMappaRegistration(crn, "M2")
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890, "A2")
+    assessmentApi.getOutdatedAssessment(crn, 1234567890)
 
     webTestClient.post()
       .uri("/crn/upload")
