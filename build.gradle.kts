@@ -86,27 +86,21 @@ detekt {
   buildUponDefaultConfig = true
 }
 
-tasks.register("cucumber", Test::class) {
-  useJUnitPlatform {
-    include("**/RunCucumberTest*")
-  }
+task("cucumber") {
+  dependsOn("assemble", "testClasses")
   finalizedBy("jacocoTestCoverageVerification")
-}
+  doLast {
+    javaexec {
+      mainClass.set("io.cucumber.core.cli.Main")
 
-// task("cucumber") {
-//   dependsOn("assemble", "testClasses")
-//   finalizedBy("jacocoTestCoverageVerification")
-//   doLast {
-//     javaexec {
-//       mainClass.set("io.cucumber.core.cli.Main")
-//       classpath = sourceSets["test"].runtimeClasspath
-//       val jacocoAgent = zipTree(configurations.jacocoAgent.get().singleFile)
-//         .filter { it.name == "jacocoagent.jar" }
-//         .singleFile
-//       jvmArgs = listOf("-javaagent:$jacocoAgent=destfile=$buildDir/jacoco/cucumber.exec,append=false")
-//     }
-//   }
-// }
+      classpath = sourceSets["test"].runtimeClasspath
+      val jacocoAgent = zipTree(configurations.jacocoAgent.get().singleFile)
+        .filter { it.name == "jacocoagent.jar" }
+        .singleFile
+      jvmArgs = listOf("-javaagent:$jacocoAgent=destfile=$buildDir/jacoco/cucumber.exec,append=false")
+    }
+  }
+}
 
 tasks {
 
@@ -162,7 +156,7 @@ tasks {
   }
 
   getByName<Test>("test") {
-    exclude("**/RunCucumberTest*")
+    exclude("**/CucumberRunnerTest*")
   }
 
   compileKotlin {
