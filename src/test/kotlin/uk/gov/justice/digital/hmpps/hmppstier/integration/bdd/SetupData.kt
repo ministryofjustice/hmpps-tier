@@ -15,21 +15,16 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityAp
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 class SetupData(
   ids: Map<String, String>,
 ) {
   private var assessmentDate: LocalDateTime = LocalDateTime.now()
-  private var sentenceType: String = "NC"
   var crn: String = ids["crn"]!!
   var convictionId: String = ids["convictionId"]!!
   var assessmentId: Long = ids["assessmentId"]!!.toLong()
-  private var sentenceLengthIndeterminate: Boolean = false
   private var hasValidAssessment: Boolean = false
-  private var convictionTerminatedDate: LocalDate? = null
-  private var activeConvictions: Int = 1
   private var outcomes: MutableMap<String, String> = mutableMapOf()
   private var gender: String = "Male"
   private var needs: MutableList<Need> = mutableListOf()

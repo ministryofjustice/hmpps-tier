@@ -5,9 +5,13 @@ import java.time.format.DateTimeFormatter
 
 fun registrationResponse(vararg registrations: Registration) = """
   {
-    "registrations": [
+    ${registrations.takeUnless { it.isEmpty() }?.let {
+  """
+        "registrations": [
       ${registrations.joinToString(",") { getRegistration(it) }}
     ]
+  """.trimIndent()
+} ?: ""} 
   }
 """.trimIndent()
 
