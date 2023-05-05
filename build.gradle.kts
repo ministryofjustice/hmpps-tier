@@ -37,7 +37,7 @@ dependencies {
   runtimeOnly("com.zaxxer:HikariCP")
   runtimeOnly("org.flywaydb:flyway-core")
 
-  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.0.4")
+  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.1.0")
 
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
