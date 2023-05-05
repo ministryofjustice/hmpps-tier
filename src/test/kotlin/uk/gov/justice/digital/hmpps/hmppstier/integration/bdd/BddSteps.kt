@@ -13,10 +13,9 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.HIGH
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.MEDIUM
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Need
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Registration
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Requirement
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Sentence
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnQueue
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
@@ -181,7 +180,7 @@ class BddSteps : En {
       setupData.setAssessmentAnswer("6.9", "YES") // 2
       setupData.addRegistration(Registration(registerLevel = M1.registerCode)) // 5
       setupData.addRegistration(Registration(typeCode = HIGH.registerCode))
-      setupData.addConviction(Conviction(convictionId.toLong(), breached = true))
+      setupData.addConviction(Conviction(breached = true))
       setupData.addRegistration(Registration(typeCode = "RMDO"))
       setupData.addRegistration(Registration(typeCode = "ALSH"))
       setupData.addRegistration(Registration(typeCode = "RVLN"))
@@ -227,21 +226,21 @@ class BddSteps : En {
       // do nothing
     }
     Given("an offender with a current sentence of type {string}") { sentenceType: String ->
-      setupData.addConviction(Conviction(convictionId.toLong(), sentence = Sentence(sentenceCode = sentenceType)))
+      setupData.addConviction(Conviction(sentenceCode = sentenceType))
     }
     Given("an offender with a current non-custodial sentence") {
-      setupData.addConviction(Conviction(convictionId.toLong(), sentence = Sentence(sentenceCode = "SP")))
+      setupData.addConviction(Conviction(sentenceCode = "SP"))
     }
 
     And("unpaid work") {
-      setupData.addRequirement(Requirement(mainTypeCode = "W", subTypeCode = "W01", restrictive = false))
+      setupData.addRequirement(Requirement(mainTypeCode = "W", false))
     }
     And("order extended") {
-      setupData.addRequirement(Requirement(mainTypeCode = "W1", subTypeCode = "W09", restrictive = false))
-      setupData.addRequirement(Requirement(mainTypeCode = "W", subTypeCode = "W03", restrictive = false))
+      setupData.addRequirement(Requirement(mainTypeCode = "W1", false))
+      setupData.addRequirement(Requirement(mainTypeCode = "W", false))
     }
     And("a non restrictive requirement") {
-      setupData.addRequirement(Requirement(mainTypeCode = "F", subTypeCode = "RARREQ", restrictive = false))
+      setupData.addRequirement(Requirement(mainTypeCode = "F", false))
     }
     And("a valid assessment") {
       setupData.setValidAssessment()
@@ -259,22 +258,21 @@ class BddSteps : En {
       setupData.setAssessmentAnswer(question, answer)
     }
     And("has an active conviction with NSI Outcome code {string}") { outcome: String ->
-      setupData.addConviction(Conviction(convictionId.toLong(), breached = true))
+      setupData.addConviction(Conviction(breached = true))
     }
     And("has two active convictions with NSI Outcome codes {string} and {string}") { outcome1: String, outcome2: String ->
-      setupData.addConviction(Conviction(convictionId.toLong(), breached = true))
-      setupData.addConviction(Conviction(secondConvictionId.toLong(), breached = true, convictionDate = LocalDate.of(2021, 1, 12), sentence = Sentence(sentenceCode = "SP")))
-
+      setupData.addConviction(Conviction(breached = true))
+      setupData.addConviction(Conviction(breached = true, sentenceCode = "SP"))
     }
     And("has two active convictions with NSI Outcome code {string}") { outcome: String ->
-      setupData.addConviction(Conviction(convictionId.toLong(), breached = true))
-      setupData.addConviction(Conviction(secondConvictionId.toLong(), breached = true, convictionDate = LocalDate.of(2021, 1, 12), sentence = Sentence(sentenceCode = "SP")))
+      setupData.addConviction(Conviction(breached = true))
+      setupData.addConviction(Conviction(breached = true, sentenceCode = "SP"))
     }
     And("has a conviction terminated 365 days ago with NSI Outcome code {string}") { outcome: String ->
-      setupData.addConviction(Conviction(convictionId.toLong(), breached = true, sentence = Sentence(terminationDate = LocalDate.now().minusYears(1))))
+      setupData.addConviction(Conviction(breached = true, terminationDate = LocalDate.now().minusYears(1)))
     }
     And("has a conviction terminated 366 days ago with NSI Outcome code {string}") { outcome: String ->
-      setupData.addConviction(Conviction(convictionId.toLong(), breached = true, sentence = Sentence(terminationDate = LocalDate.now().minusYears(1).minusDays(1))))
+      setupData.addConviction(Conviction(breached = true, terminationDate = LocalDate.now().minusYears(1).minusDays(1)))
     }
     And("no ROSH score") {
       // Do nothing

@@ -2,12 +2,10 @@ package uk.gov.justice.digital.hmpps.hmppstier.client
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import kotlinx.coroutines.flow.toList
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
-import org.springframework.web.reactive.function.client.bodyToFlow
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -28,26 +26,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .retrieve()
       .awaitBody()
   }
-
-  suspend fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
-    return webClient
-      .get()
-      .uri("/offenders/crn/$crn/convictions/$convictionId/nsis?nsiCodes=BRE,BRES,REC,RECS")
-      .retrieve()
-      .awaitBody<NsiWrapper>().nsis
-  }
-
 }
-
-private data class NsiWrapper @JsonCreator constructor(
-  @JsonProperty("nsis")
-  val nsis: List<Nsi>,
-)
-
-data class Nsi @JsonCreator constructor(
-  @JsonProperty("nsiOutcome")
-  val status: KeyValue?,
-)
 
 data class ConvictionDto @JsonCreator constructor(
   @JsonProperty("convictionId")

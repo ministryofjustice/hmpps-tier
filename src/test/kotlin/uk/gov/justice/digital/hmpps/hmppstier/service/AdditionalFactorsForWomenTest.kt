@@ -12,15 +12,9 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
-import uk.gov.justice.digital.hmpps.hmppstier.client.KeyValue
-import uk.gov.justice.digital.hmpps.hmppstier.client.Nsi
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
-import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import java.time.Clock
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.ZoneOffset
@@ -82,7 +76,7 @@ class AdditionalFactorsForWomenTest {
           AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "Y",
         )
       val result = additionalFactorsForWomen.calculate(
-        
+
         false,
         assessment,
         true,
@@ -102,7 +96,7 @@ class AdditionalFactorsForWomenTest {
           AdditionalFactorForWomen.TEMPER_CONTROL to "1",
         )
       val result = additionalFactorsForWomen.calculate(
-        
+
         false,
         assessment,
         true,
@@ -117,7 +111,7 @@ class AdditionalFactorsForWomenTest {
       val assessment = null
 
       val result = additionalFactorsForWomen.calculate(
-        
+
         false,
         assessment,
         true,
@@ -135,7 +129,7 @@ class AdditionalFactorsForWomenTest {
           AdditionalFactorForWomen.TEMPER_CONTROL to "1",
         )
       val result = additionalFactorsForWomen.calculate(
-        
+
         false,
         assessment,
         true,
@@ -154,7 +148,7 @@ class AdditionalFactorsForWomenTest {
           AdditionalFactorForWomen.TEMPER_CONTROL to "1",
         )
       val result = additionalFactorsForWomen.calculate(
-        
+
         false,
         assessment,
         true,
@@ -173,7 +167,7 @@ class AdditionalFactorsForWomenTest {
           AdditionalFactorForWomen.IMPULSIVITY to "2",
         )
       val result = additionalFactorsForWomen.calculate(
-        
+
         false,
         assessment,
         true,
@@ -192,7 +186,7 @@ class AdditionalFactorsForWomenTest {
           AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to "N",
         )
       val result = additionalFactorsForWomen.calculate(
-        
+
         false,
         assessment,
         true,
@@ -211,7 +205,7 @@ class AdditionalFactorsForWomenTest {
           AdditionalFactorForWomen.IMPULSIVITY to "0",
         )
       val result = additionalFactorsForWomen.calculate(
-        
+
         false,
         assessment,
         true,
@@ -230,7 +224,7 @@ class AdditionalFactorsForWomenTest {
           AdditionalFactorForWomen.TEMPER_CONTROL to "0",
         )
       val result = additionalFactorsForWomen.calculate(
-        
+
         false,
         assessment,
         true,
@@ -248,9 +242,8 @@ class AdditionalFactorsForWomenTest {
 
     @Test
     fun `Should return Breach points if true`() = runBlocking {
-
       val result = additionalFactorsForWomen.calculate(
-        
+
         true,
         null,
         true,
@@ -260,7 +253,6 @@ class AdditionalFactorsForWomenTest {
 
     @Test
     fun `Should return Breach points if false`() = runBlocking {
-
       val result = additionalFactorsForWomen.calculate(
 
         false,
@@ -269,6 +261,5 @@ class AdditionalFactorsForWomenTest {
       )
       assertThat(result).isEqualTo(0)
     }
-
   }
 }

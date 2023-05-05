@@ -1,7 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response
 
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Requirement
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import java.time.format.DateTimeFormatter
 
@@ -27,8 +27,8 @@ fun tierDetailsResponse(tierDetails: TierDetails) = """
 
 fun getConviction(conviction: Conviction) = """
   {
-      ${conviction.sentence!!.terminationDate?.let { """ "terminationDate": "${it.format(DateTimeFormatter.ISO_DATE)}", """.trimIndent() } ?: ""}
-      "sentenceTypeCode": "${conviction.sentence.sentenceCode}",
+      ${conviction.terminationDate?.let { """ "terminationDate": "${it.format(DateTimeFormatter.ISO_DATE)}", """.trimIndent() } ?: ""}
+      "sentenceTypeCode": "${conviction.sentenceCode}",
       "sentenceTypeDescription": "Description",
       "breached": ${conviction.breached},
       "requirements": [

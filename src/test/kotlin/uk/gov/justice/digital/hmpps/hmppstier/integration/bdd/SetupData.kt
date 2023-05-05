@@ -8,11 +8,10 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentA
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Assessment
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Need
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Registration
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Requirement
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import java.time.LocalDateTime
 
@@ -46,7 +45,7 @@ class SetupData(
   }
 
   fun addRequirement(requirement: Requirement) {
-    this.requirements.add(requirement)
+    this.convictions[0].requirements.add(requirement)
   }
 
   fun addConviction(conviction: Conviction) {
@@ -83,14 +82,11 @@ class SetupData(
 
   fun prepareResponses() {
     if (convictions.isEmpty()) {
-      addConviction(Conviction(convictionId.toLong(), sentence = Sentence(sentenceCode = "NC")))
+      addConviction(Conviction())
     }
     tierToDeliusApi.getFullDetails(crn, TierDetails(gender, "UD0", ogrs, rsr, convictions))
     communityApi.getRegistrations(crn, registrations)
     assessmentsApi()
-
-    communityApi.getRequirements(crn, requirements)
-
   }
 
   private fun assessmentsApi() {

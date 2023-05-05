@@ -7,7 +7,6 @@ import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.ZonedDateTime
 
 @Component
 class TierToDeliusApiClient(@Qualifier("tierToDeliusApiClientWebClientAppScope") private val webClient: WebClient) {
@@ -37,7 +36,7 @@ data class DeliusRegistration @JsonCreator constructor(
 )
 
 data class DeliusConviction @JsonCreator constructor(
-  val terminationDate: ZonedDateTime?,
+  val terminationDate: LocalDate?,
   val sentenceTypeCode: String,
   val sentenceTypeDescription: String,
   val breached: Boolean,

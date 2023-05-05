@@ -3,8 +3,8 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension.Companion.assessmentApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 
@@ -33,11 +33,9 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
   @Test
   fun `uses latest registration - two mappa registrations present`() {
     val crn = "X445599"
-    tierToDeliusApi.getFullDetails(crn, TierDetails(convictions = listOf(Conviction())))
+    tierToDeliusApi.getFullDetails(crn, TierDetails(ogrsScore = null, rsrScore = null, convictions = listOf(Conviction())))
     communityApi.getMultipleMappaRegistrations(crn)
-    communityApi.getMaleOffenderResponse(crn)
     assessmentApi.getNoSeverityNeeds(6234507890)
-    communityApi.getEmptyAssessmentResponse(crn)
     calculateTierFor(crn)
     expectTierChangedById("A2")
   }
@@ -45,11 +43,9 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
   @Test
   fun `exclude historic registrations from tier calculation`() {
     val crn = "X445599"
-    tierToDeliusApi.getFullDetails(crn, TierDetails(convictions = listOf(Conviction())))
+    tierToDeliusApi.getFullDetails(crn, TierDetails(ogrsScore = null, rsrScore = null, convictions = listOf(Conviction())))
     communityApi.getHistoricMappaRegistration(crn)
-    communityApi.getMaleOffenderResponse(crn)
     assessmentApi.getNoSeverityNeeds(6234507890)
-    communityApi.getEmptyAssessmentResponse(crn)
     calculateTierFor(crn)
     expectLatestTierCalculation("D2")
   }
@@ -59,9 +55,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
     val crn = "X445599"
     tierToDeliusApi.getFullDetails(crn, TierDetails(convictions = listOf(Conviction())))
     communityApi.getMultipleMappaRegistrationsWithHistoricLatest(crn)
-    communityApi.getMaleOffenderResponse(crn)
     assessmentApi.getNoSeverityNeeds(6234507890)
-    communityApi.getEmptyAssessmentResponse(crn)
     calculateTierFor(crn)
     expectTierChangedById("B2")
   }

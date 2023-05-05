@@ -2,9 +2,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusConviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusRequirement
-import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.domain.Requirement
-import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
 
 class MandateForChange {
   suspend fun hasNoMandate(convictions: Collection<DeliusConviction>): Boolean =
@@ -20,7 +17,7 @@ class MandateForChange {
   private fun isCustodial(conviction: DeliusConviction): Boolean =
     conviction.sentenceTypeCode in custodialSentenceTypes
 
-  private suspend fun hasNonRestrictiveRequirements(requirement: List<DeliusRequirement>): Boolean =
+  private fun hasNonRestrictiveRequirements(requirement: List<DeliusRequirement>): Boolean =
     requirement
       .filter { excludeUnpaidWork(it) }
       .any { isNonRestrictive(it) }

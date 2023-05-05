@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
-import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
@@ -49,9 +48,11 @@ class AdditionalFactorsForWomen(
     }
 
   private fun getBreachRecallComplexityPoints(isBreached: Boolean): Int =
-    if (isBreached) 2
-    else 0
-
+    if (isBreached) {
+      2
+    } else {
+      0
+    }
 
   private fun isYes(value: String?): Boolean =
     value.equals("YES", true) || value.equals("Y", true)
