@@ -20,7 +20,6 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 
 class AdditionalFactorsForWomenTest {
-  private val clock = Clock.fixed(LocalDateTime.of(2020, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault())
   private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
   private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(
     assessmentApiService,
@@ -44,7 +43,7 @@ class AdditionalFactorsForWomenTest {
 
     @Test
     fun `should not count assessment additional factors duplicates`() = runBlocking {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
       coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
@@ -67,7 +66,7 @@ class AdditionalFactorsForWomenTest {
 
     @Test
     fun `should not count assessment additional factors duplicates mixed answers`() = runBlocking {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
       coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
@@ -87,7 +86,7 @@ class AdditionalFactorsForWomenTest {
 
     @Test
     fun `should add multiple additional factors`() = runBlocking {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
       coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
@@ -120,7 +119,7 @@ class AdditionalFactorsForWomenTest {
 
     @Test
     fun `should count both Temper and Impulsivity as max '1'`() = runBlocking {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
       coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
@@ -140,7 +139,7 @@ class AdditionalFactorsForWomenTest {
 
     @Test
     fun `should count Temper without Impulsivity as max '2'`() = runBlocking {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
       coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
@@ -159,7 +158,7 @@ class AdditionalFactorsForWomenTest {
 
     @Test
     fun `should count Impulsivity without Temper as max '1'`() = runBlocking {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
       coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
@@ -178,7 +177,7 @@ class AdditionalFactorsForWomenTest {
 
     @Test
     fun `should ignore negative Parenting`() = runBlocking {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
       coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
@@ -197,7 +196,7 @@ class AdditionalFactorsForWomenTest {
 
     @Test
     fun `should ignore negative Impulsivity`() = runBlocking {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
       coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
@@ -216,7 +215,7 @@ class AdditionalFactorsForWomenTest {
 
     @Test
     fun `should ignore negative Temper`() = runBlocking {
-      val assessment = OffenderAssessment("12345", LocalDateTime.now(clock), null, "AnyStatus")
+      val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
       coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
         mapOf(
