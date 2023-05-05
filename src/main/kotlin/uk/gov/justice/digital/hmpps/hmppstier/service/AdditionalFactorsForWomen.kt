@@ -1,15 +1,11 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
-import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.TEMPER_CONTROL
-import java.time.Clock
-import java.time.LocalDate
 
 class AdditionalFactorsForWomen(
-  private val clock: Clock,
   private val assessmentApiService: AssessmentApiService,
 ) {
   suspend fun calculate(
@@ -59,8 +55,4 @@ class AdditionalFactorsForWomen(
 
   private fun isAnswered(value: String?): Boolean =
     (value?.toInt() ?: 0) > 0
-
-  private fun qualifyingConvictions(sentence: Sentence): Boolean =
-    sentence.terminationDate == null ||
-      sentence.terminationDate.isAfter(LocalDate.now(clock).minusYears(1).minusDays(1))
 }

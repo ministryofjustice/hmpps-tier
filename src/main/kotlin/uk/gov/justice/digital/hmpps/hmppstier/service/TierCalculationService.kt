@@ -21,7 +21,7 @@ class TierCalculationService(
 
   private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator()
   private val changeLevelCalculator: ChangeLevelCalculator = ChangeLevelCalculator()
-  private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(clock, assessmentApiService)
+  private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(assessmentApiService)
 
   suspend fun calculateTierForCrn(crn: String, listener: String) =
     calculateTier(crn).let {

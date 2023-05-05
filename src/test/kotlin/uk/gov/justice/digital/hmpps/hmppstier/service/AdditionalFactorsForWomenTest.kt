@@ -23,7 +23,6 @@ class AdditionalFactorsForWomenTest {
   private val clock = Clock.fixed(LocalDateTime.of(2020, 1, 1, 0, 0).toInstant(ZoneOffset.UTC), ZoneId.systemDefault())
   private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
   private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(
-    clock,
     assessmentApiService,
   )
 
