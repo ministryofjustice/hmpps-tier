@@ -1,33 +1,37 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
+import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusConviction
+import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusRequirement
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Sentence
 
-class MandateForChange(
-  private val communityApiService: CommunityApiService,
-) {
-  suspend fun hasNoMandate(crn: String, convictions: Collection<Conviction>): Boolean =
+class MandateForChange {
+  suspend fun hasNoMandate(convictions: Collection<DeliusConviction>): Boolean =
     convictions
-      .filter { isCurrent(it.sentence) }
+      .filter { isCurrent(it) }
       .none {
-        it.sentence.isCustodial() || hasNonRestrictiveRequirements(crn, it.convictionId)
+        isCustodial(it) || hasNonRestrictiveRequirements(it.requirements)
       }
 
-  private fun isCurrent(sentence: Sentence): Boolean =
-    sentence.terminationDate == null
+  private fun isCurrent(conviction: DeliusConviction): Boolean =
+    conviction.terminationDate == null
 
-  private suspend fun hasNonRestrictiveRequirements(crn: String, convictionId: Long): Boolean =
-    communityApiService.getRequirements(crn, convictionId)
+  private fun isCustodial(conviction: DeliusConviction): Boolean =
+    conviction.sentenceTypeCode in custodialSentenceTypes
+
+  private suspend fun hasNonRestrictiveRequirements(requirement: List<DeliusRequirement>): Boolean =
+    requirement
       .filter { excludeUnpaidWork(it) }
       .any { isNonRestrictive(it) }
 
-  private fun isNonRestrictive(it: Requirement) = !it.isRestrictive
+  private fun isNonRestrictive(it: DeliusRequirement) = !it.restrictive
 
-  private fun excludeUnpaidWork(it: Requirement): Boolean =
-    it.mainCategory !in unpaidWorkAndOrderExtended
+  private fun excludeUnpaidWork(it: DeliusRequirement): Boolean =
+    it.mainCategoryTypeCode !in unpaidWorkAndOrderExtended
 
   companion object {
     private val unpaidWorkAndOrderExtended = arrayOf("W", "W1")
+    private val custodialSentenceTypes = arrayOf("NC", "SC")
   }
 }

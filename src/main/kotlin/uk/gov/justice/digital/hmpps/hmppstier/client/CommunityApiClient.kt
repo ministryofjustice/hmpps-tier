@@ -29,15 +29,6 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .awaitBody()
   }
 
-  suspend fun getConvictions(crn: String): List<ConvictionDto> {
-    return webClient
-      .get()
-      .uri("/offenders/crn/$crn/convictions?activeOnly=true")
-      .retrieve()
-      .bodyToFlow<ConvictionDto>()
-      .toList()
-  }
-
   suspend fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
     return webClient
       .get()
@@ -46,36 +37,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .awaitBody<NsiWrapper>().nsis
   }
 
-  suspend fun getRequirements(crn: String, convictionId: Long): List<RequirementDto> =
-    webClient
-      .get()
-      .uri { uriBuilder ->
-        uriBuilder.path("/offenders/crn/{crn}/convictions/{convictionId}/requirements")
-          .queryParam("activeOnly", true)
-          .queryParam("excludeSoftDeleted", true)
-          .build(crn, convictionId)
-      }
-      .retrieve()
-      .awaitBody<Requirements>().requirements
 }
-
-private data class Requirements @JsonCreator constructor(
-  @JsonProperty("requirements")
-  val requirements: List<RequirementDto>,
-)
-
-data class RequirementDto @JsonCreator constructor(
-  @JsonProperty("restrictive")
-  val restrictive: Boolean?,
-
-  @JsonProperty("requirementTypeMainCategory")
-  val requirementTypeMainCategory: RequirementTypeMainCategory?,
-)
-
-data class RequirementTypeMainCategory @JsonCreator constructor(
-  @JsonProperty("code")
-  val code: String,
-)
 
 private data class NsiWrapper @JsonCreator constructor(
   @JsonProperty("nsis")

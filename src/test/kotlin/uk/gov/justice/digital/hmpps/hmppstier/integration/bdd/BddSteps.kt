@@ -181,7 +181,7 @@ class BddSteps : En {
       setupData.setAssessmentAnswer("6.9", "YES") // 2
       setupData.addRegistration(Registration(registerLevel = M1.registerCode)) // 5
       setupData.addRegistration(Registration(typeCode = HIGH.registerCode))
-      setupData.setNsiOutcome("BRE02", convictionId)
+      setupData.addConviction(Conviction(convictionId.toLong(), breached = true))
       setupData.addRegistration(Registration(typeCode = "RMDO"))
       setupData.addRegistration(Registration(typeCode = "ALSH"))
       setupData.addRegistration(Registration(typeCode = "RVLN"))
@@ -259,28 +259,22 @@ class BddSteps : En {
       setupData.setAssessmentAnswer(question, answer)
     }
     And("has an active conviction with NSI Outcome code {string}") { outcome: String ->
-      setupData.setNsiOutcome(outcome, convictionId)
+      setupData.addConviction(Conviction(convictionId.toLong(), breached = true))
     }
     And("has two active convictions with NSI Outcome codes {string} and {string}") { outcome1: String, outcome2: String ->
-      setupData.addConviction(Conviction(convictionId.toLong()))
-      setupData.addConviction(Conviction(secondConvictionId.toLong(), convictionDate = LocalDate.of(2021, 1, 12), sentence = Sentence(sentenceCode = "SP")))
+      setupData.addConviction(Conviction(convictionId.toLong(), breached = true))
+      setupData.addConviction(Conviction(secondConvictionId.toLong(), breached = true, convictionDate = LocalDate.of(2021, 1, 12), sentence = Sentence(sentenceCode = "SP")))
 
-      setupData.setNsiOutcome(outcome1, convictionId)
-      setupData.setNsiOutcome(outcome2, secondConvictionId)
     }
     And("has two active convictions with NSI Outcome code {string}") { outcome: String ->
-      setupData.setNsiOutcome(outcome, convictionId)
-      setupData.setNsiOutcome(outcome, secondConvictionId)
-      setupData.addConviction(Conviction(convictionId.toLong()))
-      setupData.addConviction(Conviction(secondConvictionId.toLong(), convictionDate = LocalDate.of(2021, 1, 12), sentence = Sentence(sentenceCode = "SP")))
+      setupData.addConviction(Conviction(convictionId.toLong(), breached = true))
+      setupData.addConviction(Conviction(secondConvictionId.toLong(), breached = true, convictionDate = LocalDate.of(2021, 1, 12), sentence = Sentence(sentenceCode = "SP")))
     }
     And("has a conviction terminated 365 days ago with NSI Outcome code {string}") { outcome: String ->
-      setupData.addConviction(Conviction(convictionId.toLong(), sentence = Sentence(terminationDate = LocalDate.now().minusYears(1))))
-      setupData.setNsiOutcome(outcome, convictionId)
+      setupData.addConviction(Conviction(convictionId.toLong(), breached = true, sentence = Sentence(terminationDate = LocalDate.now().minusYears(1))))
     }
     And("has a conviction terminated 366 days ago with NSI Outcome code {string}") { outcome: String ->
-      setupData.addConviction(Conviction(convictionId.toLong(), sentence = Sentence(terminationDate = LocalDate.now().minusYears(1).minusDays(1))))
-      setupData.setNsiOutcome(outcome, convictionId)
+      setupData.addConviction(Conviction(convictionId.toLong(), breached = true, sentence = Sentence(terminationDate = LocalDate.now().minusYears(1).minusDays(1))))
     }
     And("no ROSH score") {
       // Do nothing

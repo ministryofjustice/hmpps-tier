@@ -11,7 +11,6 @@ class NoSentenceTest : IntegrationTestBase() {
   fun `Tier is calculated with change level zero when no sentence is found`() {
     val crn = "X333444"
     tierToDeliusApi.getFullDetails(crn)
-    CommunityApiExtension.communityApi.getNoSentenceConviction(crn)
     CommunityApiExtension.communityApi.getMappaRegistration(crn, "M2")
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 5234567890)
     calculateTierFor(crn)

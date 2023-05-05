@@ -12,18 +12,16 @@ import java.time.LocalDate
 class AdditionalFactorsForWomen(
   private val clock: Clock,
   private val assessmentApiService: AssessmentApiService,
-  private val communityApiService: CommunityApiService,
 ) {
   suspend fun calculate(
-    crn: String,
-    convictions: Collection<Conviction>,
+    isBreached: Boolean,
     offenderAssessment: OffenderAssessment?,
     offenderIsFemale: Boolean,
   ): Int =
     when {
       offenderIsFemale -> {
         val additionalFactorsPoints = getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment)
-        val breachRecallPoints = getBreachRecallComplexityPoints(crn, convictions)
+        val breachRecallPoints = getBreachRecallComplexityPoints(isBreached)
 
         additionalFactorsPoints + breachRecallPoints
       }
@@ -50,15 +48,10 @@ class AdditionalFactorsForWomen(
       }
     }
 
-  private suspend fun getBreachRecallComplexityPoints(crn: String, convictions: Collection<Conviction>): Int =
-    convictions
-      .filter { qualifyingConvictions(it.sentence) }
-      .let {
-        when {
-          communityApiService.hasBreachedConvictions(crn, it) -> 2
-          else -> 0
-        }
-      }
+  private fun getBreachRecallComplexityPoints(isBreached: Boolean): Int =
+    if (isBreached) 2
+    else 0
+
 
   private fun isYes(value: String?): Boolean =
     value.equals("YES", true) || value.equals("Y", true)

@@ -8,8 +8,6 @@ data class Sentence constructor(
   val sentenceType: String,
 ) {
 
-  fun isCustodial(): Boolean = this.sentenceType in arrayOf("NC", "SC")
-
   companion object {
 
     fun from(dto: SentenceDto): Sentence =

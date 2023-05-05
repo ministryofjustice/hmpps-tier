@@ -1,6 +1,9 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response
 
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
+import java.time.format.DateTimeFormatter
 
 fun tierDetailsResponse(tierDetails: TierDetails) = """
   {
@@ -15,19 +18,28 @@ fun tierDetailsResponse(tierDetails: TierDetails) = """
       }
     ],
     "convictions": [
-      {
-        "sentenceTypeCode": "329",
-        "sentenceTypeDescription": "ORA Community Order",
-        "breached": false,
-        "requirements": [
-          {
-            "mainCategoryTypeCode": "M",
-            "restrictive": true
-          }
-        ]
-      }
+      ${tierDetails.convictions.joinToString(",") { getConviction(it) } }
     ]
     ${tierDetails.ogrsScore?.let { """ ,"ogrsscore": "$it" """.trimIndent() } ?: "" }
     ${tierDetails.rsrScore?.let { """ ,"rsrscore": "$it" """.trimIndent() } ?: "" }
   }
+""".trimIndent()
+
+fun getConviction(conviction: Conviction) = """
+  {
+      ${conviction.sentence!!.terminationDate?.let { """ "terminationDate": "${it.format(DateTimeFormatter.ISO_DATE)}", """.trimIndent() } ?: ""}
+      "sentenceTypeCode": "${conviction.sentence.sentenceCode}",
+      "sentenceTypeDescription": "Description",
+      "breached": ${conviction.breached},
+      "requirements": [
+        ${conviction.requirements.joinToString(",") { getRequirement(it) } }
+      ]
+  }
+""".trimIndent()
+
+fun getRequirement(requirement: Requirement) = """
+    {
+      "mainCategoryTypeCode": "${requirement.mainTypeCode}",
+      "restrictive": ${requirement.restrictive}
+    }
 """.trimIndent()
