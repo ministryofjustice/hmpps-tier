@@ -24,7 +24,7 @@ dependencyCheck {
   suppressionFiles.add("suppressions.xml")
 }
 
-val cucumberVersion by extra("7.11.2")
+val cucumberVersion by extra("7.12.0")
 val springDocVersion by extra("1.6.14")
 
 repositories {
