@@ -8,12 +8,10 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentA
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Assessment
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Need
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.NSI
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Registration
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Requirement
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Sentence
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import java.time.LocalDateTime
 
@@ -25,7 +23,6 @@ class SetupData(
   var convictionId: String = ids["convictionId"]!!
   var assessmentId: Long = ids["assessmentId"]!!.toLong()
   private var hasValidAssessment: Boolean = false
-  private var outcomes: MutableMap<String, String> = mutableMapOf()
   private var gender: String = "Male"
   private var needs: MutableList<Need> = mutableListOf()
   private var ogrs: String = "0"
@@ -48,7 +45,7 @@ class SetupData(
   }
 
   fun addRequirement(requirement: Requirement) {
-    this.requirements.add(requirement)
+    this.convictions[0].requirements.add(requirement)
   }
 
   fun addConviction(conviction: Conviction) {
@@ -69,10 +66,6 @@ class SetupData(
     this.gender = gender
   }
 
-  fun setNsiOutcome(outcome: String, conviction: String) {
-    this.outcomes[conviction] = outcome
-  }
-
   fun setValidAssessment() {
     this.hasValidAssessment = true
   }
@@ -88,35 +81,12 @@ class SetupData(
   }
 
   fun prepareResponses() {
-    tierToDeliusApi.getFullDetails(crn, TierDetails(gender, "UD0", ogrs, rsr))
+    if (convictions.isEmpty()) {
+      addConviction(Conviction())
+    }
+    tierToDeliusApi.getFullDetails(crn, TierDetails(gender, "UD0", ogrs, rsr, convictions))
     communityApi.getRegistrations(crn, registrations)
     assessmentsApi()
-    if (convictions.isEmpty()) {
-      addConviction(Conviction(convictionId.toLong(), sentence = Sentence(sentenceCode = "NC")))
-    }
-    communityApi.getConvictions(crn, convictions)
-    communityApi.getRequirements(crn, requirements)
-
-    when (gender) {
-      "Male" -> {
-        communityApi.getMaleOffenderResponse(crn)
-      }
-      else -> {
-        femaleWithBreachAndRecall()
-      }
-    }
-  }
-
-  private fun femaleWithBreachAndRecall() {
-    communityApi.getFemaleOffenderResponse(crn)
-
-    if (outcomes.isNotEmpty()) {
-      outcomes.forEach {
-        communityApi.getNsi(crn, it.key, NSI(it.value))
-      }
-    } else {
-      communityApi.getEmptyNsiResponse(crn)
-    }
   }
 
   private fun assessmentsApi() {

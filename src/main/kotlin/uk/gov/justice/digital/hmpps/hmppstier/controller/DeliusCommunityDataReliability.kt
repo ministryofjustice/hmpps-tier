@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.function.client.WebClientException
-import uk.gov.justice.digital.hmpps.hmppstier.client.TierToDeliusResponse
 import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusAssessments
+import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusInputs
 import uk.gov.justice.digital.hmpps.hmppstier.service.CommunityApiService
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierReader
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierToDeliusApiService
@@ -43,12 +43,12 @@ class DeliusCommunityDataReliability(
   @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
   @GetMapping("/crn/{crn}")
   suspend fun getDataReliability(@PathVariable(required = true) crn: String): CommunityDeliusData {
-    val tierToDeliusResponse = tierToDeliusApiService.getTierToDelius(crn)
+    val deliusInputs = tierToDeliusApiService.getTierToDelius(crn)
     val (rsrScoreCommunity, ogrsScoreCommunity) = communityApiService.getDeliusAssessments(crn)
 
-    val rsrDelius = tierToDeliusResponse.rsrscore!!
+    val rsrDelius = deliusInputs.rsrScore
 
-    val ogrsDelius = tierToDeliusResponse.ogrsscore!!.div(10)
+    val ogrsDelius = deliusInputs.ogrsScore.div(10)
     val ogrsCommunity = ogrsScoreCommunity.div(10)
 
     return CommunityDeliusData(
@@ -73,11 +73,11 @@ class DeliusCommunityDataReliability(
   @GetMapping("/crn/all")
   suspend fun getAllDataReliability(): Flow<CommunityDeliusData> {
     return tierReader.getCrns().mapNotNull {
-      val tierToDeliusResponse = try {
+      val deliusInputs = try {
         tierToDeliusApiService.getTierToDelius(it)
       } catch (e: WebClientException) {
         log.error("Webclient exception in Tier To Delius for CRN: $it", e)
-        TierToDeliusResponse("ERROR", "ERROR", emptyList(), emptyList(), BigDecimal.valueOf(-1), -10)
+        DeliusInputs(false, BigDecimal.valueOf(-1), -10, false, false)
       }
 
       val communityAssessment = try {
@@ -87,9 +87,9 @@ class DeliusCommunityDataReliability(
         DeliusAssessments(BigDecimal.valueOf(-1), -10)
       }
 
-      val rsrDelius = tierToDeliusResponse.rsrscore!!
+      val rsrDelius = deliusInputs.rsrScore
 
-      val ogrsDelius = tierToDeliusResponse.ogrsscore!!.div(10)
+      val ogrsDelius = deliusInputs.ogrsScore!!.div(10)
       val ogrsCommunity = communityAssessment.ogrs.div(10)
 
       CommunityDeliusData(

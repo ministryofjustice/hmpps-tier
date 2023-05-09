@@ -2,12 +2,10 @@ package uk.gov.justice.digital.hmpps.hmppstier.client
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import kotlinx.coroutines.flow.toList
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
-import org.springframework.web.reactive.function.client.bodyToFlow
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -28,64 +26,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .retrieve()
       .awaitBody()
   }
-
-  suspend fun getConvictions(crn: String): List<ConvictionDto> {
-    return webClient
-      .get()
-      .uri("/offenders/crn/$crn/convictions?activeOnly=true")
-      .retrieve()
-      .bodyToFlow<ConvictionDto>()
-      .toList()
-  }
-
-  suspend fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {
-    return webClient
-      .get()
-      .uri("/offenders/crn/$crn/convictions/$convictionId/nsis?nsiCodes=BRE,BRES,REC,RECS")
-      .retrieve()
-      .awaitBody<NsiWrapper>().nsis
-  }
-
-  suspend fun getRequirements(crn: String, convictionId: Long): List<RequirementDto> =
-    webClient
-      .get()
-      .uri { uriBuilder ->
-        uriBuilder.path("/offenders/crn/{crn}/convictions/{convictionId}/requirements")
-          .queryParam("activeOnly", true)
-          .queryParam("excludeSoftDeleted", true)
-          .build(crn, convictionId)
-      }
-      .retrieve()
-      .awaitBody<Requirements>().requirements
 }
-
-private data class Requirements @JsonCreator constructor(
-  @JsonProperty("requirements")
-  val requirements: List<RequirementDto>,
-)
-
-data class RequirementDto @JsonCreator constructor(
-  @JsonProperty("restrictive")
-  val restrictive: Boolean?,
-
-  @JsonProperty("requirementTypeMainCategory")
-  val requirementTypeMainCategory: RequirementTypeMainCategory?,
-)
-
-data class RequirementTypeMainCategory @JsonCreator constructor(
-  @JsonProperty("code")
-  val code: String,
-)
-
-private data class NsiWrapper @JsonCreator constructor(
-  @JsonProperty("nsis")
-  val nsis: List<Nsi>,
-)
-
-data class Nsi @JsonCreator constructor(
-  @JsonProperty("nsiOutcome")
-  val status: KeyValue?,
-)
 
 data class ConvictionDto @JsonCreator constructor(
   @JsonProperty("convictionId")

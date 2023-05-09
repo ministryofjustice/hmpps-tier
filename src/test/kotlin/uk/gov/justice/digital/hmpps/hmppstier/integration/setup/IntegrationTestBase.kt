@@ -86,8 +86,6 @@ abstract class IntegrationTestBase {
     assessmentId: Long,
     tier: String = "A1",
   ) {
-    communityApi.getAssessmentResponse(crn)
-    communityApi.getMaleOffenderResponse(crn, tier)
     if (includeAssessmentApi) {
       assessmentApi.getCurrentAssessment(crn, assessmentId)
     }
@@ -95,8 +93,6 @@ abstract class IntegrationTestBase {
   }
 
   fun restOfSetupWithFemaleOffender(crn: String, assessmentId: Long) {
-    communityApi.getEmptyAssessmentResponse(crn)
-    communityApi.getFemaleOffenderResponse(crn)
     assessmentApi.getCurrentAssessment(crn, assessmentId)
     assessmentApi.getNotFoundNeeds(assessmentId)
   }

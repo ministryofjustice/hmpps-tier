@@ -21,8 +21,7 @@ class TierCalculationService(
 
   private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator()
   private val changeLevelCalculator: ChangeLevelCalculator = ChangeLevelCalculator()
-  private val mandateForChange: MandateForChange = MandateForChange(communityApiService)
-  private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(clock, assessmentApiService, communityApiService)
+  private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(assessmentApiService)
 
   suspend fun calculateTierForCrn(crn: String, listener: String) =
     calculateTier(crn).let {
@@ -35,25 +34,23 @@ class TierCalculationService(
     }
 
   private suspend fun calculateTier(crn: String): TierCalculationEntity {
-    val tierToDeliusResponse = tierToDeliusApiService.getTierToDelius(crn)
+    val deliusInputs = tierToDeliusApiService.getTierToDelius(crn)
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
 
     val registrations = communityApiService.getRegistrations(crn)
-    val convictions = communityApiService.getConvictionsWithSentences(crn)
 
     val additionalFactorsPoints = additionalFactorsForWomen.calculate(
-      crn,
-      convictions,
+      deliusInputs.breached,
       offenderAssessment,
-      tierToDeliusResponse.gender.equals("female", true),
+      deliusInputs.isFemale,
     )
 
-    val protectLevel = protectLevelCalculator.calculate(tierToDeliusResponse.rsrscore!!, additionalFactorsPoints, registrations)
+    val protectLevel = protectLevelCalculator.calculate(deliusInputs.rsrScore, additionalFactorsPoints, registrations)
     val changeLevel = changeLevelCalculator.calculate(
-      tierToDeliusResponse.ogrsscore!!,
+      deliusInputs.ogrsScore,
       registrations.hasIomNominal,
       assessmentApiService.getAssessmentNeeds(offenderAssessment),
-      mandateForChange.hasNoMandate(crn, convictions),
+      deliusInputs.hasNoMandate,
       hasNoAssessment(offenderAssessment),
     )
 

@@ -9,6 +9,8 @@ import uk.gov.justice.digital.hmpps.hmppstier.controller.TriggerCsv
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension.Companion.assessmentApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import java.io.File
 
@@ -17,9 +19,7 @@ class TriggerCalculationUpload : IntegrationTestBase() {
   @Test
   fun `trigger a tier calculation from upload`() {
     val crn = "X546739"
-    tierToDeliusApi.getFullDetails(crn)
-
-    communityApi.getCustodialSCSentenceConviction(crn)
+    tierToDeliusApi.getFullDetails(crn, TierDetails(convictions = listOf(Conviction(sentenceCode = "SC"))))
     communityApi.getMappaRegistration(crn, "M2")
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
     assessmentApi.getOutdatedAssessment(crn, 1234567890)
@@ -37,9 +37,7 @@ class TriggerCalculationUpload : IntegrationTestBase() {
   @Test
   fun `do not trigger a calculation for blank rows`() {
     val crn = "X546739"
-    tierToDeliusApi.getFullDetails(crn)
-
-    communityApi.getCustodialSCSentenceConviction(crn)
+    tierToDeliusApi.getFullDetails(crn, TierDetails(convictions = listOf(Conviction(sentenceCode = "SC"))))
     communityApi.getMappaRegistration(crn, "M2")
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
     assessmentApi.getOutdatedAssessment(crn, 1234567890)
@@ -59,9 +57,7 @@ class TriggerCalculationUpload : IntegrationTestBase() {
   @Test
   fun `must not write back if tier is unchanged`() {
     val crn = "X432769"
-    tierToDeliusApi.getFullDetails(crn)
-
-    communityApi.getCustodialSCSentenceConviction(crn)
+    tierToDeliusApi.getFullDetails(crn, TierDetails(convictions = listOf(Conviction(sentenceCode = "SC"))))
     communityApi.getMappaRegistration(crn, "M2")
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
     assessmentApi.getOutdatedAssessment(crn, 1234567890)
@@ -69,7 +65,7 @@ class TriggerCalculationUpload : IntegrationTestBase() {
     calculateTierFor(crn)
     expectTierChangedById("A2")
 
-    communityApi.getCustodialSCSentenceConviction(crn)
+    tierToDeliusApi.getFullDetails(crn, TierDetails(convictions = listOf(Conviction(sentenceCode = "SC"))))
     communityApi.getMappaRegistration(crn, "M2")
     restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890, "A2")
     assessmentApi.getOutdatedAssessment(crn, 1234567890)
