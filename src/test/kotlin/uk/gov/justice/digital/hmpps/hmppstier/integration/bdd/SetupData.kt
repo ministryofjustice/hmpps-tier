@@ -7,10 +7,9 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentA
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Answer
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Assessment
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Need
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import java.time.LocalDateTime
@@ -84,8 +83,7 @@ class SetupData(
     if (convictions.isEmpty()) {
       addConviction(Conviction())
     }
-    tierToDeliusApi.getFullDetails(crn, TierDetails(gender, "UD0", ogrs, rsr, convictions))
-    communityApi.getRegistrations(crn, registrations)
+    tierToDeliusApi.getFullDetails(crn, TierDetails(gender, "UD0", ogrs, rsr, convictions, registrations))
     assessmentsApi()
   }
 

@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.domain
+package uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain
 
 import java.time.LocalDate
 
