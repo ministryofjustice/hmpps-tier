@@ -8,4 +8,5 @@ data class DeliusInputs(
   val ogrsScore: Int,
   val breached: Boolean,
   val hasNoMandate: Boolean,
+  val registrations: Registrations,
 )

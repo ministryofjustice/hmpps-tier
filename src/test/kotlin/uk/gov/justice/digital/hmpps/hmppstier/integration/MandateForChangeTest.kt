@@ -3,6 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
@@ -20,9 +21,12 @@ class MandateForChangeTest : IntegrationTestBase() {
           Conviction(),
           Conviction(sentenceCode = "SP", requirements = mutableListOf(Requirement("X", restrictive = true))),
         ),
+        registrations = listOf(
+          Registration("M2"),
+        ),
       ),
     )
-    setupMaleOffenderWithRegistrations(crn, assessmentId = 4234567892)
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234567892)
     calculateTierFor(crn)
     expectTierChangedById("A1")
   }
@@ -30,8 +34,16 @@ class MandateForChangeTest : IntegrationTestBase() {
   @Test
   fun `do not calculate change for terminated custodial sentence`() {
     val crn = "X173878"
-    tierToDeliusApi.getFullDetails(crn, TierDetails(convictions = listOf(Conviction(terminationDate = LocalDate.now().minusDays(1)))))
-    setupMaleOffenderWithRegistrations(crn, assessmentId = 4234567895)
+    tierToDeliusApi.getFullDetails(
+      crn,
+      TierDetails(
+        convictions = listOf(Conviction(terminationDate = LocalDate.now().minusDays(1))),
+        registrations = listOf(
+          Registration("M2"),
+        ),
+      ),
+    )
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234567895)
     calculateTierFor(crn)
     expectTierChangedById("A0")
   }
@@ -46,9 +58,12 @@ class MandateForChangeTest : IntegrationTestBase() {
           Conviction(sentenceCode = "SP", requirements = mutableListOf(Requirement("F", restrictive = false))),
           Conviction(sentenceCode = "SP"),
         ),
+        registrations = listOf(
+          Registration("M2"),
+        ),
       ),
     )
-    setupMaleOffenderWithRegistrations(crn, assessmentId = 4234567896)
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234567896)
     calculateTierFor(crn)
     expectTierChangedById("A1")
   }
@@ -67,9 +82,12 @@ class MandateForChangeTest : IntegrationTestBase() {
             ),
           ),
         ),
+        registrations = listOf(
+          Registration("M2"),
+        ),
       ),
     )
-    setupMaleOffenderWithRegistrations(crn, assessmentId = 4234567898)
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234567898)
     calculateTierFor(crn)
     expectTierChangedById("A0")
   }
@@ -88,9 +106,12 @@ class MandateForChangeTest : IntegrationTestBase() {
             ),
           ),
         ),
+        registrations = listOf(
+          Registration("M2"),
+        ),
       ),
     )
-    setupMaleOffenderWithRegistrations(crn, assessmentId = 4234567899)
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234567899)
     calculateTierFor(crn)
     expectTierChangedById("A0")
   }
@@ -110,9 +131,12 @@ class MandateForChangeTest : IntegrationTestBase() {
             ),
           ),
         ),
+        registrations = listOf(
+          Registration("M2"),
+        ),
       ),
     )
-    setupMaleOffenderWithRegistrations(crn, assessmentId = 4134567890)
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4134567890)
     calculateTierFor(crn)
     expectTierChangedById("A1")
   }
@@ -120,8 +144,16 @@ class MandateForChangeTest : IntegrationTestBase() {
   @Test
   fun `do not calculate change when no requirements are present on a non-custodial sentence`() {
     val crn = "X888844"
-    tierToDeliusApi.getFullDetails(crn, TierDetails(convictions = listOf(Conviction(sentenceCode = "SP"))))
-    setupMaleOffenderWithRegistrations(crn, assessmentId = 4334567890)
+    tierToDeliusApi.getFullDetails(
+      crn,
+      TierDetails(
+        convictions = listOf(Conviction(sentenceCode = "SP")),
+        registrations = listOf(
+          Registration("M2"),
+        ),
+      ),
+    )
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4334567890)
     calculateTierFor(crn)
     expectTierChangedById("A0")
   }

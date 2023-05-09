@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.function.client.WebClientException
 import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusAssessments
 import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusInputs
+import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
 import uk.gov.justice.digital.hmpps.hmppstier.service.CommunityApiService
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierReader
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierToDeliusApiService
@@ -77,7 +78,7 @@ class DeliusCommunityDataReliability(
         tierToDeliusApiService.getTierToDelius(it)
       } catch (e: WebClientException) {
         log.error("Webclient exception in Tier To Delius for CRN: $it", e)
-        DeliusInputs(false, BigDecimal.valueOf(-1), -10, false, false)
+        DeliusInputs(false, BigDecimal.valueOf(-1), -10, false, false, Registrations(false, emptyList(), null, null))
       }
 
       val communityAssessment = try {

@@ -21,7 +21,6 @@ class TierToDeliusApiClient(@Qualifier("tierToDeliusApiClientWebClientAppScope")
 
 data class TierToDeliusResponse @JsonCreator constructor(
   val gender: String,
-  val currentTier: String?,
   val registrations: List<DeliusRegistration>,
   val convictions: List<DeliusConviction>,
   val rsrscore: BigDecimal?,
@@ -30,7 +29,6 @@ data class TierToDeliusResponse @JsonCreator constructor(
 
 data class DeliusRegistration @JsonCreator constructor(
   val code: String,
-  val description: String,
   val level: String?,
   val date: LocalDate,
 )
@@ -38,7 +36,6 @@ data class DeliusRegistration @JsonCreator constructor(
 data class DeliusConviction @JsonCreator constructor(
   val terminationDate: LocalDate?,
   val sentenceTypeCode: String,
-  val sentenceTypeDescription: String,
   val breached: Boolean,
   val requirements: List<DeliusRequirement>,
 )

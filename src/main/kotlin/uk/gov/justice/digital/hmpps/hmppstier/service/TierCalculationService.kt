@@ -37,18 +37,16 @@ class TierCalculationService(
     val deliusInputs = tierToDeliusApiService.getTierToDelius(crn)
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
 
-    val registrations = communityApiService.getRegistrations(crn)
-
     val additionalFactorsPoints = additionalFactorsForWomen.calculate(
       deliusInputs.breached,
       offenderAssessment,
       deliusInputs.isFemale,
     )
 
-    val protectLevel = protectLevelCalculator.calculate(deliusInputs.rsrScore, additionalFactorsPoints, registrations)
+    val protectLevel = protectLevelCalculator.calculate(deliusInputs.rsrScore, additionalFactorsPoints, deliusInputs.registrations)
     val changeLevel = changeLevelCalculator.calculate(
       deliusInputs.ogrsScore,
-      registrations.hasIomNominal,
+      deliusInputs.registrations.hasIomNominal,
       assessmentApiService.getAssessmentNeeds(offenderAssessment),
       deliusInputs.hasNoMandate,
       hasNoAssessment(offenderAssessment),

@@ -10,11 +10,16 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusConviction
+import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusRegistration
 import uk.gov.justice.digital.hmpps.hmppstier.client.TierToDeliusApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.TierToDeliusResponse
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -45,9 +50,8 @@ class TierToDeliusApiServiceTest {
 
     val tierToDeliusResponse = TierToDeliusResponse(
       "Male",
-      null,
       emptyList(),
-      listOf(DeliusConviction(terminationDate, sentenceTypeCode, "description", true, emptyList())),
+      listOf(DeliusConviction(terminationDate, sentenceTypeCode, true, emptyList())),
       BigDecimal.TEN,
       2,
     )
@@ -62,9 +66,8 @@ class TierToDeliusApiServiceTest {
   fun `Should return Breach true if present and valid not terminated`() = runBlocking {
     val tierToDeliusResponse = TierToDeliusResponse(
       "Male",
-      null,
       emptyList(),
-      listOf(DeliusConviction(null, sentenceTypeCode, "description", true, emptyList())),
+      listOf(DeliusConviction(null, sentenceTypeCode, true, emptyList())),
       BigDecimal.TEN,
       2,
     )
@@ -78,11 +81,10 @@ class TierToDeliusApiServiceTest {
   fun `Should return Breach true if multiple convictions, one valid`() = runBlocking {
     val tierToDeliusResponse = TierToDeliusResponse(
       "Male",
-      null,
       emptyList(),
       listOf(
-        DeliusConviction(null, sentenceTypeCode, "description", true, emptyList()),
-        DeliusConviction(null, sentenceTypeCode, "description", false, emptyList()),
+        DeliusConviction(null, sentenceTypeCode, true, emptyList()),
+        DeliusConviction(null, sentenceTypeCode, false, emptyList()),
       ),
       BigDecimal.TEN,
       2,
@@ -97,7 +99,6 @@ class TierToDeliusApiServiceTest {
   fun `Should return Breach false if no conviction`() = runBlocking {
     val tierToDeliusResponse = TierToDeliusResponse(
       "Male",
-      null,
       emptyList(),
       emptyList(),
       BigDecimal.TEN,
@@ -108,5 +109,311 @@ class TierToDeliusApiServiceTest {
     val result = tierToDeliusApiService.getTierToDelius(crn).breached
 
     Assertions.assertFalse(result)
+  }
+
+  @Nested
+  @DisplayName("Simple ROSH tests")
+  inner class SimpleRoshTests {
+
+    @Test
+    fun `should return null for No Rosh`() = runBlocking {
+      val tierToDeliusResponse = TierToDeliusResponse(
+        "Male",
+        emptyList(),
+        emptyList(),
+        BigDecimal.TEN,
+        2,
+      )
+
+      coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+      val result = tierToDeliusApiService.getTierToDelius(crn).registrations.rosh
+
+      Assertions.assertNull(result)
+    }
+
+    @Test
+    fun `Should return RoSH level if present`() = runBlocking {
+      val tierToDeliusResponse = TierToDeliusResponse(
+        "Male",
+        listOf(DeliusRegistration("RMRH", null, LocalDate.now())),
+        emptyList(),
+        BigDecimal.TEN,
+        2,
+      )
+
+      coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+      val result = tierToDeliusApiService.getTierToDelius(crn).registrations.rosh
+
+      Assertions.assertEquals(Rosh.MEDIUM, result)
+    }
+
+    @Test
+    fun `Should return RoSH level Case Insensitive`() = runBlocking {
+      val tierToDeliusResponse = TierToDeliusResponse(
+        "Male",
+        listOf(DeliusRegistration("rmrh", null, LocalDate.now())),
+        emptyList(),
+        BigDecimal.TEN,
+        2,
+      )
+
+      coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+      val result = tierToDeliusApiService.getTierToDelius(crn).registrations.rosh
+
+      Assertions.assertEquals(Rosh.MEDIUM, result)
+    }
+
+    @Test
+    fun `Should return RoSH level if present as first value in list`() = runBlocking {
+      val tierToDeliusResponse = TierToDeliusResponse(
+        "Male",
+        listOf(
+          DeliusRegistration("RMRH", null, LocalDate.now()),
+          DeliusRegistration("AV2S", null, LocalDate.now()),
+          DeliusRegistration("AV2S", null, LocalDate.now()),
+        ),
+        emptyList(),
+        BigDecimal.TEN,
+        2,
+      )
+
+      coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+      val result = tierToDeliusApiService.getTierToDelius(crn).registrations.rosh
+
+      Assertions.assertEquals(Rosh.MEDIUM, result)
+    }
+
+    @Test
+    fun `Should return RoSH level if present as middle value in list`() = runBlocking {
+      val tierToDeliusResponse = TierToDeliusResponse(
+        "Male",
+        listOf(
+          DeliusRegistration("AV2S", null, LocalDate.now()),
+          DeliusRegistration("RMRH", null, LocalDate.now()),
+          DeliusRegistration("AV2S", null, LocalDate.now()),
+        ),
+        emptyList(),
+        BigDecimal.TEN,
+        2,
+      )
+
+      coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+      val result = tierToDeliusApiService.getTierToDelius(crn).registrations.rosh
+
+      Assertions.assertEquals(Rosh.MEDIUM, result)
+    }
+  }
+
+  @Nested
+  @DisplayName("Simple Mappa tests")
+  inner class SimpleMappaTests {
+
+    @Test
+    fun `should return null for No Mappa`() = runBlocking {
+      val tierToDeliusResponse = TierToDeliusResponse(
+        "Male",
+        emptyList(),
+        emptyList(),
+        BigDecimal.TEN,
+        2,
+      )
+
+      coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+      val result = tierToDeliusApiService.getTierToDelius(crn).registrations.mappa
+
+      Assertions.assertNull(result)
+    }
+
+    @Test
+    fun `Should return Mappa level if present`() = runBlocking {
+      val tierToDeliusResponse = TierToDeliusResponse(
+        "Male",
+        listOf(DeliusRegistration("MAPP", "M3", LocalDate.now())),
+        emptyList(),
+        BigDecimal.TEN,
+        2,
+      )
+
+      coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+      val result = tierToDeliusApiService.getTierToDelius(crn).registrations.mappa
+
+      Assertions.assertEquals(Mappa.M3, result)
+    }
+
+    @Test
+    fun `Should return Mappa level Case Insensitive`() = runBlocking {
+      val tierToDeliusResponse = TierToDeliusResponse(
+        "Male",
+        listOf(DeliusRegistration("MAPP", "m3", LocalDate.now())),
+        emptyList(),
+        BigDecimal.TEN,
+        2,
+      )
+
+      coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+      val result = tierToDeliusApiService.getTierToDelius(crn).registrations.mappa
+
+      Assertions.assertEquals(Mappa.M3, result)
+    }
+
+    @Test
+    fun `Should return Mappa level if present as first value in list`() = runBlocking {
+      val tierToDeliusResponse = TierToDeliusResponse(
+        "Male",
+        listOf(
+          DeliusRegistration("MAPP", "M3", LocalDate.now()),
+          DeliusRegistration("AV2S", "BD", LocalDate.now()),
+          DeliusRegistration("AV2S", "12", LocalDate.now()),
+
+        ),
+        emptyList(),
+        BigDecimal.TEN,
+        2,
+      )
+
+      coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+      val result = tierToDeliusApiService.getTierToDelius(crn).registrations.mappa
+
+      Assertions.assertEquals(Mappa.M3, result)
+    }
+
+    @Test
+    fun `Should return null for invalid Mappa code`() = runBlocking {
+      val tierToDeliusResponse = TierToDeliusResponse(
+        "Male",
+        listOf(
+
+          DeliusRegistration("AV2S", "Not Used", LocalDate.now()),
+          DeliusRegistration("AV2S", "Not Used", LocalDate.now()),
+          DeliusRegistration("Not Used", "INVALID", LocalDate.now()),
+        ),
+        emptyList(),
+        BigDecimal.TEN,
+        2,
+      )
+
+      coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+      val result = tierToDeliusApiService.getTierToDelius(crn).registrations.mappa
+      Assertions.assertNull(result)
+    }
+  }
+
+  @Nested
+  @DisplayName("Simple Complexity tests")
+  inner class SimpleComplexityTests {
+
+    @Test
+    fun `should count complexity factors `() = runBlocking {
+      val tierToDeliusResponse = TierToDeliusResponse(
+        "Male",
+        getValidRegistrations(
+          listOf(
+            ComplexityFactor.VULNERABILITY_ISSUE,
+            ComplexityFactor.ADULT_AT_RISK,
+          ),
+        ),
+        emptyList(),
+        BigDecimal.TEN,
+        2,
+      )
+
+      coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+      val result = tierToDeliusApiService.getTierToDelius(crn).registrations.complexityFactors
+      Assertions.assertEquals(2, result.size)
+    }
+
+    @Test
+    fun `should not count complexity factors duplicates`() = runBlocking {
+      val tierToDeliusResponse = TierToDeliusResponse(
+        "Male",
+        getValidRegistrations(
+          listOf(
+            ComplexityFactor.VULNERABILITY_ISSUE,
+            ComplexityFactor.VULNERABILITY_ISSUE,
+          ),
+        ),
+        emptyList(),
+        BigDecimal.TEN,
+        2,
+      )
+
+      coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+      val result = tierToDeliusApiService.getTierToDelius(crn).registrations.complexityFactors
+      Assertions.assertEquals(1, result.size)
+    }
+
+    @Test
+    fun `should not count complexity factors none`() = runBlocking {
+      val tierToDeliusResponse = TierToDeliusResponse(
+        "Male",
+        emptyList(),
+        emptyList(),
+        BigDecimal.TEN,
+        2,
+      )
+
+      coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+      val result = tierToDeliusApiService.getTierToDelius(crn).registrations.complexityFactors
+      Assertions.assertEquals(0, result.size)
+    }
+
+    @Test
+    fun `Should return Complexity Factor Case Insensitive`() = runBlocking {
+      val tierToDeliusResponse = TierToDeliusResponse(
+        "Male",
+        listOf(
+          DeliusRegistration("rmdo", "Not Used", LocalDate.now()),
+        ),
+        emptyList(),
+        BigDecimal.TEN,
+        2,
+      )
+
+      coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+      val result = tierToDeliusApiService.getTierToDelius(crn).registrations.complexityFactors
+      Assertions.assertEquals(1, result.size)
+    }
+
+    @Test
+    fun `Should return Complexity Factor if present as first value in list`() = runBlocking {
+      val tierToDeliusResponse = TierToDeliusResponse(
+        "Male",
+        listOf(
+          DeliusRegistration("RMDO", "Not Used", LocalDate.now()),
+          DeliusRegistration("AV2S", "BD", LocalDate.now()),
+          DeliusRegistration("AV2S", "12", LocalDate.now()),
+        ),
+        emptyList(),
+        BigDecimal.TEN,
+        2,
+      )
+
+      coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+      val result = tierToDeliusApiService.getTierToDelius(crn).registrations.complexityFactors
+      Assertions.assertEquals(1, result.size)
+    }
+
+    @Test
+    fun `Should return empty List if no Complexity Factors present`() = runBlocking {
+      val tierToDeliusResponse = TierToDeliusResponse(
+        "Male",
+        listOf(
+          DeliusRegistration("AV2S", "Not Used", LocalDate.now()),
+        ),
+        emptyList(),
+        BigDecimal.TEN,
+        2,
+      )
+
+      coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+      val result = tierToDeliusApiService.getTierToDelius(crn).registrations.complexityFactors
+      Assertions.assertEquals(0, result.size)
+    }
+
+    private fun getValidRegistrations(factors: List<ComplexityFactor>): List<DeliusRegistration> {
+      return factors.map {
+        DeliusRegistration(it.registerCode, null, LocalDate.now())
+      }
+    }
   }
 }
