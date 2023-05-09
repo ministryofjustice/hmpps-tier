@@ -7,6 +7,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.future.future
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
+import java.util.concurrent.CompletableFuture
 
 @Service
 class DomainEventsListener(
@@ -15,10 +16,10 @@ class DomainEventsListener(
 ) {
 
   @SqsListener("hmppsdomaineventsqueue", factory = "hmppsQueueContainerFactoryProxy")
-  fun listen(msg: String) {
-    CoroutineScope(Dispatchers.Default).future {
+  fun listen(msg: String): CompletableFuture<Void> {
+    return CoroutineScope(Dispatchers.Default).future {
       calculator.calculateTierForCrn(getCrn(msg), "DomainEventsListener")
-    }.get()
+    }.thenAccept {}
   }
 
   private fun getCrn(msg: String): String {

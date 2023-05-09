@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
+import java.util.concurrent.CompletableFuture
 
 @Service
 class TierCalculationRequiredEventListener(
@@ -24,11 +25,11 @@ class TierCalculationRequiredEventListener(
   }
 
   @SqsListener("hmppsoffenderqueue", factory = "hmppsQueueContainerFactoryProxy")
-  fun listen(msg: String) {
+  fun listen(msg: String): CompletableFuture<Void> {
     val (crn) = getCrn(msg)
-    CoroutineScope(Dispatchers.Default).future {
+    return CoroutineScope(Dispatchers.Default).future {
       calculator.calculateTierForCrn(crn, "TierCalculationRequiredEventListener")
-    }.get()
+    }.thenAccept {}
   }
 
   private fun getCrn(msg: String): TierCalculationMessage {
