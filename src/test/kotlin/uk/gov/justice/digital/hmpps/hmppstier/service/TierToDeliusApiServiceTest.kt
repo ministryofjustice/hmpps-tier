@@ -50,9 +50,8 @@ class TierToDeliusApiServiceTest {
 
     val tierToDeliusResponse = TierToDeliusResponse(
       "Male",
-      null,
       emptyList(),
-      listOf(DeliusConviction(terminationDate, sentenceTypeCode, "description", true, emptyList())),
+      listOf(DeliusConviction(terminationDate, sentenceTypeCode, true, emptyList())),
       BigDecimal.TEN,
       2,
     )
@@ -67,9 +66,8 @@ class TierToDeliusApiServiceTest {
   fun `Should return Breach true if present and valid not terminated`() = runBlocking {
     val tierToDeliusResponse = TierToDeliusResponse(
       "Male",
-      null,
       emptyList(),
-      listOf(DeliusConviction(null, sentenceTypeCode, "description", true, emptyList())),
+      listOf(DeliusConviction(null, sentenceTypeCode, true, emptyList())),
       BigDecimal.TEN,
       2,
     )
@@ -83,11 +81,10 @@ class TierToDeliusApiServiceTest {
   fun `Should return Breach true if multiple convictions, one valid`() = runBlocking {
     val tierToDeliusResponse = TierToDeliusResponse(
       "Male",
-      null,
       emptyList(),
       listOf(
-        DeliusConviction(null, sentenceTypeCode, "description", true, emptyList()),
-        DeliusConviction(null, sentenceTypeCode, "description", false, emptyList()),
+        DeliusConviction(null, sentenceTypeCode, true, emptyList()),
+        DeliusConviction(null, sentenceTypeCode, false, emptyList()),
       ),
       BigDecimal.TEN,
       2,
@@ -102,7 +99,6 @@ class TierToDeliusApiServiceTest {
   fun `Should return Breach false if no conviction`() = runBlocking {
     val tierToDeliusResponse = TierToDeliusResponse(
       "Male",
-      null,
       emptyList(),
       emptyList(),
       BigDecimal.TEN,
@@ -123,7 +119,6 @@ class TierToDeliusApiServiceTest {
     fun `should return null for No Rosh`() = runBlocking {
       val tierToDeliusResponse = TierToDeliusResponse(
         "Male",
-        null,
         emptyList(),
         emptyList(),
         BigDecimal.TEN,
@@ -140,8 +135,7 @@ class TierToDeliusApiServiceTest {
     fun `Should return RoSH level if present`() = runBlocking {
       val tierToDeliusResponse = TierToDeliusResponse(
         "Male",
-        null,
-        listOf(DeliusRegistration("RMRH", "Description", null, LocalDate.now())),
+        listOf(DeliusRegistration("RMRH", null, LocalDate.now())),
         emptyList(),
         BigDecimal.TEN,
         2,
@@ -157,8 +151,7 @@ class TierToDeliusApiServiceTest {
     fun `Should return RoSH level Case Insensitive`() = runBlocking {
       val tierToDeliusResponse = TierToDeliusResponse(
         "Male",
-        null,
-        listOf(DeliusRegistration("rmrh", "Description", null, LocalDate.now())),
+        listOf(DeliusRegistration("rmrh", null, LocalDate.now())),
         emptyList(),
         BigDecimal.TEN,
         2,
@@ -174,11 +167,10 @@ class TierToDeliusApiServiceTest {
     fun `Should return RoSH level if present as first value in list`() = runBlocking {
       val tierToDeliusResponse = TierToDeliusResponse(
         "Male",
-        null,
         listOf(
-          DeliusRegistration("RMRH", "Description", null, LocalDate.now()),
-          DeliusRegistration("AV2S", "Description", null, LocalDate.now()),
-          DeliusRegistration("AV2S", "Description", null, LocalDate.now()),
+          DeliusRegistration("RMRH", null, LocalDate.now()),
+          DeliusRegistration("AV2S", null, LocalDate.now()),
+          DeliusRegistration("AV2S", null, LocalDate.now()),
         ),
         emptyList(),
         BigDecimal.TEN,
@@ -195,11 +187,10 @@ class TierToDeliusApiServiceTest {
     fun `Should return RoSH level if present as middle value in list`() = runBlocking {
       val tierToDeliusResponse = TierToDeliusResponse(
         "Male",
-        null,
         listOf(
-          DeliusRegistration("AV2S", "Description", null, LocalDate.now()),
-          DeliusRegistration("RMRH", "Description", null, LocalDate.now()),
-          DeliusRegistration("AV2S", "Description", null, LocalDate.now()),
+          DeliusRegistration("AV2S", null, LocalDate.now()),
+          DeliusRegistration("RMRH", null, LocalDate.now()),
+          DeliusRegistration("AV2S", null, LocalDate.now()),
         ),
         emptyList(),
         BigDecimal.TEN,
@@ -221,7 +212,6 @@ class TierToDeliusApiServiceTest {
     fun `should return null for No Mappa`() = runBlocking {
       val tierToDeliusResponse = TierToDeliusResponse(
         "Male",
-        null,
         emptyList(),
         emptyList(),
         BigDecimal.TEN,
@@ -238,8 +228,7 @@ class TierToDeliusApiServiceTest {
     fun `Should return Mappa level if present`() = runBlocking {
       val tierToDeliusResponse = TierToDeliusResponse(
         "Male",
-        null,
-        listOf(DeliusRegistration("MAPP", "Description", "M3", LocalDate.now())),
+        listOf(DeliusRegistration("MAPP", "M3", LocalDate.now())),
         emptyList(),
         BigDecimal.TEN,
         2,
@@ -255,8 +244,7 @@ class TierToDeliusApiServiceTest {
     fun `Should return Mappa level Case Insensitive`() = runBlocking {
       val tierToDeliusResponse = TierToDeliusResponse(
         "Male",
-        null,
-        listOf(DeliusRegistration("MAPP", "Description", "m3", LocalDate.now())),
+        listOf(DeliusRegistration("MAPP", "m3", LocalDate.now())),
         emptyList(),
         BigDecimal.TEN,
         2,
@@ -272,11 +260,10 @@ class TierToDeliusApiServiceTest {
     fun `Should return Mappa level if present as first value in list`() = runBlocking {
       val tierToDeliusResponse = TierToDeliusResponse(
         "Male",
-        null,
         listOf(
-          DeliusRegistration("MAPP", "Description", "M3", LocalDate.now()),
-          DeliusRegistration("AV2S", "Description", "BD", LocalDate.now()),
-          DeliusRegistration("AV2S", "Description", "12", LocalDate.now()),
+          DeliusRegistration("MAPP", "M3", LocalDate.now()),
+          DeliusRegistration("AV2S", "BD", LocalDate.now()),
+          DeliusRegistration("AV2S", "12", LocalDate.now()),
 
         ),
         emptyList(),
@@ -294,12 +281,11 @@ class TierToDeliusApiServiceTest {
     fun `Should return null for invalid Mappa code`() = runBlocking {
       val tierToDeliusResponse = TierToDeliusResponse(
         "Male",
-        null,
         listOf(
 
-          DeliusRegistration("AV2S", "Description", "Not Used", LocalDate.now()),
-          DeliusRegistration("AV2S", "Description", "Not Used", LocalDate.now()),
-          DeliusRegistration("Not Used", "Description", "INVALID", LocalDate.now()),
+          DeliusRegistration("AV2S", "Not Used", LocalDate.now()),
+          DeliusRegistration("AV2S", "Not Used", LocalDate.now()),
+          DeliusRegistration("Not Used", "INVALID", LocalDate.now()),
         ),
         emptyList(),
         BigDecimal.TEN,
@@ -320,7 +306,6 @@ class TierToDeliusApiServiceTest {
     fun `should count complexity factors `() = runBlocking {
       val tierToDeliusResponse = TierToDeliusResponse(
         "Male",
-        null,
         getValidRegistrations(
           listOf(
             ComplexityFactor.VULNERABILITY_ISSUE,
@@ -341,7 +326,6 @@ class TierToDeliusApiServiceTest {
     fun `should not count complexity factors duplicates`() = runBlocking {
       val tierToDeliusResponse = TierToDeliusResponse(
         "Male",
-        null,
         getValidRegistrations(
           listOf(
             ComplexityFactor.VULNERABILITY_ISSUE,
@@ -362,7 +346,6 @@ class TierToDeliusApiServiceTest {
     fun `should not count complexity factors none`() = runBlocking {
       val tierToDeliusResponse = TierToDeliusResponse(
         "Male",
-        null,
         emptyList(),
         emptyList(),
         BigDecimal.TEN,
@@ -378,9 +361,8 @@ class TierToDeliusApiServiceTest {
     fun `Should return Complexity Factor Case Insensitive`() = runBlocking {
       val tierToDeliusResponse = TierToDeliusResponse(
         "Male",
-        null,
         listOf(
-          DeliusRegistration("rmdo", "Description", "Not Used", LocalDate.now()),
+          DeliusRegistration("rmdo", "Not Used", LocalDate.now()),
         ),
         emptyList(),
         BigDecimal.TEN,
@@ -396,11 +378,10 @@ class TierToDeliusApiServiceTest {
     fun `Should return Complexity Factor if present as first value in list`() = runBlocking {
       val tierToDeliusResponse = TierToDeliusResponse(
         "Male",
-        null,
         listOf(
-          DeliusRegistration("RMDO", "Description", "Not Used", LocalDate.now()),
-          DeliusRegistration("AV2S", "Description", "BD", LocalDate.now()),
-          DeliusRegistration("AV2S", "Description", "12", LocalDate.now()),
+          DeliusRegistration("RMDO", "Not Used", LocalDate.now()),
+          DeliusRegistration("AV2S", "BD", LocalDate.now()),
+          DeliusRegistration("AV2S", "12", LocalDate.now()),
         ),
         emptyList(),
         BigDecimal.TEN,
@@ -416,9 +397,8 @@ class TierToDeliusApiServiceTest {
     fun `Should return empty List if no Complexity Factors present`() = runBlocking {
       val tierToDeliusResponse = TierToDeliusResponse(
         "Male",
-        null,
         listOf(
-          DeliusRegistration("AV2S", "Description", "Not Used", LocalDate.now()),
+          DeliusRegistration("AV2S", "Not Used", LocalDate.now()),
         ),
         emptyList(),
         BigDecimal.TEN,
@@ -432,7 +412,7 @@ class TierToDeliusApiServiceTest {
 
     private fun getValidRegistrations(factors: List<ComplexityFactor>): List<DeliusRegistration> {
       return factors.map {
-        DeliusRegistration(it.registerCode, "Description", null, LocalDate.now())
+        DeliusRegistration(it.registerCode, null, LocalDate.now())
       }
     }
   }
