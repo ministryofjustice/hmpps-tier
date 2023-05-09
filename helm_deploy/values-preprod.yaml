@@ -1,6 +1,8 @@
 ---
 # Per environment values which override defaults in hmpps-tier/values.yaml
 
+queue_cronjob_schedule: "*/15 6-21 * * 1-5"
+
 generic-service:
   ingress:
     host: hmpps-tier-preprod.hmpps.service.justice.gov.uk

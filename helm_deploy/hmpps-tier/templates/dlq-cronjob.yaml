@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: queue-housekeeping-cronjob
 spec:
-  schedule: "*/15 * * * *"
+  schedule: {{ .Values.queue_cronjob_schedule }}
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 5
   startingDeadlineSeconds: 600
