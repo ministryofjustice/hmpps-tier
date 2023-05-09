@@ -14,10 +14,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
-import java.time.Clock
 import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZoneOffset
 
 class AdditionalFactorsForWomenTest {
   private val assessmentApiService: AssessmentApiService = mockk(relaxUnitFun = true)
