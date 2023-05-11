@@ -1,7 +1,7 @@
 ---
 # Per environment values which override defaults in hmpps-tier/values.yaml
 
-queue_cronjob_schedule: "*/15 6-21 * * 1-5"
+queue_cronjob_schedule: "*/15 7-21 * * 1-5"
 
 generic-service:
   ingress:
