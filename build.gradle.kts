@@ -72,7 +72,7 @@ dependencies {
   testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
   testImplementation("org.junit.platform:junit-platform-console:1.9.3")
-  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.0")
 }
 
 jacoco {
