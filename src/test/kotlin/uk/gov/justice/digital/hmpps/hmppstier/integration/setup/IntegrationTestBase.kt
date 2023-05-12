@@ -83,7 +83,6 @@ abstract class IntegrationTestBase {
     crn: String,
     includeAssessmentApi: Boolean = true,
     assessmentId: Long,
-    tier: String = "A1",
   ) {
     if (includeAssessmentApi) {
       assessmentApi.getCurrentAssessment(crn, assessmentId)

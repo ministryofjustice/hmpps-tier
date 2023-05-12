@@ -41,24 +41,10 @@ class TierToDeliusApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     private const val MOCKSERVER_PORT = 8093
   }
 
-  fun getFullDetails(crn: String) {
-    val request = HttpRequest.request().withPath("/tier-details/$crn")
-    TierToDeliusApiExtension.tierToDeliusApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(tierDetailsResponse(TierDetails("Male", "UD0", "21", "23"))),
-    )
-  }
-
   fun getFullDetails(crn: String, tierDetails: TierDetails) {
     val request = HttpRequest.request().withPath("/tier-details/$crn")
     TierToDeliusApiExtension.tierToDeliusApi.`when`(request, Times.exactly(1)).respond(
       HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(tierDetailsResponse(tierDetails)),
-    )
-  }
-
-  fun getZeroAssessmentDetails(crn: String) {
-    val request = HttpRequest.request().withPath("/tier-details/$crn")
-    TierToDeliusApiExtension.tierToDeliusApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(tierDetailsResponse(TierDetails("Male", "UD0", "0", "0"))),
     )
   }
 

@@ -36,8 +36,6 @@ class AdditionalFactorsForWomenTest {
   @Nested
   @DisplayName("Additional Factors For Women tests")
   inner class AdditionalFactorsForWomenTests {
-    private val crn = "Any Crn"
-
     @Test
     fun `should not count assessment additional factors duplicates`() = runBlocking {
       val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
@@ -233,8 +231,6 @@ class AdditionalFactorsForWomenTest {
   @Nested
   @DisplayName("Get Breach Recall Tests")
   inner class GetBreachRecallTests {
-    private val irrelevantSentenceType = "Irrelevant"
-
     @Test
     fun `Should return Breach points if true`() = runBlocking {
       val result = additionalFactorsForWomen.calculate(

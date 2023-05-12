@@ -4,7 +4,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusConviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusRequirement
 
 class MandateForChange {
-  suspend fun hasNoMandate(convictions: Collection<DeliusConviction>): Boolean =
+  fun hasNoMandate(convictions: Collection<DeliusConviction>): Boolean =
     convictions
       .filter { isCurrent(it) }
       .none {
