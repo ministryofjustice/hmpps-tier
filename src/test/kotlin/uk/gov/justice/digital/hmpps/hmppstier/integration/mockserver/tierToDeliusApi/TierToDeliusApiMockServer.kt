@@ -48,20 +48,6 @@ class TierToDeliusApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     )
   }
 
-  fun getNoAssessment(crn: String, gender: String = "Male") {
-    val request = HttpRequest.request().withPath("/tier-details/$crn")
-    TierToDeliusApiExtension.tierToDeliusApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(tierDetailsResponse(TierDetails(gender, "UD0", null, null))),
-    )
-  }
-
-  fun getNoTier(crn: String) {
-    val request = HttpRequest.request().withPath("/tier-details/$crn")
-    TierToDeliusApiExtension.tierToDeliusApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(tierDetailsResponse(TierDetails("Male", null, null, null))),
-    )
-  }
-
   fun getNotFound(crn: String) {
     val request = HttpRequest.request().withPath("/tier-details/$crn")
     TierToDeliusApiExtension.tierToDeliusApi.`when`(request, Times.exactly(1)).respond(

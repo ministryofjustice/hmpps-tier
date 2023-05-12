@@ -37,69 +37,64 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   @Test
   fun `delius assessments data are identical per crn`() {
     communityApi.getAssessmentResponse(crn1)
-    tierToDeliusApi.getFullDetails(crn1, TierDetails("Male", "UD0", ogrsScore, rsrScore))
+    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = ogrsScore, rsrScore = rsrScore))
 
-    webTestClient.get()
+    val response = webTestClient.get()
       .uri("/crn/$crn1")
       .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
-      .expectStatus()
-      .isOk
-      .expectBody()
-      .jsonPath("$.crn")
-      .isEqualTo(crn1)
-      .jsonPath("$.rsrMatch")
-      .isEqualTo("true")
-      .jsonPath("$.ogrsMatch")
-      .isEqualTo("true")
-      .jsonPath("$.rsrDelius")
-      .isEqualTo(23)
-      .jsonPath("$.rsrCommunity")
-      .isEqualTo(23)
-      .jsonPath("$.ogrsDelius")
-      .isEqualTo(2)
-      .jsonPath("$.ogrsCommunity")
-      .isEqualTo(2)
+      .expectStatus().isOk
+      .expectBody<CommunityDeliusData>()
+      .returnResult()
+      .responseBody
+
+    assertThat(response!!.crn).isEqualTo(crn1)
+    assertThat(response.rsrMatch).isEqualTo(true)
+    assertThat(response.ogrsMatch).isEqualTo(true)
+    assertThat(response.rsrDelius).isEqualTo(BigDecimal.valueOf(23))
+    assertThat(response.rsrCommunity).isEqualTo(BigDecimal.valueOf(23.0))
+    assertThat(response.ogrsDelius).isEqualTo(2)
+    assertThat(response.ogrsCommunity).isEqualTo(2)
   }
 
   @Test
   fun `no delius assessments data`() {
     communityApi.getEmptyAssessmentResponse(crn1)
-    tierToDeliusApi.getNoAssessment(crn1)
-    webTestClient.get()
+    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = null, rsrScore = null))
+
+    val response = webTestClient.get()
       .uri("/crn/$crn1")
       .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus().isOk
-      .expectBody()
-      .jsonPath("$.crn")
-      .isEqualTo(crn1)
-      .jsonPath("$.rsrMatch")
-      .isEqualTo("true")
-      .jsonPath("$.ogrsMatch")
-      .isEqualTo("true")
-      .jsonPath("$.rsrDelius")
-      .isEqualTo(0)
-      .jsonPath("$.rsrCommunity")
-      .isEqualTo(0)
-      .jsonPath("$.ogrsDelius")
-      .isEqualTo(0)
-      .jsonPath("$.ogrsCommunity")
-      .isEqualTo(0)
+      .expectBody<CommunityDeliusData>()
+      .returnResult()
+      .responseBody
+
+    assertThat(response!!.crn).isEqualTo(crn1)
+    assertThat(response.rsrMatch).isEqualTo(true)
+    assertThat(response.ogrsMatch).isEqualTo(true)
+    assertThat(response.rsrDelius).isEqualTo(BigDecimal.valueOf(0))
+    assertThat(response.rsrCommunity).isEqualTo(BigDecimal.valueOf(0))
+    assertThat(response.ogrsDelius).isEqualTo(0)
+    assertThat(response.ogrsCommunity).isEqualTo(0)
   }
 
   @Test
   fun `no delius currentTier data`() {
     communityApi.getEmptyAssessmentResponse(crn1)
-    tierToDeliusApi.getNoTier(crn1)
-    webTestClient.get()
+    tierToDeliusApi.getFullDetails(crn1, TierDetails(currentTier = null, ogrsScore = null, rsrScore = null))
+
+    val response = webTestClient.get()
       .uri("/crn/$crn1")
       .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus().isOk
-      .expectBody()
-      .jsonPath("$.crn")
-      .isEqualTo(crn1)
+      .expectBody<CommunityDeliusData>()
+      .returnResult()
+      .responseBody
+
+    assertThat(response!!.crn).isEqualTo(crn1)
   }
 
   @Test
@@ -134,18 +129,19 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
 
     communityApi.getAssessmentResponse(crn1)
     communityApi.getAssessmentResponse(crn2)
-    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore, rsrScore))
-    tierToDeliusApi.getFullDetails(crn2, TierDetails(ogrsScore, rsrScore))
+    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = ogrsScore, rsrScore = rsrScore))
+    tierToDeliusApi.getFullDetails(crn2, TierDetails(ogrsScore = ogrsScore, rsrScore = rsrScore))
 
-    webTestClient.get()
+    val response = webTestClient.get()
       .uri("/crn/all")
       .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
-      .expectStatus()
-      .isOk
-      .expectBody()
-      .jsonPath("$.length()")
-      .isEqualTo(0)
+      .expectStatus().isOk
+      .expectBody<List<CommunityDeliusData>>()
+      .returnResult()
+      .responseBody
+
+    assertThat(response!!.size).isEqualTo(0)
   }
 
   @Test
@@ -155,24 +151,25 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
     communityApi.getAssessmentResponse(crn1)
     communityApi.getAssessmentResponse(crn2)
-    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore, rsrScore))
-    tierToDeliusApi.getFullDetails(crn2, TierDetails("0", "0"))
-    webTestClient.get().uri("/crn/all").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = ogrsScore, rsrScore = rsrScore))
+    tierToDeliusApi.getFullDetails(crn2, TierDetails(ogrsScore = "0", rsrScore = "0"))
+
+    val response = webTestClient.get()
+      .uri("/crn/all")
+      .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus().isOk
-      .expectBody()
-      .jsonPath("$.length()")
-      .isEqualTo(1)
-      .jsonPath("$.[0].crn")
-      .isEqualTo(crn2)
-      .jsonPath("$.[0].rsrMatch")
-      .isEqualTo("false")
-      .jsonPath("$.[0].ogrsMatch")
-      .isEqualTo("false")
-      .jsonPath("$.[0].rsrDelius")
-      .isEqualTo(0)
-      .jsonPath("$.[0].ogrsDelius")
-      .isEqualTo(0)
+      .expectBody<List<CommunityDeliusData>>()
+      .returnResult().responseBody
+
+    assertThat(response!!.size).isEqualTo(1)
+    assertThat(response[0].crn).isEqualTo(crn2)
+    assertThat(response[0].rsrMatch).isEqualTo(false)
+    assertThat(response[0].ogrsMatch).isEqualTo(false)
+    assertThat(response[0].rsrDelius).isEqualTo(BigDecimal.ZERO)
+    assertThat(response[0].ogrsDelius).isEqualTo(0)
+    assertThat(response[0].rsrCommunity).isEqualTo(BigDecimal.valueOf(23.0))
+    assertThat(response[0].ogrsCommunity).isEqualTo(2)
   }
 
   @Test
@@ -182,28 +179,26 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
     communityApi.getAssessmentResponse(crn1)
     communityApi.getAssessmentResponse(crn2)
-    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore, "0"))
-    tierToDeliusApi.getFullDetails(crn2, TierDetails("0", rsrScore))
-    webTestClient.get().uri("/crn/all").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = ogrsScore, rsrScore = "0"))
+    tierToDeliusApi.getFullDetails(crn2, TierDetails(ogrsScore = "0", rsrScore = rsrScore))
+
+    val response = webTestClient.get()
+      .uri("/crn/all")
+      .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus().isOk
-      .expectBody()
-      .jsonPath("$.[0].crn")
-      .isEqualTo(crn1)
-      .jsonPath("$.[0].rsrMatch")
-      .isEqualTo("false")
-      .jsonPath("$.[0].ogrsMatch")
-      .isEqualTo("true")
-      .jsonPath("$.[0].rsrDelius")
-      .isEqualTo(0)
-      .jsonPath("$.[1].crn")
-      .isEqualTo(crn2)
-      .jsonPath("$.[1].rsrMatch")
-      .isEqualTo("true")
-      .jsonPath("$.[1].ogrsMatch")
-      .isEqualTo("false")
-      .jsonPath("$.[1].ogrsDelius")
-      .isEqualTo(0)
+      .expectBody<List<CommunityDeliusData>>()
+      .returnResult().responseBody
+
+    assertThat(response!!.size).isEqualTo(2)
+    assertThat(response[0].crn).isEqualTo(crn1)
+    assertThat(response[0].rsrMatch).isEqualTo(false)
+    assertThat(response[0].ogrsMatch).isEqualTo(true)
+    assertThat(response[0].rsrDelius).isEqualTo(BigDecimal.ZERO)
+    assertThat(response[1].crn).isEqualTo(crn2)
+    assertThat(response[1].rsrMatch).isEqualTo(true)
+    assertThat(response[1].ogrsMatch).isEqualTo(false)
+    assertThat(response[1].ogrsDelius).isEqualTo(0)
   }
 
   @Test
@@ -213,22 +208,23 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
     communityApi.getAssessmentResponse(crn1, "22", "30")
     communityApi.getAssessmentResponse(crn2)
-    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore, rsrScore))
+    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = ogrsScore, rsrScore = rsrScore))
     tierToDeliusApi.getNotFound(crn2)
-    webTestClient.get().uri("/crn/all").headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+
+    val response = webTestClient.get()
+      .uri("/crn/all")
+      .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus().isOk
-      .expectBody()
-      .jsonPath("$.[0].crn")
-      .isEqualTo(crn1)
-      .jsonPath("$.[0].rsrCommunity")
-      .isEqualTo(22)
-      .jsonPath("$.[0].rsrDelius")
-      .isEqualTo(23)
-      .jsonPath("$.[0].ogrsCommunity")
-      .isEqualTo(3)
-      .jsonPath("$.[0].ogrsDelius")
-      .isEqualTo(2)
+      .expectBody<List<CommunityDeliusData>>()
+      .returnResult().responseBody
+
+    assertThat(response!!.size).isEqualTo(1)
+    assertThat(response[0].crn).isEqualTo(crn1)
+    assertThat(response[0].rsrCommunity).isEqualTo(BigDecimal.valueOf(22))
+    assertThat(response[0].rsrDelius).isEqualTo(BigDecimal.valueOf(23))
+    assertThat(response[0].ogrsCommunity).isEqualTo(3)
+    assertThat(response[0].ogrsDelius).isEqualTo(2)
   }
 
   companion object {

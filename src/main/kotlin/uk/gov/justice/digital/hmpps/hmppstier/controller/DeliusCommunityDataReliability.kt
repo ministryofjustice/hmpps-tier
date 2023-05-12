@@ -78,38 +78,27 @@ class DeliusCommunityDataReliability(
         tierToDeliusApiClient.getDeliusTierTest(it)
       } catch (e: WebClientException) {
         log.error("Webclient exception in Tier To Delius for CRN: $it", e)
-
         null
       }
-
       val communityAssessment = try {
         communityApiService.getDeliusAssessments(it)
       } catch (e: WebClientException) {
         log.error("Webclient exception in Community API for CRN: $it", e)
         DeliusAssessments(BigDecimal.valueOf(-1), -10)
       }
-
       val rsrDelius = deliusInputs?.rsrscore
-
       val ogrsDelius = deliusInputs?.ogrsscore?.div(10)
       val ogrsCommunity = communityAssessment.ogrs.div(10)
 
-      val rsrMatch = rsrDelius?.compareTo(communityAssessment.rsr) == 0
-      val ogrsMatch = ogrsDelius == ogrsCommunity
-
-      if (deliusInputs != null && (!rsrMatch || !ogrsMatch)) {
-        CommunityDeliusData(
-          it,
-          rsrMatch,
-          ogrsMatch,
-          rsrDelius ?: BigDecimal.ZERO,
-          communityAssessment.rsr,
-          ogrsDelius,
-          ogrsCommunity,
-        )
-      } else {
-        null
-      }
+      CommunityDeliusData(
+        it,
+        rsrDelius?.compareTo(communityAssessment.rsr) == 0,
+        ogrsDelius == ogrsCommunity,
+        rsrDelius ?: BigDecimal.ZERO,
+        communityAssessment.rsr,
+        ogrsDelius,
+        ogrsCommunity,
+      ).takeUnless { deliusInputs == null || (it.rsrMatch && it.ogrsMatch) }
     }
   }
 }
