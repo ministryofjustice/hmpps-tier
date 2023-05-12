@@ -4,7 +4,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule
@@ -21,7 +20,6 @@ import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.UUID
 
-@AutoConfigureWebTestClient(timeout = "1000000")
 class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculationRepository) : IntegrationTestBase() {
   @BeforeEach
   fun resetDatabase() {
