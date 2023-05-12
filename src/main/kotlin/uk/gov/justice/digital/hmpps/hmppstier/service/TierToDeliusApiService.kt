@@ -51,10 +51,10 @@ class TierToDeliusApiService(private val tierToDeliusApiClient: TierToDeliusApiC
     )
   }
   private fun getRosh(registrations: Collection<DeliusRegistration>): Rosh? =
-    registrations.mapNotNull { Rosh.from(it.code) }.firstOrNull()
+    registrations.firstNotNullOfOrNull { Rosh.from(it.code) }
 
   private fun getMappa(registrations: Collection<DeliusRegistration>): Mappa? =
-    registrations.mapNotNull { Mappa.from(it.level, it.code) }.firstOrNull()
+    registrations.firstNotNullOfOrNull { Mappa.from(it.level, it.code) }
 
   private fun getComplexityFactors(registrations: Collection<DeliusRegistration>): Collection<ComplexityFactor> =
     registrations.mapNotNull { ComplexityFactor.from(it.code) }.distinct()
