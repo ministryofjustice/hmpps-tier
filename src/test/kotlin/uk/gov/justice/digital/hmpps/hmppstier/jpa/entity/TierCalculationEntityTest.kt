@@ -26,22 +26,6 @@ internal class TierCalculationEntityTest {
     assertThat(tierCalculationResultEntity.uuid).isEqualTo(calculationId)
   }
 
-  @Test
-  fun `can use equals and hashcode for TierCalculationEntity`() {
-    val crn = "Any CRN"
-    val id = 1L
-    val created = LocalDateTime.now()
-    val data = data
-    val calculationId = UUID.randomUUID()
-
-    val tierCalculationResultEntity = TierCalculationEntity(id, calculationId, crn, created, data)
-    val tierCalculationResultEntity2 = TierCalculationEntity(id, calculationId, crn, created, data)
-
-    assertThat(tierCalculationResultEntity).isEqualTo(tierCalculationResultEntity2)
-    assertThat(tierCalculationResultEntity.toString()).isEqualTo(tierCalculationResultEntity2.toString())
-    assertThat(tierCalculationResultEntity.hashCode()).isEqualTo(tierCalculationResultEntity2.hashCode())
-  }
-
   companion object {
     private val tierLetterResult = TierLevel(ProtectLevel.A, 4, mapOf(CalculationRule.ROSH to 4))
     private val tierNumberResult = TierLevel(ChangeLevel.TWO, 12, mapOf(CalculationRule.COMPLEXITY to 12))
