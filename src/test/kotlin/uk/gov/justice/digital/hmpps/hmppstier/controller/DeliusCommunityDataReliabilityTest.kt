@@ -131,7 +131,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     tierToDeliusApi.getFullDetails(crn2, TierDetails(ogrsScore = ogrsScore, rsrScore = rsrScore))
 
     val response = webTestClient.get()
-      .uri("/crn/all")
+      .uri("/crn/all/0/10")
       .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus().isOk
@@ -153,7 +153,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     tierToDeliusApi.getFullDetails(crn2, TierDetails(ogrsScore = "0", rsrScore = "0"))
 
     val response = webTestClient.get()
-      .uri("/crn/all")
+      .uri("/crn/all/0/10")
       .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus().isOk
@@ -181,7 +181,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     tierToDeliusApi.getFullDetails(crn2, TierDetails(ogrsScore = "0", rsrScore = rsrScore))
 
     val response = webTestClient.get()
-      .uri("/crn/all")
+      .uri("/crn/all/0/10")
       .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus().isOk
@@ -200,6 +200,27 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   }
 
   @Test
+  fun `Should use limit and offset to query the crns`() {
+    val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
+    val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
+    repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
+    communityApi.getAssessmentResponse(crn1)
+    communityApi.getAssessmentResponse(crn2)
+    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = ogrsScore, rsrScore = "0"))
+    tierToDeliusApi.getFullDetails(crn2, TierDetails(ogrsScore = "0", rsrScore = rsrScore))
+
+    val response = webTestClient.get()
+      .uri("/crn/all/0/1")
+      .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+      .exchange()
+      .expectStatus().isOk
+      .expectBody<List<CommunityDeliusData>>()
+      .returnResult().responseBody
+
+    assertThat(response!!.size).isEqualTo(1)
+  }
+
+  @Test
   fun `Tier to Delius Not found`() {
     val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
@@ -210,7 +231,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     tierToDeliusApi.getNotFound(crn2)
 
     val response = webTestClient.get()
-      .uri("/crn/all")
+      .uri("/crn/all/0/10")
       .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
       .exchange()
       .expectStatus().isOk

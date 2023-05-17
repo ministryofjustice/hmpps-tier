@@ -25,8 +25,8 @@ class TierReader(
       TierDto.from(it)
     }
 
-  suspend fun getCrns(): Flow<String> {
-    return tierCalculationRepository.findDistinctCrn().asFlow()
+  suspend fun getCrns(offset: Int, limit: Int): Flow<String> {
+    return tierCalculationRepository.findDistinctCrn(offset, limit).asFlow()
   }
 
   private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =

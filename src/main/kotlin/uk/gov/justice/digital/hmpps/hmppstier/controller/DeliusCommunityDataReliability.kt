@@ -71,9 +71,9 @@ class DeliusCommunityDataReliability(
     ],
   )
   @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
-  @GetMapping("/crn/all")
-  suspend fun getAllDataReliability(): Flow<CommunityDeliusData> {
-    return tierReader.getCrns().mapNotNull {
+  @GetMapping("/crn/all/{offset}/{limit}")
+  suspend fun getAllDataReliability(@PathVariable(required = true) offset: Int, @PathVariable(required = true) limit: Int): Flow<CommunityDeliusData> {
+    return tierReader.getCrns(offset, limit).mapNotNull {
       val deliusInputs = try {
         tierToDeliusApiClient.getDeliusTierTest(it)
       } catch (e: WebClientException) {
