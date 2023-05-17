@@ -59,7 +59,7 @@ class TierCalculationTest : IntegrationTestBase() {
         ),
       ),
     )
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890, "A2")
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
     assessmentApi.getOutdatedAssessment(crn, 1234567890)
 
     calculateTierFor(crn)

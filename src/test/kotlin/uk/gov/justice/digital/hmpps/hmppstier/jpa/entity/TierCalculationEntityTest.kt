@@ -23,7 +23,6 @@ internal class TierCalculationEntityTest {
     assertThat(tierCalculationResultEntity.crn).isEqualTo(crn)
     assertThat(tierCalculationResultEntity.created).isEqualTo(created)
     assertThat(tierCalculationResultEntity.data).isEqualTo(data)
-
     assertThat(tierCalculationResultEntity.uuid).isEqualTo(calculationId)
   }
 

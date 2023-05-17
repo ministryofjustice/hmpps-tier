@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
+import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusInputs
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.IOM
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.NEEDS
@@ -17,21 +18,19 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 class ChangeLevelCalculator {
 
   fun calculate(
-    ogrsScore: Int,
-    hasIomNominal: Boolean,
+    deliusInputs: DeliusInputs,
     needs: Map<Need, NeedSeverity>,
-    hasNoMandateForChange: Boolean,
     hasNoAssessment: Boolean,
   ): TierLevel<ChangeLevel> =
     when {
-      hasNoMandateForChange -> TIER_NO_MANDATE
+      deliusInputs.hasNoMandate -> TIER_NO_MANDATE
       hasNoAssessment -> TIER_NO_ASSESSMENT
 
       else -> {
         val points = mapOf(
           NEEDS to getAssessmentNeedsPoints(needs),
-          OGRS to getOgrsPoints(ogrsScore),
-          IOM to getIomNominalPoints(hasIomNominal),
+          OGRS to getOgrsPoints(deliusInputs.ogrsScore),
+          IOM to getIomNominalPoints(deliusInputs.registrations.hasIomNominal),
         )
 
         val total = points.map { it.value }.sum()

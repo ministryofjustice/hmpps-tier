@@ -12,7 +12,6 @@ import java.time.LocalDateTime
 class TierCalculationService(
   private val clock: Clock,
   private val assessmentApiService: AssessmentApiService,
-  private val communityApiService: CommunityApiService,
   private val tierToDeliusApiService: TierToDeliusApiService,
   private val successUpdater: SuccessUpdater,
   private val telemetryService: TelemetryService,
@@ -45,10 +44,8 @@ class TierCalculationService(
 
     val protectLevel = protectLevelCalculator.calculate(deliusInputs.rsrScore, additionalFactorsPoints, deliusInputs.registrations)
     val changeLevel = changeLevelCalculator.calculate(
-      deliusInputs.ogrsScore,
-      deliusInputs.registrations.hasIomNominal,
+      deliusInputs,
       assessmentApiService.getAssessmentNeeds(offenderAssessment),
-      deliusInputs.hasNoMandate,
       hasNoAssessment(offenderAssessment),
     )
 

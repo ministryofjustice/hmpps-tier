@@ -19,14 +19,12 @@ class SetupData(
 ) {
   private var assessmentDate: LocalDateTime = LocalDateTime.now()
   var crn: String = ids["crn"]!!
-  var convictionId: String = ids["convictionId"]!!
   var assessmentId: Long = ids["assessmentId"]!!.toLong()
   private var hasValidAssessment: Boolean = false
   private var gender: String = "Male"
   private var needs: MutableList<Need> = mutableListOf()
   private var ogrs: String = "0"
   private var registrations: MutableList<Registration> = mutableListOf()
-  private var requirements: MutableList<Requirement> = mutableListOf()
   private var convictions: MutableList<Conviction> = mutableListOf()
   private var rsr: String = "0"
   private var assessmentAnswers: MutableMap<String, Answer> = mutableMapOf(
