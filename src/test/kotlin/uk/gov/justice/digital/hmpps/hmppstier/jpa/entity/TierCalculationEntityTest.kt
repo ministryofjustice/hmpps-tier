@@ -14,17 +14,22 @@ internal class TierCalculationEntityTest {
   @Test
   fun `Should Construct TierCalculationEntity`() {
     val crn = "Any CRN"
+    val id = 1L
     val created = LocalDateTime.now()
     val data = data
     val calculationId = UUID.randomUUID()
 
-    val tierCalculationResultEntity = TierCalculationEntity(crn = crn, created = created, data = data, uuid = calculationId)
+    val tierCalculationResultEntity = TierCalculationEntity(id, calculationId, crn, created, data)
+    val tierCalculationResultEntity2 = TierCalculationEntity(id, calculationId, crn, created, data)
 
     assertThat(tierCalculationResultEntity.crn).isEqualTo(crn)
     assertThat(tierCalculationResultEntity.created).isEqualTo(created)
     assertThat(tierCalculationResultEntity.data).isEqualTo(data)
-
     assertThat(tierCalculationResultEntity.uuid).isEqualTo(calculationId)
+    assertThat(tierCalculationResultEntity.id).isEqualTo(id)
+    assertThat(tierCalculationResultEntity).isEqualTo(tierCalculationResultEntity2)
+    assertThat(tierCalculationResultEntity.toString()).isEqualTo(tierCalculationResultEntity2.toString())
+    assertThat(tierCalculationResultEntity.hashCode()).isEqualTo(tierCalculationResultEntity2.hashCode())
   }
 
   companion object {
