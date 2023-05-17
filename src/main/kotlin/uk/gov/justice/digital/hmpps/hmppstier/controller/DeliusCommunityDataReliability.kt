@@ -86,15 +86,15 @@ class DeliusCommunityDataReliability(
         log.error("Webclient exception in Community API for CRN: $it", e)
         DeliusAssessments(BigDecimal.valueOf(-1), -10)
       }
-      val rsrDelius = deliusInputs?.rsrscore
-      val ogrsDelius = deliusInputs?.ogrsscore?.div(10)
+      val rsrDelius = deliusInputs?.rsrscore ?: BigDecimal.ZERO
+      val ogrsDelius = (deliusInputs?.ogrsscore ?: 0).div(10)
       val ogrsCommunity = communityAssessment.ogrs.div(10)
 
       CommunityDeliusData(
         it,
         rsrDelius?.compareTo(communityAssessment.rsr) == 0,
         ogrsDelius == ogrsCommunity,
-        rsrDelius ?: BigDecimal.ZERO,
+        rsrDelius,
         communityAssessment.rsr,
         ogrsDelius,
         ogrsCommunity,

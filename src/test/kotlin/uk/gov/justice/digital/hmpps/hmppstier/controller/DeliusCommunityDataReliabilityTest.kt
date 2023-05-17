@@ -221,6 +221,29 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   }
 
   @Test
+  fun `Delius assessments replaced with zero when returned as null`() {
+    val tierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
+    repository.save(tierCalculation)
+    communityApi.getAssessmentResponse(crn1)
+    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = null, rsrScore = "0"))
+
+    val response = webTestClient.get()
+      .uri("/crn/all/0/2")
+      .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+      .exchange()
+      .expectStatus().isOk
+      .expectBody<List<CommunityDeliusData>>()
+      .returnResult().responseBody
+
+    assertThat(response!!.size).isEqualTo(1)
+    assertThat(response[0].crn).isEqualTo(crn1)
+    assertThat(response[0].rsrCommunity).isEqualTo(BigDecimal.valueOf(23.0))
+    assertThat(response[0].rsrDelius).isEqualTo(BigDecimal.ZERO)
+    assertThat(response[0].ogrsCommunity).isEqualTo(2)
+    assertThat(response[0].ogrsDelius).isEqualTo(0)
+  }
+
+  @Test
   fun `Tier to Delius Not found`() {
     val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
