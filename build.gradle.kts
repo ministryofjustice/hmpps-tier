@@ -52,7 +52,7 @@ dependencies {
 
   implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.0.0")
 
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.1")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4")
 
