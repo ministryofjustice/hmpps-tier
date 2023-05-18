@@ -52,8 +52,8 @@ dependencies {
 
   implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.0.0")
 
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.0")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.0")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.1")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test") {
@@ -72,7 +72,7 @@ dependencies {
   testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
   testImplementation("org.junit.platform:junit-platform-console:1.9.3")
-  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.0")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
 }
 
 jacoco {
