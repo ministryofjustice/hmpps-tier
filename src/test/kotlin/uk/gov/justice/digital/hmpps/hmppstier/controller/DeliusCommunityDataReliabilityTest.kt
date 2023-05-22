@@ -11,12 +11,16 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import java.math.BigDecimal
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -35,7 +39,22 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   @Test
   fun `delius assessments data are identical per crn`() {
     communityApi.getAssessmentResponse(crn1)
-    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = ogrsScore, rsrScore = rsrScore))
+    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getConviction(crn1)
+    communityApi.getRequirement(crn1)
+    communityApi.getRegistration(crn1)
+    communityApi.getNsi(crn1, 12345)
+    tierToDeliusApi.getFullDetails(
+      crn1,
+      TierDetails(
+        ogrsScore = ogrsScore,
+        rsrScore = rsrScore,
+        convictions = listOf(Conviction(true, mutableListOf(Requirement("X", false)), "NC", LocalDate.of(2021, 2, 1))),
+        registrations = listOf(
+          Registration("M1", "MAPP", LocalDate.of(2021, 2, 1)),
+        ),
+      ),
+    )
 
     val response = webTestClient.get()
       .uri("/crn/$crn1")
@@ -53,11 +72,19 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     assertThat(response.rsrCommunity).isEqualTo(BigDecimal.valueOf(23.0))
     assertThat(response.ogrsDelius).isEqualTo(2)
     assertThat(response.ogrsCommunity).isEqualTo(2)
+    assertThat(response.convictionsMatch).isEqualTo(true)
+    assertThat(response.registrationMatch).isEqualTo(true)
   }
 
   @Test
   fun `no delius assessments data`() {
     communityApi.getEmptyAssessmentResponse(crn1)
+    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getConviction(crn1)
+    communityApi.getRequirement(crn1)
+    communityApi.getRegistration(crn1)
+    communityApi.getNsi(crn1, 12345)
+
     tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = null, rsrScore = null))
 
     val response = webTestClient.get()
@@ -81,6 +108,12 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   @Test
   fun `no delius currentTier data`() {
     communityApi.getEmptyAssessmentResponse(crn1)
+    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getConviction(crn1)
+    communityApi.getRequirement(crn1)
+    communityApi.getRegistration(crn1)
+    communityApi.getNsi(crn1, 12345)
+
     tierToDeliusApi.getFullDetails(crn1, TierDetails(currentTier = null, ogrsScore = null, rsrScore = null))
 
     val response = webTestClient.get()
@@ -98,6 +131,12 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   @Test
   fun `delius and community assessments do not match`() {
     communityApi.getAssessmentResponse(crn1)
+    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getConviction(crn1)
+    communityApi.getRequirement(crn1)
+    communityApi.getRegistration(crn1)
+    communityApi.getNsi(crn1, 12345)
+
     tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = null, rsrScore = null))
 
     val response = webTestClient.get()
@@ -119,6 +158,33 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   }
 
   @Test
+  fun `delius and community breach do not match`() {
+    communityApi.getAssessmentResponse(crn1)
+    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getConviction(crn1)
+    communityApi.getRequirement(crn1)
+    communityApi.getRegistration(crn1)
+    communityApi.getNsi(crn1, 12345, null)
+    tierToDeliusApi.getFullDetails(
+      crn1,
+      TierDetails(
+        convictions = listOf(Conviction(true, mutableListOf(Requirement("X", false)), "NC", LocalDate.of(2021, 2, 1))),
+      ),
+    )
+    val response = webTestClient.get()
+      .uri("/crn/$crn1")
+      .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+      .exchange()
+      .expectStatus().isOk
+      .expectBody<CommunityDeliusData>()
+      .returnResult()
+      .responseBody
+
+    assertThat(response!!.crn).isEqualTo(crn1)
+    assertThat(response.convictionsMatch).isEqualTo(false)
+  }
+
+  @Test
   fun `Should only return non-matching reliability for distinct crns`() {
     val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created.minusHours(1), data = data, uuid = UUID.randomUUID())
@@ -127,6 +193,17 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
 
     communityApi.getAssessmentResponse(crn1)
     communityApi.getAssessmentResponse(crn2)
+    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getOffender(crn2, "female", "A01")
+    communityApi.getConviction(crn1)
+    communityApi.getConviction(crn2)
+    communityApi.getRequirement(crn1)
+    communityApi.getRequirement(crn2)
+    communityApi.getRegistration(crn1)
+    communityApi.getRegistration(crn2)
+    communityApi.getNsi(crn1, 12345)
+    communityApi.getNsi(crn2, 12345)
+
     tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = ogrsScore, rsrScore = rsrScore))
     tierToDeliusApi.getFullDetails(crn2, TierDetails(ogrsScore = ogrsScore, rsrScore = rsrScore))
 
@@ -149,6 +226,17 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
     communityApi.getAssessmentResponse(crn1)
     communityApi.getAssessmentResponse(crn2)
+    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getOffender(crn2, "female", "A01")
+    communityApi.getConviction(crn1)
+    communityApi.getConviction(crn2)
+    communityApi.getRequirement(crn1)
+    communityApi.getRequirement(crn2)
+    communityApi.getRegistration(crn1)
+    communityApi.getRegistration(crn2)
+    communityApi.getNsi(crn1, 12345)
+    communityApi.getNsi(crn2, 12345)
+
     tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = ogrsScore, rsrScore = rsrScore))
     tierToDeliusApi.getFullDetails(crn2, TierDetails(ogrsScore = "0", rsrScore = "0"))
 
@@ -177,6 +265,17 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
     communityApi.getAssessmentResponse(crn1)
     communityApi.getAssessmentResponse(crn2)
+    communityApi.getOffender(crn1, "male", "A01")
+    communityApi.getOffender(crn2, "female", "A01")
+    communityApi.getConviction(crn1)
+    communityApi.getConviction(crn2)
+    communityApi.getRequirement(crn1)
+    communityApi.getRequirement(crn2)
+    communityApi.getRegistration(crn1)
+    communityApi.getRegistration(crn2)
+    communityApi.getNsi(crn1, 12345)
+    communityApi.getNsi(crn2, 12345)
+
     tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = ogrsScore, rsrScore = "0"))
     tierToDeliusApi.getFullDetails(crn2, TierDetails(ogrsScore = "0", rsrScore = rsrScore))
 
@@ -193,10 +292,12 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     assertThat(response[0].rsrMatch).isEqualTo(false)
     assertThat(response[0].ogrsMatch).isEqualTo(true)
     assertThat(response[0].rsrDelius).isEqualTo(BigDecimal.ZERO)
+    assertThat(response[0].genderMatch).isEqualTo(true)
     assertThat(response[1].crn).isEqualTo(crn2)
     assertThat(response[1].rsrMatch).isEqualTo(true)
     assertThat(response[1].ogrsMatch).isEqualTo(false)
     assertThat(response[1].ogrsDelius).isEqualTo(0)
+    assertThat(response[1].genderMatch).isEqualTo(false)
   }
 
   @Test
@@ -206,6 +307,17 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
     communityApi.getAssessmentResponse(crn1)
     communityApi.getAssessmentResponse(crn2)
+    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getOffender(crn2, "female", "A01")
+    communityApi.getConviction(crn1)
+    communityApi.getConviction(crn2)
+    communityApi.getRequirement(crn1)
+    communityApi.getRequirement(crn2)
+    communityApi.getRegistration(crn1)
+    communityApi.getRegistration(crn2)
+    communityApi.getNsi(crn1, 12345)
+    communityApi.getNsi(crn2, 12345)
+
     tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = ogrsScore, rsrScore = "0"))
     tierToDeliusApi.getFullDetails(crn2, TierDetails(ogrsScore = "0", rsrScore = rsrScore))
 
@@ -225,6 +337,14 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     val tierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     repository.save(tierCalculation)
     communityApi.getAssessmentResponse(crn1)
+    communityApi.getOffender(crn1, "male", "A01")
+    communityApi.getConviction(crn1)
+    communityApi.getRequirement(crn1)
+    communityApi.getRegistration(crn1)
+    communityApi.getRegistration(crn2)
+    communityApi.getNsi(crn1, 12345)
+    communityApi.getNsi(crn2, 12345)
+
     tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = null, rsrScore = "0"))
 
     val response = webTestClient.get()
@@ -241,6 +361,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     assertThat(response[0].rsrDelius).isEqualTo(BigDecimal.ZERO)
     assertThat(response[0].ogrsCommunity).isEqualTo(2)
     assertThat(response[0].ogrsDelius).isEqualTo(0)
+    assertThat(response[0].genderMatch).isEqualTo(true)
   }
 
   @Test
@@ -250,6 +371,17 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
     communityApi.getAssessmentResponse(crn1, "22", "30")
     communityApi.getAssessmentResponse(crn2)
+    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getOffender(crn2, "female", "A01")
+    communityApi.getConviction(crn1)
+    communityApi.getConviction(crn2)
+    communityApi.getRequirement(crn1)
+    communityApi.getRequirement(crn2)
+    communityApi.getRegistration(crn1)
+    communityApi.getRegistration(crn2)
+    communityApi.getNsi(crn1, 12345)
+    communityApi.getNsi(crn2, 12345)
+
     tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = ogrsScore, rsrScore = rsrScore))
     tierToDeliusApi.getNotFound(crn2)
 
@@ -267,6 +399,39 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     assertThat(response[0].rsrDelius).isEqualTo(BigDecimal.valueOf(23))
     assertThat(response[0].ogrsCommunity).isEqualTo(3)
     assertThat(response[0].ogrsDelius).isEqualTo(2)
+  }
+
+  @Test
+  fun `Get not found CRNs`() {
+    val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
+    val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
+    repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
+    communityApi.getAssessmentResponse(crn1, "22", "30")
+    communityApi.getAssessmentResponse(crn2)
+    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getOffender(crn2, "female", "A01")
+    communityApi.getConviction(crn1)
+    communityApi.getConviction(crn2)
+    communityApi.getRequirement(crn1)
+    communityApi.getRequirement(crn2)
+    communityApi.getRegistration(crn1)
+    communityApi.getRegistration(crn2)
+    communityApi.getNsi(crn1, 12345)
+    communityApi.getNsi(crn2, 12345)
+
+    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = ogrsScore, rsrScore = rsrScore))
+    tierToDeliusApi.getNotFound(crn2)
+
+    val response = webTestClient.get()
+      .uri("/crn/0/10")
+      .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+      .exchange()
+      .expectStatus().isOk
+      .expectBody<List<String>>()
+      .returnResult().responseBody
+
+    assertThat(response!!.size).isEqualTo(1)
+    assertThat(response[0]).isEqualTo("X123456")
   }
 
   companion object {
