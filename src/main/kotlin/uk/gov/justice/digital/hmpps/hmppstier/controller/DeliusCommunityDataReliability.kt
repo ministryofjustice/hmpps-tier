@@ -136,7 +136,7 @@ class DeliusCommunityDataReliability(
         ogrsDelius,
         ogrsCommunity,
       ).takeUnless {
-        (deliusInputs?.ogrsscore ?: 0) < 0 || (it.rsrMatch && it.ogrsMatch) || genderCommunity == "NOT_FOUND"
+        (deliusInputs == null) || (it.rsrMatch && it.ogrsMatch) || genderCommunity == "NOT_FOUND"
       }
     }
   }
@@ -152,7 +152,7 @@ class DeliusCommunityDataReliability(
   @GetMapping("/crn/{offset}/{limit}")
   suspend fun getUnmatchedCrns(@PathVariable(required = true) offset: Int, @PathVariable(required = true) limit: Int): List<String>? {
     return tierReader.getCrns(offset, limit)
-      .filter { tierToDeliusApiClient.getDeliusTierTest(it)?.ogrsscore == -1 }.toList()
+      .filter { tierToDeliusApiClient.getDeliusTierTest(it) == null }.toList()
   }
 }
 
