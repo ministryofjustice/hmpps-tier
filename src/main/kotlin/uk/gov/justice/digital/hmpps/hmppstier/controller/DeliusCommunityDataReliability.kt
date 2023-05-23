@@ -122,20 +122,22 @@ class DeliusCommunityDataReliability(
       val rsrDelius = deliusInputs?.rsrscore ?: BigDecimal.ZERO
       val ogrsDelius = (deliusInputs?.ogrsscore ?: 0).div(10)
       val ogrsCommunity = communityAssessment.ogrs.div(10)
-      val genderMatch = communityApiService.getOffender(it)?.gender.equals(deliusInputs?.gender, true)
+      val genderCommunity = communityApiService.getOffender(it)?.gender ?: "NOT_FOUND"
 
       CommunityDeliusData(
         it,
-        rsrDelius?.compareTo(communityAssessment.rsr) == 0,
+        rsrDelius.compareTo(communityAssessment.rsr) == 0,
         ogrsDelius == ogrsCommunity,
-        genderMatch,
+        genderCommunity.equals(deliusInputs?.gender, true),
         getCommunityConviction(it) == deliusInputs?.convictions,
         getCommunityRegistration(it) == deliusInputs?.registrations,
         rsrDelius,
         communityAssessment.rsr,
         ogrsDelius,
         ogrsCommunity,
-      ).takeUnless { deliusInputs?.ogrsscore == -1 || (it.rsrMatch && it.ogrsMatch) }
+      ).takeUnless {
+        (deliusInputs?.ogrsscore ?: 0) < 0 || (it.rsrMatch && it.ogrsMatch) || genderCommunity == "NOT_FOUND"
+      }
     }
   }
 

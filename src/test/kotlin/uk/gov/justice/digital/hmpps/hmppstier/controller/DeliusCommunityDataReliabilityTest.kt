@@ -185,6 +185,89 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   }
 
   @Test
+  fun `Not found delius response`() {
+    communityApi.getAssessmentResponse(crn1)
+    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getConviction(crn1)
+    communityApi.getRequirement(crn1)
+    communityApi.getRegistration(crn1)
+    communityApi.getNsi(crn1, 12345, null)
+    tierToDeliusApi.getNotFound(crn1)
+
+    val response = webTestClient.get()
+      .uri("/crn/$crn1")
+      .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+      .exchange()
+      .expectStatus().isOk
+      .expectBody<CommunityDeliusData>()
+      .returnResult()
+      .responseBody
+
+    assertThat(response!!.crn).isEqualTo(crn1)
+    assertThat(response.genderMatch).isEqualTo(false)
+    assertThat(response.convictionsMatch).isEqualTo(false)
+    assertThat(response.registrationMatch).isEqualTo(false)
+    assertThat(response.ogrsDelius).isEqualTo(0)
+  }
+
+  @Test
+  fun `Not found community offender`() {
+    communityApi.getAssessmentResponse(crn1)
+    communityApi.getNotFoundOffender(crn1)
+    communityApi.getConviction(crn1)
+    communityApi.getRequirement(crn1)
+    communityApi.getRegistration(crn1)
+    communityApi.getNsi(crn1, 12345, null)
+    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = null, rsrScore = null))
+
+    val response = webTestClient.get()
+      .uri("/crn/$crn1")
+      .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+      .exchange()
+      .expectStatus().isOk
+      .expectBody<CommunityDeliusData>()
+      .returnResult()
+      .responseBody
+
+    assertThat(response!!.crn).isEqualTo(crn1)
+    assertThat(response.genderMatch).isEqualTo(false)
+  }
+
+  @Test
+  fun `Empty community registration response`() {
+    communityApi.getAssessmentResponse(crn1)
+    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getConviction(crn1)
+    communityApi.getRequirement(crn1)
+    communityApi.getEmptyRegistration(crn1)
+    communityApi.getNsi(crn1, 12345)
+    tierToDeliusApi.getFullDetails(
+      crn1,
+      TierDetails(
+        ogrsScore = ogrsScore,
+        rsrScore = rsrScore,
+        convictions = listOf(Conviction(true, mutableListOf(Requirement("X", false)), "NC", LocalDate.of(2021, 2, 1))),
+        registrations = listOf(
+          Registration("M1", "MAPP", LocalDate.of(2021, 2, 1)),
+        ),
+      ),
+    )
+
+    val response = webTestClient.get()
+      .uri("/crn/$crn1")
+      .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+      .exchange()
+      .expectStatus().isOk
+      .expectBody<CommunityDeliusData>()
+      .returnResult()
+      .responseBody
+
+    assertThat(response!!.crn).isEqualTo(crn1)
+    assertThat(response.registrationMatch).isEqualTo(false)
+    assertThat(response.convictionsMatch).isEqualTo(true)
+  }
+
+  @Test
   fun `Should only return non-matching reliability for distinct crns`() {
     val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created.minusHours(1), data = data, uuid = UUID.randomUUID())
@@ -345,7 +428,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     communityApi.getNsi(crn1, 12345)
     communityApi.getNsi(crn2, 12345)
 
-    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = null, rsrScore = "0"))
+    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = null, rsrScore = null))
 
     val response = webTestClient.get()
       .uri("/crn/all/0/2")
@@ -402,22 +485,42 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   }
 
   @Test
-  fun `Get not found CRNs`() {
+  fun `Empty community convictions response`() {
     val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
-    communityApi.getAssessmentResponse(crn1, "22", "30")
+    communityApi.getAssessmentResponse(crn1)
     communityApi.getAssessmentResponse(crn2)
     communityApi.getOffender(crn1, "female", "A01")
     communityApi.getOffender(crn2, "female", "A01")
-    communityApi.getConviction(crn1)
-    communityApi.getConviction(crn2)
+    communityApi.getConviction(crn1, null)
+    communityApi.getConviction(crn2, null)
     communityApi.getRequirement(crn1)
     communityApi.getRequirement(crn2)
     communityApi.getRegistration(crn1)
     communityApi.getRegistration(crn2)
     communityApi.getNsi(crn1, 12345)
     communityApi.getNsi(crn2, 12345)
+
+    tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = ogrsScore, rsrScore = rsrScore))
+    tierToDeliusApi.getNotFound(crn2)
+
+    val response = webTestClient.get()
+      .uri("/crn/all/0/10")
+      .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+      .exchange()
+      .expectStatus().isOk
+      .expectBody<List<CommunityDeliusData>>()
+      .returnResult().responseBody
+
+    assertThat(response!!.size).isEqualTo(0)
+  }
+
+  @Test
+  fun `Get not found CRNs`() {
+    val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
+    val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
+    repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
 
     tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = ogrsScore, rsrScore = rsrScore))
     tierToDeliusApi.getNotFound(crn2)
