@@ -98,11 +98,27 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     )
   }
 
+  fun getNotFoundRequirement(crn: String, convictionId: Long = 12345) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/$convictionId/requirements")
+
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.notFoundResponse(),
+    )
+  }
+
   fun getRegistration(crn: String) {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations")
 
     communityApi.`when`(request, Times.exactly(1)).respond(
       HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse()),
+    )
+  }
+
+  fun getNotFoundRegistration(crn: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations")
+
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.notFoundResponse(),
     )
   }
 

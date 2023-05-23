@@ -17,12 +17,17 @@ import java.time.LocalDate
 @Generated
 class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val webClient: WebClient) {
 
-  suspend fun getRegistrations(crn: String): Collection<Registration> =
+  suspend fun getRegistrations(crn: String): Collection<Registration>? =
     webClient
       .get()
       .uri("/offenders/crn/$crn/registrations?activeOnly=true")
-      .retrieve()
-      .awaitBody<Registrations>().registrations ?: listOf()
+      .awaitExchangeOrNull { response ->
+        when (response.statusCode()) {
+          HttpStatus.OK -> response.awaitBody<Registrations>().registrations ?: listOf()
+          HttpStatus.NOT_FOUND -> emptyList()
+          else -> throw response.createExceptionAndAwait()
+        }
+      }
 
   suspend fun getDeliusAssessments(crn: String): DeliusAssessmentsDto? {
     return webClient
@@ -58,7 +63,7 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       .awaitBody<NsiWrapper>().nsis
   }
 
-  suspend fun getRequirements(crn: String, convictionId: Long): List<RequirementDto> =
+  suspend fun getRequirements(crn: String, convictionId: Long): List<RequirementDto>? =
     webClient
       .get()
       .uri { uriBuilder ->
@@ -67,8 +72,13 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
           .queryParam("excludeSoftDeleted", true)
           .build(crn, convictionId)
       }
-      .retrieve()
-      .awaitBody<Requirements>().requirements
+      .awaitExchangeOrNull { response ->
+        when (response.statusCode()) {
+          HttpStatus.OK -> response.awaitBody<Requirements>().requirements
+          HttpStatus.NOT_FOUND -> emptyList()
+          else -> throw response.createExceptionAndAwait()
+        }
+      }
 
   suspend fun getOffender(crn: String): Offender? {
     return webClient
