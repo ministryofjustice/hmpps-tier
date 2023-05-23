@@ -12,6 +12,7 @@ import org.mockserver.model.MediaType
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.CommunityApiExtension.Companion.communityApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.convictionResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.deliusAssessmentResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.emptyRegistrationResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.nsiResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.offenderResponse
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.communityApi.response.registrationResponse
@@ -65,11 +66,19 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     )
   }
 
-  fun getConviction(crn: String) {
+  fun getNotFoundOffender(crn: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/all")
+
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.notFoundResponse(),
+    )
+  }
+
+  fun getConviction(crn: String, convictionId: String? = "12345") {
     val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions")
 
     communityApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionResponse()),
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionResponse(convictionId)),
     )
   }
 
@@ -86,6 +95,14 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
 
     communityApi.`when`(request, Times.exactly(1)).respond(
       HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse()),
+    )
+  }
+
+  fun getEmptyRegistration(crn: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations")
+
+    communityApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(emptyRegistrationResponse()),
     )
   }
 

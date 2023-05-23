@@ -4,10 +4,13 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import kotlinx.coroutines.flow.toList
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
+import org.springframework.web.reactive.function.client.awaitExchangeOrNull
 import org.springframework.web.reactive.function.client.bodyToFlow
+import org.springframework.web.reactive.function.client.createExceptionAndAwait
 import uk.gov.justice.digital.hmpps.hmppstier.config.Generated
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -27,8 +30,13 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
     return webClient
       .get()
       .uri("/offenders/crn/$crn/assessments")
-      .retrieve()
-      .awaitBody()
+      .awaitExchangeOrNull { response ->
+        when (response.statusCode()) {
+          HttpStatus.OK -> response.awaitBody<DeliusAssessmentsDto>()
+          HttpStatus.NOT_FOUND -> DeliusAssessmentsDto(BigDecimal.valueOf(-2), -2)
+          else -> throw response.createExceptionAndAwait()
+        }
+      }
   }
 
   suspend fun getConvictions(crn: String): List<ConvictionDto> {
@@ -64,8 +72,13 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
     return webClient
       .get()
       .uri("/offenders/crn/$crn/all")
-      .retrieve()
-      .awaitBody()
+      .awaitExchangeOrNull { response ->
+        when (response.statusCode()) {
+          HttpStatus.OK -> response.awaitBody<Offender>()
+          HttpStatus.NOT_FOUND -> Offender("NOT_FOUND", "NOT_FOUND")
+          else -> throw response.createExceptionAndAwait()
+        }
+      }
   }
 }
 

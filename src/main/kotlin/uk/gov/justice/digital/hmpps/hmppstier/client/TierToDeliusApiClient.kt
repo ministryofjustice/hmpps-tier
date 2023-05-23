@@ -36,7 +36,7 @@ class TierToDeliusApiClient(@Qualifier("tierToDeliusApiClientWebClientAppScope")
 }
 
 fun getErrorTierToDeliusResponse(): TierToDeliusResponse {
-  return TierToDeliusResponse("male", emptyList(), emptyList(), BigDecimal.valueOf(-1), -1)
+  return TierToDeliusResponse("NOT_FOUND", emptyList(), emptyList(), BigDecimal.valueOf(-1), -1)
 }
 
 data class TierToDeliusResponse @JsonCreator constructor(
