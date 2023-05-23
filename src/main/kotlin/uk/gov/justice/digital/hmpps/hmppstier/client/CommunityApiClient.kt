@@ -2,14 +2,12 @@ package uk.gov.justice.digital.hmpps.hmppstier.client
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import kotlinx.coroutines.flow.toList
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
 import org.springframework.web.reactive.function.client.awaitExchangeOrNull
-import org.springframework.web.reactive.function.client.bodyToFlow
 import org.springframework.web.reactive.function.client.createExceptionAndAwait
 import uk.gov.justice.digital.hmpps.hmppstier.config.Generated
 import java.math.BigDecimal
@@ -39,13 +37,17 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
       }
   }
 
-  suspend fun getConvictions(crn: String): List<ConvictionDto> {
+  suspend fun getConvictions(crn: String): List<ConvictionDto>? {
     return webClient
       .get()
       .uri("/offenders/crn/$crn/convictions?activeOnly=true")
-      .retrieve()
-      .bodyToFlow<ConvictionDto>()
-      .toList()
+      .awaitExchangeOrNull { response ->
+        when (response.statusCode()) {
+          HttpStatus.OK -> response.awaitBody<List<ConvictionDto>>()
+          HttpStatus.NOT_FOUND -> listOf(ConvictionDto(-2L, null))
+          else -> throw response.createExceptionAndAwait()
+        }
+      }
   }
 
   suspend fun getBreachRecallNsis(crn: String, convictionId: Long): List<Nsi> {

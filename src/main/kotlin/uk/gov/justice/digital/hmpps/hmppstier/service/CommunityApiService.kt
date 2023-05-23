@@ -15,7 +15,7 @@ class CommunityApiService(
 ) {
 
   suspend fun getConvictionsWithSentences(crn: String): List<Conviction> =
-    communityApiClient.getConvictions(crn).filterNot { it.sentence == null }.map { Conviction.from(it) }
+    communityApiClient.getConvictions(crn)?.filterNot { it.sentence == null }?.map { Conviction.from(it) } ?: emptyList()
 
   suspend fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
     return communityApiClient.getRequirements(crn, convictionId)
