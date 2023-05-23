@@ -28,15 +28,11 @@ class TierToDeliusApiClient(@Qualifier("tierToDeliusApiClientWebClientAppScope")
       .awaitExchangeOrNull { response ->
         when (response.statusCode()) {
           HttpStatus.OK -> response.awaitBody<TierToDeliusResponse>()
-          HttpStatus.NOT_FOUND -> getErrorTierToDeliusResponse()
+          HttpStatus.NOT_FOUND -> null
           else -> throw response.createExceptionAndAwait()
         }
       }
   }
-}
-
-fun getErrorTierToDeliusResponse(): TierToDeliusResponse {
-  return TierToDeliusResponse("NOT_FOUND", emptyList(), emptyList(), BigDecimal.valueOf(-1), -1)
 }
 
 data class TierToDeliusResponse @JsonCreator constructor(
