@@ -19,8 +19,8 @@ class CommunityApiService(
 
   suspend fun getRequirements(crn: String, convictionId: Long): List<Requirement> {
     return communityApiClient.getRequirements(crn, convictionId)
-      .filterNot { it.requirementTypeMainCategory == null && it.restrictive == null }
-      .map { Requirement(it.restrictive!!, it.requirementTypeMainCategory!!.code) }
+      ?.filterNot { it.requirementTypeMainCategory == null && it.restrictive == null }
+      ?.map { Requirement(it.restrictive!!, it.requirementTypeMainCategory!!.code) } ?: emptyList()
   }
 
   suspend fun hasBreachedConvictions(crn: String, convictions: List<Conviction>): Boolean =

@@ -73,13 +73,13 @@ class DeliusCommunityDataReliability(
   }
 
   private suspend fun getCommunityRegistration(crn: String): List<DeliusRegistration> {
-    return communityApiClient.getRegistrations(crn).map {
+    return communityApiClient.getRegistrations(crn)?.map {
       DeliusRegistration(
         it.type.code,
         it.registerLevel?.code,
         it.startDate,
       )
-    }
+    } ?: emptyList()
   }
 
   private suspend fun getCommunityConviction(crn: String):

@@ -260,6 +260,52 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   }
 
   @Test
+  fun `Not found community registrations`() {
+    communityApi.getAssessmentResponse(crn1)
+    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getConviction(crn1)
+    communityApi.getRequirement(crn1)
+    communityApi.getNotFoundRegistration(crn1)
+    communityApi.getNsi(crn1, 12345, null)
+    tierToDeliusApi.getNotFound(crn1)
+
+    val response = webTestClient.get()
+      .uri("/crn/$crn1")
+      .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+      .exchange()
+      .expectStatus().isOk
+      .expectBody<CommunityDeliusData>()
+      .returnResult()
+      .responseBody
+
+    assertThat(response!!.crn).isEqualTo(crn1)
+    assertThat(response.registrationMatch).isEqualTo(false)
+  }
+
+  @Test
+  fun `Not found community requirement`() {
+    communityApi.getAssessmentResponse(crn1)
+    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getConviction(crn1)
+    communityApi.getRegistration(crn1)
+    communityApi.getNotFoundRequirement(crn1)
+    communityApi.getNsi(crn1, 12345, null)
+    tierToDeliusApi.getNotFound(crn1)
+
+    val response = webTestClient.get()
+      .uri("/crn/$crn1")
+      .headers { it.authToken(roles = listOf("ROLE_HMPPS_TIER")) }
+      .exchange()
+      .expectStatus().isOk
+      .expectBody<CommunityDeliusData>()
+      .returnResult()
+      .responseBody
+
+    assertThat(response!!.crn).isEqualTo(crn1)
+    assertThat(response.convictionsMatch).isEqualTo(false)
+  }
+
+  @Test
   fun `Empty community registration response`() {
     communityApi.getAssessmentResponse(crn1)
     communityApi.getOffender(crn1, "female", "A01")
