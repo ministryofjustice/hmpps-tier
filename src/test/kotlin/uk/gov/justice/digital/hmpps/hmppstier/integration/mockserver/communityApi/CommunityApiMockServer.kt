@@ -42,12 +42,19 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     private const val MOCKSERVER_PORT = 8091
   }
 
-  fun getAssessmentResponse(crn: String, rsr: String = "23.0", ogrs: String = "21") {
-    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/assessments")
+  fun getAssessmentResponse(crn1: String, crn2: String? = null, rsr: String = "23.0", ogrs: String = "21") {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn1/assessments")
 
     communityApi.`when`(request, Times.exactly(1)).respond(
       HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(deliusAssessmentResponse(rsr, ogrs)),
     )
+    if (crn2 != null) {
+      val request2 = HttpRequest.request().withPath("/secure/offenders/crn/$crn2/assessments")
+
+      communityApi.`when`(request2, Times.exactly(1)).respond(
+        HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(deliusAssessmentResponse(rsr, ogrs)),
+      )
+    }
   }
 
   fun getEmptyAssessmentResponse(crn: String) {
@@ -58,12 +65,19 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     )
   }
 
-  fun getOffender(crn: String, gender: String, currentTier: String) {
-    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/all")
+  fun getOffender(crn1: String, crn2: String? = null, gender: String, currentTier: String) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn1/all")
 
     communityApi.`when`(request, Times.exactly(1)).respond(
       HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(offenderResponse(gender, currentTier)),
     )
+    if (crn2 != null) {
+      val request2 = HttpRequest.request().withPath("/secure/offenders/crn/$crn2/all")
+
+      communityApi.`when`(request2, Times.exactly(1)).respond(
+        HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(offenderResponse(gender, currentTier)),
+      )
+    }
   }
 
   fun getNotFoundOffender(crn: String) {
@@ -74,12 +88,20 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     )
   }
 
-  fun getConviction(crn: String, convictionId: String? = "12345") {
-    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions")
+  fun getConviction(crn1: String, crn2: String? = null, convictionId: String? = "12345") {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn1/convictions")
 
     communityApi.`when`(request, Times.exactly(1)).respond(
       HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionResponse(convictionId)),
     )
+
+    if (crn2 != null) {
+      val request2 = HttpRequest.request().withPath("/secure/offenders/crn/$crn2/convictions")
+
+      communityApi.`when`(request2, Times.exactly(1)).respond(
+        HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionResponse(convictionId)),
+      )
+    }
   }
 
   fun getNotFoundConviction(crn: String) {
@@ -90,12 +112,20 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     )
   }
 
-  fun getRequirement(crn: String, convictionId: Long = 12345) {
-    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/convictions/$convictionId/requirements")
+  fun getRequirement(crn1: String, crn2: String? = null, convictionId: Long = 12345) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn1/convictions/$convictionId/requirements")
 
     communityApi.`when`(request, Times.exactly(1)).respond(
       HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementResponse()),
     )
+
+    if (crn2 != null) {
+      val request2 = HttpRequest.request().withPath("/secure/offenders/crn/$crn2/convictions/$convictionId/requirements")
+
+      communityApi.`when`(request2, Times.exactly(1)).respond(
+        HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(requirementResponse()),
+      )
+    }
   }
 
   fun getNotFoundRequirement(crn: String, convictionId: Long = 12345) {
@@ -106,12 +136,20 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     )
   }
 
-  fun getRegistration(crn: String) {
-    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn/registrations")
+  fun getRegistration(crn1: String, crn2: String? = null) {
+    val request = HttpRequest.request().withPath("/secure/offenders/crn/$crn1/registrations")
 
     communityApi.`when`(request, Times.exactly(1)).respond(
       HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse()),
     )
+
+    if (crn2 != null) {
+      val request2 = HttpRequest.request().withPath("/secure/offenders/crn/$crn2/registrations")
+
+      communityApi.`when`(request2, Times.exactly(1)).respond(
+        HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(registrationResponse()),
+      )
+    }
   }
 
   fun getNotFoundRegistration(crn: String) {
