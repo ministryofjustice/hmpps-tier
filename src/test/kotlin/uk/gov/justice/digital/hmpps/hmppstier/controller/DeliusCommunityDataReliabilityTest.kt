@@ -39,7 +39,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   @Test
   fun `delius assessments data are identical per crn`() {
     communityApi.getAssessmentResponse(crn1)
-    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getOffender(crn1, gender = "female", currentTier = "A01")
     communityApi.getConviction(crn1)
     communityApi.getRequirement(crn1)
     communityApi.getRegistration(crn1)
@@ -79,7 +79,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   @Test
   fun `no delius assessments data`() {
     communityApi.getEmptyAssessmentResponse(crn1)
-    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getOffender(crn1, gender = "female", currentTier = "A01")
     communityApi.getConviction(crn1)
     communityApi.getRequirement(crn1)
     communityApi.getRegistration(crn1)
@@ -108,7 +108,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   @Test
   fun `no delius currentTier data`() {
     communityApi.getEmptyAssessmentResponse(crn1)
-    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getOffender(crn1, gender = "female", currentTier = "A01")
     communityApi.getConviction(crn1)
     communityApi.getRequirement(crn1)
     communityApi.getRegistration(crn1)
@@ -131,7 +131,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   @Test
   fun `delius and community assessments do not match`() {
     communityApi.getAssessmentResponse(crn1)
-    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getOffender(crn1, gender = "female", currentTier = "A01")
     communityApi.getConviction(crn1)
     communityApi.getRequirement(crn1)
     communityApi.getRegistration(crn1)
@@ -160,7 +160,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   @Test
   fun `delius and community breach do not match`() {
     communityApi.getAssessmentResponse(crn1)
-    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getOffender(crn1, gender = "female", currentTier = "A01")
     communityApi.getConviction(crn1)
     communityApi.getRequirement(crn1)
     communityApi.getRegistration(crn1)
@@ -187,7 +187,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   @Test
   fun `Not found delius response`() {
     communityApi.getAssessmentResponse(crn1)
-    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getOffender(crn1, gender = "female", currentTier = "A01")
     communityApi.getConviction(crn1)
     communityApi.getRequirement(crn1)
     communityApi.getRegistration(crn1)
@@ -236,7 +236,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   @Test
   fun `Not found community conviction`() {
     communityApi.getAssessmentResponse(crn1)
-    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getOffender(crn1, gender = "female", currentTier = "A01")
     communityApi.getNotFoundConviction(crn1)
     communityApi.getRequirement(crn1)
     communityApi.getRegistration(crn1)
@@ -262,7 +262,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   @Test
   fun `Not found community registrations`() {
     communityApi.getAssessmentResponse(crn1)
-    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getOffender(crn1, gender = "female", currentTier = "A01")
     communityApi.getConviction(crn1)
     communityApi.getRequirement(crn1)
     communityApi.getNotFoundRegistration(crn1)
@@ -285,7 +285,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   @Test
   fun `Not found community requirement`() {
     communityApi.getAssessmentResponse(crn1)
-    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getOffender(crn1, gender = "female", currentTier = "A01")
     communityApi.getConviction(crn1)
     communityApi.getRegistration(crn1)
     communityApi.getNotFoundRequirement(crn1)
@@ -308,7 +308,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   @Test
   fun `Empty community registration response`() {
     communityApi.getAssessmentResponse(crn1)
-    communityApi.getOffender(crn1, "female", "A01")
+    communityApi.getOffender(crn1, gender = "female", currentTier = "A01")
     communityApi.getConviction(crn1)
     communityApi.getRequirement(crn1)
     communityApi.getEmptyRegistration(crn1)
@@ -346,16 +346,12 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     val thirdTierCalculation = TierCalculationEntity(crn = crn2, created = created.minusDays(1), data = data, uuid = UUID.randomUUID())
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation, thirdTierCalculation))
 
-    communityApi.getAssessmentResponse(crn1)
-    communityApi.getAssessmentResponse(crn2)
-    communityApi.getOffender(crn1, "female", "A01")
-    communityApi.getOffender(crn2, "female", "A01")
-    communityApi.getConviction(crn1)
-    communityApi.getConviction(crn2)
-    communityApi.getRequirement(crn1)
-    communityApi.getRequirement(crn2)
-    communityApi.getRegistration(crn1)
-    communityApi.getRegistration(crn2)
+    communityApi.getAssessmentResponse(crn1, crn2)
+    communityApi.getOffender(crn1, crn2, "female", "A01")
+    communityApi.getConviction(crn1, crn2)
+    communityApi.getRequirement(crn1, crn2)
+    communityApi.getRegistration(crn1, crn2)
+
     communityApi.getNsi(crn1, 12345)
     communityApi.getNsi(crn2, 12345)
 
@@ -379,16 +375,11 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
-    communityApi.getAssessmentResponse(crn1)
-    communityApi.getAssessmentResponse(crn2)
-    communityApi.getOffender(crn1, "female", "A01")
-    communityApi.getOffender(crn2, "female", "A01")
-    communityApi.getConviction(crn1)
-    communityApi.getConviction(crn2)
-    communityApi.getRequirement(crn1)
-    communityApi.getRequirement(crn2)
-    communityApi.getRegistration(crn1)
-    communityApi.getRegistration(crn2)
+    communityApi.getAssessmentResponse(crn1, crn2)
+    communityApi.getOffender(crn1, crn2, "female", "A01")
+    communityApi.getConviction(crn1, crn2)
+    communityApi.getRequirement(crn1, crn2)
+    communityApi.getRegistration(crn1, crn2)
     communityApi.getNsi(crn1, 12345)
     communityApi.getNsi(crn2, 12345)
 
@@ -414,20 +405,16 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
   }
 
   @Test
-  fun `Should return failed reliability when either rsr or ogrs do not match`() {
+  fun `Should return failed reliability when either rsr or ogrs or gender do not match`() {
     val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
-    communityApi.getAssessmentResponse(crn1)
-    communityApi.getAssessmentResponse(crn2)
-    communityApi.getOffender(crn1, "male", "A01")
-    communityApi.getOffender(crn2, "female", "A01")
-    communityApi.getConviction(crn1)
-    communityApi.getConviction(crn2)
-    communityApi.getRequirement(crn1)
-    communityApi.getRequirement(crn2)
-    communityApi.getRegistration(crn1)
-    communityApi.getRegistration(crn2)
+    communityApi.getAssessmentResponse(crn1, crn2)
+    communityApi.getOffender(crn1, gender = "male", currentTier = "A01")
+    communityApi.getOffender(crn2, gender = "female", currentTier = "A01")
+    communityApi.getConviction(crn1, crn2)
+    communityApi.getRequirement(crn1, crn2)
+    communityApi.getRegistration(crn1, crn2)
     communityApi.getNsi(crn1, 12345)
     communityApi.getNsi(crn2, 12345)
 
@@ -460,16 +447,11 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
-    communityApi.getAssessmentResponse(crn1)
-    communityApi.getAssessmentResponse(crn2)
-    communityApi.getOffender(crn1, "female", "A01")
-    communityApi.getOffender(crn2, "female", "A01")
-    communityApi.getConviction(crn1)
-    communityApi.getConviction(crn2)
-    communityApi.getRequirement(crn1)
-    communityApi.getRequirement(crn2)
-    communityApi.getRegistration(crn1)
-    communityApi.getRegistration(crn2)
+    communityApi.getAssessmentResponse(crn1, crn2)
+    communityApi.getOffender(crn1, crn2, "female", "A01")
+    communityApi.getConviction(crn1, crn2)
+    communityApi.getRequirement(crn1, crn2)
+    communityApi.getRegistration(crn1, crn2)
     communityApi.getNsi(crn1, 12345)
     communityApi.getNsi(crn2, 12345)
 
@@ -492,11 +474,9 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     val tierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     repository.save(tierCalculation)
     communityApi.getAssessmentResponse(crn1)
-    communityApi.getOffender(crn1, "male", "A01")
-    communityApi.getConviction(crn1)
-    communityApi.getRequirement(crn1)
-    communityApi.getRegistration(crn1)
-    communityApi.getRegistration(crn2)
+    communityApi.getOffender(crn1, gender = "male", currentTier = "A01")
+    communityApi.getRequirement(crn1, crn2)
+    communityApi.getRegistration(crn1, crn2)
     communityApi.getNsi(crn1, 12345)
     communityApi.getNsi(crn2, 12345)
 
@@ -524,16 +504,11 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
-    communityApi.getAssessmentResponse(crn1, "22", "30")
-    communityApi.getAssessmentResponse(crn2)
-    communityApi.getOffender(crn1, "female", "A01")
-    communityApi.getOffender(crn2, "female", "A01")
-    communityApi.getConviction(crn1)
-    communityApi.getConviction(crn2)
-    communityApi.getRequirement(crn1)
-    communityApi.getRequirement(crn2)
-    communityApi.getRegistration(crn1)
-    communityApi.getRegistration(crn2)
+    communityApi.getAssessmentResponse(crn1, crn2, "22", "30")
+    communityApi.getOffender(crn1, crn2, "female", "A01")
+    communityApi.getConviction(crn1, crn2)
+    communityApi.getRequirement(crn1, crn2)
+    communityApi.getRegistration(crn1, crn2)
     communityApi.getNsi(crn1, 12345)
     communityApi.getNsi(crn2, 12345)
 
@@ -561,16 +536,11 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     val firstTierCalculation = TierCalculationEntity(crn = crn1, created = created, data = data, uuid = UUID.randomUUID())
     val secondTierCalculation = TierCalculationEntity(crn = crn2, created = created, data = data, uuid = UUID.randomUUID())
     repository.saveAll(listOf(firstTierCalculation, secondTierCalculation))
-    communityApi.getAssessmentResponse(crn1)
-    communityApi.getAssessmentResponse(crn2)
-    communityApi.getOffender(crn1, "female", "A01")
-    communityApi.getOffender(crn2, "female", "A01")
-    communityApi.getConviction(crn1, null)
-    communityApi.getConviction(crn2, null)
-    communityApi.getRequirement(crn1)
-    communityApi.getRequirement(crn2)
-    communityApi.getRegistration(crn1)
-    communityApi.getRegistration(crn2)
+    communityApi.getAssessmentResponse(crn1, crn2)
+    communityApi.getOffender(crn1, crn2, "female", "A01")
+    communityApi.getConviction(crn1, crn2, null)
+    communityApi.getRequirement(crn1, crn2)
+    communityApi.getRegistration(crn1, crn2)
     communityApi.getNsi(crn1, 12345)
     communityApi.getNsi(crn2, 12345)
 
