@@ -56,7 +56,9 @@ class DeliusCommunityDataReliability(
       rsrDelius.compareTo(rsrScoreCommunity) == 0,
       ogrsDelius == ogrsCommunity,
       genderMatch,
-      getCommunityConviction(crn) == deliusInputs?.convictions?.sortedBy { it.terminationDate },
+      getCommunityConviction(crn) ==
+        deliusInputs?.convictions?.map { DeliusConviction(it.terminationDate, it.sentenceTypeCode, it.breached, it.requirements.sortedBy { it.mainCategoryTypeCode }) }
+          ?.sortedBy { it.terminationDate },
       getCommunityRegistration(crn) == deliusInputs?.registrations?.sortedBy { it.date },
       rsrDelius,
       rsrScoreCommunity,
@@ -84,7 +86,7 @@ class DeliusCommunityDataReliability(
         it.sentence.sentenceType,
         communityApiService.hasBreachedConvictions(crn, communityConvictions),
         communityApiService.getRequirements(crn, it.convictionId)
-          .map { DeliusRequirement(it.mainCategory, it.isRestrictive) },
+          .map { DeliusRequirement(it.mainCategory, it.isRestrictive) }.sortedBy { it.mainCategoryTypeCode },
       )
     }.sortedBy { it.terminationDate }
   }
@@ -120,7 +122,9 @@ class DeliusCommunityDataReliability(
         rsrDelius.compareTo(communityAssessment?.rsr) == 0,
         ogrsDelius == ogrsCommunity,
         genderCommunity.equals(deliusInputs?.gender, true),
-        getCommunityConviction(it) == deliusInputs?.convictions?.sortedBy { it.terminationDate },
+        getCommunityConviction(it) ==
+          deliusInputs?.convictions?.map { DeliusConviction(it.terminationDate, it.sentenceTypeCode, it.breached, it.requirements.sortedBy { it.mainCategoryTypeCode }) }
+            ?.sortedBy { it.terminationDate },
         getCommunityRegistration(it) == deliusInputs?.registrations?.sortedBy { it.date },
         rsrDelius,
         communityAssessment?.rsr ?: BigDecimal.valueOf(-1),
