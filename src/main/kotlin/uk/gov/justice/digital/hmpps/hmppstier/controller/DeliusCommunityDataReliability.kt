@@ -51,19 +51,28 @@ class DeliusCommunityDataReliability(
     val genderMatch = communityApiService.getOffender(crn)?.gender.equals(deliusInputs?.gender, true)
     val ogrsCommunity = ogrsScoreCommunity.div(10)
 
+    val communityConvictions = getCommunityConviction(crn)
+    val deliusConvictions = deliusInputs?.convictions?.map { DeliusConviction(it.terminationDate, it.sentenceTypeCode, it.breached, it.requirements.sortedBy { it.mainCategoryTypeCode }) }
+      ?.sortedBy { it.terminationDate }
+
+    val communityRegistrations = getCommunityRegistration(crn)
+    val deliusRegistrations = deliusInputs?.registrations?.sortedBy { it.date }
+
     return CommunityDeliusData(
       crn,
       rsrDelius.compareTo(rsrScoreCommunity) == 0,
       ogrsDelius == ogrsCommunity,
       genderMatch,
-      getCommunityConviction(crn) ==
-        deliusInputs?.convictions?.map { DeliusConviction(it.terminationDate, it.sentenceTypeCode, it.breached, it.requirements.sortedBy { it.mainCategoryTypeCode }) }
-          ?.sortedBy { it.terminationDate },
-      getCommunityRegistration(crn) == deliusInputs?.registrations?.sortedBy { it.date },
+      communityConvictions == deliusConvictions,
+      communityRegistrations == deliusRegistrations,
       rsrDelius,
       rsrScoreCommunity,
       ogrsDelius,
       ogrsCommunity,
+      communityConvictions,
+      deliusConvictions,
+      communityRegistrations,
+      deliusRegistrations,
     )
   }
 
@@ -91,7 +100,6 @@ class DeliusCommunityDataReliability(
     }.sortedBy { it.terminationDate }
   }
 
-  @Generated
   @Operation(summary = "find discrepancy between community API and Tier-To-Delius API for Tiering CRNs")
   @ApiResponses(
     value = [
@@ -118,21 +126,29 @@ class DeliusCommunityDataReliability(
       val ogrsCommunity = communityAssessment?.ogrs?.div(10)
       val genderCommunity = communityApiService.getOffender(it)?.gender ?: "NOT_FOUND"
 
+      val communityConvictions = getCommunityConviction(it)
+      val deliusConvictions = deliusInputs?.convictions?.map { DeliusConviction(it.terminationDate, it.sentenceTypeCode, it.breached, it.requirements.sortedBy { it.mainCategoryTypeCode }) }
+        ?.sortedBy { it.terminationDate }
+      val communityRegistrations = getCommunityRegistration(it)
+      val deliusRegistrations = deliusInputs?.registrations?.sortedBy { it.date }
+
       CommunityDeliusData(
         it,
         rsrDelius.compareTo(communityAssessment?.rsr) == 0,
         ogrsDelius == ogrsCommunity,
         genderCommunity.equals(deliusInputs?.gender, true),
-        getCommunityConviction(it) ==
-          deliusInputs?.convictions?.map { DeliusConviction(it.terminationDate, it.sentenceTypeCode, it.breached, it.requirements.sortedBy { it.mainCategoryTypeCode }) }
-            ?.sortedBy { it.terminationDate },
-        getCommunityRegistration(it) == deliusInputs?.registrations?.sortedBy { it.date },
+        communityConvictions == deliusConvictions,
+        communityRegistrations == deliusRegistrations,
         rsrDelius,
         communityAssessment?.rsr ?: BigDecimal.valueOf(-1),
         ogrsDelius,
         ogrsCommunity ?: -1,
+        communityConvictions,
+        deliusConvictions,
+        communityRegistrations,
+        deliusRegistrations,
       ).takeUnless {
-        (deliusInputs == null) || (it.rsrMatch && it.ogrsMatch && it.genderMatch && it.convictionsMatch && it.registrationMatch)
+        (deliusInputs == null) || (it.rsrMatch && it.ogrsMatch && it.convictionsMatch && it.registrationMatch)
       }
     }
   }
@@ -164,4 +180,8 @@ data class CommunityDeliusData(
   val rsrCommunity: BigDecimal,
   val ogrsDelius: Int?,
   val ogrsCommunity: Int,
+  val communityConvictions: List<DeliusConviction>,
+  val deliusConvictions: List<DeliusConviction>?,
+  val communityRegistrations: List<DeliusRegistration>,
+  val deliusRegistrations: List<DeliusRegistration>?,
 )
