@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.reactive.function.client.WebClientException
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusConviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusRegistration
@@ -99,27 +100,32 @@ class DeliusCommunityDataReliability(
   @GetMapping("/crn/all/{offset}/{limit}")
   suspend fun getAllDataReliability(@PathVariable(required = true) offset: Int, @PathVariable(required = true) limit: Int): Flow<CommunityDeliusData> {
     return tierReader.getCrns(offset, limit).mapNotNull {
-      val deliusInputs =
+      val deliusInputs = try {
         tierToDeliusApiClient.getDeliusTierTest(it)
-      val communityAssessment =
+      } catch (e: WebClientException) {
+        null
+      }
+      val communityAssessment = try {
         communityApiService.getDeliusAssessments(it)
-
+      } catch (e: WebClientException) {
+        null
+      }
       val rsrDelius = deliusInputs?.rsrscore ?: BigDecimal.ZERO
       val ogrsDelius = (deliusInputs?.ogrsscore ?: 0).div(10)
-      val ogrsCommunity = communityAssessment.ogrs.div(10)
+      val ogrsCommunity = communityAssessment?.ogrs?.div(10)
       val genderCommunity = communityApiService.getOffender(it)?.gender ?: "NOT_FOUND"
 
       CommunityDeliusData(
         it,
-        rsrDelius.compareTo(communityAssessment.rsr) == 0,
+        rsrDelius.compareTo(communityAssessment?.rsr) == 0,
         ogrsDelius == ogrsCommunity,
         genderCommunity.equals(deliusInputs?.gender, true),
         getCommunityConviction(it) == deliusInputs?.convictions?.sortedBy { it.terminationDate },
         getCommunityRegistration(it) == deliusInputs?.registrations?.sortedBy { it.date },
         rsrDelius,
-        communityAssessment.rsr,
+        communityAssessment?.rsr ?: BigDecimal.valueOf(-1),
         ogrsDelius,
-        ogrsCommunity,
+        ogrsCommunity ?: -1,
       ).takeUnless {
         (deliusInputs == null) || (it.rsrMatch && it.ogrsMatch && it.genderMatch && it.convictionsMatch && it.registrationMatch)
       }
