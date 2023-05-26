@@ -180,7 +180,7 @@ private data class Registrations @JsonCreator constructor(
 @Generated
 data class Offender @JsonCreator constructor(
   @JsonProperty("gender")
-  val gender: String?,
+  val gender: String,
   @JsonProperty("currentTier")
   val tier: String?,
 )
