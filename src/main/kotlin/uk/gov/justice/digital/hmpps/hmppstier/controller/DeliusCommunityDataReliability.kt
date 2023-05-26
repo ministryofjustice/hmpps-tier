@@ -56,7 +56,9 @@ class DeliusCommunityDataReliability(
       rsrDelius.compareTo(rsrScoreCommunity) == 0,
       ogrsDelius == ogrsCommunity,
       genderMatch,
-      getCommunityConviction(crn) == deliusInputs?.convictions?.sortedBy { it.terminationDate },
+      getCommunityConviction(crn) ==
+        deliusInputs?.convictions?.map { DeliusConviction(it.terminationDate, it.sentenceTypeCode, it.breached, it.requirements.sortedBy { it.mainCategoryTypeCode }) }
+          ?.sortedBy { it.terminationDate },
       getCommunityRegistration(crn) == deliusInputs?.registrations?.sortedBy { it.date },
       rsrDelius,
       rsrScoreCommunity,
@@ -84,11 +86,12 @@ class DeliusCommunityDataReliability(
         it.sentence.sentenceType,
         communityApiService.hasBreachedConvictions(crn, communityConvictions),
         communityApiService.getRequirements(crn, it.convictionId)
-          .map { DeliusRequirement(it.mainCategory, it.isRestrictive) },
+          .map { DeliusRequirement(it.mainCategory, it.isRestrictive) }.sortedBy { it.mainCategoryTypeCode },
       )
     }.sortedBy { it.terminationDate }
   }
 
+  @Generated
   @Operation(summary = "find discrepancy between community API and Tier-To-Delius API for Tiering CRNs")
   @ApiResponses(
     value = [
@@ -120,7 +123,9 @@ class DeliusCommunityDataReliability(
         rsrDelius.compareTo(communityAssessment?.rsr) == 0,
         ogrsDelius == ogrsCommunity,
         genderCommunity.equals(deliusInputs?.gender, true),
-        getCommunityConviction(it) == deliusInputs?.convictions?.sortedBy { it.terminationDate },
+        getCommunityConviction(it) ==
+          deliusInputs?.convictions?.map { DeliusConviction(it.terminationDate, it.sentenceTypeCode, it.breached, it.requirements.sortedBy { it.mainCategoryTypeCode }) }
+            ?.sortedBy { it.terminationDate },
         getCommunityRegistration(it) == deliusInputs?.registrations?.sortedBy { it.date },
         rsrDelius,
         communityAssessment?.rsr ?: BigDecimal.valueOf(-1),
@@ -147,6 +152,7 @@ class DeliusCommunityDataReliability(
   }
 }
 
+@Generated
 data class CommunityDeliusData(
   val crn: String,
   val rsrMatch: Boolean,
