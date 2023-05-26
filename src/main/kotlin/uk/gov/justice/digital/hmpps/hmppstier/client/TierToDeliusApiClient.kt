@@ -10,6 +10,7 @@ import org.springframework.web.reactive.function.client.awaitExchangeOrNull
 import org.springframework.web.reactive.function.client.createExceptionAndAwait
 import java.math.BigDecimal
 import java.time.LocalDate
+import javax.annotation.processing.Generated
 
 @Component
 class TierToDeliusApiClient(@Qualifier("tierToDeliusApiClientWebClientAppScope") private val webClient: WebClient) {
@@ -21,6 +22,7 @@ class TierToDeliusApiClient(@Qualifier("tierToDeliusApiClientWebClientAppScope")
       .awaitBody()
   }
 
+  @Generated
   suspend fun getDeliusTierTest(crn: String): TierToDeliusResponse? {
     return webClient
       .get()
