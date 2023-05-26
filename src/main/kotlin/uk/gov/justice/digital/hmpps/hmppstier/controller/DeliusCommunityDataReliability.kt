@@ -91,6 +91,7 @@ class DeliusCommunityDataReliability(
     }.sortedBy { it.terminationDate }
   }
 
+  @Generated
   @Operation(summary = "find discrepancy between community API and Tier-To-Delius API for Tiering CRNs")
   @ApiResponses(
     value = [
@@ -151,6 +152,7 @@ class DeliusCommunityDataReliability(
   }
 }
 
+@Generated
 data class CommunityDeliusData(
   val crn: String,
   val rsrMatch: Boolean,
