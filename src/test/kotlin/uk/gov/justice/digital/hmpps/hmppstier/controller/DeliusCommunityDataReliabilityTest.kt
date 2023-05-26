@@ -454,12 +454,10 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
       .expectBody<List<CommunityDeliusData>>()
       .returnResult().responseBody?.sortedBy { it.crn }
 
-    // assertThat(response!!.size).isEqualTo(1)
-    assertThat(response!![0].crn).isEqualTo(crn2)
+    assertThat(response!!.size).isEqualTo(1)
+    assertThat(response[0].crn).isEqualTo(crn2)
     assertThat(response[0].rsrMatch).isEqualTo(false)
     assertThat(response[0].ogrsMatch).isEqualTo(false)
-    assertThat(response[1].rsrMatch).isEqualTo(true)
-    assertThat(response[1].ogrsMatch).isEqualTo(true)
     assertThat(response[0].rsrDelius).isEqualTo(BigDecimal.ZERO)
     assertThat(response[0].ogrsDelius).isEqualTo(0)
     assertThat(response[0].rsrCommunity).isEqualTo(BigDecimal.valueOf(23.0))
@@ -643,7 +641,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
     val registrations = listOf(Registration("M1", "MAPP", LocalDate.of(2021, 2, 1)))
 
     tierToDeliusApi.getFullDetails(crn1, TierDetails(ogrsScore = ogrsScore, rsrScore = rsrScore, convictions = convictions, registrations = registrations))
-    tierToDeliusApi.getFullDetails(crn2, TierDetails(ogrsScore = ogrsScore, rsrScore = rsrScore, convictions = convictions, registrations = registrations))
+    tierToDeliusApi.getFullDetails(crn2, TierDetails(ogrsScore = ogrsScore, rsrScore = rsrScore, convictions = emptyList(), registrations = registrations))
 
     val response = webTestClient.get()
       .uri("/crn/all/0/10")
@@ -653,11 +651,10 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
       .expectBody<List<CommunityDeliusData>>()
       .returnResult().responseBody?.sortedByDescending { it.crn }
 
-    assertThat(response!!.size).isEqualTo(2)
+    assertThat(response!!.size).isEqualTo(1)
     assertThat(response[0].crn).isEqualTo(crn1)
     assertThat(response[0].convictionsMatch).isEqualTo(false)
     assertThat(response[0].registrationMatch).isEqualTo(true)
-    assertThat(response[1].convictionsMatch).isEqualTo(false)
   }
 
   @Test
