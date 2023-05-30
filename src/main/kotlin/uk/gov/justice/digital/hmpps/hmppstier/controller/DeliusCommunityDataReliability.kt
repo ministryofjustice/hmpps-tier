@@ -15,9 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.reactive.function.client.WebClientException
 import uk.gov.justice.digital.hmpps.hmppstier.client.CommunityApiClient
+import uk.gov.justice.digital.hmpps.hmppstier.client.ConvictionDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusConviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusRegistration
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusRequirement
+import uk.gov.justice.digital.hmpps.hmppstier.client.Nsi
+import uk.gov.justice.digital.hmpps.hmppstier.client.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.client.TierToDeliusApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.config.Generated
 import uk.gov.justice.digital.hmpps.hmppstier.service.CommunityApiService
@@ -53,10 +56,10 @@ class DeliusCommunityDataReliability(
 
     val communityConvictions = getCommunityConviction(crn)
     val deliusConvictions = deliusInputs?.convictions?.map { DeliusConviction(it.terminationDate, it.sentenceTypeCode, it.breached, it.requirements.sortedBy { it.mainCategoryTypeCode }) }
-      ?.sortedBy { it.terminationDate }
+      ?.sortedWith(compareBy({ it.sentenceTypeCode }, { it.terminationDate }))
 
     val communityRegistrations = getCommunityRegistration(crn)
-    val deliusRegistrations = deliusInputs?.registrations?.sortedBy { it.date }
+    val deliusRegistrations = deliusInputs?.registrations?.sortedWith(compareBy({ it.code }, { it.date }))
 
     return CommunityDeliusData(
       crn,
@@ -83,7 +86,7 @@ class DeliusCommunityDataReliability(
         it.registerLevel?.code,
         it.startDate,
       )
-    }?.sortedBy { it.date } ?: emptyList()
+    }?.sortedWith(compareBy({ it.code }, { it.date })) ?: emptyList()
   }
 
   private suspend fun getCommunityConviction(crn: String):
@@ -97,7 +100,7 @@ class DeliusCommunityDataReliability(
         communityApiService.getRequirements(crn, it.convictionId)
           .map { DeliusRequirement(it.mainCategory, it.isRestrictive) }.sortedBy { it.mainCategoryTypeCode },
       )
-    }.sortedBy { it.terminationDate }
+    }.sortedWith(compareBy({ it.sentenceTypeCode }, { it.terminationDate }))
   }
 
   @Operation(summary = "find discrepancy between community API and Tier-To-Delius API for Tiering CRNs")
@@ -128,9 +131,9 @@ class DeliusCommunityDataReliability(
 
       val communityConvictions = getCommunityConviction(it)
       val deliusConvictions = deliusInputs?.convictions?.map { DeliusConviction(it.terminationDate, it.sentenceTypeCode, it.breached, it.requirements.sortedBy { it.mainCategoryTypeCode }) }
-        ?.sortedBy { it.terminationDate }
+        ?.sortedWith(compareBy({ it.sentenceTypeCode }, { it.terminationDate }))
       val communityRegistrations = getCommunityRegistration(it)
-      val deliusRegistrations = deliusInputs?.registrations?.sortedBy { it.date }
+      val deliusRegistrations = deliusInputs?.registrations?.sortedWith(compareBy({ it.code }, { it.date }))
 
       CommunityDeliusData(
         it,
@@ -165,6 +168,45 @@ class DeliusCommunityDataReliability(
   suspend fun getUnmatchedCrns(@PathVariable(required = true) offset: Int, @PathVariable(required = true) limit: Int): List<String>? {
     return tierReader.getCrns(offset, limit)
       .filter { tierToDeliusApiClient.getDeliusTierTest(it) == null }.toList()
+  }
+
+  @Operation(summary = "get community convictions")
+  @ApiResponses(
+    value = [
+      ApiResponse(responseCode = "200", description = "OK"),
+      ApiResponse(responseCode = "404", description = "Result Not Found"),
+    ],
+  )
+  @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
+  @GetMapping("/community/convictions/{crn}")
+  suspend fun getCommunityConvictions(@PathVariable(required = true) crn: String): List<ConvictionDto>? {
+    return communityApiClient.getConvictions(crn)
+  }
+
+  @Operation(summary = "get community registration")
+  @ApiResponses(
+    value = [
+      ApiResponse(responseCode = "200", description = "OK"),
+      ApiResponse(responseCode = "404", description = "Result Not Found"),
+    ],
+  )
+  @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
+  @GetMapping("/community/registrations/{crn}")
+  suspend fun getCommunityRegistrations(@PathVariable(required = true) crn: String): List<Registration>? {
+    return communityApiClient.getRegistrations(crn)?.toList()
+  }
+
+  @Operation(summary = "get community breach")
+  @ApiResponses(
+    value = [
+      ApiResponse(responseCode = "200", description = "OK"),
+      ApiResponse(responseCode = "404", description = "Result Not Found"),
+    ],
+  )
+  @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
+  @GetMapping("/community/registrations/{crn}/{convictionId}")
+  suspend fun getCommunityBreach(@PathVariable(required = true) crn: String, @PathVariable(required = true) convictionId: Long): List<Nsi>? {
+    return communityApiClient.getBreachRecallNsis(crn, convictionId)
   }
 }
 

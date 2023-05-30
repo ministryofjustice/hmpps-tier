@@ -80,6 +80,14 @@ class CommunityApiClient(@Qualifier("communityWebClientAppScope") private val we
         }
       }
 
+  suspend fun getRequirementsWithoutSoftDelete(crn: String, convictionId: Long): List<RequirementDto> {
+    return webClient
+      .get()
+      .uri("/offenders/crn/{crn}/convictions/{convictionId}/requirements")
+      .retrieve()
+      .awaitBody<List<RequirementDto>>()
+  }
+
   suspend fun getOffender(crn: String): Offender? {
     return webClient
       .get()
