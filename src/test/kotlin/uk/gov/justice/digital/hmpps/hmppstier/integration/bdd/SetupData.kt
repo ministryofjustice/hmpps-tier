@@ -21,6 +21,7 @@ class SetupData(
   var crn: String = ids["crn"]!!
   var assessmentId: Long = ids["assessmentId"]!!.toLong()
   private var hasValidAssessment: Boolean = false
+  private var currentTier: String = "UD0"
   private var gender: String = "Male"
   private var needs: MutableList<Need> = mutableListOf()
   private var ogrs: String = "0"
@@ -59,6 +60,10 @@ class SetupData(
     this.needs.addAll(needs)
   }
 
+  fun setCurrentTier(currentTier: String) {
+    this.currentTier = currentTier
+  }
+
   fun setGender(gender: String) {
     this.gender = gender
   }
@@ -81,7 +86,7 @@ class SetupData(
     if (convictions.isEmpty()) {
       addConviction(Conviction())
     }
-    tierToDeliusApi.getFullDetails(crn, TierDetails(gender, "UD0", ogrs, rsr, convictions, registrations))
+    tierToDeliusApi.getFullDetails(crn, TierDetails(gender, currentTier, ogrs, rsr, convictions, registrations))
     assessmentsApi()
   }
 

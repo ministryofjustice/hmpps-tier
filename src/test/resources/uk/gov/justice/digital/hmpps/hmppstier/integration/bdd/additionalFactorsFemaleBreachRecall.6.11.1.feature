@@ -13,6 +13,14 @@ Feature: Additional Factors (Female only) Breach and Recall
     When a tier is calculated
     Then 2 protect points are scored
 
+  Scenario: Female offender with D2 and 9 points and breach/recall changes to C2
+    Given an offender scores 9 protect points
+    And an offender is "Female"
+    And has an active conviction with NSI Outcome code "REC01"
+    And has a tier of "D2"
+    When a tier is calculated
+    Then a protect level of "C" is returned and 11 points are scored
+
   Scenario: Female offender with breach/recall on two active convictions scores 2 points
     Given an offender is "Female"
     And has two active convictions with NSI Outcome code "BRE03"
@@ -22,6 +30,12 @@ Feature: Additional Factors (Female only) Breach and Recall
   Scenario: Convictions up to 12 months old are counted
     Given an offender is "Female"
     And has a conviction terminated 365 days ago with NSI Outcome code "BRE04"
+    When a tier is calculated
+    Then 2 protect points are scored
+
+  Scenario: Convictions up to 12 months old are counted
+    Given an offender is "Female"
+    And has a conviction terminated 365 days ago with NSI Outcome code "REC01"
     When a tier is calculated
     Then 2 protect points are scored
 

@@ -19,6 +19,11 @@ fun putMessageOnDomainQueue(client: SqsAsyncClient, queueUrl: String, crn: Strin
   client.sendMessage(SendMessageRequest.builder().queueUrl(queueUrl).messageBody(message).build()).get()
 }
 
+fun putRecallMessageOnDomainQueue(client: SqsAsyncClient, queueUrl: String, crn: String) {
+  val message = calculationRecallDomainMessage(crn)
+  client.sendMessage(SendMessageRequest.builder().queueUrl(queueUrl).messageBody(message).build()).get()
+}
+
 fun noMessagesCurrentlyOnQueue(client: SqsAsyncClient, queueUrl: String) {
   await untilCallTo {
     client.countMessagesOnQueue(queueUrl).get()
@@ -50,5 +55,10 @@ private fun calculationMessage(crn: String): String {
 
 private fun calculationDomainMessage(crn: String): String {
   return Files.readString(Paths.get("src/test/resources/fixtures/sqs/domain-calculation-event.json"))
+    .replace("X373878", crn)
+}
+
+private fun calculationRecallDomainMessage(crn: String): String {
+  return Files.readString(Paths.get("src/test/resources/fixtures/sqs/recall-domain-calculation-event.json"))
     .replace("X373878", crn)
 }

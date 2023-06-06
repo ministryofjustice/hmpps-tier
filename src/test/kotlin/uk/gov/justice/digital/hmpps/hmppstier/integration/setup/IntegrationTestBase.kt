@@ -98,6 +98,8 @@ abstract class IntegrationTestBase {
   fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl, crn)
   fun calculateTierForDomainEvent(crn: String) = putMessageOnDomainQueue(domainEventQueueClient, domainEventQueue.queueUrl, crn)
 
+  fun calculateTierForRecallDomainEvent(crn: String) = putRecallMessageOnDomainQueue(domainEventQueueClient, domainEventQueue.queueUrl, crn)
+
   fun expectTierCalculationToHaveFailed() = oneMessageCurrentlyOnDeadletterQueue(offenderEventsDlqClient!!, offenderEventsQueue.dlqUrl!!)
 
   fun expectNoMessagesOnQueueOrDeadLetterQueue() {
