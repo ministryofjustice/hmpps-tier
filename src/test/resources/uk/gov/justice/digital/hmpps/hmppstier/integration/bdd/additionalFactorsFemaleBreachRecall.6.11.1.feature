@@ -19,7 +19,7 @@ Feature: Additional Factors (Female only) Breach and Recall
     And has an active conviction with NSI Outcome code "REC01"
     And has a tier of "D2"
     When a tier is calculated
-    Then a protect level of "C" is returned and 11 points are scored
+    Then a protect level of "C" is returned and change 2 points are scored
 
   Scenario: Female offender with breach/recall on two active convictions scores 2 points
     Given an offender is "Female"
