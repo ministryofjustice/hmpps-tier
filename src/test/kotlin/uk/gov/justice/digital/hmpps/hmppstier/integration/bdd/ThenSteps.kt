@@ -59,7 +59,7 @@ class ThenSteps : En {
       assertThat(calculation.data.protect.points).isEqualTo(points)
     }
 
-    Then("a protect level of {string} is returned and change {int} points are scored") { protectLevel: String, changeTier: Int ->
+    Then("a protect level of {string} is returned and {int} change points are scored") { protectLevel: String, changeTier: Int ->
       val calculation: TierCalculationEntity = getTier()
       assertThat(calculation.data.protect.tier).isEqualTo(ProtectLevel.valueOf(protectLevel))
       assertThat(calculation.data.change.tier.value).isEqualTo(changeTier)
