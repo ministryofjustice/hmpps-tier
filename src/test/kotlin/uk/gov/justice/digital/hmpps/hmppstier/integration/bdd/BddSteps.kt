@@ -280,6 +280,9 @@ class BddSteps : En {
     And("no RSR score") {
       setupData.setRsr("0")
     }
+    And("has a tier of {string}") { tier: String ->
+      setupData.setCurrentTier("U$tier")
+    }
 
     When("a tier is calculated") {
       setupData.prepareResponses()
