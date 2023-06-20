@@ -6,7 +6,6 @@ data class DeliusInputs(
   val isFemale: Boolean,
   val rsrScore: BigDecimal,
   val ogrsScore: Int,
-  val breached: Boolean,
   val hasNoMandate: Boolean,
   val registrations: Registrations,
   val previousEnforcementActivity: Boolean,

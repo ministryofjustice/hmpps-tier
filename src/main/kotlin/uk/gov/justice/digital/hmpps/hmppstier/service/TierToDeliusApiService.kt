@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusConviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusRegistration
 import uk.gov.justice.digital.hmpps.hmppstier.client.TierToDeliusApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusInputs
@@ -11,7 +10,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.IomNominal
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import java.math.BigDecimal
-import java.time.LocalDate
 
 @Service
 class TierToDeliusApiService(private val tierToDeliusApiClient: TierToDeliusApiClient) {
@@ -25,21 +23,11 @@ class TierToDeliusApiService(private val tierToDeliusApiClient: TierToDeliusApiC
       tierToDeliusResponse.gender.equals("female", true),
       tierToDeliusResponse.rsrscore ?: BigDecimal.ZERO,
       tierToDeliusResponse.ogrsscore ?: 0,
-      isBreached(tierToDeliusResponse.convictions),
       mandateForChange.hasNoMandate(tierToDeliusResponse.convictions),
       getRegistrations(tierToDeliusResponse.registrations),
       tierToDeliusResponse.previousEnforcementActivity,
     )
   }
-
-  fun isBreached(convictions: List<DeliusConviction>): Boolean = convictions
-    .filter { qualifyingConvictions(it) }
-    .any { it.breached }
-
-  private fun qualifyingConvictions(conviction: DeliusConviction): Boolean =
-    conviction.terminationDate == null ||
-      conviction.terminationDate.isAfter(LocalDate.now().minusYears(1).minusDays(1))
-
   private fun getRegistrations(deliusRegistrations: Collection<DeliusRegistration>): Registrations {
     val registrations = deliusRegistrations
       .filter { it.code != "HREG" }

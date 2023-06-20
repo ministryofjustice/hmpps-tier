@@ -45,26 +45,7 @@ class TierToDeliusApiServiceTest {
   }
 
   @Test
-  fun `Should return Breach points if false if present and valid terminationDate on cutoff`() = runBlocking {
-    val terminationDate = LocalDate.now().minusYears(1).minusDays(1)
-
-    val tierToDeliusResponse = TierToDeliusResponse(
-      "Male",
-      emptyList(),
-      listOf(DeliusConviction(terminationDate, sentenceTypeCode, true, emptyList())),
-      BigDecimal.TEN,
-      2,
-      true,
-    )
-
-    coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
-    val result = tierToDeliusApiService.getTierToDelius(crn).breached
-
-    Assertions.assertFalse(result)
-  }
-
-  @Test
-  fun `Should return Breach true if present and valid not terminated`() = runBlocking {
+  fun `Previous Enforcement Activity Should be true if API response is true`() = runBlocking {
     val tierToDeliusResponse = TierToDeliusResponse(
       "Male",
       emptyList(),
@@ -75,8 +56,28 @@ class TierToDeliusApiServiceTest {
     )
 
     coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
-    val result = tierToDeliusApiService.getTierToDelius(crn).previousEnforcementActivity
-    Assertions.assertTrue(result)
+    val result = tierToDeliusApiService.getTierToDelius(crn)
+    Assertions.assertTrue(result.previousEnforcementActivity)
+    Assertions.assertTrue(result.rsrScore == BigDecimal.TEN)
+    Assertions.assertTrue(result.ogrsScore == 2)
+  }
+
+  @Test
+  fun `ogrs score and rsr should be zero when null`() = runBlocking {
+    val tierToDeliusResponse = TierToDeliusResponse(
+      "Male",
+      emptyList(),
+      listOf(DeliusConviction(null, sentenceTypeCode, true, emptyList())),
+      null,
+      null,
+      true,
+    )
+
+    coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
+    val result = tierToDeliusApiService.getTierToDelius(crn)
+    Assertions.assertTrue(result.previousEnforcementActivity)
+    Assertions.assertTrue(result.rsrScore == BigDecimal.ZERO)
+    Assertions.assertTrue(result.ogrsScore == 0)
   }
 
   @Nested

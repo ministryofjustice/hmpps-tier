@@ -37,6 +37,7 @@ class TierToDeliusApiClient(@Qualifier("tierToDeliusApiClientWebClientAppScope")
   }
 }
 
+// TODO add documentations on properties
 data class TierToDeliusResponse @JsonCreator constructor(
   val gender: String,
   val registrations: List<DeliusRegistration>,
@@ -57,7 +58,6 @@ data class DeliusConviction @JsonCreator constructor(
   val sentenceTypeCode: String,
   val breached: Boolean = false,
   val requirements: List<DeliusRequirement>,
-  val previousEnforcementActivity: Boolean = false,
 )
 
 data class DeliusRequirement @JsonCreator constructor(
