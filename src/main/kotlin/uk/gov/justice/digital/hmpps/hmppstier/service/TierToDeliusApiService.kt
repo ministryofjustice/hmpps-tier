@@ -28,6 +28,7 @@ class TierToDeliusApiService(private val tierToDeliusApiClient: TierToDeliusApiC
       isBreached(tierToDeliusResponse.convictions),
       mandateForChange.hasNoMandate(tierToDeliusResponse.convictions),
       getRegistrations(tierToDeliusResponse.registrations),
+      tierToDeliusResponse.previousEnforcementActivity,
     )
   }
 

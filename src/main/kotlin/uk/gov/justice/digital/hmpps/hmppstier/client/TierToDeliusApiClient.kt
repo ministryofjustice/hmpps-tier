@@ -43,6 +43,7 @@ data class TierToDeliusResponse @JsonCreator constructor(
   val convictions: List<DeliusConviction>,
   val rsrscore: BigDecimal?,
   val ogrsscore: Int?,
+  val previousEnforcementActivity: Boolean = false,
 )
 
 data class DeliusRegistration @JsonCreator constructor(
@@ -54,8 +55,9 @@ data class DeliusRegistration @JsonCreator constructor(
 data class DeliusConviction @JsonCreator constructor(
   val terminationDate: LocalDate?,
   val sentenceTypeCode: String,
-  val breached: Boolean,
+  val breached: Boolean = false,
   val requirements: List<DeliusRequirement>,
+  val previousEnforcementActivity: Boolean = false,
 )
 
 data class DeliusRequirement @JsonCreator constructor(

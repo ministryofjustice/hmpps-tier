@@ -28,6 +28,7 @@ class SetupData(
   private var registrations: MutableList<Registration> = mutableListOf()
   private var convictions: MutableList<Conviction> = mutableListOf()
   private var rsr: String = "0"
+  private var previousEnforcementActivity: Boolean = false
   private var assessmentAnswers: MutableMap<String, Answer> = mutableMapOf(
     IMPULSIVITY.answerCode to Answer(IMPULSIVITY.answerCode, "Impulsivity", "0"),
     TEMPER_CONTROL.answerCode to Answer(TEMPER_CONTROL.answerCode, "Temper control", "0"),
@@ -36,6 +37,10 @@ class SetupData(
 
   fun setRsr(rsr: String) {
     this.rsr = rsr
+  }
+
+  fun setPreviousEnforcementActivity(previousEnforcementActivity: Boolean) {
+    this.previousEnforcementActivity = previousEnforcementActivity
   }
 
   fun addRegistration(registration: Registration) {
@@ -86,7 +91,7 @@ class SetupData(
     if (convictions.isEmpty()) {
       addConviction(Conviction())
     }
-    tierToDeliusApi.getFullDetails(crn, TierDetails(gender, currentTier, ogrs, rsr, convictions, registrations))
+    tierToDeliusApi.getFullDetails(crn, TierDetails(gender, currentTier, ogrs, rsr, convictions, registrations, previousEnforcementActivity))
     assessmentsApi()
   }
 

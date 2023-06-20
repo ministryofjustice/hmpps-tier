@@ -9,14 +9,14 @@ class AdditionalFactorsForWomen(
   private val assessmentApiService: AssessmentApiService,
 ) {
   suspend fun calculate(
-    isBreached: Boolean,
     offenderAssessment: OffenderAssessment?,
     offenderIsFemale: Boolean,
+    previousEnforcementActivity: Boolean,
   ): Int =
     when {
       offenderIsFemale -> {
         val additionalFactorsPoints = getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment)
-        val breachRecallPoints = getBreachRecallComplexityPoints(isBreached)
+        val breachRecallPoints = getBreachRecallComplexityPoints(previousEnforcementActivity)
 
         additionalFactorsPoints + breachRecallPoints
       }
@@ -43,8 +43,8 @@ class AdditionalFactorsForWomen(
       }
     }
 
-  private fun getBreachRecallComplexityPoints(isBreached: Boolean): Int =
-    if (isBreached) {
+  private fun getBreachRecallComplexityPoints(previousEnforcementActivity: Boolean): Int =
+    if (previousEnforcementActivity) {
       2
     } else {
       0

@@ -16,7 +16,8 @@ fun tierDetailsResponse(tierDetails: TierDetails) = """
     ],
     "convictions": [
       ${tierDetails.convictions.joinToString(",") { getConviction(it) } }
-    ]
+    ],
+    "previousEnforcementActivity": "${tierDetails.previousEnforcementActivity}"
     ${tierDetails.ogrsScore?.let { """ ,"ogrsscore": "$it" """.trimIndent() } ?: "" }
     ${tierDetails.rsrScore?.let { """ ,"rsrscore": "$it" """.trimIndent() } ?: "" }
   }

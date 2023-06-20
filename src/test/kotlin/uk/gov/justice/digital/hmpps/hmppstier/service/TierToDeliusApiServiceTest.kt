@@ -54,6 +54,7 @@ class TierToDeliusApiServiceTest {
       listOf(DeliusConviction(terminationDate, sentenceTypeCode, true, emptyList())),
       BigDecimal.TEN,
       2,
+      true,
     )
 
     coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
@@ -70,45 +71,12 @@ class TierToDeliusApiServiceTest {
       listOf(DeliusConviction(null, sentenceTypeCode, true, emptyList())),
       BigDecimal.TEN,
       2,
+      true,
     )
 
     coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
-    val result = tierToDeliusApiService.getTierToDelius(crn).breached
+    val result = tierToDeliusApiService.getTierToDelius(crn).previousEnforcementActivity
     Assertions.assertTrue(result)
-  }
-
-  @Test
-  fun `Should return Breach true if multiple convictions, one valid`() = runBlocking {
-    val tierToDeliusResponse = TierToDeliusResponse(
-      "Male",
-      emptyList(),
-      listOf(
-        DeliusConviction(null, sentenceTypeCode, true, emptyList()),
-        DeliusConviction(null, sentenceTypeCode, false, emptyList()),
-      ),
-      BigDecimal.TEN,
-      2,
-    )
-
-    coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
-    val result = tierToDeliusApiService.getTierToDelius(crn).breached
-    Assertions.assertTrue(result)
-  }
-
-  @Test
-  fun `Should return Breach false if no conviction`() = runBlocking {
-    val tierToDeliusResponse = TierToDeliusResponse(
-      "Male",
-      emptyList(),
-      emptyList(),
-      BigDecimal.TEN,
-      2,
-    )
-
-    coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
-    val result = tierToDeliusApiService.getTierToDelius(crn).breached
-
-    Assertions.assertFalse(result)
   }
 
   @Nested
@@ -123,6 +91,7 @@ class TierToDeliusApiServiceTest {
         emptyList(),
         BigDecimal.TEN,
         2,
+        false,
       )
 
       coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
@@ -139,6 +108,7 @@ class TierToDeliusApiServiceTest {
         emptyList(),
         BigDecimal.TEN,
         2,
+        false,
       )
 
       coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
@@ -155,6 +125,7 @@ class TierToDeliusApiServiceTest {
         emptyList(),
         BigDecimal.TEN,
         2,
+        false,
       )
 
       coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
@@ -175,6 +146,7 @@ class TierToDeliusApiServiceTest {
         emptyList(),
         BigDecimal.TEN,
         2,
+        false,
       )
 
       coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
@@ -195,6 +167,7 @@ class TierToDeliusApiServiceTest {
         emptyList(),
         BigDecimal.TEN,
         2,
+        false,
       )
 
       coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
@@ -216,6 +189,7 @@ class TierToDeliusApiServiceTest {
         emptyList(),
         BigDecimal.TEN,
         2,
+        false,
       )
 
       coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
@@ -232,6 +206,7 @@ class TierToDeliusApiServiceTest {
         emptyList(),
         BigDecimal.TEN,
         2,
+        false,
       )
 
       coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
@@ -248,6 +223,7 @@ class TierToDeliusApiServiceTest {
         emptyList(),
         BigDecimal.TEN,
         2,
+        false,
       )
 
       coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
@@ -269,6 +245,7 @@ class TierToDeliusApiServiceTest {
         emptyList(),
         BigDecimal.TEN,
         2,
+        false,
       )
 
       coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
@@ -290,6 +267,7 @@ class TierToDeliusApiServiceTest {
         emptyList(),
         BigDecimal.TEN,
         2,
+        false,
       )
 
       coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
@@ -315,6 +293,7 @@ class TierToDeliusApiServiceTest {
         emptyList(),
         BigDecimal.TEN,
         2,
+        false,
       )
 
       coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
@@ -335,6 +314,7 @@ class TierToDeliusApiServiceTest {
         emptyList(),
         BigDecimal.TEN,
         2,
+        false,
       )
 
       coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
@@ -350,6 +330,7 @@ class TierToDeliusApiServiceTest {
         emptyList(),
         BigDecimal.TEN,
         2,
+        false,
       )
 
       coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
@@ -367,6 +348,7 @@ class TierToDeliusApiServiceTest {
         emptyList(),
         BigDecimal.TEN,
         2,
+        false,
       )
 
       coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
@@ -386,6 +368,7 @@ class TierToDeliusApiServiceTest {
         emptyList(),
         BigDecimal.TEN,
         2,
+        false,
       )
 
       coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
@@ -403,6 +386,7 @@ class TierToDeliusApiServiceTest {
         emptyList(),
         BigDecimal.TEN,
         2,
+        false,
       )
 
       coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse

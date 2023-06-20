@@ -9,4 +9,5 @@ data class DeliusInputs(
   val breached: Boolean,
   val hasNoMandate: Boolean,
   val registrations: Registrations,
+  val previousEnforcementActivity: Boolean,
 )
