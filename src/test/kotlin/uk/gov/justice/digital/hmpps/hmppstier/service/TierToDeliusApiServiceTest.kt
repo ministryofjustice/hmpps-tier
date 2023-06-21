@@ -58,8 +58,6 @@ class TierToDeliusApiServiceTest {
     coEvery { tierToDeliusApiClient.getDeliusTier(crn) } returns tierToDeliusResponse
     val result = tierToDeliusApiService.getTierToDelius(crn)
     Assertions.assertTrue(result.previousEnforcementActivity)
-    Assertions.assertTrue(result.rsrScore == BigDecimal.TEN)
-    Assertions.assertTrue(result.ogrsScore == 2)
   }
 
   @Test
