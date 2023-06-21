@@ -10,7 +10,6 @@ fun tierDetailsResponse(tierDetails: TierDetails) = """
   {
     "gender": "${tierDetails.gender}",
     ${tierDetails.currentTier?.let { """ "currentTier": "$it", """.trimIndent() } ?: ""}
-    
     "registrations": [
       ${tierDetails.registrations.joinToString(",") { getRegistration(it) } }
     ],

@@ -94,7 +94,6 @@ class CommunityApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     communityApi.`when`(request, Times.exactly(1)).respond(
       HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(convictionResponse(convictionId)),
     )
-
     if (crn2 != null) {
       val request2 = HttpRequest.request().withPath("/secure/offenders/crn/$crn2/convictions")
 

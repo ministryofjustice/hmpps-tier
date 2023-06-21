@@ -55,7 +55,7 @@ class DeliusCommunityDataReliability(
     val ogrsCommunity = ogrsScoreCommunity.div(10)
 
     val communityConvictions = getCommunityConviction(crn)
-    val deliusConvictions = deliusInputs?.convictions?.map { DeliusConviction(it.terminationDate, it.sentenceTypeCode, it.breached, it.requirements.sortedBy { it.mainCategoryTypeCode }) }
+    val deliusConvictions = deliusInputs?.convictions?.map { DeliusConviction(it.terminationDate, it.sentenceTypeCode, it.requirements.sortedBy { it.mainCategoryTypeCode }) }
       ?.sortedWith(compareBy({ it.sentenceTypeCode }, { it.terminationDate }))
 
     val communityRegistrations = getCommunityRegistration(crn)
@@ -68,6 +68,7 @@ class DeliusCommunityDataReliability(
       genderMatch,
       communityConvictions == deliusConvictions,
       communityRegistrations == deliusRegistrations,
+      getCommunityBreached(crn) == (deliusInputs?.previousEnforcementActivity ?: false),
       rsrDelius,
       rsrScoreCommunity,
       ogrsDelius,
@@ -76,6 +77,8 @@ class DeliusCommunityDataReliability(
       deliusConvictions,
       communityRegistrations,
       deliusRegistrations,
+      deliusInputs?.previousEnforcementActivity ?: false,
+      getCommunityBreached(crn),
     )
   }
 
@@ -96,11 +99,17 @@ class DeliusCommunityDataReliability(
       DeliusConviction(
         it.sentence.terminationDate,
         it.sentence.sentenceType,
-        communityApiService.hasBreachedConvictions(crn, communityConvictions),
         communityApiService.getRequirements(crn, it.convictionId)
           .map { DeliusRequirement(it.mainCategory, it.isRestrictive) }.sortedBy { it.mainCategoryTypeCode },
       )
     }.sortedWith(compareBy({ it.sentenceTypeCode }, { it.terminationDate }))
+  }
+
+  private suspend fun getCommunityBreached(crn: String): Boolean {
+    return communityApiService.hasBreachedConvictions(
+      crn,
+      communityApiService.getConvictionsWithSentences(crn),
+    )
   }
 
   @Operation(summary = "find discrepancy between community API and Tier-To-Delius API for Tiering CRNs")
@@ -130,7 +139,7 @@ class DeliusCommunityDataReliability(
       val genderCommunity = communityApiService.getOffender(it)?.gender ?: "NOT_FOUND"
 
       val communityConvictions = getCommunityConviction(it)
-      val deliusConvictions = deliusInputs?.convictions?.map { DeliusConviction(it.terminationDate, it.sentenceTypeCode, it.breached, it.requirements.sortedBy { it.mainCategoryTypeCode }) }
+      val deliusConvictions = deliusInputs?.convictions?.map { DeliusConviction(it.terminationDate, it.sentenceTypeCode, it.requirements.sortedBy { it.mainCategoryTypeCode }) }
         ?.sortedWith(compareBy({ it.sentenceTypeCode }, { it.terminationDate }))
       val communityRegistrations = getCommunityRegistration(it)
       val deliusRegistrations = deliusInputs?.registrations?.sortedWith(compareBy({ it.code }, { it.date }))
@@ -142,6 +151,7 @@ class DeliusCommunityDataReliability(
         genderCommunity.equals(deliusInputs?.gender, true),
         communityConvictions == deliusConvictions,
         communityRegistrations == deliusRegistrations,
+        getCommunityBreached(it) == (deliusInputs?.previousEnforcementActivity ?: false),
         rsrDelius,
         communityAssessment?.rsr ?: BigDecimal.valueOf(-1),
         ogrsDelius,
@@ -150,6 +160,8 @@ class DeliusCommunityDataReliability(
         deliusConvictions,
         communityRegistrations,
         deliusRegistrations,
+        deliusInputs?.previousEnforcementActivity ?: false,
+        getCommunityBreached(it),
       ).takeUnless {
         (deliusInputs == null) || (it.rsrMatch && it.ogrsMatch && it.convictionsMatch && it.registrationMatch)
       }
@@ -218,6 +230,7 @@ data class CommunityDeliusData(
   val genderMatch: Boolean,
   val convictionsMatch: Boolean,
   val registrationMatch: Boolean,
+  val enforcementMatch: Boolean,
   val rsrDelius: BigDecimal,
   val rsrCommunity: BigDecimal,
   val ogrsDelius: Int?,
@@ -226,4 +239,6 @@ data class CommunityDeliusData(
   val deliusConvictions: List<DeliusConviction>?,
   val communityRegistrations: List<DeliusRegistration>,
   val deliusRegistrations: List<DeliusRegistration>?,
+  val deliusEnforcement: Boolean,
+  val communityEnforcement: Boolean,
 )

@@ -49,7 +49,7 @@ class TierToDeliusApiServiceTest {
     val tierToDeliusResponse = TierToDeliusResponse(
       "Male",
       emptyList(),
-      listOf(DeliusConviction(null, sentenceTypeCode, true, emptyList())),
+      listOf(DeliusConviction(null, sentenceTypeCode, emptyList())),
       BigDecimal.TEN,
       2,
       true,
@@ -67,7 +67,7 @@ class TierToDeliusApiServiceTest {
     val tierToDeliusResponse = TierToDeliusResponse(
       "Male",
       emptyList(),
-      listOf(DeliusConviction(null, sentenceTypeCode, true, emptyList())),
+      listOf(DeliusConviction(null, sentenceTypeCode, emptyList())),
       null,
       null,
       true,

@@ -56,7 +56,6 @@ data class DeliusRegistration @JsonCreator constructor(
 data class DeliusConviction @JsonCreator constructor(
   val terminationDate: LocalDate?,
   val sentenceTypeCode: String,
-  val breached: Boolean = false,
   val requirements: List<DeliusRequirement>,
 )
 
