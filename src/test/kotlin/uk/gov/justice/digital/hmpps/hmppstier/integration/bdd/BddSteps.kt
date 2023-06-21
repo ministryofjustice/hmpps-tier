@@ -19,7 +19,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliu
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnQueue
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Locale
 import java.util.UUID
@@ -180,7 +179,8 @@ class BddSteps : En {
       setupData.setAssessmentAnswer("6.9", "YES") // 2
       setupData.addRegistration(Registration(registerLevel = M1.registerCode)) // 5
       setupData.addRegistration(Registration(typeCode = HIGH.registerCode))
-      setupData.addConviction(Conviction(breached = true))
+      setupData.addConviction(Conviction())
+      setupData.setPreviousEnforcementActivity(true)
       setupData.addRegistration(Registration(typeCode = "RMDO"))
       setupData.addRegistration(Registration(typeCode = "ALSH"))
       setupData.addRegistration(Registration(typeCode = "RVLN"))
@@ -257,22 +257,19 @@ class BddSteps : En {
     And("has the following OASys complexity answer: {string} {string} : {string}") { _: String, question: String, answer: String ->
       setupData.setAssessmentAnswer(question, answer)
     }
-    And("has an active conviction with NSI Outcome code {string}") { outcome: String ->
+    And("has an active conviction with a Previous Enforcement Activity") {
+      setupData.addConviction(Conviction())
+      setupData.setPreviousEnforcementActivity(true)
+    }
+    And("has two active convictions with a Previous Enforcement Activity") {
+      setupData.addConviction(Conviction())
+      setupData.addConviction(Conviction())
+      setupData.setPreviousEnforcementActivity(true)
+    }
+    And("has two breached active convictions with a {string} Previous Enforcement Activity") { outcome1: String ->
       setupData.addConviction(Conviction(breached = true))
-    }
-    And("has two active convictions with NSI Outcome codes {string} and {string}") { outcome1: String, outcome2: String ->
       setupData.addConviction(Conviction(breached = true))
-      setupData.addConviction(Conviction(breached = true, sentenceCode = "SP"))
-    }
-    And("has two active convictions with NSI Outcome code {string}") { outcome: String ->
-      setupData.addConviction(Conviction(breached = true))
-      setupData.addConviction(Conviction(breached = true, sentenceCode = "SP"))
-    }
-    And("has a conviction terminated 365 days ago with NSI Outcome code {string}") { outcome: String ->
-      setupData.addConviction(Conviction(breached = true, terminationDate = LocalDate.now().minusYears(1)))
-    }
-    And("has a conviction terminated 366 days ago with NSI Outcome code {string}") { outcome: String ->
-      setupData.addConviction(Conviction(breached = true, terminationDate = LocalDate.now().minusYears(1).minusDays(1)))
+      setupData.setPreviousEnforcementActivity(outcome1 == "true")
     }
     And("no ROSH score") {
       // Do nothing

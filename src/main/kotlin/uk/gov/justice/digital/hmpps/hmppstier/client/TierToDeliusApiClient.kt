@@ -37,12 +37,22 @@ class TierToDeliusApiClient(@Qualifier("tierToDeliusApiClientWebClientAppScope")
   }
 }
 
+/***
+ * The response from Tier-To-Delius API
+ * @property gender: Person's gender
+ * @property registrations: A list of the registrations
+ * @property convictions: List of convictions containing sentence type and requirements
+ * @property rsrscore: RSR Score
+ * @property ogrsscore: OGRS Score
+ * @property previousEnforcementActivity: Flag if there is a breach/recall on an active and less-than-a-year conviction.
+ */
 data class TierToDeliusResponse @JsonCreator constructor(
   val gender: String,
   val registrations: List<DeliusRegistration>,
   val convictions: List<DeliusConviction>,
   val rsrscore: BigDecimal?,
   val ogrsscore: Int?,
+  val previousEnforcementActivity: Boolean,
 )
 
 data class DeliusRegistration @JsonCreator constructor(
@@ -54,7 +64,6 @@ data class DeliusRegistration @JsonCreator constructor(
 data class DeliusConviction @JsonCreator constructor(
   val terminationDate: LocalDate?,
   val sentenceTypeCode: String,
-  val breached: Boolean,
   val requirements: List<DeliusRequirement>,
 )
 

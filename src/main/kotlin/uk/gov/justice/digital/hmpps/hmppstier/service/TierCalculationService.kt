@@ -37,9 +37,9 @@ class TierCalculationService(
     val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
 
     val additionalFactorsPoints = additionalFactorsForWomen.calculate(
-      deliusInputs.breached,
       offenderAssessment,
       deliusInputs.isFemale,
+      deliusInputs.previousEnforcementActivity,
     )
 
     val protectLevel = protectLevelCalculator.calculate(deliusInputs.rsrScore, additionalFactorsPoints, deliusInputs.registrations)

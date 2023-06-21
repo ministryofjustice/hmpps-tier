@@ -1,53 +1,41 @@
 #lang: en
 Feature: Additional Factors (Female only) Breach and Recall
 
-  Scenario: Male offender with breach/recall scores no points
+  Scenario: Male offender with Previous Enforcement Activity scores no points
     Given an offender is "Male"
-    And has an active conviction with NSI Outcome code "BRE01"
+    And has an active conviction with a Previous Enforcement Activity
     When a tier is calculated
     Then 0 protect points are scored
 
-  Scenario: Female offender with breach/recall on an active conviction scores 2 points
+  Scenario: Female offender with Previous Enforcement Activity and an active conviction scores 2 points
     Given an offender is "Female"
-    And has an active conviction with NSI Outcome code "BRE02"
+    And has an active conviction with a Previous Enforcement Activity
     When a tier is calculated
     Then 2 protect points are scored
 
-  Scenario: Female offender with D2 and 9 protest points and breach/recall changes to C2
+  Scenario: Female offender with D2 and 9 protect points and Previous Enforcement Activity to C2
     Given an offender scores 9 protect points
     And an offender is "Female"
-    And has an active conviction with NSI Outcome code "REC01"
+    And has an active conviction with a Previous Enforcement Activity
     And has a tier of "D2"
     When a tier is calculated
     Then a protect level of "C" is returned and 2 change points are scored
 
-  Scenario: Female offender with breach/recall on two active convictions scores 2 points
+  Scenario: Female offender with Previous Enforcement Activity and two active convictions scores 2 points
     Given an offender is "Female"
-    And has two active convictions with NSI Outcome code "BRE03"
+    And has two active convictions with a Previous Enforcement Activity
     When a tier is calculated
     Then 2 protect points are scored
 
-  Scenario: Convictions up to 12 months old are counted
+  Scenario: Female offender with Breached Convictions and a Previous Enforcement Activity are not added up
     Given an offender is "Female"
-    And has a conviction terminated 365 days ago with NSI Outcome code "BRE04"
+    And has two breached active convictions with a "true" Previous Enforcement Activity
     When a tier is calculated
     Then 2 protect points are scored
 
-  Scenario: Convictions up to 12 months old are counted
+  Scenario: Female offender with Breached Convictions with no Previous Enforcement Activity scores no points
     Given an offender is "Female"
-    And has a conviction terminated 365 days ago with NSI Outcome code "REC01"
-    When a tier is calculated
-    Then 2 protect points are scored
-
-  Scenario: Convictions over 12 months old are not counted
-    Given an offender is "Female"
-    And has a conviction terminated 366 days ago with NSI Outcome code "BRE04"
+    And has two breached active convictions with a "false" Previous Enforcement Activity
     When a tier is calculated
     Then 0 protect points are scored
-
-  Scenario: Different types of breach/recall don't add together
-    Given an offender is "Female"
-    And has two active convictions with NSI Outcome codes "BRE05" and "REC01"
-    When a tier is calculated
-    Then 2 protect points are scored
 

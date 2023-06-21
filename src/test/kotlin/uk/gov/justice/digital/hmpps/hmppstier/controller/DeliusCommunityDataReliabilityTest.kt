@@ -174,6 +174,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
       TierDetails(
         gender = "female",
         convictions = listOf(Conviction(true, mutableListOf(Requirement("X", false)), "NC", LocalDate.of(2021, 2, 1))),
+        previousEnforcementActivity = true,
       ),
     )
     val response = webTestClient.get()
@@ -186,7 +187,7 @@ class DeliusCommunityDataReliabilityTest(@Autowired val repository: TierCalculat
       .responseBody
 
     assertThat(response!!.crn).isEqualTo(crn1)
-    assertThat(response.convictionsMatch).isEqualTo(false)
+    assertThat(response.enforcementMatch).isEqualTo(false)
     assertThat(response.genderMatch).isEqualTo(true)
   }
 

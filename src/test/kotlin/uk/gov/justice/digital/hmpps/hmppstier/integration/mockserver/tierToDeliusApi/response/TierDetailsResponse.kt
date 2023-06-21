@@ -10,13 +10,13 @@ fun tierDetailsResponse(tierDetails: TierDetails) = """
   {
     "gender": "${tierDetails.gender}",
     ${tierDetails.currentTier?.let { """ "currentTier": "$it", """.trimIndent() } ?: ""}
-    
     "registrations": [
       ${tierDetails.registrations.joinToString(",") { getRegistration(it) } }
     ],
     "convictions": [
       ${tierDetails.convictions.joinToString(",") { getConviction(it) } }
-    ]
+    ],
+    "previousEnforcementActivity": "${tierDetails.previousEnforcementActivity}"
     ${tierDetails.ogrsScore?.let { """ ,"ogrsscore": "$it" """.trimIndent() } ?: "" }
     ${tierDetails.rsrScore?.let { """ ,"rsrscore": "$it" """.trimIndent() } ?: "" }
   }
