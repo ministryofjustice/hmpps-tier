@@ -227,7 +227,7 @@ class AdditionalFactorsForWomenTest {
   }
 
   @Test
-  fun `Should return Breach points if previousEnforcementActivity is false`(): Unit = runBlocking {
+  fun `Should return no Breach points if previousEnforcementActivity is false`(): Unit = runBlocking {
     val result = additionalFactorsForWomen.calculate(
       offenderAssessment = null,
       offenderIsFemale = true,
