@@ -12,10 +12,6 @@ oauth:
     id: hmpps-tier
     secret: clientsecret
 
-community:
-  endpoint:
-    url: http://localhost:8091/secure
-
 assessment:
   endpoint:
     url: http://localhost:8092

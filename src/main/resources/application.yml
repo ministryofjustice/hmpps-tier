@@ -23,11 +23,6 @@ spring:
     oauth2:
       client:
         registration:
-          community-api:
-            provider: hmpps-auth
-            client-id: ${oauth.client.id}
-            client-secret: ${oauth.client.secret}
-            authorization-grant-type: client_credentials
           tier-to-delius-api:
             provider: hmpps-auth
             client-id: ${oauth.client.id}
