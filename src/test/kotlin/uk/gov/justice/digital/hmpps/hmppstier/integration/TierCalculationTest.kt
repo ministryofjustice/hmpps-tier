@@ -33,7 +33,7 @@ class TierCalculationTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `Does not write back when tier is unchanged`() {
+  fun `Does write back when tier is unchanged`() {
     val crn = "X432769"
     tierToDeliusApi.getFullDetails(
       crn,
@@ -63,11 +63,11 @@ class TierCalculationTest : IntegrationTestBase() {
     assessmentApi.getOutdatedAssessment(crn, 1234567890)
 
     calculateTierFor(crn)
-    expectNoUpdatedTierCalculation()
+    expectTierChangedById("A2")
   }
 
   @Test
-  fun `Does not write back when calculation result differs but tier is unchanged`() {
+  fun `Does write back when calculation result differs but tier is unchanged`() {
     val crn = "X432779"
     tierToDeliusApi.getFullDetails(
       crn,
@@ -98,7 +98,7 @@ class TierCalculationTest : IntegrationTestBase() {
     assessmentApi.getCurrentAssessment(crn, 4234568899) // assessment not out of date
 
     calculateTierFor(crn)
-    expectNoUpdatedTierCalculation()
+    expectTierChangedById("A2")
   }
 
   @Test

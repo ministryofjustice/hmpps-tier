@@ -69,7 +69,7 @@ class TriggerCalculationUpload : IntegrationTestBase() {
   }
 
   @Test
-  fun `must not write back if tier is unchanged`() {
+  fun `must write back even if tier is unchanged`() {
     val crn = "X432769"
     tierToDeliusApi.getFullDetails(
       crn,
@@ -106,7 +106,7 @@ class TriggerCalculationUpload : IntegrationTestBase() {
       .expectStatus()
       .isOk
 
-    expectNoUpdatedTierCalculation()
+    expectTierChangedById("A2")
   }
 
   private fun generateMultipartBody(crn1: String, crn2: String = ""): BodyInserters.MultipartInserter {
