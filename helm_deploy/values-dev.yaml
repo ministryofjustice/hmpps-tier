@@ -9,7 +9,6 @@ generic-service:
   env:
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json
     OAUTH_ENDPOINT_URL: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
-    COMMUNITY_ENDPOINT_URL: https://community-api.test.probation.service.justice.gov.uk/secure
     ASSESSMENT_ENDPOINT_URL: https://offender-dev.aks-dev-1.studio-hosting.service.justice.gov.uk
     HMPPS_TIER_ENDPOINT_URL: https://hmpps-tier-dev.hmpps.service.justice.gov.uk
     TIER_TO_DELIUS_ENDPOINT_URL: https://tier-to-delius-dev.hmpps.service.justice.gov.uk

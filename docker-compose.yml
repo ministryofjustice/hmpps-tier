@@ -27,18 +27,6 @@ services:
     volumes:
       - "${TMPDIR:-/tmp/localstack}:/var/lib/localstack"
       - "/var/run/docker.sock:/var/run/docker.sock"
-  community-api:
-    image: quay.io/hmpps/community-api:latest
-    networks:
-      - hmpps
-    container_name: community-api
-    ports:
-     - "8091:8080"
-    healthcheck:
-     test: [ "CMD", "curl", "-f", "http://localhost:8080/api/health" ]
-    environment:
-      - SERVER_PORT=8080
-      - SPRING_PROFILES_ACTIVE=dev,dev-seed
   assessments-api:
     image: quay.io/hmpps/offender-assessments-api:latest
     networks:
