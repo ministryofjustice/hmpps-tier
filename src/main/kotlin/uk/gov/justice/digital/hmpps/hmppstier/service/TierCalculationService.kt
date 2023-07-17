@@ -25,9 +25,7 @@ class TierCalculationService(
   suspend fun calculateTierForCrn(crn: String, listener: String) =
     calculateTier(crn).let {
       val isUpdated = tierUpdater.updateTier(it, crn)
-      when {
-        isUpdated -> successUpdater.update(crn, it.uuid)
-      }
+      successUpdater.update(crn, it.uuid)
       telemetryService.trackTierCalculated(it, isUpdated)
       log.info("Tier calculated for $crn. Different from previous tier: $isUpdated from listener: $listener.")
     }
