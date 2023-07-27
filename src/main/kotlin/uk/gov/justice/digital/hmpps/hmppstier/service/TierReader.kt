@@ -1,7 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
@@ -24,10 +22,6 @@ class TierReader(
       log.info("Found tier for $crn and $calculationId")
       TierDto.from(it)
     }
-
-  suspend fun getCrns(offset: Int, limit: Int): Flow<String> {
-    return tierCalculationRepository.findDistinctCrn(offset, limit).asFlow()
-  }
 
   private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
     tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
