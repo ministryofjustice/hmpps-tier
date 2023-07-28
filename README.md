@@ -106,7 +106,7 @@ The application is configurable with conventional Spring parameters.
 The Spring documentation can be found here: https://docs.spring.io/spring-boot/docs/current/reference/html/common-application-properties.html  
   
 #### Default port  
-By default the application starts on port '8080'. To override, set server.port (e.g. `SERVER_PORT=8099 java -jar build/libs/csr-api-<yyyy-mm-dd>.jar` )  
+By default, the application starts on port '8080'. To override, set server.port (e.g. `SERVER_PORT=8099 java -jar build/libs/csr-api-<yyyy-mm-dd>.jar` )  
   
 ### Documentation  
 The generated documentation for the api can be viewed at http://localhost:8080/swagger-ui.html
