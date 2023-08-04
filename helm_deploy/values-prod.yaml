@@ -18,6 +18,28 @@ generic-service:
     delius-prod-2: "35.178.104.253/32"
     delius-prod-3: "35.177.47.45/32"
 
+  namespace_secrets:
+    hmpps-domain-events-topic:
+      HMPPS_SQS_TOPICS_HMPPSCALCULATIONCOMPLETETOPIC_ACCESS_KEY_ID: "access_key_id"
+      HMPPS_SQS_TOPICS_HMPPSCALCULATIONCOMPLETETOPIC_ARN: "topic_arn"
+      HMPPS_SQS_TOPICS_HMPPSCALCULATIONCOMPLETETOPIC_SECRET_ACCESS_KEY: "secret_access_key"
+    hmpps-tier-offender-events-sqs-instance-output:
+      HMPPS_SQS_QUEUES_HMPPSOFFENDERQUEUE_QUEUE_ACCESS_KEY_ID: "access_key_id"
+      HMPPS_SQS_QUEUES_HMPPSOFFENDERQUEUE_QUEUE_SECRET_ACCESS_KEY: "secret_access_key"
+      HMPPS_SQS_QUEUES_HMPPSOFFENDERQUEUE_QUEUE_NAME: "sqs_ptpu_name"
+    hmpps-tier-offender-events-sqs-dl-instance-output:
+      HMPPS_SQS_QUEUES_HMPPSOFFENDERQUEUE_DLQ_ACCESS_KEY_ID: "access_key_id"
+      HMPPS_SQS_QUEUES_HMPPSOFFENDERQUEUE_DLQ_SECRET_ACCESS_KEY: "secret_access_key"
+      HMPPS_SQS_QUEUES_HMPPSOFFENDERQUEUE_DLQ_NAME: "sqs_ptpu_name"
+    sqs-domain-events-secret:
+      HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_QUEUE_ACCESS_KEY_ID: "access_key_id"
+      HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_QUEUE_SECRET_ACCESS_KEY: "secret_access_key"
+      HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_QUEUE_NAME: "sqs_queue_name"
+    sqs-domain-events-dl-secret:
+      HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_DLQ_ACCESS_KEY_ID: "access_key_id"
+      HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_DLQ_SECRET_ACCESS_KEY: "secret_access_key"
+      HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_DLQ_NAME: "sqs_queue_name"
+
 generic-prometheus-alerts:
   sqsOldestAlertQueueNames:
     - "Digital-Prison-Services-prod-hmpps_tier_offender_events_queue"
