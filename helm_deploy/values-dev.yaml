@@ -12,7 +12,6 @@ generic-service:
     ASSESSMENT_ENDPOINT_URL: https://offender-dev.aks-dev-1.studio-hosting.service.justice.gov.uk
     HMPPS_TIER_ENDPOINT_URL: https://hmpps-tier-dev.hmpps.service.justice.gov.uk
     TIER_TO_DELIUS_ENDPOINT_URL: https://tier-to-delius-dev.hmpps.service.justice.gov.uk
-    HMPPS_SQS_USE_WEB_TOKEN: "true"
   allowlist:
     dxw-vpn: "54.76.254.148/32"
     delius-test-1: "35.176.126.163/32"
@@ -31,5 +30,3 @@ generic-service:
       HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_QUEUE_NAME: "sqs_queue_name"
     sqs-domain-events-dl-secret:
       HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_DLQ_NAME: "sqs_queue_name"
-
-  serviceAccountName: hmpps-tier
