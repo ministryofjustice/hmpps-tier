@@ -18,14 +18,3 @@ generic-service:
     delius-pre-prod-3: "35.178.44.184/32"
   scheduledDowntime:
     enabled: true
-  namespace_secrets:
-    hmpps-domain-events-topic:
-      HMPPS_SQS_TOPICS_HMPPSCALCULATIONCOMPLETETOPIC_ARN: "topic_arn"
-    hmpps-tier-offender-events-sqs-instance-output:
-      HMPPS_SQS_QUEUES_HMPPSOFFENDERQUEUE_QUEUE_NAME: "sqs_ptpu_name"
-    hmpps-tier-offender-events-sqs-dl-instance-output:
-      HMPPS_SQS_QUEUES_HMPPSOFFENDERQUEUE_DLQ_NAME: "sqs_ptpu_name"
-    sqs-domain-events-secret:
-      HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_QUEUE_NAME: "sqs_queue_name"
-    sqs-domain-events-dl-secret:
-      HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_DLQ_NAME: "sqs_queue_name"
