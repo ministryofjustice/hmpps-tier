@@ -7,10 +7,10 @@ orbs:
 parameters:
   alerts-slack-channel:
     type: string
-    default: manage_a_workforce_dev
+    default: probation-integration-notifications
   releases-slack-channel:
     type: string
-    default: manage_a_workforce_dev
+    default: probation-integration-notifications
 
 jobs:
   validate:
