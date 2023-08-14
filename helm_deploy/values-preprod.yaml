@@ -32,3 +32,10 @@ generic-service:
       HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_DLQ_NAME: "sqs_queue_name"
 
   serviceAccountName: hmpps-tier
+
+generic-prometheus-alerts:
+  businessHoursOnly: true
+  sqsNumberAlertQueueNames:
+    - "Digital-Prison-Services-prod-hmpps_tier_offender_events_queue_dl"
+    - "manage-a-workforce-production-hmpps_tier_domain_events_dlq"
+  sqsAlertsTotalMessagesThreshold: 1
