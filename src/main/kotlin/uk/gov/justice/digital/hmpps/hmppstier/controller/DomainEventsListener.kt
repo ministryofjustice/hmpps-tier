@@ -2,13 +2,9 @@ package uk.gov.justice.digital.hmpps.hmppstier.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.awspring.cloud.sqs.annotation.SqsListener
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.future.future
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
-import java.util.concurrent.CompletableFuture
 
 @Service
 class DomainEventsListener(
@@ -17,10 +13,8 @@ class DomainEventsListener(
 ) {
 
   @SqsListener("hmppsdomaineventsqueue", factory = "hmppsQueueContainerFactoryProxy")
-  fun listen(msg: String): CompletableFuture<Void> {
-    return CoroutineScope(Dispatchers.Default).future {
-      calculator.calculateTierForCrn(getCrn(msg), "DomainEventsListener")
-    }.thenAccept {}
+  suspend fun listen(msg: String) {
+    calculator.calculateTierForCrn(getCrn(msg), "DomainEventsListener")
   }
 
   private fun getCrn(msg: String): String {
