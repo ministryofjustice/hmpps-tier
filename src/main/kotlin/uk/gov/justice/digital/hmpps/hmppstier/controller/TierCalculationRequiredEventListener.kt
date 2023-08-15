@@ -3,6 +3,9 @@ package uk.gov.justice.digital.hmpps.hmppstier.controller
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.awspring.cloud.sqs.annotation.SqsListener
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler
@@ -21,8 +24,9 @@ class TierCalculationRequiredEventListener(
     throw e
   }
 
+  @OptIn(DelicateCoroutinesApi::class)
   @SqsListener("hmppsoffenderqueue", factory = "hmppsQueueContainerFactoryProxy")
-  fun listen(msg: String) = runBlocking {
+  fun listen(msg: String) = GlobalScope.async {
     val (crn) = getCrn(msg)
     calculator.calculateTierForCrn(crn, "TierCalculationRequiredEventListener")
   }
