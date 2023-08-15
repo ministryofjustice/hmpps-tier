@@ -17,7 +17,7 @@ class DomainEventsListener(
 
   @OptIn(DelicateCoroutinesApi::class)
   @SqsListener("hmppsdomaineventsqueue", factory = "hmppsQueueContainerFactoryProxy")
-  fun listen(msg: String) = GlobalScope.async  {
+  fun listen(msg: String) = GlobalScope.async {
     calculator.calculateTierForCrn(getCrn(msg), "DomainEventsListener")
   }
 

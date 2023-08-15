@@ -6,7 +6,6 @@ import io.awspring.cloud.sqs.annotation.SqsListener
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler
 import org.springframework.stereotype.Service
