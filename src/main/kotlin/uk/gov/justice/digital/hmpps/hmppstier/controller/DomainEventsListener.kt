@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.awspring.cloud.sqs.annotation.SqsListener
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
@@ -13,7 +14,7 @@ class DomainEventsListener(
 ) {
 
   @SqsListener("hmppsdomaineventsqueue", factory = "hmppsQueueContainerFactoryProxy")
-  suspend fun listen(msg: String) {
+  fun listen(msg: String) = runBlocking {
     calculator.calculateTierForCrn(getCrn(msg), "DomainEventsListener")
   }
 
