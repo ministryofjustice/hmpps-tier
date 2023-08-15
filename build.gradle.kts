@@ -1,13 +1,13 @@
 
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.1.4"
-  kotlin("plugin.spring") version "1.8.21"
-  kotlin("plugin.jpa") version "1.8.21"
-  id("org.jlleitschuh.gradle.ktlint") version "11.4.2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.3.0"
+  kotlin("plugin.spring") version "1.9.0"
+  kotlin("plugin.jpa") version "1.9.0"
+  id("org.jlleitschuh.gradle.ktlint") version "11.5.1"
   jacoco
   java
-  id("io.gitlab.arturbosch.detekt").version("1.23.0")
+  id("io.gitlab.arturbosch.detekt").version("1.23.1")
 }
 
 configurations {
@@ -24,7 +24,7 @@ dependencyCheck {
   suppressionFiles.add("suppressions.xml")
 }
 
-val cucumberVersion by extra("7.12.1")
+val cucumberVersion by extra("7.13.0")
 val springDocVersion by extra("1.6.14")
 
 repositories {
@@ -37,7 +37,7 @@ dependencies {
   runtimeOnly("com.zaxxer:HikariCP")
   runtimeOnly("org.flywaydb:flyway-core")
 
-  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.1.0")
+  implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.2.0")
 
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -50,11 +50,11 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.0.0")
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.0.1")
 
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.1")
-  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.6.4")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
+  implementation("org.jetbrains.kotlinx:kotlinx-coroutines-jdk8:1.7.3")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test") {
     exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -71,8 +71,8 @@ dependencies {
   testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
-  testImplementation("org.junit.platform:junit-platform-console:1.9.3")
-  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.1")
+  testImplementation("org.junit.platform:junit-platform-console:1.10.0")
+  testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 }
 
 jacoco {
