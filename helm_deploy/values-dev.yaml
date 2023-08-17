@@ -1,8 +1,6 @@
 ---
 # Per environment values which override defaults in hmpps-tier/values.yaml
 
-queue_cronjob_schedule: "*/15 7-21 * * 1-5"
-
 generic-service:
   ingress:
     host: hmpps-tier-dev.hmpps.service.justice.gov.uk
@@ -23,6 +21,6 @@ generic-service:
 generic-prometheus-alerts:
   businessHoursOnly: true
   sqsNumberAlertQueueNames:
-    - "Digital-Prison-Services-prod-hmpps_tier_offender_events_queue_dl"
-    - "manage-a-workforce-production-hmpps_tier_domain_events_dlq"
+    - "Digital-Prison-Services-dev-hmpps_tier_offender_events_queue_dl"
+    - "manage-a-workforce-development-hmpps_tier_domain_events_dlq"
   sqsAlertsTotalMessagesThreshold: 1
