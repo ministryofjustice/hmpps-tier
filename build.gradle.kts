@@ -1,10 +1,10 @@
 
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.3.0"
-  kotlin("plugin.spring") version "1.9.0"
-  kotlin("plugin.jpa") version "1.9.0"
-  id("org.jlleitschuh.gradle.ktlint") version "11.5.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.5.1"
+  kotlin("plugin.spring") version "1.9.10"
+  kotlin("plugin.jpa") version "1.9.10"
+  id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
   jacoco
   java
   id("io.gitlab.arturbosch.detekt").version("1.23.1")
@@ -24,7 +24,7 @@ dependencyCheck {
   suppressionFiles.add("suppressions.xml")
 }
 
-val cucumberVersion by extra("7.13.0")
+val cucumberVersion by extra("7.14.0")
 val springDocVersion by extra("1.6.14")
 
 repositories {
@@ -50,7 +50,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
   implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.0.1")
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.1.1")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
 
@@ -64,8 +64,8 @@ dependencies {
   testImplementation("com.ninja-squad:springmockk:4.0.2")
   testImplementation("org.assertj:assertj-core:3.24.2")
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
-  testImplementation("io.jsonwebtoken:jjwt-impl:0.11.5")
-  testImplementation("io.jsonwebtoken:jjwt-jackson:0.11.5")
+  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.2")
+  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.2")
   testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
