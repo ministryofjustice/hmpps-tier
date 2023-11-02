@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  hmpps: ministryofjustice/hmpps@7.3.3
+  hmpps: ministryofjustice/hmpps@7
   slack: circleci/slack@4.12.5
 
 parameters:
@@ -24,13 +24,15 @@ jobs:
       - hmpps/install_aws_cli
       - run:
           name: Wait for SQS to be ready
-          command: curl -4 --connect-timeout 30 --retry-connrefused --retry 2 --retry-delay 5 http://localhost:4566
+          command: curl -4 --connect-timeout 30 --retry-connrefused --retry 2
+            --retry-delay 5 http://localhost:4566
       - restore_cache:
           keys:
             - gradle-{{ checksum "build.gradle.kts" }}
             - gradle-
       - run:
-          command: ./gradlew -Dorg.gradle.jvmargs="--illegal-access=permit" -Dkotlin.daemon.jvm.options="--illegal-access=permit" check
+          command: ./gradlew -Dorg.gradle.jvmargs="--illegal-access=permit"
+            -Dkotlin.daemon.jvm.options="--illegal-access=permit" check
       - when:
           condition:
             equal: [ main, << pipeline.git.branch >> ]
