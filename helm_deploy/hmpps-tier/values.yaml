@@ -65,9 +65,8 @@ generic-service:
       HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_DLQ_NAME: "sqs_queue_name"
 
   allowlist:
-    groups:
-      - internal
-      - unilink_staff
+    undefined: internal,unilink_staff/32
+    groups: []
 
   serviceAccountName: hmpps-tier
 
