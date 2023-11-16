@@ -26,7 +26,7 @@ class TriggerTierCalculationController(private val triggerCalculationService: Tr
   }
 
   @PostMapping("/calculations")
-  suspend fun recalculateTiers(@RequestBody(required = false) crns: List<String>?) = coroutineScope {
+  suspend fun recalculateTiers(@RequestBody(required = false) crns: List<String>?): Unit = coroutineScope {
     launch {
       if (crns.isNullOrEmpty()) {
         triggerCalculationService.recalculateAll()

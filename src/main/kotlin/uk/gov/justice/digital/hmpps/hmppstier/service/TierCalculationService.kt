@@ -22,12 +22,12 @@ class TierCalculationService(
   private val changeLevelCalculator: ChangeLevelCalculator = ChangeLevelCalculator()
   private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(assessmentApiService)
 
-  suspend fun calculateTierForCrn(crn: String, listener: String) = try {
+  suspend fun calculateTierForCrn(crn: String, recalculationSource: RecalculationSource): Unit = try {
     calculateTier(crn).let {
       val isUpdated = tierUpdater.updateTier(it, crn)
       successUpdater.update(crn, it.uuid)
-      telemetryService.trackTierCalculated(it, isUpdated, listener)
-      log.info("Tier calculated for $crn. Different from previous tier: $isUpdated from listener: $listener.")
+      telemetryService.trackTierCalculated(it, isUpdated, recalculationSource)
+      log.info("Tier calculated for $crn. Different from previous tier: $isUpdated from listener: ${recalculationSource.name}.")
     }
   } catch (e: Exception) {
     log.error("Unable to calculate tier for $crn", e)

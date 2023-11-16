@@ -60,7 +60,7 @@ internal class TelemetryServiceTest {
 
   @Test
   fun `Should emit TierChanged event when tier HAS changed`() {
-    service.trackTierCalculated(tierCalculation, true, "DomainEventsListener")
+    service.trackTierCalculated(tierCalculation, true, RecalculationSource.DomainEventRecalculation)
 
     verify {
       client.trackEvent(
@@ -70,7 +70,7 @@ internal class TelemetryServiceTest {
           "protect" to tierCalculation.data.protect.tier.value,
           "change" to tierCalculation.data.change.tier.value.toString(),
           "version" to tierCalculation.data.calculationVersion,
-          "recalculationReason" to "DomainEventsListener",
+          "recalculationReason" to "DomainEventRecalculation",
         ),
         null,
       )
@@ -79,7 +79,7 @@ internal class TelemetryServiceTest {
 
   @Test
   fun `Should emit TierUnchanged event when tier HAS NOT changed`() {
-    service.trackTierCalculated(tierCalculation, false, "DomainEventsListener")
+    service.trackTierCalculated(tierCalculation, false, RecalculationSource.DomainEventRecalculation)
 
     verify {
       client.trackEvent(
@@ -89,7 +89,7 @@ internal class TelemetryServiceTest {
           "protect" to tierCalculation.data.protect.tier.value,
           "change" to tierCalculation.data.change.tier.value.toString(),
           "version" to tierCalculation.data.calculationVersion,
-          "recalculationReason" to "DomainEventsListener",
+          "recalculationReason" to "DomainEventRecalculation",
         ),
         null,
       )
