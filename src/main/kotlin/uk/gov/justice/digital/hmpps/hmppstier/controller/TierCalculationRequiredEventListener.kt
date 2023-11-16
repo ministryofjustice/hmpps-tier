@@ -7,6 +7,7 @@ import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.hmppstier.service.RecalculationSource
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 
 @Service
@@ -23,7 +24,7 @@ class TierCalculationRequiredEventListener(
 
   @SqsListener("hmppsoffenderqueue", factory = "hmppsQueueContainerFactoryProxy")
   fun listen(msg: String) = runBlocking {
-    calculator.calculateTierForCrn(getCrn(msg).crn, "TierCalculationRequiredEventListener")
+    calculator.calculateTierForCrn(getCrn(msg).crn, RecalculationSource.OffenderEventRecalculation)
   }
 
   private fun getCrn(msg: String): TierCalculationMessage {

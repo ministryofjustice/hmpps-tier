@@ -1,12 +1,14 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
+import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 import org.springframework.test.context.ActiveProfiles
@@ -43,6 +45,9 @@ abstract class IntegrationTestBase {
 
   @Autowired
   protected lateinit var hmppsQueueService: HmppsQueueService
+
+  @SpyBean
+  lateinit var telemetryClient: TelemetryClient
 
   private val offenderEventsQueue by lazy { hmppsQueueService.findByQueueId("hmppsoffenderqueue") ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found") }
   private val offenderEventsDlqClient by lazy { offenderEventsQueue.sqsDlqClient }
@@ -98,16 +103,9 @@ abstract class IntegrationTestBase {
 
   fun calculateTierForRecallDomainEvent(crn: String) = putRecallMessageOnDomainQueue(domainEventQueueClient, domainEventQueue.queueUrl, crn)
 
-  fun expectTierCalculationToHaveFailed() = oneMessageCurrentlyOnDeadletterQueue(offenderEventsDlqClient!!, offenderEventsQueue.dlqUrl!!)
-
   fun expectNoMessagesOnQueueOrDeadLetterQueue() {
     noMessagesCurrentlyOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl)
     noMessagesCurrentlyOnDeadletterQueue(offenderEventsDlqClient!!, offenderEventsQueue.dlqUrl!!)
-  }
-  fun expectNoUpdatedTierCalculation() {
-    // calculation succeeded but is unchanged, so no calculation complete events and message is not returned to the event queue
-    noMessagesCurrentlyOnQueue(calculationCompleteClient, calculationCompleteQueue.queueUrl)
-    noMessagesCurrentlyOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl)
   }
 
   fun expectTierChangedById(tierScore: String) {

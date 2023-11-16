@@ -1,9 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
-import com.microsoft.applicationinsights.TelemetryClient
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.verify
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
@@ -13,9 +11,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliu
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 
 class TriggerRecalculationsTest : IntegrationTestBase() {
-
-  @MockBean
-  lateinit var telemetryClient: TelemetryClient
 
   @Test
   fun `providing crns recalculates only those crns`() {
@@ -51,7 +46,7 @@ class TriggerRecalculationsTest : IntegrationTestBase() {
         "protect" to "A",
         "change" to "1",
         "version" to "2",
-        "recalculationReason" to "CrnTrigger",
+        "recalculationReason" to "LimitedRecalculation",
       ),
       null,
     )
@@ -91,7 +86,7 @@ class TriggerRecalculationsTest : IntegrationTestBase() {
         "protect" to "A",
         "change" to "1",
         "version" to "2",
-        "recalculationReason" to "FullRecalculationTrigger",
+        "recalculationReason" to "FullRecalculation",
       ),
       null,
     )

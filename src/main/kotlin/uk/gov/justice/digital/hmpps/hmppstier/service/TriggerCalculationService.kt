@@ -38,10 +38,12 @@ class TriggerCalculationService(
   }
 
   suspend fun recalculateAll() {
-    tierToDeliusApiClient.getActiveCrns().collect { tierCalculationService.calculateTierForCrn(it, "FullRecalculationTrigger") }
+    tierToDeliusApiClient.getActiveCrns().collect {
+      tierCalculationService.calculateTierForCrn(it, RecalculationSource.FullRecalculation)
+    }
   }
 
-  suspend fun recalculate(crn: String) = tierCalculationService.calculateTierForCrn(crn, "CrnTrigger")
+  suspend fun recalculate(crn: String) = tierCalculationService.calculateTierForCrn(crn, RecalculationSource.LimitedRecalculation)
 
   private fun publishToHMPPSOffenderQueue(crn: String) {
     val sendMessage = SendMessageRequest.builder().queueUrl(

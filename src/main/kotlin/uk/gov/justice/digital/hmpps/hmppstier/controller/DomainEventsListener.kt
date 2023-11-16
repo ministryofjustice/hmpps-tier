@@ -5,6 +5,7 @@ import io.awspring.cloud.sqs.annotation.SqsListener
 import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.hmppstier.service.RecalculationSource
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 
 @Service
@@ -15,7 +16,7 @@ class DomainEventsListener(
 
   @SqsListener("hmppsdomaineventsqueue", factory = "hmppsQueueContainerFactoryProxy")
   fun listen(msg: String) = runBlocking {
-    calculator.calculateTierForCrn(getCrn(msg), "DomainEventsListener")
+    calculator.calculateTierForCrn(getCrn(msg), RecalculationSource.DomainEventRecalculation)
   }
 
   private fun getCrn(msg: String): String {
