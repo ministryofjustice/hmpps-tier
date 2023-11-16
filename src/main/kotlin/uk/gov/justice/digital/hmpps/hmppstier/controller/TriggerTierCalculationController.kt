@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.controller
 
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
