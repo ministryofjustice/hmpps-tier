@@ -10,7 +10,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.TelemetryEventType.TIER_UN
 @Component
 class TelemetryService(@Autowired private val telemetryClient: TelemetryClient) {
 
-  fun trackTierCalculated(calculation: TierCalculationEntity, isUpdated: Boolean) {
+  fun trackTierCalculated(calculation: TierCalculationEntity, isUpdated: Boolean, recalculationTrigger: String) {
     trackEvent(
       if (isUpdated) {
         TIER_CHANGED
@@ -22,6 +22,7 @@ class TelemetryService(@Autowired private val telemetryClient: TelemetryClient) 
         "protect" to calculation.data.protect.tier.value,
         "change" to calculation.data.change.tier.value.toString(),
         "version" to calculation.data.calculationVersion,
+        "recalculationReason" to recalculationTrigger,
       ),
     )
   }

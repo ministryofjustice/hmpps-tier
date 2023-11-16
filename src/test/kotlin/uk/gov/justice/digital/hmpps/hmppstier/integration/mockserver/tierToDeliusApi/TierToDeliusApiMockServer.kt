@@ -35,6 +35,7 @@ class TierToDeliusApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEach
     tierToDeliusApi.stop()
   }
 }
+
 class TierToDeliusApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
 
   companion object {
@@ -52,6 +53,13 @@ class TierToDeliusApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     val request = HttpRequest.request().withPath("/tier-details/$crn")
     TierToDeliusApiExtension.tierToDeliusApi.`when`(request, Times.exactly(1)).respond(
       HttpResponse.notFoundResponse(),
+    )
+  }
+
+  fun getCrns(crns: List<String>) {
+    val request = HttpRequest.request().withPath("/probation-cases")
+    TierToDeliusApiExtension.tierToDeliusApi.`when`(request, Times.exactly(1)).respond(
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(crns.joinToString(System.lineSeparator())),
     )
   }
 }
