@@ -37,7 +37,6 @@ class TriggerCalculationService(
     }
   }
 
-
   suspend fun recalculateAll() {
     tierToDeliusApiClient.getActiveCrns().collect {
       tierCalculationService.calculateTierForCrn(it, "FullRecalculationTrigger")
