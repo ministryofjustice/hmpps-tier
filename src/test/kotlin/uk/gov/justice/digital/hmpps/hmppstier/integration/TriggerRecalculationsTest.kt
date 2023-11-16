@@ -1,64 +1,99 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.test.runTest
-import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.equalTo
+import com.microsoft.applicationinsights.TelemetryClient
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.argumentCaptor
-import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
-import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.boot.test.mock.mockito.SpyBean
-import org.springframework.web.reactive.function.BodyInserters.empty
-import org.springframework.web.reactive.function.BodyInserters.fromValue
-import uk.gov.justice.digital.hmpps.hmppstier.client.TierToDeliusApiClient
+import org.springframework.http.MediaType
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
-import uk.gov.justice.digital.hmpps.hmppstier.service.TriggerCalculationService
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class TriggerRecalculationsTest : IntegrationTestBase() {
-  @SpyBean
-  internal lateinit var triggerCalculationService: TriggerCalculationService
 
   @MockBean
-  internal lateinit var tierToDeliusApiClient: TierToDeliusApiClient
+  lateinit var telemetryClient: TelemetryClient
 
   @Test
-  fun `providing crns recalculates only those crns`() = runTest {
+  fun `providing crns recalculates only those crns`() {
+    val crn = "T123456"
+    val assessmentId = 5738261645L
+
+    tierToDeliusApi.getFullDetails(
+      crn,
+      TierDetails(
+        convictions = listOf(Conviction(sentenceCode = "SC")),
+        registrations = listOf(
+          Registration("M2"),
+        ),
+      ),
+    )
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = assessmentId)
+
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, assessmentId)
+    AssessmentApiExtension.assessmentApi.getOutdatedAssessment(crn, assessmentId)
+
     webTestClient.post()
-      .uri("calculations")
-      .body(fromValue(listOf("A123456", "B123456", "C123456")))
+      .uri("/calculations")
+      .contentType(MediaType.APPLICATION_JSON)
       .headers(setAuthorisation())
+      .bodyValue(listOf(crn))
       .exchange()
       .expectStatus().isOk
 
-    val crnCaptor = argumentCaptor<String>()
-    verify(triggerCalculationService, times(3)).recalculate(crnCaptor.capture())
-    assertThat(crnCaptor.firstValue, equalTo("A123456"))
-    assertThat(crnCaptor.secondValue, equalTo("B123456"))
-    assertThat(crnCaptor.thirdValue, equalTo("C123456"))
+    verify(telemetryClient).trackEvent(
+      "TierChanged",
+      mapOf(
+        "crn" to "T123456",
+        "protect" to "A",
+        "change" to "1",
+        "version" to "2",
+        "recalculationReason" to "CrnTrigger",
+      ),
+      null,
+    )
   }
 
   @Test
-  fun `providing no crns recalculates all active crns from delius`() = runTest {
-    whenever(tierToDeliusApiClient.getActiveCrns()).thenReturn(
-      flow {
-        emit("Z987654")
-        emit("Y987654")
-        emit("X987654")
-      },
+  fun `providing no crns recalculates all active crns from delius`() {
+    val crn = "D123456"
+    val assessmentId = 67548387612L
+
+    tierToDeliusApi.getCrns(listOf(crn))
+    tierToDeliusApi.getFullDetails(
+      crn,
+      TierDetails(
+        convictions = listOf(Conviction(sentenceCode = "SC")),
+        registrations = listOf(
+          Registration("M2"),
+        ),
+      ),
     )
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = assessmentId)
+
+    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, assessmentId)
+    AssessmentApiExtension.assessmentApi.getOutdatedAssessment(crn, assessmentId)
 
     webTestClient.post()
-      .uri("calculations")
-      .body(empty<List<String>>())
+      .uri("/calculations")
+      .contentType(MediaType.APPLICATION_JSON)
       .headers(setAuthorisation())
       .exchange()
       .expectStatus().isOk
 
-    verify(triggerCalculationService).recalculateAll()
+    verify(telemetryClient).trackEvent(
+      "TierChanged",
+      mapOf(
+        "crn" to "D123456",
+        "protect" to "A",
+        "change" to "1",
+        "version" to "2",
+        "recalculationReason" to "FullRecalculationTrigger",
+      ),
+      null,
+    )
   }
 }

@@ -20,6 +20,7 @@ class TriggerCalculationService(
   hmppsQueueService: HmppsQueueService,
   private val objectMapper: ObjectMapper,
   private val tierToDeliusApiClient: TierToDeliusApiClient,
+  private val tierCalculationService: TierCalculationService,
 ) {
 
   private val hmppsOffenderQueueUrl = hmppsQueueService.findByQueueId("hmppsoffenderqueue")?.queueUrl
@@ -37,10 +38,10 @@ class TriggerCalculationService(
   }
 
   suspend fun recalculateAll() {
-    tierToDeliusApiClient.getActiveCrns().collect { publishToHMPPSOffenderQueue(it) }
+    tierToDeliusApiClient.getActiveCrns().collect { tierCalculationService.calculateTierForCrn(it, "FullRecalculationTrigger") }
   }
 
-  suspend fun recalculate(crn: String) = publishToHMPPSOffenderQueue(crn)
+  suspend fun recalculate(crn: String) = tierCalculationService.calculateTierForCrn(crn, "CrnTrigger")
 
   private fun publishToHMPPSOffenderQueue(crn: String) {
     val sendMessage = SendMessageRequest.builder().queueUrl(

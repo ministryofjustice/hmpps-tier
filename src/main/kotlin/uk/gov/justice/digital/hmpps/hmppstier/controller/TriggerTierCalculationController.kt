@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.hmppstier.controller
 
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.toList
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -24,11 +26,11 @@ class TriggerTierCalculationController(private val triggerCalculationService: Tr
   }
 
   @PostMapping("/calculations")
-  suspend fun recalculateTiers(@RequestBody(required = false) crns: List<String>?) {
+  suspend fun recalculateTiers(@RequestBody(required = false) crns: List<String>?) = coroutineScope {
     if (crns.isNullOrEmpty()) {
       triggerCalculationService.recalculateAll()
     } else {
-      crns.map { triggerCalculationService.recalculate(it) }
+      crns.forEach { launch { triggerCalculationService.recalculate(it) } }
     }
   }
 

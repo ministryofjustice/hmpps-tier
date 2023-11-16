@@ -5,7 +5,7 @@ data class TierDetails(
   val currentTier: String? = "UDO",
   val ogrsScore: String? = "21",
   val rsrScore: String? = "23",
-  val convictions: List<Conviction> = emptyList(),
-  val registrations: List<Registration> = emptyList(),
+  val convictions: List<Conviction> = listOf(),
+  val registrations: List<Registration> = listOf(),
   val previousEnforcementActivity: Boolean = false,
 )
