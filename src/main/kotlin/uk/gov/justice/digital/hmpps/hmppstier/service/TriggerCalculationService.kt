@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import software.amazon.awssdk.services.sqs.model.MessageAttributeValue
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest
+import uk.gov.justice.digital.hmpps.hmppstier.client.TierToDeliusApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.controller.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationMessage
 import uk.gov.justice.digital.hmpps.hmppstier.controller.TriggerCsv
@@ -18,20 +19,30 @@ import uk.gov.justice.hmpps.sqs.MissingQueueException
 class TriggerCalculationService(
   hmppsQueueService: HmppsQueueService,
   private val objectMapper: ObjectMapper,
+  private val tierToDeliusApiClient: TierToDeliusApiClient,
 ) {
 
-  private val hmppsOffenderQueueUrl = hmppsQueueService.findByQueueId("hmppsoffenderqueue")?.queueUrl ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found")
+  private val hmppsOffenderQueueUrl = hmppsQueueService.findByQueueId("hmppsoffenderqueue")?.queueUrl
+    ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found")
 
   private val hmppsOffenderSqsClient = hmppsQueueService.findByQueueId("hmppsoffenderqueue")!!.sqsClient
   suspend fun sendEvents(crns: List<TriggerCsv>) {
     CoroutineScope(Dispatchers.IO).launch {
-      crns.forEach { crn ->
-        publishToHMPPSOffenderQueue(crn)
+      crns.forEach { csv ->
+        csv.crn?.let {
+          publishToHMPPSOffenderQueue(it)
+        }
       }
     }
   }
 
-  private fun publishToHMPPSOffenderQueue(crn: TriggerCsv) {
+  suspend fun recalculateAll() {
+    tierToDeliusApiClient.getActiveCrns().collect { publishToHMPPSOffenderQueue(it) }
+  }
+
+  suspend fun recalculate(crn: String) = publishToHMPPSOffenderQueue(crn)
+
+  private fun publishToHMPPSOffenderQueue(crn: String) {
     val sendMessage = SendMessageRequest.builder().queueUrl(
       hmppsOffenderQueueUrl,
     ).messageBody(
@@ -39,15 +50,18 @@ class TriggerCalculationService(
         crnToOffenderSqsMessage(crn),
       ),
     ).messageAttributes(
-      mapOf("eventType" to MessageAttributeValue.builder().dataType("String").stringValue("OFFENDER_MANAGEMENT_TIER_CALCULATION_REQUIRED").build()),
+      mapOf(
+        "eventType" to MessageAttributeValue.builder().dataType("String")
+          .stringValue("OFFENDER_MANAGEMENT_TIER_CALCULATION_REQUIRED").build(),
+      ),
     ).build()
-    log.info("publishing event type {} for crn {}", "OFFENDER_MANAGEMENT_TIER_CALCULATION_REQUIRED", crn.crn)
+    log.info("publishing event type {} for crn {}", "OFFENDER_MANAGEMENT_TIER_CALCULATION_REQUIRED", crn)
     hmppsOffenderSqsClient.sendMessage(sendMessage)
   }
 
-  private fun crnToOffenderSqsMessage(crn: TriggerCsv): SQSMessage = SQSMessage(
+  private fun crnToOffenderSqsMessage(crn: String): SQSMessage = SQSMessage(
     objectMapper.writeValueAsString(
-      TierCalculationMessage(crn.crn!!),
+      TierCalculationMessage(crn),
     ),
   )
 

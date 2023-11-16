@@ -167,7 +167,7 @@ abstract class IntegrationTestBase {
 
   fun TierChangeEvent.calculationId(): UUID = this.additionalInformation.calculationId
 
-  private fun setAuthorisation(): (HttpHeaders) -> Unit {
+  internal fun setAuthorisation(): (HttpHeaders) -> Unit {
     val token = jwtHelper.createJwt()
     return { it.set(AUTHORIZATION, "Bearer $token") }
   }
