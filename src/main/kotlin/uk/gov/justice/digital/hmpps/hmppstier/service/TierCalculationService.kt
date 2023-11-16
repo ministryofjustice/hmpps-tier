@@ -22,13 +22,20 @@ class TierCalculationService(
   private val changeLevelCalculator: ChangeLevelCalculator = ChangeLevelCalculator()
   private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(assessmentApiService)
 
-  suspend fun calculateTierForCrn(crn: String, listener: String) =
+  suspend fun calculateTierForCrn(crn: String, listener: String) = try {
     calculateTier(crn).let {
       val isUpdated = tierUpdater.updateTier(it, crn)
       successUpdater.update(crn, it.uuid)
       telemetryService.trackTierCalculated(it, isUpdated, listener)
       log.info("Tier calculated for $crn. Different from previous tier: $isUpdated from listener: $listener.")
     }
+  } catch (e: Exception) {
+    log.error("Unable to calculate tier for $crn", e)
+    telemetryService.trackEvent(
+      TelemetryEventType.TIER_CALCULATION_FAILED,
+      mapOf("crn" to crn, "exception" to e.message),
+    )
+  }
 
   private suspend fun calculateTier(crn: String): TierCalculationEntity {
     val deliusInputs = tierToDeliusApiService.getTierToDelius(crn)
@@ -40,7 +47,8 @@ class TierCalculationService(
       deliusInputs.previousEnforcementActivity,
     )
 
-    val protectLevel = protectLevelCalculator.calculate(deliusInputs.rsrScore, additionalFactorsPoints, deliusInputs.registrations)
+    val protectLevel =
+      protectLevelCalculator.calculate(deliusInputs.rsrScore, additionalFactorsPoints, deliusInputs.registrations)
     val changeLevel = changeLevelCalculator.calculate(
       deliusInputs,
       assessmentApiService.getAssessmentNeeds(offenderAssessment),
@@ -60,6 +68,7 @@ class TierCalculationService(
 
   private fun hasNoAssessment(offenderAssessment: OffenderAssessment?): Boolean =
     (offenderAssessment == null)
+
   companion object {
     private val log =
       LoggerFactory.getLogger(this::class.java)
