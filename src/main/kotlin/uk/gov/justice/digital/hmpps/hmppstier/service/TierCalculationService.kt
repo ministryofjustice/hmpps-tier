@@ -33,7 +33,7 @@ class TierCalculationService(
     log.error("Unable to calculate tier for $crn", e)
     telemetryService.trackEvent(
       TelemetryEventType.TIER_CALCULATION_FAILED,
-      mapOf("crn" to crn, "exception" to e.message),
+      mapOf("crn" to crn, "exception" to e.message, "recalculationReason" to recalculationSource.name),
     )
   }
 

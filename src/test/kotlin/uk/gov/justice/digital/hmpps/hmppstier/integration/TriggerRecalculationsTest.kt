@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.timeout
 import org.mockito.kotlin.verify
 import org.springframework.http.MediaType
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension
@@ -39,7 +40,7 @@ class TriggerRecalculationsTest : IntegrationTestBase() {
       .exchange()
       .expectStatus().isOk
 
-    verify(telemetryClient).trackEvent(
+    verify(telemetryClient, timeout(2000)).trackEvent(
       "TierChanged",
       mapOf(
         "crn" to "T123456",
@@ -79,7 +80,7 @@ class TriggerRecalculationsTest : IntegrationTestBase() {
       .exchange()
       .expectStatus().isOk
 
-    verify(telemetryClient).trackEvent(
+    verify(telemetryClient, timeout(2000)).trackEvent(
       "TierChanged",
       mapOf(
         "crn" to "D123456",

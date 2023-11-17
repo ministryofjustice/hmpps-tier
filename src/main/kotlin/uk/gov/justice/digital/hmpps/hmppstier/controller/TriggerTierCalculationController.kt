@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.controller
 
-import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
@@ -18,6 +19,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.TriggerCalculationService
 @RestController
 @RequestMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
 class TriggerTierCalculationController(private val triggerCalculationService: TriggerCalculationService) {
+  private val recalculationScope = CoroutineScope(SupervisorJob())
 
   @PostMapping("/crn/upload")
   suspend fun uploadCrns(@RequestPart("file") file: Mono<FilePart>): ResponseEntity<Void> {
@@ -26,8 +28,8 @@ class TriggerTierCalculationController(private val triggerCalculationService: Tr
   }
 
   @PostMapping("/calculations")
-  suspend fun recalculateTiers(@RequestBody(required = false) crns: List<String>?): Unit = coroutineScope {
-    launch {
+  suspend fun recalculateTiers(@RequestBody(required = false) crns: List<String>?) {
+    recalculationScope.launch {
       if (crns.isNullOrEmpty()) {
         triggerCalculationService.recalculateAll()
       } else {
