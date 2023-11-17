@@ -74,3 +74,5 @@ generic-service:
 generic-prometheus-alerts:
   targetApplication: hmpps-tier
   alertSeverity: probation-integration-notifications
+
+recalculate.tier.schedule: 0 18 * * 5
