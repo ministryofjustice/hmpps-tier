@@ -25,3 +25,7 @@ generic-prometheus-alerts:
   sqsAlertsOldestThreshold: 15
   sqsAlertsTotalMessagesThreshold: 1
   ingress5xxErrorWindowMinutes: 4
+
+recalculate:
+  tier:
+    schedule: 0 18 * * 5

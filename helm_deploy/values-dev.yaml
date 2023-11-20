@@ -23,3 +23,7 @@ generic-prometheus-alerts:
     - "Digital-Prison-Services-dev-hmpps_tier_offender_events_queue_dl"
     - "manage-a-workforce-development-hmpps_tier_domain_events_dlq"
   sqsAlertsTotalMessagesThreshold: 1
+
+recalculate:
+  tier:
+    schedule: 0 18 * * 5
