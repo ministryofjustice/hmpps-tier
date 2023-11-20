@@ -21,9 +21,9 @@ spec:
                 - 'curl -s -X POST "https://$BASE_URL/calculations" --header "Authorization: Bearer $AUTH_TOKEN" --header "Content-Type: application/json"'
               env:
                 - name: AUTH_BASE_URL
-                  value: {{ .Values.env.OAUTH_ENDPOINT_URL }}
+                  value: {{ index .Values "generic-service" "env" "OAUTH_ENDPOINT_URL" }}
                 - name: BASE_URL
-                  value: {{ .Values.ingress.host }}
+                  value: {{ index .Values "generic-service" "ingress" "host" }}
                 - name: CLIENT_ID
                   valueFrom:
                     secretKeyRef:
