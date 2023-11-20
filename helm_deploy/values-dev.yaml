@@ -24,4 +24,6 @@ generic-prometheus-alerts:
     - "manage-a-workforce-development-hmpps_tier_domain_events_dlq"
   sqsAlertsTotalMessagesThreshold: 1
 
-recalculate.tier.schedule: 0 18 * * 5
+recalculate:
+  tier:
+    schedule: 0 18 * * 5
