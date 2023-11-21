@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.launch
@@ -17,6 +18,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationMessage
 import uk.gov.justice.digital.hmpps.hmppstier.controller.TriggerCsv
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
+import java.util.concurrent.Executors
 
 @Service
 class TriggerCalculationService(
@@ -25,7 +27,8 @@ class TriggerCalculationService(
   private val tierToDeliusApiClient: TierToDeliusApiClient,
   private val tierCalculationService: TierCalculationService,
 ) {
-  private val recalculationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+  private val dispatcher = Executors.newFixedThreadPool(16).asCoroutineDispatcher()
+  private val recalculationScope = CoroutineScope(SupervisorJob() + dispatcher)
 
   private val hmppsOffenderQueueUrl = hmppsQueueService.findByQueueId("hmppsoffenderqueue")?.queueUrl
     ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found")
