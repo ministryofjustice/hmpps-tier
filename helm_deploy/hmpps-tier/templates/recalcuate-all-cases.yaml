@@ -17,7 +17,7 @@ spec:
               args:
                 - /bin/sh
                 - -c
-                - 'AUTH_TOKEN=$(curl --location --request POST "$AUTH_BASE_URL/oauth/token?grant_type=client_credentials" --header "Authorization: Basic $(echo -n $CLIENT_ID:$CLIENT_SECRET | base64)"  | jq -r .access_token)'
+                - 'AUTH_TOKEN=$(curl --location --request POST "$AUTH_BASE_URL/oauth/token?grant_type=client_credentials" --header "Authorization: Basic $(echo -n $CLIENT_ID:$CLIENT_SECRET | base64 -w 0 )"  | jq -r .access_token)'
                 - 'curl -s -X POST "https://$BASE_URL/calculations" --header "Authorization: Bearer $AUTH_TOKEN" --header "Content-Type: application/json"'
               env:
                 - name: AUTH_BASE_URL
