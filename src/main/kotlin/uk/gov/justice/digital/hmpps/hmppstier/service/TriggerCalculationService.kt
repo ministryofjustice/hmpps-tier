@@ -3,6 +3,9 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -22,6 +25,7 @@ class TriggerCalculationService(
   private val tierToDeliusApiClient: TierToDeliusApiClient,
   private val tierCalculationService: TierCalculationService,
 ) {
+  private val recalculationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
   private val hmppsOffenderQueueUrl = hmppsQueueService.findByQueueId("hmppsoffenderqueue")?.queueUrl
     ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found")
@@ -38,12 +42,20 @@ class TriggerCalculationService(
   }
 
   suspend fun recalculateAll() {
-    tierToDeliusApiClient.getActiveCrns().collect {
-      tierCalculationService.calculateTierForCrn(it, RecalculationSource.FullRecalculation)
+    tierToDeliusApiClient.getActiveCrns()
+      .buffer()
+      .collect {
+      recalculationScope.launch {
+        tierCalculationService.calculateTierForCrn(it, RecalculationSource.FullRecalculation)
+      }
     }
   }
 
-  suspend fun recalculate(crn: String) = tierCalculationService.calculateTierForCrn(crn, RecalculationSource.LimitedRecalculation)
+  suspend fun recalculate(crns: Flow<String>) = crns.collect {
+    recalculationScope.launch {
+      tierCalculationService.calculateTierForCrn(it, RecalculationSource.LimitedRecalculation)
+    }
+  }
 
   private fun publishToHMPPSOffenderQueue(crn: String) {
     val sendMessage = SendMessageRequest.builder().queueUrl(
