@@ -4,10 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import software.amazon.awssdk.services.sqs.model.MessageAttributeValue
@@ -18,7 +19,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationMessage
 import uk.gov.justice.digital.hmpps.hmppstier.controller.TriggerCsv
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
-import java.util.concurrent.Executors
 
 @Service
 class TriggerCalculationService(
@@ -27,8 +27,8 @@ class TriggerCalculationService(
   private val tierToDeliusApiClient: TierToDeliusApiClient,
   private val tierCalculationService: TierCalculationService,
 ) {
-  private val dispatcher = Executors.newFixedThreadPool(16).asCoroutineDispatcher()
-  private val recalculationScope = CoroutineScope(SupervisorJob() + dispatcher)
+  private val recalculationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+  private val semaphore = Semaphore(16)
 
   private val hmppsOffenderQueueUrl = hmppsQueueService.findByQueueId("hmppsoffenderqueue")?.queueUrl
     ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found")
@@ -49,14 +49,18 @@ class TriggerCalculationService(
       .buffer()
       .collect {
         recalculationScope.launch {
-          tierCalculationService.calculateTierForCrn(it, RecalculationSource.FullRecalculation)
+          semaphore.withPermit {
+            tierCalculationService.calculateTierForCrn(it, RecalculationSource.FullRecalculation)
+          }
         }
       }
   }
 
   suspend fun recalculate(crns: Flow<String>) = crns.collect {
     recalculationScope.launch {
-      tierCalculationService.calculateTierForCrn(it, RecalculationSource.LimitedRecalculation)
+      semaphore.withPermit {
+        tierCalculationService.calculateTierForCrn(it, RecalculationSource.LimitedRecalculation)
+      }
     }
   }
 
