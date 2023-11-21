@@ -45,10 +45,10 @@ class TriggerCalculationService(
     tierToDeliusApiClient.getActiveCrns()
       .buffer()
       .collect {
-      recalculationScope.launch {
-        tierCalculationService.calculateTierForCrn(it, RecalculationSource.FullRecalculation)
+        recalculationScope.launch {
+          tierCalculationService.calculateTierForCrn(it, RecalculationSource.FullRecalculation)
+        }
       }
-    }
   }
 
   suspend fun recalculate(crns: Flow<String>) = crns.collect {
