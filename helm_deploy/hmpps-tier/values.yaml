@@ -8,7 +8,7 @@ generic-service:
       memory: 512Mi
     limits:
       cpu: 2048m
-      memory: 2Gi
+      memory: 1Gi
 
   image:
     repository: quay.io/hmpps/hmpps-tier
@@ -39,7 +39,7 @@ generic-service:
 
   # Environment variables to load into the deployment
   env:
-    JAVA_OPTS: "-Xmx1536m"
+    JAVA_OPTS: "-Xmx768m"
     SERVER_PORT: "8080"
     SPRING_PROFILES_ACTIVE: "aws,logstash,stdout"
     APPLICATIONINSIGHTS_CONNECTION_STRING: "InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY)"

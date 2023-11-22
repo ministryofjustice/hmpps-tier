@@ -64,7 +64,7 @@ class TriggerCalculationService(
 
   suspend fun recalculate(crns: Flow<String>) = crns.collect { crn ->
     recalculationScope.launch {
-      publishToHMPPSOffenderQueue(crn, RecalculationSource.FullRecalculation)
+      publishToHMPPSOffenderQueue(crn, RecalculationSource.LimitedRecalculation)
     }
   }
 
