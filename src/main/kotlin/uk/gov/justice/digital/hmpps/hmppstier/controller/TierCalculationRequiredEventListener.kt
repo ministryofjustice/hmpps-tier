@@ -22,16 +22,17 @@ class TierCalculationRequiredEventListener(
 
   @MessageExceptionHandler
   fun errorHandler(e: Exception, msg: String) {
-    log.warn("Failed to calculate tier for CRN ${getCrn(msg).crn} with error: ${e.message}")
+    log.warn("Failed to calculate tier for CRN ${getRecalculation(msg).crn} with error: ${e.message}")
     throw e
   }
 
   @SqsListener("hmppsoffenderqueue", factory = "hmppsQueueContainerFactoryProxy")
   fun listen(msg: String) = scope.launch {
-    calculator.calculateTierForCrn(getCrn(msg).crn, RecalculationSource.OffenderEventRecalculation)
+    val recalculation = getRecalculation(msg)
+    calculator.calculateTierForCrn(recalculation.crn, recalculation.recalculationSource ?: RecalculationSource.OffenderEventRecalculation)
   }
 
-  private fun getCrn(msg: String): TierCalculationMessage {
+  private fun getRecalculation(msg: String): TierCalculationMessage {
     val (message) = objectMapper.readValue<SQSMessage>(msg)
     return objectMapper.readValue<TierCalculationMessage>(message)
   }
@@ -41,6 +42,6 @@ class TierCalculationRequiredEventListener(
   }
 }
 
-data class TierCalculationMessage(val crn: String)
+data class TierCalculationMessage(val crn: String, val recalculationSource: RecalculationSource? = null)
 
 data class SQSMessage(@JsonProperty("Message") val message: String)

@@ -2,7 +2,7 @@ spring:
   application:
     name: hmpps-tier
   codec:
-    max-in-memory-size: 200MB
+    max-in-memory-size: 100MB
 
   jackson:
     date-format: "yyyy-MM-dd HH:mm:ss"

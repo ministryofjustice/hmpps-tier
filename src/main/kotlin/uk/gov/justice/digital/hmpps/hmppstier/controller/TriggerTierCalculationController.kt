@@ -24,7 +24,7 @@ class TriggerTierCalculationController(private val triggerCalculationService: Tr
   private val recalculationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
   @PostMapping("/crn/upload")
-  suspend fun uploadCrns(@RequestPart("file") file: Mono<FilePart>): ResponseEntity<Void> {
+  suspend fun uploadCrns(@RequestPart("file") file: Mono<FilePart>): ResponseEntity<Unit> {
     triggerCalculationService.sendEvents(fileToCases(file))
     return ResponseEntity.ok().build()
   }

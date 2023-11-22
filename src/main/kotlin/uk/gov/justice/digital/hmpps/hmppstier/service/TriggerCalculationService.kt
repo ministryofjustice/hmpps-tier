@@ -7,8 +7,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Semaphore
-import kotlinx.coroutines.sync.withPermit
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import software.amazon.awssdk.services.sqs.model.MessageAttributeValue
@@ -31,7 +29,6 @@ class TriggerCalculationService(
   private val tierCalculationService: TierCalculationService,
 ) {
   private val recalculationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-  private val semaphore = Semaphore(16)
 
   private val hmppsOffenderQueueUrl = hmppsQueueService.findByQueueId("hmppsoffenderqueue")?.queueUrl
     ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found")
@@ -41,7 +38,7 @@ class TriggerCalculationService(
     CoroutineScope(Dispatchers.IO).launch {
       crns.forEach { csv ->
         csv.crn?.let {
-          publishToHMPPSOffenderQueue(it)
+          publishToHMPPSOffenderQueue(it, RecalculationSource.LimitedRecalculation)
         }
       }
     }
@@ -54,33 +51,29 @@ class TriggerCalculationService(
     val processed = AtomicLong(0)
     tierToDeliusApiClient.getActiveCrns()
       .buffer()
-      .collect {
+      .collect { crn ->
         log.debug("Full Recalculation Received: ${received.incrementAndGet()}")
-        semaphore.withPermit {
-          recalculationScope.launch {
-            tierCalculationService.calculateTierForCrn(it, RecalculationSource.FullRecalculation)
-            log.debug("Full Recalculation Processed: ${processed.incrementAndGet()}")
-          }
+        recalculationScope.launch {
+          publishToHMPPSOffenderQueue(crn, RecalculationSource.FullRecalculation)
+          log.debug("Full Recalculation Processed: ${processed.incrementAndGet()}")
         }
       }
     val end = LocalDateTime.now()
     log.info("Full recalculation Completed - took ${Duration.between(start, end)}")
   }
 
-  suspend fun recalculate(crns: Flow<String>) = crns.collect {
-    semaphore.withPermit {
-      recalculationScope.launch {
-        tierCalculationService.calculateTierForCrn(it, RecalculationSource.LimitedRecalculation)
-      }
+  suspend fun recalculate(crns: Flow<String>) = crns.collect { crn ->
+    recalculationScope.launch {
+      publishToHMPPSOffenderQueue(crn, RecalculationSource.LimitedRecalculation)
     }
   }
 
-  private fun publishToHMPPSOffenderQueue(crn: String) {
+  private fun publishToHMPPSOffenderQueue(crn: String, recalculationSource: RecalculationSource) {
     val sendMessage = SendMessageRequest.builder().queueUrl(
       hmppsOffenderQueueUrl,
     ).messageBody(
       objectMapper.writeValueAsString(
-        crnToOffenderSqsMessage(crn),
+        crnToOffenderSqsMessage(crn, recalculationSource),
       ),
     ).messageAttributes(
       mapOf(
@@ -92,9 +85,9 @@ class TriggerCalculationService(
     hmppsOffenderSqsClient.sendMessage(sendMessage)
   }
 
-  private fun crnToOffenderSqsMessage(crn: String): SQSMessage = SQSMessage(
+  private fun crnToOffenderSqsMessage(crn: String, recalculationSource: RecalculationSource): SQSMessage = SQSMessage(
     objectMapper.writeValueAsString(
-      TierCalculationMessage(crn),
+      TierCalculationMessage(crn, recalculationSource),
     ),
   )
 
