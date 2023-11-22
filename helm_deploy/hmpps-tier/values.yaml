@@ -7,6 +7,7 @@ generic-service:
       cpu: 128m
       memory: 512Mi
     limits:
+      cpu: 2048m
       memory: 2Gi
 
   image:
@@ -38,7 +39,7 @@ generic-service:
 
   # Environment variables to load into the deployment
   env:
-    JAVA_OPTS: "-Xmx1024m"
+    JAVA_OPTS: "-Xmx1536m"
     SERVER_PORT: "8080"
     SPRING_PROFILES_ACTIVE: "aws,logstash,stdout"
     APPLICATIONINSIGHTS_CONNECTION_STRING: "InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY)"

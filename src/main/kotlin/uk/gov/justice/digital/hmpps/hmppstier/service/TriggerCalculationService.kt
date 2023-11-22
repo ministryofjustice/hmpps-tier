@@ -56,8 +56,8 @@ class TriggerCalculationService(
       .buffer()
       .collect {
         log.debug("Full Recalculation Received: ${received.incrementAndGet()}")
-        recalculationScope.launch {
-          semaphore.withPermit {
+        semaphore.withPermit {
+          recalculationScope.launch {
             tierCalculationService.calculateTierForCrn(it, RecalculationSource.FullRecalculation)
             log.debug("Full Recalculation Processed: ${processed.incrementAndGet()}")
           }
@@ -68,8 +68,8 @@ class TriggerCalculationService(
   }
 
   suspend fun recalculate(crns: Flow<String>) = crns.collect {
-    recalculationScope.launch {
-      semaphore.withPermit {
+    semaphore.withPermit {
+      recalculationScope.launch {
         tierCalculationService.calculateTierForCrn(it, RecalculationSource.LimitedRecalculation)
       }
     }
