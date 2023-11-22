@@ -53,13 +53,13 @@ class TriggerCalculationService(
     val received = AtomicLong(0)
     val processed = AtomicLong(0)
     tierToDeliusApiClient.getActiveCrns()
-      .also { log.debug("Full Recalculation Received: ${received.getAndIncrement()}") }
       .buffer()
       .collect {
+        log.debug("Full Recalculation Received: ${received.incrementAndGet()}")
         recalculationScope.launch {
           semaphore.withPermit {
             tierCalculationService.calculateTierForCrn(it, RecalculationSource.FullRecalculation)
-            log.debug("Full Recalculation Processed: ${processed.getAndIncrement()}")
+            log.debug("Full Recalculation Processed: ${processed.incrementAndGet()}")
           }
         }
       }

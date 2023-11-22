@@ -2,6 +2,12 @@ generic-service:
   nameOverride: hmpps-tier
 
   replicaCount: 2
+  resources:
+    requests:
+      cpu: 128m
+      memory: 512Mi
+    limits:
+      memory: 2Gi
 
   image:
     repository: quay.io/hmpps/hmpps-tier
