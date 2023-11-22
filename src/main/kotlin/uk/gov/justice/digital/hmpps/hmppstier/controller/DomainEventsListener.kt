@@ -1,8 +1,11 @@
 package uk.gov.justice.digital.hmpps.hmppstier.controller
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.awspring.cloud.sqs.annotation.SqsListener
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.service.RecalculationSource
@@ -13,15 +16,16 @@ class DomainEventsListener(
   private val calculator: TierCalculationService,
   private val objectMapper: ObjectMapper,
 ) {
+  private val scope = CoroutineScope(Dispatchers.IO)
 
   @SqsListener("hmppsdomaineventsqueue", factory = "hmppsQueueContainerFactoryProxy")
-  fun listen(msg: String) = runBlocking {
+  fun listen(msg: String) = scope.launch {
     calculator.calculateTierForCrn(getCrn(msg), RecalculationSource.DomainEventRecalculation)
   }
 
   private fun getCrn(msg: String): String {
-    val (message) = objectMapper.readValue(msg, SQSMessage::class.java)
-    val domainEventMessage = objectMapper.readValue(message, DomainEventsMessage::class.java)
+    val (message) = objectMapper.readValue<SQSMessage>(msg)
+    val domainEventMessage = objectMapper.readValue<DomainEventsMessage>(message)
     val crn = domainEventMessage.personReference.identifiers.first { it.type == "CRN" }.value
     log.info("Domain event received of type ${domainEventMessage.eventType} and CRN: $crn")
     return crn
