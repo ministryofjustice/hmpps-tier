@@ -5,7 +5,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -50,22 +49,17 @@ class TriggerCalculationService(
     val received = AtomicLong(0)
     val processed = AtomicLong(0)
     tierToDeliusApiClient.getActiveCrns()
-      .buffer()
       .collect { crn ->
         log.debug("Full Recalculation Received: ${received.incrementAndGet()}")
-        recalculationScope.launch {
-          publishToHMPPSOffenderQueue(crn, RecalculationSource.FullRecalculation)
-          log.debug("Full Recalculation Processed: ${processed.incrementAndGet()}")
-        }
+        publishToHMPPSOffenderQueue(crn, RecalculationSource.FullRecalculation)
+        log.debug("Full Recalculation Processed: ${processed.incrementAndGet()}")
       }
     val end = LocalDateTime.now()
     log.info("Full recalculation Completed - took ${Duration.between(start, end)}")
   }
 
   suspend fun recalculate(crns: Flow<String>) = crns.collect { crn ->
-    recalculationScope.launch {
-      publishToHMPPSOffenderQueue(crn, RecalculationSource.LimitedRecalculation)
-    }
+    publishToHMPPSOffenderQueue(crn, RecalculationSource.LimitedRecalculation)
   }
 
   private fun publishToHMPPSOffenderQueue(crn: String, recalculationSource: RecalculationSource) {
