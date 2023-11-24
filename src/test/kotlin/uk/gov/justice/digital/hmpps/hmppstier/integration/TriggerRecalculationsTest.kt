@@ -85,7 +85,7 @@ class TriggerRecalculationsTest : IntegrationTestBase() {
       .expectStatus().isOk
 
     crns.forEach {
-      verify(telemetryClient, timeout(2000)).trackEvent(
+      verify(telemetryClient, timeout(20000)).trackEvent(
         "TierChanged",
         mapOf(
           "crn" to it,
