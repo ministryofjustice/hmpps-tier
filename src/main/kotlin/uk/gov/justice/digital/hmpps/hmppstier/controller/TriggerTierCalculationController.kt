@@ -3,13 +3,13 @@ package uk.gov.justice.digital.hmpps.hmppstier.controller
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.asFlow
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.http.codec.multipart.FilePart
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -29,6 +29,7 @@ class TriggerTierCalculationController(private val triggerCalculationService: Tr
     return ResponseEntity.ok().build()
   }
 
+  @PreAuthorize("hasRole('ROLE_MANAGEMENT_TIER_UPDATE')")
   @PostMapping("/calculations")
   suspend fun recalculateTiers(@RequestBody(required = false) crns: List<String>?) {
     recalculationScope.launch {
