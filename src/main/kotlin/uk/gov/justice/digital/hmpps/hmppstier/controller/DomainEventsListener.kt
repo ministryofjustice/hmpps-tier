@@ -3,9 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.awspring.cloud.sqs.annotation.SqsListener
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.service.RecalculationSource
@@ -16,10 +14,9 @@ class DomainEventsListener(
   private val calculator: TierCalculationService,
   private val objectMapper: ObjectMapper,
 ) {
-  private val scope = CoroutineScope(Dispatchers.IO)
 
   @SqsListener("hmppsdomaineventsqueue", factory = "hmppsQueueContainerFactoryProxy")
-  fun listen(msg: String) = scope.launch {
+  fun listen(msg: String) = runBlocking {
     calculator.calculateTierForCrn(getCrn(msg), RecalculationSource.DomainEventRecalculation)
   }
 

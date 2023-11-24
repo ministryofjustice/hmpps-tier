@@ -1,14 +1,11 @@
 package uk.gov.justice.digital.hmpps.hmppstier.client
 
 import com.fasterxml.jackson.annotation.JsonCreator
-import kotlinx.coroutines.flow.Flow
 import org.springframework.beans.factory.annotation.Qualifier
-import org.springframework.http.MediaType.TEXT_PLAIN
+import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
 import org.springframework.web.reactive.function.client.awaitBody
-import org.springframework.web.reactive.function.client.bodyToFlow
-import org.springframework.web.reactive.function.client.exchangeToFlow
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -22,13 +19,12 @@ class TierToDeliusApiClient(@Qualifier("tierToDeliusApiClientWebClientAppScope")
       .awaitBody()
   }
 
-  fun getActiveCrns(): Flow<String> = webClient
+  suspend fun getActiveCrns(): List<String> = webClient
     .get()
     .uri("/probation-cases")
-    .accept(TEXT_PLAIN)
-    .exchangeToFlow {
-      it.bodyToFlow<String>()
-    }
+    .accept(APPLICATION_JSON)
+    .retrieve()
+    .awaitBody()
 }
 
 /***

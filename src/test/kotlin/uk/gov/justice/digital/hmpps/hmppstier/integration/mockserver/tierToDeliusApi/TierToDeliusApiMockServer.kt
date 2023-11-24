@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
@@ -59,7 +60,7 @@ class TierToDeliusApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
   fun getCrns(crns: List<String>) {
     val request = HttpRequest.request().withPath("/probation-cases")
     TierToDeliusApiExtension.tierToDeliusApi.`when`(request, Times.exactly(1)).respond(
-      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(crns.joinToString(System.lineSeparator())),
+      HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(ObjectMapper().writeValueAsString(crns)),
     )
   }
 }

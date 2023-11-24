@@ -55,23 +55,27 @@ class TriggerRecalculationsTest : IntegrationTestBase() {
 
   @Test
   fun `providing no crns recalculates all active crns from delius`() {
-    val crn = "D123456"
-    val assessmentId = 67548387612L
+    val startNumber = 123456
+    val crns = (0..200).map { "D${it + startNumber}" }
 
-    tierToDeliusApi.getCrns(listOf(crn))
-    tierToDeliusApi.getFullDetails(
-      crn,
-      TierDetails(
-        convictions = listOf(Conviction(sentenceCode = "SC")),
-        registrations = listOf(
-          Registration("M2"),
+    tierToDeliusApi.getCrns(crns)
+    crns.forEachIndexed { index, crn ->
+      tierToDeliusApi.getFullDetails(
+        crn,
+        TierDetails(
+          convictions = listOf(Conviction(sentenceCode = "SC")),
+          registrations = listOf(
+            Registration("M2"),
+          ),
         ),
-      ),
-    )
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = assessmentId)
+      )
 
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, assessmentId)
-    AssessmentApiExtension.assessmentApi.getOutdatedAssessment(crn, assessmentId)
+      val assessmentId = (index + startNumber).toLong()
+      restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = assessmentId)
+
+      restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, assessmentId = assessmentId)
+      AssessmentApiExtension.assessmentApi.getOutdatedAssessment(crn, assessmentId = assessmentId)
+    }
 
     webTestClient.post()
       .uri("/calculations")
@@ -80,16 +84,18 @@ class TriggerRecalculationsTest : IntegrationTestBase() {
       .exchange()
       .expectStatus().isOk
 
-    verify(telemetryClient, timeout(2000)).trackEvent(
-      "TierChanged",
-      mapOf(
-        "crn" to "D123456",
-        "protect" to "A",
-        "change" to "1",
-        "version" to "2",
-        "recalculationReason" to "FullRecalculation",
-      ),
-      null,
-    )
+    crns.forEach {
+      verify(telemetryClient, timeout(2000)).trackEvent(
+        "TierChanged",
+        mapOf(
+          "crn" to it,
+          "protect" to "A",
+          "change" to "1",
+          "version" to "2",
+          "recalculationReason" to "FullRecalculation",
+        ),
+        null,
+      )
+    }
   }
 }

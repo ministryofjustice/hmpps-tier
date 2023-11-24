@@ -4,9 +4,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.awspring.cloud.sqs.annotation.SqsListener
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import org.slf4j.LoggerFactory
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler
 import org.springframework.stereotype.Service
@@ -18,8 +16,6 @@ class TierCalculationRequiredEventListener(
   private val calculator: TierCalculationService,
   private val objectMapper: ObjectMapper,
 ) {
-  private val scope = CoroutineScope(Dispatchers.IO)
-
   @MessageExceptionHandler
   fun errorHandler(e: Exception, msg: String) {
     log.warn("Failed to calculate tier for CRN ${getRecalculation(msg).crn} with error: ${e.message}")
@@ -27,7 +23,7 @@ class TierCalculationRequiredEventListener(
   }
 
   @SqsListener("hmppsoffenderqueue", factory = "hmppsQueueContainerFactoryProxy")
-  fun listen(msg: String) = scope.launch {
+  fun listen(msg: String) = runBlocking {
     val recalculation = getRecalculation(msg)
     calculator.calculateTierForCrn(recalculation.crn, recalculation.recalculationSource ?: RecalculationSource.OffenderEventRecalculation)
   }

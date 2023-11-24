@@ -21,7 +21,7 @@ class TriggerCalculationServiceTest {
     every { hmppsQueueService.findByQueueId("hmppsoffenderqueue") } returns null
 
     Assertions.assertThrows(MissingQueueException::class.java) {
-      TriggerCalculationService(hmppsQueueService, objectMapper, tierToDeliusApiClient, tierCalculationService)
+      TriggerCalculationService(hmppsQueueService, objectMapper, tierToDeliusApiClient)
     }
   }
 }
