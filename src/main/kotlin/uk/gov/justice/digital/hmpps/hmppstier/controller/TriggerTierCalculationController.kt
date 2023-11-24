@@ -35,7 +35,7 @@ class TriggerTierCalculationController(private val triggerCalculationService: Tr
       if (crns.isNullOrEmpty()) {
         triggerCalculationService.recalculateAll()
       } else {
-        triggerCalculationService.recalculate(crns.asFlow())
+        triggerCalculationService.recalculate(crns)
       }
     }
   }
