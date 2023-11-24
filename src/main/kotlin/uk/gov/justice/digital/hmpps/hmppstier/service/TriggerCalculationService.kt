@@ -14,9 +14,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationMessage
 import uk.gov.justice.digital.hmpps.hmppstier.controller.TriggerCsv
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
-import java.time.Duration
-import java.time.LocalDateTime
-import java.util.concurrent.atomic.AtomicLong
 
 @Service
 class TriggerCalculationService(
@@ -40,18 +37,10 @@ class TriggerCalculationService(
   }
 
   suspend fun recalculateAll() {
-    val start = LocalDateTime.now()
-    log.info("Starting full recalculation request: $start")
-    val received = AtomicLong(0)
-    val processed = AtomicLong(0)
     tierToDeliusApiClient.getActiveCrns()
       .forEach { crn ->
-        log.debug("Full Recalculation Received: ${received.incrementAndGet()}")
         publishToHMPPSOffenderQueue(crn, RecalculationSource.FullRecalculation)
-        log.debug("Full Recalculation Processed: ${processed.incrementAndGet()}")
       }
-    val end = LocalDateTime.now()
-    log.info("Full recalculation Completed - took ${Duration.between(start, end)}")
   }
 
   suspend fun recalculate(crns: List<String>) = crns.forEach { crn ->
