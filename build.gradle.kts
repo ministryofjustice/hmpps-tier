@@ -1,13 +1,13 @@
 
 
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.5.1"
-  kotlin("plugin.spring") version "1.9.0"
-  kotlin("plugin.jpa") version "1.9.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.10.0"
+  kotlin("plugin.spring") version "1.9.21"
+  kotlin("plugin.jpa") version "1.9.21"
   id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
   jacoco
   java
-  id("io.gitlab.arturbosch.detekt").version("1.23.1")
+  id("io.gitlab.arturbosch.detekt").version("1.23.3")
 }
 
 configurations {
@@ -33,7 +33,7 @@ repositories {
 }
 dependencies {
 
-  runtimeOnly("org.postgresql:postgresql:42.6.0")
+  runtimeOnly("org.postgresql:postgresql:42.7.0")
   runtimeOnly("com.zaxxer:HikariCP")
   runtimeOnly("org.flywaydb:flyway-core")
 
@@ -64,17 +64,17 @@ dependencies {
   testImplementation("com.ninja-squad:springmockk:4.0.2")
   testImplementation("org.assertj:assertj-core:3.24.2")
   testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
-  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.2")
-  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.2")
+  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.3")
+  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
   testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
   testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
-  testImplementation("org.junit.platform:junit-platform-console:1.10.0")
+  testImplementation("org.junit.platform:junit-platform-console:1.10.1")
   testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 }
 
 jacoco {
-  toolVersion = "0.8.10"
+  toolVersion = "0.8.11"
 }
 
 detekt {
