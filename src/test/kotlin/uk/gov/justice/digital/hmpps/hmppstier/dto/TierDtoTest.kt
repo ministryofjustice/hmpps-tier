@@ -59,4 +59,18 @@ internal class TierDtoTest {
     assertThat(tierDto.calculationId).isEqualTo(calculationId)
     assertThat(tierDto.calculationDate).isEqualTo(calculationDate)
   }
+
+  @Test
+  fun `Should construct TierDetailsDTO from`() {
+    val data = TierCalculationResultEntity(
+      protect = TierLevel(ProtectLevel.A, 4, mapOf(CalculationRule.ROSH to 4)),
+      change = TierLevel(ChangeLevel.TWO, 12, mapOf(CalculationRule.COMPLEXITY to 12)),
+      calculationVersion = "99",
+    )
+
+    val tierDto =
+      TierDetailsDto.from(TierCalculationEntity(0, UUID.randomUUID(), "Any Crn", LocalDateTime.now(), data))
+
+    assertThat(tierDto.data).isEqualTo(data)
+  }
 }
