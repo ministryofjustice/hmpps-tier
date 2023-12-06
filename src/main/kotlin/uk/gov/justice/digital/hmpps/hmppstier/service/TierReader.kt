@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDetailsDto
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
@@ -15,6 +16,12 @@ class TierReader(
     getLatestTierCalculation(crn)?.let {
       log.info("Found latest tier calculation for $crn")
       TierDto.from(it)
+    }
+
+  fun getLatestTierDetailsByCrn(crn: String): TierDetailsDto? =
+    getLatestTierCalculation(crn)?.let {
+      log.info("Found latest tier calculation for $crn")
+      TierDetailsDto.from(it)
     }
 
   fun getTierByCalculationId(crn: String, calculationId: UUID): TierDto? =
