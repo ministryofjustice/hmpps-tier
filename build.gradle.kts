@@ -4,7 +4,6 @@ plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.10.1"
   kotlin("plugin.spring") version "1.9.21"
   kotlin("plugin.jpa") version "1.9.21"
-  id("org.jlleitschuh.gradle.ktlint") version "11.6.1"
   jacoco
   java
   id("io.gitlab.arturbosch.detekt").version("1.23.4")
@@ -100,7 +99,7 @@ task("cucumber") {
 tasks {
 
   getByName("check") {
-    dependsOn(":ktlintCheck", detekt)
+    dependsOn(detekt)
     finalizedBy("cucumber")
   }
   getByName<JacocoReport>("jacocoTestReport") {
