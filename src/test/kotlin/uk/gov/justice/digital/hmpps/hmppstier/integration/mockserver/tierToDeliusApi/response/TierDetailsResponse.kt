@@ -11,14 +11,14 @@ fun tierDetailsResponse(tierDetails: TierDetails) = """
     "gender": "${tierDetails.gender}",
     ${tierDetails.currentTier?.let { """ "currentTier": "$it", """.trimIndent() } ?: ""}
     "registrations": [
-      ${tierDetails.registrations.joinToString(",") { getRegistration(it) } }
+      ${tierDetails.registrations.joinToString(",") { getRegistration(it) }}
     ],
     "convictions": [
-      ${tierDetails.convictions.joinToString(",") { getConviction(it) } }
+      ${tierDetails.convictions.joinToString(",") { getConviction(it) }}
     ],
     "previousEnforcementActivity": "${tierDetails.previousEnforcementActivity}"
-    ${tierDetails.ogrsScore?.let { """ ,"ogrsscore": "$it" """.trimIndent() } ?: "" }
-    ${tierDetails.rsrScore?.let { """ ,"rsrscore": "$it" """.trimIndent() } ?: "" }
+    ${tierDetails.ogrsScore?.let { """ ,"ogrsscore": "$it" """.trimIndent() } ?: ""}
+    ${tierDetails.rsrScore?.let { """ ,"rsrscore": "$it" """.trimIndent() } ?: ""}
   }
 """.trimIndent()
 
@@ -29,7 +29,7 @@ fun getConviction(conviction: Conviction) = """
       "sentenceTypeDescription": "Description",
       "breached": ${conviction.breached},
       "requirements": [
-        ${conviction.requirements.joinToString(",") { getRequirement(it) } }
+        ${conviction.requirements.joinToString(",") { getRequirement(it) }}
       ]
   }
 """.trimIndent()

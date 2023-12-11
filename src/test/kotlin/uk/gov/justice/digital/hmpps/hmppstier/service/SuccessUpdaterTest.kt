@@ -9,14 +9,14 @@ import uk.gov.justice.hmpps.sqs.MissingTopicException
 
 class SuccessUpdaterTest {
 
-  @Test
-  fun `Missing Topic exception thrown when calculation complete topic is not configured`() {
-    val hmppsQueueService = mockk<HmppsQueueService>()
+    @Test
+    fun `Missing Topic exception thrown when calculation complete topic is not configured`() {
+        val hmppsQueueService = mockk<HmppsQueueService>()
 
-    every { hmppsQueueService.findByTopicId("hmppscalculationcompletetopic") } returns null
+        every { hmppsQueueService.findByTopicId("hmppscalculationcompletetopic") } returns null
 
-    Assertions.assertThrows(MissingTopicException::class.java) {
-      SuccessUpdater(hmppsQueueService, mockk(), "")
+        Assertions.assertThrows(MissingTopicException::class.java) {
+            SuccessUpdater(hmppsQueueService, mockk(), "")
+        }
     }
-  }
 }

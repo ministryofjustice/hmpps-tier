@@ -8,14 +8,14 @@ import org.springframework.context.event.EventListener
 
 @Configuration
 class VersionOutputter(buildProperties: BuildProperties) {
-  private val version = buildProperties.version
+    private val version = buildProperties.version
 
-  @EventListener(ApplicationReadyEvent::class)
-  fun logVersionOnStartup() {
-    log.info("Version {} started", version)
-  }
+    @EventListener(ApplicationReadyEvent::class)
+    fun logVersionOnStartup() {
+        log.info("Version {} started", version)
+    }
 
-  companion object {
-    private val log = LoggerFactory.getLogger(this::class.java)
-  }
+    companion object {
+        private val log = LoggerFactory.getLogger(this::class.java)
+    }
 }

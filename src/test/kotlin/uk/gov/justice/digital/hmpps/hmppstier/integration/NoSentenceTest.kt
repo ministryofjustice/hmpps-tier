@@ -8,19 +8,19 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestB
 
 class NoSentenceTest : IntegrationTestBase() {
 
-  @Test
-  fun `Tier is calculated with change level zero when no sentence is found`() {
-    val crn = "X333444"
-    tierToDeliusApi.getFullDetails(
-      crn,
-      TierDetails(
-        registrations = listOf(
-          Registration("M2"),
-        ),
-      ),
-    )
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 5234567890)
-    calculateTierFor(crn)
-    expectTierChangedById("A0")
-  }
+    @Test
+    fun `Tier is calculated with change level zero when no sentence is found`() {
+        val crn = "X333444"
+        tierToDeliusApi.getFullDetails(
+            crn,
+            TierDetails(
+                registrations = listOf(
+                    Registration("M2"),
+                ),
+            ),
+        )
+        restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 5234567890)
+        calculateTierFor(crn)
+        expectTierChangedById("A0")
+    }
 }

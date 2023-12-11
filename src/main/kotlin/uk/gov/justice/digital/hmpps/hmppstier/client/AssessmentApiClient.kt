@@ -23,83 +23,83 @@ import java.time.LocalDateTime
 @Component
 class AssessmentApiClient(@Qualifier("assessmentWebClientAppScope") private val webClient: WebClient) {
 
-  suspend fun getAssessmentAnswers(assessmentId: String): Collection<Question> {
-    return getAssessmentAnswersCall(assessmentId)
-  }
+    suspend fun getAssessmentAnswers(assessmentId: String): Collection<Question> {
+        return getAssessmentAnswersCall(assessmentId)
+    }
 
-  suspend fun getAssessmentNeeds(assessmentId: String): Collection<AssessmentNeed> {
-    return webClient
-      .get()
-      .uri("/assessments/oasysSetId/$assessmentId/needs")
-      .retrieve()
-      .bodyToFlow<AssessmentNeed>()
-      .toList()
-  }
+    suspend fun getAssessmentNeeds(assessmentId: String): Collection<AssessmentNeed> {
+        return webClient
+            .get()
+            .uri("/assessments/oasysSetId/$assessmentId/needs")
+            .retrieve()
+            .bodyToFlow<AssessmentNeed>()
+            .toList()
+    }
 
-  suspend fun getAssessmentSummaries(crn: String): Collection<OffenderAssessment> {
-    return webClient
-      .get()
-      .uri("/offenders/crn/$crn/assessments/summary?assessmentType=LAYER_3")
-      .exchangeToFlow<OffenderAssessment> { response ->
-        flow {
-          when (response.statusCode()) {
-            OK -> emitAll(response.bodyToFlow())
-            NOT_FOUND -> emptyFlow<OffenderAssessment>()
-            else -> throw response.createExceptionAndAwait()
-          }
-        }
-      }.toList()
-  }
+    suspend fun getAssessmentSummaries(crn: String): Collection<OffenderAssessment> {
+        return webClient
+            .get()
+            .uri("/offenders/crn/$crn/assessments/summary?assessmentType=LAYER_3")
+            .exchangeToFlow<OffenderAssessment> { response ->
+                flow {
+                    when (response.statusCode()) {
+                        OK -> emitAll(response.bodyToFlow())
+                        NOT_FOUND -> emptyFlow<OffenderAssessment>()
+                        else -> throw response.createExceptionAndAwait()
+                    }
+                }
+            }.toList()
+    }
 
-  private suspend fun getAssessmentAnswersCall(assessmentId: String): Collection<Question> {
-    return webClient
-      .post()
-      .uri("/assessments/oasysSetId/$assessmentId/answers")
-      .bodyValue(
-        AdditionalFactorForWomen.values().groupBy { it.section }
-          .mapValues { it.value.map { q -> q.answerCode } },
-      )
-      .retrieve()
-      .awaitBodyOrNull<Answers>()?.questionAnswers ?: emptyList()
-  }
+    private suspend fun getAssessmentAnswersCall(assessmentId: String): Collection<Question> {
+        return webClient
+            .post()
+            .uri("/assessments/oasysSetId/$assessmentId/answers")
+            .bodyValue(
+                AdditionalFactorForWomen.values().groupBy { it.section }
+                    .mapValues { it.value.map { q -> q.answerCode } },
+            )
+            .retrieve()
+            .awaitBodyOrNull<Answers>()?.questionAnswers ?: emptyList()
+    }
 }
 
 data class OffenderAssessment @JsonCreator constructor(
-  @JsonProperty("assessmentId")
-  val assessmentId: String,
+    @JsonProperty("assessmentId")
+    val assessmentId: String,
 
-  @JsonProperty("completed")
-  val completed: LocalDateTime?,
+    @JsonProperty("completed")
+    val completed: LocalDateTime?,
 
-  @JsonProperty("voided")
-  val voided: LocalDateTime?,
+    @JsonProperty("voided")
+    val voided: LocalDateTime?,
 
-  @JsonProperty("assessmentStatus")
-  val assessmentStatus: String?,
+    @JsonProperty("assessmentStatus")
+    val assessmentStatus: String?,
 )
 
 data class AssessmentNeed @JsonCreator constructor(
-  @JsonProperty("section")
-  val need: Need?,
+    @JsonProperty("section")
+    val need: Need?,
 
-  @JsonProperty("severity")
-  val severity: NeedSeverity?,
+    @JsonProperty("severity")
+    val severity: NeedSeverity?,
 )
 
 data class Question @JsonCreator constructor(
-  @JsonProperty("refQuestionCode")
-  val questionCode: String?,
+    @JsonProperty("refQuestionCode")
+    val questionCode: String?,
 
-  @JsonProperty("answers")
-  val answers: Set<Answer>,
+    @JsonProperty("answers")
+    val answers: Set<Answer>,
 )
 
 data class Answer @JsonCreator constructor(
-  @JsonProperty("refAnswerCode")
-  val refAnswerCode: String?,
+    @JsonProperty("refAnswerCode")
+    val refAnswerCode: String?,
 )
 
 private data class Answers @JsonCreator constructor(
-  @JsonProperty("questionAnswers")
-  val questionAnswers: List<Question>,
+    @JsonProperty("questionAnswers")
+    val questionAnswers: List<Question>,
 )

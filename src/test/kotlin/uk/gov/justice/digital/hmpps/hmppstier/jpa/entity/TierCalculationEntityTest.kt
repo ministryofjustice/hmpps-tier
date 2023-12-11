@@ -11,29 +11,30 @@ import java.util.UUID
 
 internal class TierCalculationEntityTest {
 
-  @Test
-  fun `Should Construct TierCalculationEntity`() {
-    val crn = "Any CRN"
-    val created = LocalDateTime.now()
-    val data = data
-    val calculationId = UUID.randomUUID()
+    @Test
+    fun `Should Construct TierCalculationEntity`() {
+        val crn = "Any CRN"
+        val created = LocalDateTime.now()
+        val data = data
+        val calculationId = UUID.randomUUID()
 
-    val tierCalculationResultEntity = TierCalculationEntity(crn = crn, created = created, data = data, uuid = calculationId)
+        val tierCalculationResultEntity =
+            TierCalculationEntity(crn = crn, created = created, data = data, uuid = calculationId)
 
-    assertThat(tierCalculationResultEntity.crn).isEqualTo(crn)
-    assertThat(tierCalculationResultEntity.created).isEqualTo(created)
-    assertThat(tierCalculationResultEntity.data).isEqualTo(data)
-    assertThat(tierCalculationResultEntity.uuid).isEqualTo(calculationId)
-  }
+        assertThat(tierCalculationResultEntity.crn).isEqualTo(crn)
+        assertThat(tierCalculationResultEntity.created).isEqualTo(created)
+        assertThat(tierCalculationResultEntity.data).isEqualTo(data)
+        assertThat(tierCalculationResultEntity.uuid).isEqualTo(calculationId)
+    }
 
-  companion object {
-    private val tierLetterResult = TierLevel(ProtectLevel.A, 4, mapOf(CalculationRule.ROSH to 4))
-    private val tierNumberResult = TierLevel(ChangeLevel.TWO, 12, mapOf(CalculationRule.COMPLEXITY to 12))
+    companion object {
+        private val tierLetterResult = TierLevel(ProtectLevel.A, 4, mapOf(CalculationRule.ROSH to 4))
+        private val tierNumberResult = TierLevel(ChangeLevel.TWO, 12, mapOf(CalculationRule.COMPLEXITY to 12))
 
-    val data = TierCalculationResultEntity(
-      protect = tierLetterResult,
-      change = tierNumberResult,
-      calculationVersion = "88",
-    )
-  }
+        val data = TierCalculationResultEntity(
+            protect = tierLetterResult,
+            change = tierNumberResult,
+            calculationVersion = "88",
+        )
+    }
 }

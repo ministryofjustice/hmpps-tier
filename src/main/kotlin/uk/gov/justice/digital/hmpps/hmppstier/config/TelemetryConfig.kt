@@ -7,8 +7,8 @@ import org.springframework.context.annotation.Configuration
 @Configuration
 class TelemetryConfig {
 
-  @Bean
-  fun getTelemetryClient(): TelemetryClient {
-    return TelemetryClient()
-  }
+    @Bean
+    fun getTelemetryClient(): TelemetryClient {
+        return TelemetryClient()
+    }
 }

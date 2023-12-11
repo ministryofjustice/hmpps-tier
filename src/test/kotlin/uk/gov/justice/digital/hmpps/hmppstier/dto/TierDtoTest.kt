@@ -13,64 +13,64 @@ import java.util.UUID
 
 internal class TierDtoTest {
 
-  @Test
-  fun `Should construct TierDTO`() {
-    val protectLevel = ProtectLevel.A
-    val changeLevel = ChangeLevel.TWO
-    val calculationId = UUID.randomUUID()
-    val calculationDate = LocalDateTime.now()
+    @Test
+    fun `Should construct TierDTO`() {
+        val protectLevel = ProtectLevel.A
+        val changeLevel = ChangeLevel.TWO
+        val calculationId = UUID.randomUUID()
+        val calculationDate = LocalDateTime.now()
 
-    val tierDto = TierDto(
-      protectLevel.value.plus(changeLevel.value),
-      calculationId,
-      calculationDate,
-    )
+        val tierDto = TierDto(
+            protectLevel.value.plus(changeLevel.value),
+            calculationId,
+            calculationDate,
+        )
 
-    assertThat(tierDto.tierScore).isEqualTo(protectLevel.value.plus(changeLevel.value))
-    assertThat(tierDto.calculationId).isEqualTo(calculationId)
-    assertThat(tierDto.calculationDate).isEqualTo(calculationDate)
-  }
+        assertThat(tierDto.tierScore).isEqualTo(protectLevel.value.plus(changeLevel.value))
+        assertThat(tierDto.calculationId).isEqualTo(calculationId)
+        assertThat(tierDto.calculationDate).isEqualTo(calculationDate)
+    }
 
-  @Test
-  fun `Should construct TierDTO from`() {
-    val protectLevel = ProtectLevel.A
-    val changeLevel = ChangeLevel.TWO
-    val calculationId = UUID.randomUUID()
-    val calculationDate = LocalDateTime.now()
-    val version = "99"
+    @Test
+    fun `Should construct TierDTO from`() {
+        val protectLevel = ProtectLevel.A
+        val changeLevel = ChangeLevel.TWO
+        val calculationId = UUID.randomUUID()
+        val calculationDate = LocalDateTime.now()
+        val version = "99"
 
-    val data = TierCalculationResultEntity(
-      protect = TierLevel(protectLevel, 4, mapOf(CalculationRule.ROSH to 4)),
-      change = TierLevel(changeLevel, 12, mapOf(CalculationRule.COMPLEXITY to 12)),
-      calculationVersion = version,
-    )
+        val data = TierCalculationResultEntity(
+            protect = TierLevel(protectLevel, 4, mapOf(CalculationRule.ROSH to 4)),
+            change = TierLevel(changeLevel, 12, mapOf(CalculationRule.COMPLEXITY to 12)),
+            calculationVersion = version,
+        )
 
-    val tierDto = TierDto.from(
-      TierCalculationEntity(
-        0,
-        calculationId,
-        "Any Crn",
-        calculationDate,
-        data,
-      ),
-    )
+        val tierDto = TierDto.from(
+            TierCalculationEntity(
+                0,
+                calculationId,
+                "Any Crn",
+                calculationDate,
+                data,
+            ),
+        )
 
-    assertThat(tierDto.tierScore).isEqualTo(protectLevel.value.plus(changeLevel.value))
-    assertThat(tierDto.calculationId).isEqualTo(calculationId)
-    assertThat(tierDto.calculationDate).isEqualTo(calculationDate)
-  }
+        assertThat(tierDto.tierScore).isEqualTo(protectLevel.value.plus(changeLevel.value))
+        assertThat(tierDto.calculationId).isEqualTo(calculationId)
+        assertThat(tierDto.calculationDate).isEqualTo(calculationDate)
+    }
 
-  @Test
-  fun `Should construct TierDetailsDTO from`() {
-    val data = TierCalculationResultEntity(
-      protect = TierLevel(ProtectLevel.A, 4, mapOf(CalculationRule.ROSH to 4)),
-      change = TierLevel(ChangeLevel.TWO, 12, mapOf(CalculationRule.COMPLEXITY to 12)),
-      calculationVersion = "99",
-    )
+    @Test
+    fun `Should construct TierDetailsDTO from`() {
+        val data = TierCalculationResultEntity(
+            protect = TierLevel(ProtectLevel.A, 4, mapOf(CalculationRule.ROSH to 4)),
+            change = TierLevel(ChangeLevel.TWO, 12, mapOf(CalculationRule.COMPLEXITY to 12)),
+            calculationVersion = "99",
+        )
 
-    val tierDto =
-      TierDetailsDto.from(TierCalculationEntity(0, UUID.randomUUID(), "Any Crn", LocalDateTime.now(), data))
+        val tierDto =
+            TierDetailsDto.from(TierCalculationEntity(0, UUID.randomUUID(), "Any Crn", LocalDateTime.now(), data))
 
-    assertThat(tierDto.data).isEqualTo(data)
-  }
+        assertThat(tierDto.data).isEqualTo(data)
+    }
 }

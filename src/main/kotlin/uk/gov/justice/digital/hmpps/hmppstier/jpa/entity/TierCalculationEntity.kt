@@ -15,21 +15,21 @@ import java.util.UUID
 @Table(name = "tier_calculation")
 data class TierCalculationEntity(
 
-  @Id
-  @Column
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  val id: Long? = null,
+    @Id
+    @Column
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    val id: Long? = null,
 
-  @Column
-  val uuid: UUID = UUID.randomUUID(),
+    @Column
+    val uuid: UUID = UUID.randomUUID(),
 
-  @Column
-  val crn: String,
+    @Column
+    val crn: String,
 
-  @Column
-  val created: LocalDateTime,
+    @Column
+    val created: LocalDateTime,
 
-  @Type(JsonType::class)
-  @Column(columnDefinition = "jsonb")
-  val data: TierCalculationResultEntity,
+    @Type(JsonType::class)
+    @Column(columnDefinition = "jsonb")
+    val data: TierCalculationResultEntity,
 )

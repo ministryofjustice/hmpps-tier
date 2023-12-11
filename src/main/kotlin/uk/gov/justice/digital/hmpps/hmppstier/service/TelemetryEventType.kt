@@ -1,7 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 enum class TelemetryEventType(val eventName: String) {
-  TIER_CHANGED("TierChanged"),
-  TIER_UNCHANGED("TierUnchanged"),
-  TIER_CALCULATION_FAILED("TierCalculationFailed"),
+    TIER_CHANGED("TierChanged"),
+    TIER_UNCHANGED("TierUnchanged"),
+    TIER_CALCULATION_FAILED("TierCalculationFailed"),
 }

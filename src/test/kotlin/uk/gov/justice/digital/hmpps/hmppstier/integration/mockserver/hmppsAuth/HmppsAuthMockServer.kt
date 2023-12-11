@@ -12,39 +12,40 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.hmppsAuth.H
 
 class HmppsAuthApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallback {
 
-  companion object {
-    lateinit var hmppsAuth: HmppsAuthMockServer
-  }
+    companion object {
+        lateinit var hmppsAuth: HmppsAuthMockServer
+    }
 
-  override fun beforeAll(context: ExtensionContext?) {
-    hmppsAuth = HmppsAuthMockServer()
-  }
+    override fun beforeAll(context: ExtensionContext?) {
+        hmppsAuth = HmppsAuthMockServer()
+    }
 
-  override fun beforeEach(context: ExtensionContext?) {
-    hmppsAuth.reset()
-    hmppsAuth.setupOauth()
-  }
-  override fun afterAll(context: ExtensionContext?) {
-    hmppsAuth.stop()
-  }
+    override fun beforeEach(context: ExtensionContext?) {
+        hmppsAuth.reset()
+        hmppsAuth.setupOauth()
+    }
+
+    override fun afterAll(context: ExtensionContext?) {
+        hmppsAuth.stop()
+    }
 }
 
 class HmppsAuthMockServer : ClientAndServer(MOCKSERVER_PORT) {
 
-  companion object {
-    private const val MOCKSERVER_PORT = 9090
-  }
+    companion object {
+        private const val MOCKSERVER_PORT = 9090
+    }
 
-  fun setupOauth() {
-    val response = HttpResponse.response().withContentType(MediaType.APPLICATION_JSON)
-      .withBody(
-        """
+    fun setupOauth() {
+        val response = HttpResponse.response().withContentType(MediaType.APPLICATION_JSON)
+            .withBody(
+                """
         {
             "token_type": "bearer",
             "access_token": "ABCDE"
         }
         """.trimIndent(),
-      )
-    hmppsAuth.`when`(HttpRequest.request().withPath("/auth/oauth/token")).respond(response)
-  }
+            )
+        hmppsAuth.`when`(HttpRequest.request().withPath("/auth/oauth/token")).respond(response)
+    }
 }
