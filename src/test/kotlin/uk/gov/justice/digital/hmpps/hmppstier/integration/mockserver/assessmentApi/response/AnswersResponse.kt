@@ -6,7 +6,7 @@ fun answersResponse(assessmentId: Long, vararg answers: Answer) = """
   {
     "assessmentId": "$assessmentId",
     "questionAnswers": [
-        ${answers.joinToString(",") { getAnswer(it) } }
+        ${answers.joinToString(",") { getAnswer(it) }}
     ]
   }
 """.trimIndent()

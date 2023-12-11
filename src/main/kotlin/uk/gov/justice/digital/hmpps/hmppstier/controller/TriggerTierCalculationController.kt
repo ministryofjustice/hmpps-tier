@@ -21,40 +21,40 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.TriggerCalculationService
 @RestController
 @RequestMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
 class TriggerTierCalculationController(private val triggerCalculationService: TriggerCalculationService) {
-  private val recalculationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val recalculationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-  @PostMapping("/crn/upload")
-  suspend fun uploadCrns(@RequestPart("file") file: Mono<FilePart>): ResponseEntity<Unit> {
-    triggerCalculationService.sendEvents(fileToCases(file))
-    return ResponseEntity.ok().build()
-  }
-
-  @PreAuthorize("hasRole('ROLE_MANAGEMENT_TIER_UPDATE')")
-  @PostMapping("/calculations")
-  suspend fun recalculateTiers(@RequestBody(required = false) crns: List<String>?) {
-    recalculationScope.launch {
-      if (crns.isNullOrEmpty()) {
-        triggerCalculationService.recalculateAll()
-      } else {
-        triggerCalculationService.recalculate(crns)
-      }
+    @PostMapping("/crn/upload")
+    suspend fun uploadCrns(@RequestPart("file") file: Mono<FilePart>): ResponseEntity<Unit> {
+        triggerCalculationService.sendEvents(fileToCases(file))
+        return ResponseEntity.ok().build()
     }
-  }
 
-  private suspend fun fileToCases(filePart: Mono<FilePart>): List<TriggerCsv> {
-    return filePart.flatMapMany { file ->
-      file.content().flatMapIterable { dataBuffer ->
-        dataBuffer.asInputStream().bufferedReader().use { reader ->
-          reader.lineSequence()
-            .filter { it.isNotBlank() }
-            .map { TriggerCsv(it) }
-            .toList()
+    @PreAuthorize("hasRole('ROLE_MANAGEMENT_TIER_UPDATE')")
+    @PostMapping("/calculations")
+    suspend fun recalculateTiers(@RequestBody(required = false) crns: List<String>?) {
+        recalculationScope.launch {
+            if (crns.isNullOrEmpty()) {
+                triggerCalculationService.recalculateAll()
+            } else {
+                triggerCalculationService.recalculate(crns)
+            }
         }
-      }
-    }.asFlow().toList()
-  }
+    }
+
+    private suspend fun fileToCases(filePart: Mono<FilePart>): List<TriggerCsv> {
+        return filePart.flatMapMany { file ->
+            file.content().flatMapIterable { dataBuffer ->
+                dataBuffer.asInputStream().bufferedReader().use { reader ->
+                    reader.lineSequence()
+                        .filter { it.isNotBlank() }
+                        .map { TriggerCsv(it) }
+                        .toList()
+                }
+            }
+        }.asFlow().toList()
+    }
 }
 
 data class TriggerCsv(
-  var crn: String? = null,
+    var crn: String? = null,
 )

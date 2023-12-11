@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class HmppsTier
 
 fun main(args: Array<String>) {
-  runApplication<HmppsTier>(*args)
+    runApplication<HmppsTier>(*args)
 }

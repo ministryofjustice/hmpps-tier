@@ -8,20 +8,20 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestB
 
 class CannotCalculateTierTest : IntegrationTestBase() {
 
-  @Test
-  fun `Offender does not exist`() {
-    val crn = "X123456"
-    tierToDeliusApi.getNotFound(crn)
-    calculateTierFor(crn)
+    @Test
+    fun `Offender does not exist`() {
+        val crn = "X123456"
+        tierToDeliusApi.getNotFound(crn)
+        calculateTierFor(crn)
 
-    verify(telemetryClient, timeout(2000)).trackEvent(
-      "TierCalculationFailed",
-      mapOf(
-        "crn" to "X123456",
-        "exception" to "404 Not Found from GET http://localhost:8093/tier-details/X123456",
-        "recalculationReason" to "OffenderEventRecalculation",
-      ),
-      null,
-    )
-  }
+        verify(telemetryClient, timeout(2000)).trackEvent(
+            "TierCalculationFailed",
+            mapOf(
+                "crn" to "X123456",
+                "exception" to "404 Not Found from GET http://localhost:8093/tier-details/X123456",
+                "recalculationReason" to "OffenderEventRecalculation",
+            ),
+            null,
+        )
+    }
 }

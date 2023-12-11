@@ -11,17 +11,17 @@ import uk.gov.justice.hmpps.sqs.MissingQueueException
 
 class TriggerCalculationServiceTest {
 
-  @Test
-  fun `Missing Queue exception thrown when offender queue is not configured`() {
-    val hmppsQueueService = mockk<HmppsQueueService>()
-    val objectMapper = ObjectMapper()
-    val tierToDeliusApiClient = mockk<TierToDeliusApiClient>()
-    val tierCalculationService = mockk<TierCalculationService>()
+    @Test
+    fun `Missing Queue exception thrown when offender queue is not configured`() {
+        val hmppsQueueService = mockk<HmppsQueueService>()
+        val objectMapper = ObjectMapper()
+        val tierToDeliusApiClient = mockk<TierToDeliusApiClient>()
+        val tierCalculationService = mockk<TierCalculationService>()
 
-    every { hmppsQueueService.findByQueueId("hmppsoffenderqueue") } returns null
+        every { hmppsQueueService.findByQueueId("hmppsoffenderqueue") } returns null
 
-    Assertions.assertThrows(MissingQueueException::class.java) {
-      TriggerCalculationService(hmppsQueueService, objectMapper, tierToDeliusApiClient)
+        Assertions.assertThrows(MissingQueueException::class.java) {
+            TriggerCalculationService(hmppsQueueService, objectMapper, tierToDeliusApiClient)
+        }
     }
-  }
 }

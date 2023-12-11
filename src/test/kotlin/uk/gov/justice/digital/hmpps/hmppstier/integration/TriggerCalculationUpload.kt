@@ -16,114 +16,114 @@ import java.io.File
 
 class TriggerCalculationUpload : IntegrationTestBase() {
 
-  @Test
-  fun `trigger a tier calculation from upload`() {
-    val crn = "X546739"
-    tierToDeliusApi.getFullDetails(
-      crn,
-      TierDetails(
-        convictions = listOf(Conviction(sentenceCode = "SC")),
-        registrations = listOf(
-          Registration("M2"),
-        ),
-      ),
-    )
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
-    assessmentApi.getOutdatedAssessment(crn, 1234567890)
+    @Test
+    fun `trigger a tier calculation from upload`() {
+        val crn = "X546739"
+        tierToDeliusApi.getFullDetails(
+            crn,
+            TierDetails(
+                convictions = listOf(Conviction(sentenceCode = "SC")),
+                registrations = listOf(
+                    Registration("M2"),
+                ),
+            ),
+        )
+        restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
+        assessmentApi.getOutdatedAssessment(crn, 1234567890)
 
-    webTestClient.post()
-      .uri("/crn/upload")
-      .contentType(MULTIPART_FORM_DATA)
-      .body(generateMultipartBody(crn))
-      .exchange()
-      .expectStatus()
-      .isOk
-    expectTierChangedById("A2")
-  }
-
-  @Test
-  fun `do not trigger a calculation for blank rows`() {
-    val crn = "X546739"
-    tierToDeliusApi.getFullDetails(
-      crn,
-      TierDetails(
-        convictions = listOf(Conviction(sentenceCode = "SC")),
-        registrations = listOf(
-          Registration("M2"),
-        ),
-      ),
-    )
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
-    assessmentApi.getOutdatedAssessment(crn, 1234567890)
-
-    webTestClient.post()
-      .uri("/crn/upload")
-      .contentType(MULTIPART_FORM_DATA)
-      .body(generateMultipartBody("", crn))
-      .exchange()
-      .expectStatus()
-      .isOk
-
-    expectTierChangedById("A2")
-    expectNoMessagesOnQueueOrDeadLetterQueue()
-  }
-
-  @Test
-  fun `must write back even if tier is unchanged`() {
-    val crn = "X432769"
-    tierToDeliusApi.getFullDetails(
-      crn,
-      TierDetails(
-        convictions = listOf(Conviction(sentenceCode = "SC")),
-        registrations = listOf(
-          Registration("M2"),
-        ),
-      ),
-    )
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
-    assessmentApi.getOutdatedAssessment(crn, 1234567890)
-
-    calculateTierFor(crn)
-    expectTierChangedById("A2")
-
-    tierToDeliusApi.getFullDetails(
-      crn,
-      TierDetails(
-        convictions = listOf(Conviction(sentenceCode = "SC")),
-        registrations = listOf(
-          Registration("M2"),
-        ),
-      ),
-    )
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
-    assessmentApi.getOutdatedAssessment(crn, 1234567890)
-
-    webTestClient.post()
-      .uri("/crn/upload")
-      .contentType(MULTIPART_FORM_DATA)
-      .body(generateMultipartBody(crn))
-      .exchange()
-      .expectStatus()
-      .isOk
-
-    expectTierChangedById("A2")
-  }
-
-  private fun generateMultipartBody(crn1: String, crn2: String = ""): BodyInserters.MultipartInserter {
-    val cases = listOf(TriggerCsv(crn1), TriggerCsv(crn2))
-    val csvFile = generateCsv(cases)
-    val multipartBodyBuilder = MultipartBodyBuilder()
-    multipartBodyBuilder.part("file", FileSystemResource(csvFile))
-    return BodyInserters.fromMultipartData(multipartBodyBuilder.build())
-  }
-
-  fun generateCsv(unallocatedCases: List<TriggerCsv>): File {
-    val tempFile = kotlin.io.path.createTempFile().toFile()
-    tempFile.printWriter().use { out ->
-      unallocatedCases.forEach {
-        out.println(it.crn)
-      }
+        webTestClient.post()
+            .uri("/crn/upload")
+            .contentType(MULTIPART_FORM_DATA)
+            .body(generateMultipartBody(crn))
+            .exchange()
+            .expectStatus()
+            .isOk
+        expectTierChangedById("A2")
     }
-    return tempFile
-  }
+
+    @Test
+    fun `do not trigger a calculation for blank rows`() {
+        val crn = "X546739"
+        tierToDeliusApi.getFullDetails(
+            crn,
+            TierDetails(
+                convictions = listOf(Conviction(sentenceCode = "SC")),
+                registrations = listOf(
+                    Registration("M2"),
+                ),
+            ),
+        )
+        restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
+        assessmentApi.getOutdatedAssessment(crn, 1234567890)
+
+        webTestClient.post()
+            .uri("/crn/upload")
+            .contentType(MULTIPART_FORM_DATA)
+            .body(generateMultipartBody("", crn))
+            .exchange()
+            .expectStatus()
+            .isOk
+
+        expectTierChangedById("A2")
+        expectNoMessagesOnQueueOrDeadLetterQueue()
+    }
+
+    @Test
+    fun `must write back even if tier is unchanged`() {
+        val crn = "X432769"
+        tierToDeliusApi.getFullDetails(
+            crn,
+            TierDetails(
+                convictions = listOf(Conviction(sentenceCode = "SC")),
+                registrations = listOf(
+                    Registration("M2"),
+                ),
+            ),
+        )
+        restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
+        assessmentApi.getOutdatedAssessment(crn, 1234567890)
+
+        calculateTierFor(crn)
+        expectTierChangedById("A2")
+
+        tierToDeliusApi.getFullDetails(
+            crn,
+            TierDetails(
+                convictions = listOf(Conviction(sentenceCode = "SC")),
+                registrations = listOf(
+                    Registration("M2"),
+                ),
+            ),
+        )
+        restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
+        assessmentApi.getOutdatedAssessment(crn, 1234567890)
+
+        webTestClient.post()
+            .uri("/crn/upload")
+            .contentType(MULTIPART_FORM_DATA)
+            .body(generateMultipartBody(crn))
+            .exchange()
+            .expectStatus()
+            .isOk
+
+        expectTierChangedById("A2")
+    }
+
+    private fun generateMultipartBody(crn1: String, crn2: String = ""): BodyInserters.MultipartInserter {
+        val cases = listOf(TriggerCsv(crn1), TriggerCsv(crn2))
+        val csvFile = generateCsv(cases)
+        val multipartBodyBuilder = MultipartBodyBuilder()
+        multipartBodyBuilder.part("file", FileSystemResource(csvFile))
+        return BodyInserters.fromMultipartData(multipartBodyBuilder.build())
+    }
+
+    fun generateCsv(unallocatedCases: List<TriggerCsv>): File {
+        val tempFile = kotlin.io.path.createTempFile().toFile()
+        tempFile.printWriter().use { out ->
+            unallocatedCases.forEach {
+                out.println(it.crn)
+            }
+        }
+        return tempFile
+    }
 }

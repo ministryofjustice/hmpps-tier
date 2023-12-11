@@ -3,8 +3,8 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeli
 import java.time.LocalDate
 
 data class Conviction(
-  val breached: Boolean = false,
-  val requirements: MutableList<Requirement> = mutableListOf(),
-  val sentenceCode: String = "NC",
-  val terminationDate: LocalDate? = null,
+    val breached: Boolean = false,
+    val requirements: MutableList<Requirement> = mutableListOf(),
+    val sentenceCode: String = "NC",
+    val terminationDate: LocalDate? = null,
 )
