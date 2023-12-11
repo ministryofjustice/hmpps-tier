@@ -22,4 +22,4 @@ jobs:
           ref: ${{ github.event.pull_request.head.ref }}
 
       - name: Format code
-        uses: ministryofjustice/hmpps-probation-integration-services/.github/actions/format-code@PI-1724-intellij-format
+        uses: ministryofjustice/hmpps-probation-integration-services/.github/actions/format-code@main
