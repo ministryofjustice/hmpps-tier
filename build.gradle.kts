@@ -166,3 +166,11 @@ tasks {
 tasks.named<JavaExec>("bootRun") {
   systemProperty("spring.profiles.active", "dev,docker")
 }
+
+
+// Disable ktlint in favour of IntelliJ formatting
+configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+  filter {
+    exclude("**/*")
+  }
+}
