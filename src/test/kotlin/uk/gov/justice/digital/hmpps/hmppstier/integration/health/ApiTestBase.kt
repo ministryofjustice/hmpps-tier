@@ -10,7 +10,7 @@ import org.springframework.test.web.reactive.server.WebTestClient
 @ActiveProfiles("test")
 abstract class ApiTestBase {
 
-  @Suppress("SpringJavaInjectionPointsAutowiringInspection")
-  @Autowired
-  lateinit var webTestClient: WebTestClient
+    @Suppress("SpringJavaInjectionPointsAutowiringInspection")
+    @Autowired
+    lateinit var webTestClient: WebTestClient
 }

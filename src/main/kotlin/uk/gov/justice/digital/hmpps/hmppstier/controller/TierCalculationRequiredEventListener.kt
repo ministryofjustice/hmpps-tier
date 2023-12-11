@@ -13,29 +13,32 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 
 @Service
 class TierCalculationRequiredEventListener(
-  private val calculator: TierCalculationService,
-  private val objectMapper: ObjectMapper,
+    private val calculator: TierCalculationService,
+    private val objectMapper: ObjectMapper,
 ) {
-  @MessageExceptionHandler
-  fun errorHandler(e: Exception, msg: String) {
-    log.warn("Failed to calculate tier for CRN ${getRecalculation(msg).crn} with error: ${e.message}")
-    throw e
-  }
+    @MessageExceptionHandler
+    fun errorHandler(e: Exception, msg: String) {
+        log.warn("Failed to calculate tier for CRN ${getRecalculation(msg).crn} with error: ${e.message}")
+        throw e
+    }
 
-  @SqsListener("hmppsoffenderqueue", factory = "hmppsQueueContainerFactoryProxy")
-  fun listen(msg: String) = runBlocking {
-    val recalculation = getRecalculation(msg)
-    calculator.calculateTierForCrn(recalculation.crn, recalculation.recalculationSource ?: RecalculationSource.OffenderEventRecalculation)
-  }
+    @SqsListener("hmppsoffenderqueue", factory = "hmppsQueueContainerFactoryProxy")
+    fun listen(msg: String) = runBlocking {
+        val recalculation = getRecalculation(msg)
+        calculator.calculateTierForCrn(
+            recalculation.crn,
+            recalculation.recalculationSource ?: RecalculationSource.OffenderEventRecalculation
+        )
+    }
 
-  private fun getRecalculation(msg: String): TierCalculationMessage {
-    val (message) = objectMapper.readValue<SQSMessage>(msg)
-    return objectMapper.readValue<TierCalculationMessage>(message)
-  }
+    private fun getRecalculation(msg: String): TierCalculationMessage {
+        val (message) = objectMapper.readValue<SQSMessage>(msg)
+        return objectMapper.readValue<TierCalculationMessage>(message)
+    }
 
-  companion object {
-    private val log = LoggerFactory.getLogger(this::class.java)
-  }
+    companion object {
+        private val log = LoggerFactory.getLogger(this::class.java)
+    }
 }
 
 data class TierCalculationMessage(val crn: String, val recalculationSource: RecalculationSource? = null)

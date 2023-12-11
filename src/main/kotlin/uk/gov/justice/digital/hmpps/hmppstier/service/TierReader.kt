@@ -10,31 +10,31 @@ import java.util.UUID
 
 @Service
 class TierReader(
-  private val tierCalculationRepository: TierCalculationRepository,
+    private val tierCalculationRepository: TierCalculationRepository,
 ) {
-  fun getLatestTierByCrn(crn: String): TierDto? =
-    getLatestTierCalculation(crn)?.let {
-      log.info("Found latest tier calculation for $crn")
-      TierDto.from(it)
+    fun getLatestTierByCrn(crn: String): TierDto? =
+        getLatestTierCalculation(crn)?.let {
+            log.info("Found latest tier calculation for $crn")
+            TierDto.from(it)
+        }
+
+    fun getLatestTierDetailsByCrn(crn: String): TierDetailsDto? =
+        getLatestTierCalculation(crn)?.let {
+            log.info("Found latest tier calculation for $crn")
+            TierDetailsDto.from(it)
+        }
+
+    fun getTierByCalculationId(crn: String, calculationId: UUID): TierDto? =
+        tierCalculationRepository.findByCrnAndUuid(crn, calculationId)?.let {
+            log.info("Found tier for $crn and $calculationId")
+            TierDto.from(it)
+        }
+
+    private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
+        tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
+
+    companion object {
+        private val log =
+            LoggerFactory.getLogger(this::class.java)
     }
-
-  fun getLatestTierDetailsByCrn(crn: String): TierDetailsDto? =
-    getLatestTierCalculation(crn)?.let {
-      log.info("Found latest tier calculation for $crn")
-      TierDetailsDto.from(it)
-    }
-
-  fun getTierByCalculationId(crn: String, calculationId: UUID): TierDto? =
-    tierCalculationRepository.findByCrnAndUuid(crn, calculationId)?.let {
-      log.info("Found tier for $crn and $calculationId")
-      TierDto.from(it)
-    }
-
-  private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
-    tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
-
-  companion object {
-    private val log =
-      LoggerFactory.getLogger(this::class.java)
-  }
 }

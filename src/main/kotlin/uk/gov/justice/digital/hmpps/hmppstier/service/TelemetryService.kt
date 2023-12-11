@@ -10,24 +10,28 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.TelemetryEventType.TIER_UN
 @Component
 class TelemetryService(@Autowired private val telemetryClient: TelemetryClient) {
 
-  fun trackTierCalculated(calculation: TierCalculationEntity, isUpdated: Boolean, recalculationSource: RecalculationSource) {
-    trackEvent(
-      if (isUpdated) {
-        TIER_CHANGED
-      } else {
-        TIER_UNCHANGED
-      },
-      mapOf(
-        "crn" to calculation.crn,
-        "protect" to calculation.data.protect.tier.value,
-        "change" to calculation.data.change.tier.value.toString(),
-        "version" to calculation.data.calculationVersion,
-        "recalculationReason" to recalculationSource.name,
-      ),
-    )
-  }
+    fun trackTierCalculated(
+        calculation: TierCalculationEntity,
+        isUpdated: Boolean,
+        recalculationSource: RecalculationSource
+    ) {
+        trackEvent(
+            if (isUpdated) {
+                TIER_CHANGED
+            } else {
+                TIER_UNCHANGED
+            },
+            mapOf(
+                "crn" to calculation.crn,
+                "protect" to calculation.data.protect.tier.value,
+                "change" to calculation.data.change.tier.value.toString(),
+                "version" to calculation.data.calculationVersion,
+                "recalculationReason" to recalculationSource.name,
+            ),
+        )
+    }
 
-  fun trackEvent(eventType: TelemetryEventType, customDimensions: Map<String, String?>) {
-    telemetryClient.trackEvent(eventType.eventName, customDimensions, null)
-  }
+    fun trackEvent(eventType: TelemetryEventType, customDimensions: Map<String, String?>) {
+        telemetryClient.trackEvent(eventType.eventName, customDimensions, null)
+    }
 }

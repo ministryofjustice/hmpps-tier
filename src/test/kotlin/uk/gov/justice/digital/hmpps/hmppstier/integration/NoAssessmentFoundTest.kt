@@ -10,21 +10,21 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestB
 
 class NoAssessmentFoundTest : IntegrationTestBase() {
 
-  @Test
-  fun `changeLevel should be 2 if assessment returns 404`() {
-    val crn = "X273878"
-    tierToDeliusApi.getFullDetails(
-      crn,
-      TierDetails(
-        convictions = listOf(Conviction()),
-        registrations = listOf(
-          Registration("M2"),
-        ),
-      ),
-    )
-    assessmentApi.getNotFoundAssessment(crn)
-    restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 8234567890)
-    calculateTierFor(crn)
-    expectTierChangedById("A2")
-  }
+    @Test
+    fun `changeLevel should be 2 if assessment returns 404`() {
+        val crn = "X273878"
+        tierToDeliusApi.getFullDetails(
+            crn,
+            TierDetails(
+                convictions = listOf(Conviction()),
+                registrations = listOf(
+                    Registration("M2"),
+                ),
+            ),
+        )
+        assessmentApi.getNotFoundAssessment(crn)
+        restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 8234567890)
+        calculateTierFor(crn)
+        expectTierChangedById("A2")
+    }
 }

@@ -22,77 +22,77 @@ import java.util.UUID
 @DisplayName("Telemetry Service tests")
 internal class TelemetryServiceTest {
 
-  private val client: TelemetryClient = mockk(relaxUnitFun = true)
+    private val client: TelemetryClient = mockk(relaxUnitFun = true)
 
-  private val service = TelemetryService(client)
+    private val service = TelemetryService(client)
 
-  private val crn = "ABC123"
-  private val tierCalculation = TierCalculationEntity(
-    0,
-    UUID.randomUUID(),
-    crn,
-    LocalDateTime.now(),
-    TierCalculationResultEntity(
-      TierLevel(
-        ProtectLevel.A,
-        17,
-        mapOf(),
-      ),
-      TierLevel(
-        ChangeLevel.ONE,
-        5,
-        mapOf(),
-      ),
-      "77",
-    ),
-  )
-
-  @BeforeEach
-  fun resetAllMocks() {
-    clearMocks(client)
-  }
-
-  @AfterEach
-  fun confirmVerified() {
-    // Check we don't add any more calls without updating the tests
-    io.mockk.confirmVerified(client)
-  }
-
-  @Test
-  fun `Should emit TierChanged event when tier HAS changed`() {
-    service.trackTierCalculated(tierCalculation, true, RecalculationSource.DomainEventRecalculation)
-
-    verify {
-      client.trackEvent(
-        TelemetryEventType.TIER_CHANGED.eventName,
-        mapOf(
-          "crn" to crn,
-          "protect" to tierCalculation.data.protect.tier.value,
-          "change" to tierCalculation.data.change.tier.value.toString(),
-          "version" to tierCalculation.data.calculationVersion,
-          "recalculationReason" to "DomainEventRecalculation",
+    private val crn = "ABC123"
+    private val tierCalculation = TierCalculationEntity(
+        0,
+        UUID.randomUUID(),
+        crn,
+        LocalDateTime.now(),
+        TierCalculationResultEntity(
+            TierLevel(
+                ProtectLevel.A,
+                17,
+                mapOf(),
+            ),
+            TierLevel(
+                ChangeLevel.ONE,
+                5,
+                mapOf(),
+            ),
+            "77",
         ),
-        null,
-      )
-    }
-  }
+    )
 
-  @Test
-  fun `Should emit TierUnchanged event when tier HAS NOT changed`() {
-    service.trackTierCalculated(tierCalculation, false, RecalculationSource.DomainEventRecalculation)
-
-    verify {
-      client.trackEvent(
-        TelemetryEventType.TIER_UNCHANGED.eventName,
-        mapOf(
-          "crn" to crn,
-          "protect" to tierCalculation.data.protect.tier.value,
-          "change" to tierCalculation.data.change.tier.value.toString(),
-          "version" to tierCalculation.data.calculationVersion,
-          "recalculationReason" to "DomainEventRecalculation",
-        ),
-        null,
-      )
+    @BeforeEach
+    fun resetAllMocks() {
+        clearMocks(client)
     }
-  }
+
+    @AfterEach
+    fun confirmVerified() {
+        // Check we don't add any more calls without updating the tests
+        io.mockk.confirmVerified(client)
+    }
+
+    @Test
+    fun `Should emit TierChanged event when tier HAS changed`() {
+        service.trackTierCalculated(tierCalculation, true, RecalculationSource.DomainEventRecalculation)
+
+        verify {
+            client.trackEvent(
+                TelemetryEventType.TIER_CHANGED.eventName,
+                mapOf(
+                    "crn" to crn,
+                    "protect" to tierCalculation.data.protect.tier.value,
+                    "change" to tierCalculation.data.change.tier.value.toString(),
+                    "version" to tierCalculation.data.calculationVersion,
+                    "recalculationReason" to "DomainEventRecalculation",
+                ),
+                null,
+            )
+        }
+    }
+
+    @Test
+    fun `Should emit TierUnchanged event when tier HAS NOT changed`() {
+        service.trackTierCalculated(tierCalculation, false, RecalculationSource.DomainEventRecalculation)
+
+        verify {
+            client.trackEvent(
+                TelemetryEventType.TIER_UNCHANGED.eventName,
+                mapOf(
+                    "crn" to crn,
+                    "protect" to tierCalculation.data.protect.tier.value,
+                    "change" to tierCalculation.data.change.tier.value.toString(),
+                    "version" to tierCalculation.data.calculationVersion,
+                    "recalculationReason" to "DomainEventRecalculation",
+                ),
+                null,
+            )
+        }
+    }
 }

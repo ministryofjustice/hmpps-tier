@@ -11,31 +11,31 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliu
 
 class MockServerPlugin : EventListener {
 
-  private var tierToDeliusApiExtension: TierToDeliusApiExtension = TierToDeliusApiExtension()
-  private var hmppsAuthApiExtension: HmppsAuthApiExtension = HmppsAuthApiExtension()
-  private var assessmentApiExtension: AssessmentApiExtension = AssessmentApiExtension()
+    private var tierToDeliusApiExtension: TierToDeliusApiExtension = TierToDeliusApiExtension()
+    private var hmppsAuthApiExtension: HmppsAuthApiExtension = HmppsAuthApiExtension()
+    private var assessmentApiExtension: AssessmentApiExtension = AssessmentApiExtension()
 
-  override fun setEventPublisher(publisher: EventPublisher?) {
-    publisher!!.registerHandlerFor(TestRunStarted::class.java, this::testRunStarted)
-    publisher.registerHandlerFor(TestRunFinished::class.java, this::testRunFinished)
-    publisher.registerHandlerFor(TestCaseStarted::class.java, this::testCaseStarted)
-  }
+    override fun setEventPublisher(publisher: EventPublisher?) {
+        publisher!!.registerHandlerFor(TestRunStarted::class.java, this::testRunStarted)
+        publisher.registerHandlerFor(TestRunFinished::class.java, this::testRunFinished)
+        publisher.registerHandlerFor(TestCaseStarted::class.java, this::testCaseStarted)
+    }
 
-  fun testRunStarted(event: TestRunStarted) {
-    tierToDeliusApiExtension.beforeAll(null)
-    hmppsAuthApiExtension.beforeAll(null)
-    assessmentApiExtension.beforeAll(null)
-  }
+    fun testRunStarted(event: TestRunStarted) {
+        tierToDeliusApiExtension.beforeAll(null)
+        hmppsAuthApiExtension.beforeAll(null)
+        assessmentApiExtension.beforeAll(null)
+    }
 
-  fun testCaseStarted(event: TestCaseStarted) {
-    tierToDeliusApiExtension.beforeEach(null)
-    hmppsAuthApiExtension.beforeEach(null)
-    assessmentApiExtension.beforeEach(null)
-  }
+    fun testCaseStarted(event: TestCaseStarted) {
+        tierToDeliusApiExtension.beforeEach(null)
+        hmppsAuthApiExtension.beforeEach(null)
+        assessmentApiExtension.beforeEach(null)
+    }
 
-  fun testRunFinished(event: TestRunFinished) {
-    tierToDeliusApiExtension.afterAll(null)
-    hmppsAuthApiExtension.afterAll(null)
-    assessmentApiExtension.afterAll(null)
-  }
+    fun testRunFinished(event: TestRunFinished) {
+        tierToDeliusApiExtension.afterAll(null)
+        hmppsAuthApiExtension.afterAll(null)
+        assessmentApiExtension.afterAll(null)
+    }
 }

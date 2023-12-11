@@ -14,50 +14,51 @@ import org.springframework.web.reactive.function.client.WebClient
 
 @Configuration
 class WebClientConfiguration(
-  @Value("\${assessment.endpoint.url}") private val assessmentApiRootUri: String,
-  @Value("\${tier-to-delius.endpoint.url}") private val tierToDeliusApiRootUri: String,
+    @Value("\${assessment.endpoint.url}") private val assessmentApiRootUri: String,
+    @Value("\${tier-to-delius.endpoint.url}") private val tierToDeliusApiRootUri: String,
 ) {
 
-  @Bean
-  fun authorizedClientManagerAppScope(
-    clientRegistrationRepository: ReactiveClientRegistrationRepository,
-    oAuth2AuthorizedClientService: ReactiveOAuth2AuthorizedClientService,
-  ): ReactiveOAuth2AuthorizedClientManager {
-    val authorizedClientProvider = ReactiveOAuth2AuthorizedClientProviderBuilder.builder().clientCredentials().build()
-    val authorizedClientManager = AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(
-      clientRegistrationRepository,
-      oAuth2AuthorizedClientService,
-    )
-    authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
-    return authorizedClientManager
-  }
+    @Bean
+    fun authorizedClientManagerAppScope(
+        clientRegistrationRepository: ReactiveClientRegistrationRepository,
+        oAuth2AuthorizedClientService: ReactiveOAuth2AuthorizedClientService,
+    ): ReactiveOAuth2AuthorizedClientManager {
+        val authorizedClientProvider =
+            ReactiveOAuth2AuthorizedClientProviderBuilder.builder().clientCredentials().build()
+        val authorizedClientManager = AuthorizedClientServiceReactiveOAuth2AuthorizedClientManager(
+            clientRegistrationRepository,
+            oAuth2AuthorizedClientService,
+        )
+        authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
+        return authorizedClientManager
+    }
 
-  @Bean
-  fun assessmentWebClientAppScope(
-    @Qualifier(value = "authorizedClientManagerAppScope") authorizedClientManager: ReactiveOAuth2AuthorizedClientManager,
-    builder: WebClient.Builder,
-  ): WebClient {
-    return getOAuthWebClient(authorizedClientManager, builder, assessmentApiRootUri, "assessment-api")
-  }
+    @Bean
+    fun assessmentWebClientAppScope(
+        @Qualifier(value = "authorizedClientManagerAppScope") authorizedClientManager: ReactiveOAuth2AuthorizedClientManager,
+        builder: WebClient.Builder,
+    ): WebClient {
+        return getOAuthWebClient(authorizedClientManager, builder, assessmentApiRootUri, "assessment-api")
+    }
 
-  @Bean
-  fun tierToDeliusApiClientWebClientAppScope(
-    @Qualifier(value = "authorizedClientManagerAppScope") authorizedClientManager: ReactiveOAuth2AuthorizedClientManager,
-    builder: WebClient.Builder,
-  ): WebClient {
-    return getOAuthWebClient(authorizedClientManager, builder, tierToDeliusApiRootUri, "tier-to-delius-api")
-  }
+    @Bean
+    fun tierToDeliusApiClientWebClientAppScope(
+        @Qualifier(value = "authorizedClientManagerAppScope") authorizedClientManager: ReactiveOAuth2AuthorizedClientManager,
+        builder: WebClient.Builder,
+    ): WebClient {
+        return getOAuthWebClient(authorizedClientManager, builder, tierToDeliusApiRootUri, "tier-to-delius-api")
+    }
 
-  private fun getOAuthWebClient(
-    authorizedClientManager: ReactiveOAuth2AuthorizedClientManager,
-    builder: WebClient.Builder,
-    rootUri: String,
-    registrationId: String,
-  ): WebClient {
-    val oauth2Client = ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager)
-    oauth2Client.setDefaultClientRegistrationId(registrationId)
-    return builder.baseUrl(rootUri)
-      .filter(oauth2Client)
-      .build()
-  }
+    private fun getOAuthWebClient(
+        authorizedClientManager: ReactiveOAuth2AuthorizedClientManager,
+        builder: WebClient.Builder,
+        rootUri: String,
+        registrationId: String,
+    ): WebClient {
+        val oauth2Client = ServerOAuth2AuthorizedClientExchangeFilterFunction(authorizedClientManager)
+        oauth2Client.setDefaultClientRegistrationId(registrationId)
+        return builder.baseUrl(rootUri)
+            .filter(oauth2Client)
+            .build()
+    }
 }

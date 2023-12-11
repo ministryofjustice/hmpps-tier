@@ -14,40 +14,42 @@ import java.math.BigDecimal
 @Service
 class TierToDeliusApiService(private val tierToDeliusApiClient: TierToDeliusApiClient) {
 
-  private val mandateForChange: MandateForChange = MandateForChange()
+    private val mandateForChange: MandateForChange = MandateForChange()
 
-  suspend fun getTierToDelius(crn: String): DeliusInputs {
-    val tierToDeliusResponse = tierToDeliusApiClient.getDeliusTier(crn)
+    suspend fun getTierToDelius(crn: String): DeliusInputs {
+        val tierToDeliusResponse = tierToDeliusApiClient.getDeliusTier(crn)
 
-    return DeliusInputs(
-      tierToDeliusResponse.gender.equals("female", true),
-      tierToDeliusResponse.rsrscore ?: BigDecimal.ZERO,
-      tierToDeliusResponse.ogrsscore ?: 0,
-      mandateForChange.hasNoMandate(tierToDeliusResponse.convictions),
-      getRegistrations(tierToDeliusResponse.registrations),
-      tierToDeliusResponse.previousEnforcementActivity,
-    )
-  }
-  private fun getRegistrations(deliusRegistrations: Collection<DeliusRegistration>): Registrations {
-    val registrations = deliusRegistrations
-      .filter { it.code != "HREG" }
-      .sortedByDescending { it.date }
-    return Registrations(
-      hasIomNominal(registrations),
-      getComplexityFactors(registrations),
-      getRosh(registrations),
-      getMappa(registrations),
-    )
-  }
-  private fun getRosh(registrations: Collection<DeliusRegistration>): Rosh? =
-    registrations.firstNotNullOfOrNull { Rosh.from(it.code) }
+        return DeliusInputs(
+            tierToDeliusResponse.gender.equals("female", true),
+            tierToDeliusResponse.rsrscore ?: BigDecimal.ZERO,
+            tierToDeliusResponse.ogrsscore ?: 0,
+            mandateForChange.hasNoMandate(tierToDeliusResponse.convictions),
+            getRegistrations(tierToDeliusResponse.registrations),
+            tierToDeliusResponse.previousEnforcementActivity,
+        )
+    }
 
-  private fun getMappa(registrations: Collection<DeliusRegistration>): Mappa? =
-    registrations.firstNotNullOfOrNull { Mappa.from(it.level, it.code) }
+    private fun getRegistrations(deliusRegistrations: Collection<DeliusRegistration>): Registrations {
+        val registrations = deliusRegistrations
+            .filter { it.code != "HREG" }
+            .sortedByDescending { it.date }
+        return Registrations(
+            hasIomNominal(registrations),
+            getComplexityFactors(registrations),
+            getRosh(registrations),
+            getMappa(registrations),
+        )
+    }
 
-  private fun getComplexityFactors(registrations: Collection<DeliusRegistration>): Collection<ComplexityFactor> =
-    registrations.mapNotNull { ComplexityFactor.from(it.code) }.distinct()
+    private fun getRosh(registrations: Collection<DeliusRegistration>): Rosh? =
+        registrations.firstNotNullOfOrNull { Rosh.from(it.code) }
 
-  private fun hasIomNominal(registrations: Collection<DeliusRegistration>): Boolean =
-    registrations.any { it.code == IomNominal.IOM_NOMINAL.registerCode }
+    private fun getMappa(registrations: Collection<DeliusRegistration>): Mappa? =
+        registrations.firstNotNullOfOrNull { Mappa.from(it.level, it.code) }
+
+    private fun getComplexityFactors(registrations: Collection<DeliusRegistration>): Collection<ComplexityFactor> =
+        registrations.mapNotNull { ComplexityFactor.from(it.code) }.distinct()
+
+    private fun hasIomNominal(registrations: Collection<DeliusRegistration>): Boolean =
+        registrations.any { it.code == IomNominal.IOM_NOMINAL.registerCode }
 }

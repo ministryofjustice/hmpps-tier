@@ -4,7 +4,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentA
 
 fun needsResponse(vararg needs: Need) = """
   [
-    ${needs.joinToString(",") { getNeed(it) } }
+    ${needs.joinToString(",") { getNeed(it) }}
   ]
 """.trimIndent()
 

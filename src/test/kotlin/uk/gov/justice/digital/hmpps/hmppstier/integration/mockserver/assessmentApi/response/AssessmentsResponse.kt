@@ -5,7 +5,7 @@ import java.time.format.DateTimeFormatter
 
 fun assessmentsResponse(vararg assessments: Assessment) = """
   [
-     ${assessments.joinToString(",") { getAssessment(it) } }
+     ${assessments.joinToString(",") { getAssessment(it) }}
   ]
 """.trimIndent()
 

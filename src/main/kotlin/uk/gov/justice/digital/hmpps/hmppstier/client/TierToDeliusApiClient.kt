@@ -11,20 +11,20 @@ import java.time.LocalDate
 
 @Component
 class TierToDeliusApiClient(@Qualifier("tierToDeliusApiClientWebClientAppScope") private val webClient: WebClient) {
-  suspend fun getDeliusTier(crn: String): TierToDeliusResponse {
-    return webClient
-      .get()
-      .uri("/tier-details/$crn")
-      .retrieve()
-      .awaitBody()
-  }
+    suspend fun getDeliusTier(crn: String): TierToDeliusResponse {
+        return webClient
+            .get()
+            .uri("/tier-details/$crn")
+            .retrieve()
+            .awaitBody()
+    }
 
-  suspend fun getActiveCrns(): List<String> = webClient
-    .get()
-    .uri("/probation-cases")
-    .accept(APPLICATION_JSON)
-    .retrieve()
-    .awaitBody()
+    suspend fun getActiveCrns(): List<String> = webClient
+        .get()
+        .uri("/probation-cases")
+        .accept(APPLICATION_JSON)
+        .retrieve()
+        .awaitBody()
 }
 
 /***
@@ -37,27 +37,27 @@ class TierToDeliusApiClient(@Qualifier("tierToDeliusApiClientWebClientAppScope")
  * @property previousEnforcementActivity: Flag if there is a breach/recall on an active and less-than-a-year conviction.
  */
 data class TierToDeliusResponse @JsonCreator constructor(
-  val gender: String,
-  val registrations: List<DeliusRegistration>,
-  val convictions: List<DeliusConviction>,
-  val rsrscore: BigDecimal?,
-  val ogrsscore: Int?,
-  val previousEnforcementActivity: Boolean,
+    val gender: String,
+    val registrations: List<DeliusRegistration>,
+    val convictions: List<DeliusConviction>,
+    val rsrscore: BigDecimal?,
+    val ogrsscore: Int?,
+    val previousEnforcementActivity: Boolean,
 )
 
 data class DeliusRegistration @JsonCreator constructor(
-  val code: String,
-  val level: String?,
-  val date: LocalDate,
+    val code: String,
+    val level: String?,
+    val date: LocalDate,
 )
 
 data class DeliusConviction @JsonCreator constructor(
-  val terminationDate: LocalDate?,
-  val sentenceTypeCode: String,
-  val requirements: List<DeliusRequirement>,
+    val terminationDate: LocalDate?,
+    val sentenceTypeCode: String,
+    val requirements: List<DeliusRequirement>,
 )
 
 data class DeliusRequirement @JsonCreator constructor(
-  val mainCategoryTypeCode: String,
-  val restrictive: Boolean,
+    val mainCategoryTypeCode: String,
+    val restrictive: Boolean,
 )

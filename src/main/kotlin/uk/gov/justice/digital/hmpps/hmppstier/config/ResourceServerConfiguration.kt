@@ -11,26 +11,26 @@ import org.springframework.security.web.server.SecurityWebFilterChain
 @EnableWebFluxSecurity
 @EnableReactiveMethodSecurity(useAuthorizationManager = false)
 class ResourceServerConfiguration {
-  @Bean
-  fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
-    return http
-      .csrf { it.disable() }
-      .authorizeExchange {
-        it.pathMatchers(
-          "/webjars/**",
-          "/favicon.ico",
-          "/health/**",
-          "/info",
-          "/h2-console/**",
-          "/v3/api-docs/**",
-          "/swagger-ui/**",
-          "/swagger-ui.html",
-          "/queue-admin/retry-all-dlqs",
-          "/crn/upload",
-        ).permitAll().anyExchange().authenticated()
-      }
-      .oauth2ResourceServer {
-        it.jwt { jwt -> jwt.jwtAuthenticationConverter(AuthAwareTokenConverter()) }
-      }.build()
-  }
+    @Bean
+    fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
+        return http
+            .csrf { it.disable() }
+            .authorizeExchange {
+                it.pathMatchers(
+                    "/webjars/**",
+                    "/favicon.ico",
+                    "/health/**",
+                    "/info",
+                    "/h2-console/**",
+                    "/v3/api-docs/**",
+                    "/swagger-ui/**",
+                    "/swagger-ui.html",
+                    "/queue-admin/retry-all-dlqs",
+                    "/crn/upload",
+                ).permitAll().anyExchange().authenticated()
+            }
+            .oauth2ResourceServer {
+                it.jwt { jwt -> jwt.jwtAuthenticationConverter(AuthAwareTokenConverter()) }
+            }.build()
+    }
 }
