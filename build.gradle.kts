@@ -98,11 +98,9 @@ task("cucumber") {
 
 tasks {
 
-  getByName("check") {
-    dependsOn(detekt)
-    finalizedBy("cucumber")
-  }
-  getByName<JacocoReport>("jacocoTestReport") {
+  getByName("check") { dependsOn(detekt)
+    finalizedBy("cucumber") }
+  getByName<JacocoReport> ("jacocoTestReport") {
     executionData(files("$buildDir/jacoco/cucumber.exec", "$buildDir/jacoco/test.exec"))
     reports {
       xml.required.set(false)
