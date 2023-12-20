@@ -52,12 +52,15 @@ class DomainEventsListenerTest : IntegrationTestBase() {
         expectLatestTierCalculation("A1")
     }
 
-  @Test
-  fun `no tier performed if domain event is not one the service is interested in`() {
-    val crn = "N671982"
-    sendDomainEvent(DomainEventsMessage("unknown.event.type", PersonReference(listOf(Identifiers("CRN", crn)))))
-    runBlocking {
-      verify(tierCalculationService, never()).calculateTierForCrn(crn, RecalculationSource.DomainEventRecalculation)
+    @Test
+    fun `no tier performed if domain event is not one the service is interested in`() {
+        val crn = "N671982"
+        sendDomainEvent(DomainEventsMessage("unknown.event.type", PersonReference(listOf(Identifiers("CRN", crn)))))
+        runBlocking {
+            verify(tierCalculationService, never()).calculateTierForCrn(
+                crn,
+                RecalculationSource.DomainEventRecalculation
+            )
+        }
     }
-  }
 }
