@@ -2,7 +2,7 @@
   "Type": "Notification",
   "MessageId": "042e7973-ca2d-551d-916b-21f1f9eb3a54",
   "TopicArn": "arn:aws:sns:eu-west-2:754256621582:cloud-platform-Digital-Prison-Services-453cac1179377186788c5fcd12525870",
-  "Message": "{\"eventType\": \"breach.end\",\"version\": 1,\"description\": \"End of breach\",\"detailUrl\": \"https://{community-api-url}\",\"occurredAt\": \"{createdDate}\",\"additionalInformation\": {\"eventId\": \"{eventId}\",\"outcome\": \"BRE01\"},\"personReference\": {\"identifiers\": [{\"type\": \"CRN\", \"value\":\"X373878\"}]}}",
+  "Message": "{\"eventType\": \"enforcement.breach.concluded\",\"version\": 1,\"description\": \"End of breach\",\"detailUrl\": \"https://{community-api-url}\",\"occurredAt\": \"{createdDate}\",\"additionalInformation\": {\"eventId\": \"{eventId}\",\"outcome\": \"BRE01\"},\"personReference\": {\"identifiers\": [{\"type\": \"CRN\", \"value\":\"X373878\"}]}}",
   "Timestamp": "2021-01-20T13:35:02.345Z",
   "SignatureVersion": "1",
   "Signature": "wLZFFnngE0vRouyQ6ff/IUQiZOxWitcJ/dJUISFo4mjKMAoz/FDUJW1H31UST9LJLXz1X0h6x4rotFTNK59TNZBnhqjE0+wM1ttaGhVVahJVhZ2GKfOIwjhOjjueK0s9L43Ki+U6nTIVx7LGN/eTQKS/guuNLESY4Wzq2exLNtc5Hr/IMEYGZqAV9ZXvBPbslAqSrkHSzrYATgmLKXDte3E6qh+jsihTgmbpeaR8YQklJklLYeTI2X0y3oteSUqyyDeKLF/I7k/gYDvqTj+9Qme0kCPc7uxZMegFGvgonf5Ln1ylNK99AIW1DssvgpuXRMCrTqZqpkWScM4bDjAPsQ==",
@@ -11,7 +11,7 @@
   "MessageAttributes": {
     "eventType": {
       "Type": "String",
-      "Value": "breach.end"
+      "Value": "enforcement.breach.concluded"
     },
     "source": {
       "Type": "String",
