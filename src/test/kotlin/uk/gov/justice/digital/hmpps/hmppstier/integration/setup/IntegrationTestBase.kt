@@ -23,6 +23,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentA
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.hmppsAuth.HmppsAuthApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
+import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
@@ -47,6 +48,9 @@ abstract class IntegrationTestBase {
 
     @Autowired
     protected lateinit var hmppsQueueService: HmppsQueueService
+
+    @SpyBean
+    lateinit var tierCalculationService: TierCalculationService
 
     @SpyBean
     lateinit var telemetryClient: TelemetryClient

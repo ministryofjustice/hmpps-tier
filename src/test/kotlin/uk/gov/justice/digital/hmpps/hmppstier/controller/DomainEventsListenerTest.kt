@@ -15,10 +15,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.RecalculationSource
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 
 class DomainEventsListenerTest : IntegrationTestBase() {
-
-    @SpyBean
-    lateinit var tierCalculationService: TierCalculationService
-
     @Test
     fun `can calculate tier on domain event`() {
         val crn = "X432777"
