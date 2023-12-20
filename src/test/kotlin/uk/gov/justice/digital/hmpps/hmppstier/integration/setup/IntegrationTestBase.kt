@@ -196,15 +196,15 @@ abstract class IntegrationTestBase {
         return { it.set(AUTHORIZATION, "Bearer $token") }
     }
 
-  fun sendDomainEvent(
-    message: DomainEventsMessage,
-    queueUrl: String = domainEventQueue.queueUrl,
-    om: ObjectMapper = objectMapper,
-  ) = domainEventQueueClient.sendMessage(
-      SendMessageRequest.builder()
-        .queueUrl(queueUrl)
-        .messageBody(
-          om.writeValueAsString(SQSMessage(om.writeValueAsString(message))),
-        ).build(),
+    fun sendDomainEvent(
+        message: DomainEventsMessage,
+        queueUrl: String = domainEventQueue.queueUrl,
+        om: ObjectMapper = objectMapper,
+    ) = domainEventQueueClient.sendMessage(
+        SendMessageRequest.builder()
+            .queueUrl(queueUrl)
+            .messageBody(
+                om.writeValueAsString(SQSMessage(om.writeValueAsString(message))),
+            ).build(),
     ).get()
 }
