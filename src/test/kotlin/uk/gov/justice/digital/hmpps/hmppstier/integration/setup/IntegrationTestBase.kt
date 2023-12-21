@@ -15,12 +15,15 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import software.amazon.awssdk.services.sqs.model.PurgeQueueRequest
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest
+import software.amazon.awssdk.services.sqs.model.SendMessageRequest
+import uk.gov.justice.digital.hmpps.hmppstier.controller.DomainEventsMessage
 import uk.gov.justice.digital.hmpps.hmppstier.controller.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension.Companion.assessmentApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.hmppsAuth.HmppsAuthApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
+import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
@@ -45,6 +48,9 @@ abstract class IntegrationTestBase {
 
     @Autowired
     protected lateinit var hmppsQueueService: HmppsQueueService
+
+    @SpyBean
+    lateinit var tierCalculationService: TierCalculationService
 
     @SpyBean
     lateinit var telemetryClient: TelemetryClient
@@ -193,4 +199,16 @@ abstract class IntegrationTestBase {
         val token = jwtHelper.createJwt()
         return { it.set(AUTHORIZATION, "Bearer $token") }
     }
+
+    fun sendDomainEvent(
+        message: DomainEventsMessage,
+        queueUrl: String = domainEventQueue.queueUrl,
+        om: ObjectMapper = objectMapper,
+    ) = domainEventQueueClient.sendMessage(
+        SendMessageRequest.builder()
+            .queueUrl(queueUrl)
+            .messageBody(
+                om.writeValueAsString(SQSMessage(om.writeValueAsString(message))),
+            ).build(),
+    ).get()
 }
