@@ -10,75 +10,78 @@ import java.time.LocalDateTime
 
 @Service
 class TierCalculationService(
-  private val clock: Clock,
-  private val assessmentApiService: AssessmentApiService,
-  private val tierToDeliusApiService: TierToDeliusApiService,
-  private val successUpdater: SuccessUpdater,
-  private val telemetryService: TelemetryService,
-  private val tierUpdater: TierUpdater,
+    private val clock: Clock,
+    private val assessmentApiService: AssessmentApiService,
+    private val tierToDeliusApiService: TierToDeliusApiService,
+    private val successUpdater: SuccessUpdater,
+    private val telemetryService: TelemetryService,
+    private val tierUpdater: TierUpdater,
 ) {
-  private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator()
-  private val changeLevelCalculator: ChangeLevelCalculator = ChangeLevelCalculator()
-  private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(assessmentApiService)
+    private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator()
+    private val changeLevelCalculator: ChangeLevelCalculator = ChangeLevelCalculator()
+    private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(assessmentApiService)
 
-  fun deleteCalculationsForCrn(crn: String, reason: String) = try {
-    tierUpdater.removeTierCalculationsFor(crn)
-    telemetryService.trackEvent(TelemetryEventType.TIER_CALCULATION_REMOVED, mapOf("crn" to crn, "reason" to reason))
-  } catch (e: Exception) {
-    log.error("Unable to remove tier calculations for $crn")
-    telemetryService.trackEvent(
-        TelemetryEventType.TIER_CALCULATION_REMOVAL_FAILED,
-        mapOf("crn" to crn, "reasonToDelete" to reason, "failureReason" to e.message),
-    )
-  }
+    fun deleteCalculationsForCrn(crn: String, reason: String) = try {
+        tierUpdater.removeTierCalculationsFor(crn)
+        telemetryService.trackEvent(
+            TelemetryEventType.TIER_CALCULATION_REMOVED,
+            mapOf("crn" to crn, "reason" to reason)
+        )
+    } catch (e: Exception) {
+        log.error("Unable to remove tier calculations for $crn")
+        telemetryService.trackEvent(
+            TelemetryEventType.TIER_CALCULATION_REMOVAL_FAILED,
+            mapOf("crn" to crn, "reasonToDelete" to reason, "failureReason" to e.message),
+        )
+    }
 
-  fun calculateTierForCrn(crn: String, recalculationSource: RecalculationSource): Unit = try {
-    val tierCalculation = calculateTier(crn)
-    val isUpdated = tierUpdater.updateTier(tierCalculation, crn)
-    successUpdater.update(crn, tierCalculation.uuid)
-    telemetryService.trackTierCalculated(tierCalculation, isUpdated, recalculationSource)
-  } catch (e: Exception) {
-    log.error("Unable to calculate tier for $crn", e)
-    telemetryService.trackEvent(
-      TelemetryEventType.TIER_CALCULATION_FAILED,
-      mapOf("crn" to crn, "exception" to e.message, "recalculationReason" to recalculationSource.name),
-    )
-  }
+    fun calculateTierForCrn(crn: String, recalculationSource: RecalculationSource): Unit = try {
+        val tierCalculation = calculateTier(crn)
+        val isUpdated = tierUpdater.updateTier(tierCalculation, crn)
+        successUpdater.update(crn, tierCalculation.uuid)
+        telemetryService.trackTierCalculated(tierCalculation, isUpdated, recalculationSource)
+    } catch (e: Exception) {
+        log.error("Unable to calculate tier for $crn", e)
+        telemetryService.trackEvent(
+            TelemetryEventType.TIER_CALCULATION_FAILED,
+            mapOf("crn" to crn, "exception" to e.message, "recalculationReason" to recalculationSource.name),
+        )
+    }
 
-  private fun calculateTier(crn: String): TierCalculationEntity {
-    val deliusInputs = tierToDeliusApiService.getTierToDelius(crn)
-    val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
+    private fun calculateTier(crn: String): TierCalculationEntity {
+        val deliusInputs = tierToDeliusApiService.getTierToDelius(crn)
+        val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
 
-    val additionalFactorsPoints = additionalFactorsForWomen.calculate(
-      offenderAssessment,
-      deliusInputs.isFemale,
-      deliusInputs.previousEnforcementActivity,
-    )
+        val additionalFactorsPoints = additionalFactorsForWomen.calculate(
+            offenderAssessment,
+            deliusInputs.isFemale,
+            deliusInputs.previousEnforcementActivity,
+        )
 
-    val protectLevel =
-      protectLevelCalculator.calculate(deliusInputs.rsrScore, additionalFactorsPoints, deliusInputs.registrations)
-    val changeLevel = changeLevelCalculator.calculate(
-      deliusInputs,
-      assessmentApiService.getAssessmentNeeds(offenderAssessment),
-      hasNoAssessment(offenderAssessment),
-    )
+        val protectLevel =
+            protectLevelCalculator.calculate(deliusInputs.rsrScore, additionalFactorsPoints, deliusInputs.registrations)
+        val changeLevel = changeLevelCalculator.calculate(
+            deliusInputs,
+            assessmentApiService.getAssessmentNeeds(offenderAssessment),
+            hasNoAssessment(offenderAssessment),
+        )
 
-    return TierCalculationEntity(
-      crn = crn,
-      created = LocalDateTime.now(clock),
-      data = TierCalculationResultEntity(
-        change = changeLevel,
-        protect = protectLevel,
-        calculationVersion = "2",
-      ),
-    )
-  }
+        return TierCalculationEntity(
+            crn = crn,
+            created = LocalDateTime.now(clock),
+            data = TierCalculationResultEntity(
+                change = changeLevel,
+                protect = protectLevel,
+                calculationVersion = "2",
+            ),
+        )
+    }
 
-  private fun hasNoAssessment(offenderAssessment: OffenderAssessment?): Boolean =
-    (offenderAssessment == null)
+    private fun hasNoAssessment(offenderAssessment: OffenderAssessment?): Boolean =
+        (offenderAssessment == null)
 
-  companion object {
-    private val log =
-      LoggerFactory.getLogger(this::class.java)
-  }
+    companion object {
+        private val log =
+            LoggerFactory.getLogger(this::class.java)
+    }
 }

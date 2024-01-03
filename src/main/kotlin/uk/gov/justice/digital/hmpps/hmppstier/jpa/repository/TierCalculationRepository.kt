@@ -8,9 +8,9 @@ import java.util.*
 @Repository
 interface TierCalculationRepository : JpaRepository<TierCalculationEntity, Long> {
 
-  fun findFirstByCrnOrderByCreatedDesc(crn: String): TierCalculationEntity?
+    fun findFirstByCrnOrderByCreatedDesc(crn: String): TierCalculationEntity?
 
-  fun findByCrnAndUuid(crn: String, calculationId: UUID): TierCalculationEntity?
+    fun findByCrnAndUuid(crn: String, calculationId: UUID): TierCalculationEntity?
 
-  fun deleteAllByCrn(crn: String)
+    fun deleteAllByCrn(crn: String)
 }
