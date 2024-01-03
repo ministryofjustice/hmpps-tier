@@ -16,7 +16,7 @@ class TierToDeliusApiService(private val tierToDeliusApiClient: TierToDeliusApiC
 
     private val mandateForChange: MandateForChange = MandateForChange()
 
-    suspend fun getTierToDelius(crn: String): DeliusInputs {
+    fun getTierToDelius(crn: String): DeliusInputs {
         val tierToDeliusResponse = tierToDeliusApiClient.getDeliusTier(crn)
 
         return DeliusInputs(

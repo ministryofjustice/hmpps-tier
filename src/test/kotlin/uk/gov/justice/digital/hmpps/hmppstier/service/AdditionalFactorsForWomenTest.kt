@@ -6,7 +6,6 @@ import io.mockk.coVerify
 import io.mockk.confirmVerified
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -35,7 +34,7 @@ class AdditionalFactorsForWomenTest {
     }
 
     @Test
-    fun `should not count assessment additional factors duplicates`() = runBlocking {
+    fun `should not count assessment additional factors duplicates`() {
         val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
         coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
@@ -58,7 +57,7 @@ class AdditionalFactorsForWomenTest {
     }
 
     @Test
-    fun `should not count assessment additional factors duplicates mixed answers`() = runBlocking {
+    fun `should not count assessment additional factors duplicates mixed answers`() {
         val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
         coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
@@ -77,7 +76,7 @@ class AdditionalFactorsForWomenTest {
     }
 
     @Test
-    fun `should add multiple additional factors`() = runBlocking {
+    fun `should add multiple additional factors`() {
         val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
         coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
@@ -96,7 +95,7 @@ class AdditionalFactorsForWomenTest {
     }
 
     @Test
-    fun `should not include additional factors if no valid assessment`(): Unit = runBlocking {
+    fun `should not include additional factors if no valid assessment`(): Unit {
         val assessment = null
 
         val result = additionalFactorsForWomen.calculate(
@@ -108,7 +107,7 @@ class AdditionalFactorsForWomenTest {
     }
 
     @Test
-    fun `should count both Temper and Impulsivity as max '1'`() = runBlocking {
+    fun `should count both Temper and Impulsivity as max '1'`() {
         val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
         coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
@@ -127,7 +126,7 @@ class AdditionalFactorsForWomenTest {
     }
 
     @Test
-    fun `should count Temper without Impulsivity as max '2'`() = runBlocking {
+    fun `should count Temper without Impulsivity as max '2'`() {
         val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
         coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
@@ -145,7 +144,7 @@ class AdditionalFactorsForWomenTest {
     }
 
     @Test
-    fun `should count Impulsivity without Temper as max '1'`() = runBlocking {
+    fun `should count Impulsivity without Temper as max '1'`() {
         val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
         coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
@@ -163,7 +162,7 @@ class AdditionalFactorsForWomenTest {
     }
 
     @Test
-    fun `should ignore negative Parenting`() = runBlocking {
+    fun `should ignore negative Parenting`() {
         val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
         coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
@@ -181,7 +180,7 @@ class AdditionalFactorsForWomenTest {
     }
 
     @Test
-    fun `should ignore negative Impulsivity`() = runBlocking {
+    fun `should ignore negative Impulsivity`() {
         val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
         coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
@@ -199,7 +198,7 @@ class AdditionalFactorsForWomenTest {
     }
 
     @Test
-    fun `should ignore negative Temper`() = runBlocking {
+    fun `should ignore negative Temper`() {
         val assessment = OffenderAssessment("12345", LocalDateTime.now(), null, "AnyStatus")
 
         coEvery { assessmentApiService.getAssessmentAnswers(assessment.assessmentId) } returns
@@ -217,7 +216,7 @@ class AdditionalFactorsForWomenTest {
     }
 
     @Test
-    fun `Should return Breach points if previousEnforcementActivity is true`(): Unit = runBlocking {
+    fun `Should return Breach points if previousEnforcementActivity is true`(): Unit {
         val result = additionalFactorsForWomen.calculate(
             offenderAssessment = null,
             offenderIsFemale = true,
@@ -227,7 +226,7 @@ class AdditionalFactorsForWomenTest {
     }
 
     @Test
-    fun `Should return no Breach points if previousEnforcementActivity is false`(): Unit = runBlocking {
+    fun `Should return no Breach points if previousEnforcementActivity is false`(): Unit {
         val result = additionalFactorsForWomen.calculate(
             offenderAssessment = null,
             offenderIsFemale = true,

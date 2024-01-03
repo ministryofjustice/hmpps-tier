@@ -35,7 +35,7 @@ class TierCalculationRepositoryTest(
     inner class GetLatestCalculationTests {
 
         @Test
-        fun `Should return latest calculation when only one`() {
+        fun `Should return latest calculation when only one`(): Unit {
             val created = LocalDateTime.now()
             val firstTierCalculation =
                 TierCalculationEntity(crn = crn, created = created, data = data, uuid = UUID.randomUUID())
@@ -50,13 +50,13 @@ class TierCalculationRepositoryTest(
         }
 
         @Test
-        fun `Should return latest calculation none`() {
+        fun `Should return latest calculation none`(): Unit {
             val calculation = repository.findFirstByCrnOrderByCreatedDesc(crn)
             assertThat(calculation).isNull()
         }
 
         @Test
-        fun `Should return latest calculation when multiple`() {
+        fun `Should return latest calculation when multiple`(): Unit {
             val created = LocalDateTime.now()
             val firstTierCalculation =
                 TierCalculationEntity(crn = crn, created = created, data = data, uuid = UUID.randomUUID())
@@ -106,7 +106,7 @@ class TierCalculationRepositoryTest(
         }
 
         @Test
-        fun `Should return calculation by Id when multiple`() {
+        fun `Should return calculation by Id when multiple`(): Unit {
             val calculationId = UUID.randomUUID()
             val created = LocalDateTime.now()
             val firstTierCalculation =

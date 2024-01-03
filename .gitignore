@@ -68,3 +68,6 @@ dist
 ecr.repo
 /dps-gradle-spring-boot-suppressions.xml
 .editorconfig
+
+# Mac specific
+.DS_Store

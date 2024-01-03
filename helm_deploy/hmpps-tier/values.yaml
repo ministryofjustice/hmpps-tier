@@ -28,10 +28,6 @@ generic-service:
       external-dns.alpha.kubernetes.io/aws-weight: "100"
       nginx.ingress.kubernetes.io/configuration-snippet: |
         server_tokens off;
-        location /crn/upload {
-          deny all;
-          return 401;
-        }
         location /queue-admin/retry-all-dlqs {
           deny all;
           return 401;

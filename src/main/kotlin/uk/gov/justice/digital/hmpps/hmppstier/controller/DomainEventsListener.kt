@@ -3,62 +3,60 @@ package uk.gov.justice.digital.hmpps.hmppstier.controller
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.awspring.cloud.sqs.annotation.SqsListener
-import kotlinx.coroutines.runBlocking
-import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.service.RecalculationSource
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 
 @Service
 class DomainEventsListener(
-    private val calculator: TierCalculationService,
-    private val objectMapper: ObjectMapper,
+  private val calculator: TierCalculationService,
+  private val objectMapper: ObjectMapper,
 ) {
 
-    @SqsListener("hmppsdomaineventsqueue", factory = "hmppsQueueContainerFactoryProxy")
-    fun listen(msg: String) = runBlocking {
-        getCrn(msg)?.also {
-            calculator.calculateTierForCrn(it, RecalculationSource.DomainEventRecalculation)
+  @SqsListener("hmppsdomaineventsqueue", factory = "hmppsQueueContainerFactoryProxy")
+  fun listen(msg: String) {
+    val (message, attributes) = objectMapper.readValue<SQSMessage>(msg)
+    val domainEventMessage = objectMapper.readValue<DomainEventsMessage>(message)
+    if (attributes.eventType == "risk-assessment.scores.determined" && domainEventMessage.eventType != "assessment.summary.produced") {
+      return
+    }
+    handleMessage(domainEventMessage)
+  }
+
+  private fun handleMessage(message: DomainEventsMessage) {
+    when (message.eventType) {
+      "probation-case.deleted.gdpr" -> message.crn?.also { calculator.deleteCalculationsForCrn(it, message.eventType) }
+
+      "probation-case.merge.completed" -> {
+        calculateTier(message.crn)
+        message.sourceCrn?.also {
+          calculator.deleteCalculationsForCrn(it, message.eventType)
         }
-    }
+      }
 
-    private fun getCrn(msg: String): String? {
-        val (message) = objectMapper.readValue<SQSMessage>(msg)
-        val domainEventMessage = objectMapper.readValue<DomainEventsMessage>(message)
-        return if (domainEventMessage.eventType in messageTypesOfInterest) {
-            val crn = domainEventMessage.personReference.identifiers.first { it.type == "CRN" }.value
-            log.info("Domain event received of type ${domainEventMessage.eventType} and CRN: $crn")
-            crn
-        } else null
+      else -> calculateTier(message.crn)
     }
+  }
 
-    companion object {
-        private val log = LoggerFactory.getLogger(this::class.java)
-
-        private val messageTypesOfInterest = listOf(
-            "assessment.summary.produced",
-            "enforcement.breach.raised",
-            "enforcement.breach.concluded",
-            "enforcement.recall.raised",
-            "enforcement.recall.concluded",
-            "probation-case.registration.added",
-            "probation-case.registration.updated",
-            "probation-case.registration.deleted",
-            "probation-case.registration.deregistered",
-        )
-    }
+  private fun calculateTier(crn: String?) = crn?.also {
+    calculator.calculateTierForCrn(it, RecalculationSource.DomainEventRecalculation)
+  }
 }
 
 data class DomainEventsMessage(
-    val eventType: String,
-    val personReference: PersonReference,
-)
+  val eventType: String,
+  val personReference: PersonReference,
+  val additionalInformation: Map<String, Any>? = mapOf(),
+) {
+  val crn = personReference.identifiers.firstOrNull { it.type == "CRN" }?.value
+  val sourceCrn = additionalInformation?.get("sourceCRN") as String?
+}
 
 data class PersonReference(
-    val identifiers: List<Identifiers>,
+  val identifiers: List<Identifiers>,
 )
 
 data class Identifiers(
-    val type: String,
-    val value: String,
+  val type: String,
+  val value: String,
 )
