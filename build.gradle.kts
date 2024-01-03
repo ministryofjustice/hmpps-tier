@@ -1,7 +1,7 @@
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.11.0"
-    kotlin("plugin.spring") version "1.9.21"
-    kotlin("plugin.jpa") version "1.9.21"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.12.0"
+    kotlin("plugin.spring") version "1.9.22"
+    kotlin("plugin.jpa") version "1.9.22"
     jacoco
 }
 
@@ -52,7 +52,7 @@ dependencies {
     testImplementation("org.mock-server:mockserver-netty:5.15.0")
 
     testImplementation("com.ninja-squad:springmockk:4.0.2")
-    testImplementation("org.assertj:assertj-core:3.24.2")
+    testImplementation("org.assertj:assertj-core:3.25.1")
     testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.12.3")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
