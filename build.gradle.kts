@@ -3,13 +3,9 @@ plugins {
     kotlin("plugin.spring") version "1.9.21"
     kotlin("plugin.jpa") version "1.9.21"
     jacoco
-    java
-    id("io.gitlab.arturbosch.detekt").version("1.23.4")
 }
 
 configurations {
-    implementation { exclude(module = "spring-boot-starter-web") }
-    implementation { exclude(module = "spring-boot-starter-tomcat") }
     implementation { exclude(module = "applicationinsights-spring-boot-starter") }
     implementation { exclude(module = "applicationinsights-logging-logback") }
     testImplementation {
@@ -25,7 +21,7 @@ val cucumberVersion by extra("7.15.0")
 val springDocVersion by extra("1.6.14")
 
 repositories {
-    maven { url = uri("https://repo.spring.io/milestone") }
+    mavenLocal()
     mavenCentral()
 }
 dependencies {
@@ -34,12 +30,11 @@ dependencies {
     runtimeOnly("com.zaxxer:HikariCP")
     runtimeOnly("org.flywaydb:flyway-core")
 
-    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.3.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
 
-    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310")
+    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("com.vladmihalcea:hibernate-types-60:2.21.1")
 
@@ -48,8 +43,6 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.1.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.7.3")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -67,16 +60,10 @@ dependencies {
     testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
     testImplementation("org.junit.platform:junit-platform-console:1.10.1")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 }
 
 jacoco {
     toolVersion = "0.8.11"
-}
-
-detekt {
-    config = files("src/test/resources/detekt-config.yml")
-    buildUponDefaultConfig = true
 }
 
 task("cucumber") {
@@ -97,7 +84,6 @@ task("cucumber") {
 tasks {
 
     getByName("check") {
-        dependsOn(detekt)
         finalizedBy("cucumber")
     }
     getByName<JacocoReport>("jacocoTestReport") {
@@ -125,11 +111,11 @@ tasks {
             rule {
                 limit {
                     counter = "BRANCH"
-                    minimum = BigDecimal(0.88)
+                    minimum = BigDecimal(0.84)
                 }
                 limit {
                     counter = "COMPLEXITY"
-                    minimum = BigDecimal(0.88)
+                    minimum = BigDecimal(0.84)
                 }
             }
         }

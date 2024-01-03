@@ -8,7 +8,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWo
 class AdditionalFactorsForWomen(
     private val assessmentApiService: AssessmentApiService,
 ) {
-    suspend fun calculate(
+    fun calculate(
         offenderAssessment: OffenderAssessment?,
         offenderIsFemale: Boolean,
         previousEnforcementActivity: Boolean,
@@ -24,7 +24,7 @@ class AdditionalFactorsForWomen(
             else -> 0
         }
 
-    private suspend fun getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment: OffenderAssessment?): Int =
+    private fun getAdditionalFactorsAssessmentComplexityPoints(offenderAssessment: OffenderAssessment?): Int =
         when (offenderAssessment) {
             null -> 0
             else -> {

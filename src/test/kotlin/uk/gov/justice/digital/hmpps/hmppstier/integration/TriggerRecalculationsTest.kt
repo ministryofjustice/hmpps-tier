@@ -4,6 +4,8 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.timeout
 import org.mockito.kotlin.verify
 import org.springframework.http.MediaType
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
@@ -32,13 +34,13 @@ class TriggerRecalculationsTest : IntegrationTestBase() {
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, assessmentId)
         AssessmentApiExtension.assessmentApi.getOutdatedAssessment(crn, assessmentId)
 
-        webTestClient.post()
-            .uri("/calculations")
-            .contentType(MediaType.APPLICATION_JSON)
-            .headers(setAuthorisation())
-            .bodyValue(listOf(crn))
-            .exchange()
-            .expectStatus().isOk
+        mockMvc.perform(
+            post("/calculations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    objectMapper.writeValueAsString(listOf(crn)),
+                ).headers(authHeaders()),
+        ).andExpect(status().isOk)
 
         verify(telemetryClient, timeout(2000)).trackEvent(
             "TierChanged",
@@ -77,12 +79,12 @@ class TriggerRecalculationsTest : IntegrationTestBase() {
             AssessmentApiExtension.assessmentApi.getOutdatedAssessment(crn, assessmentId = assessmentId)
         }
 
-        webTestClient.post()
-            .uri("/calculations")
-            .contentType(MediaType.APPLICATION_JSON)
-            .headers(setAuthorisation())
-            .exchange()
-            .expectStatus().isOk
+        mockMvc.perform(
+            post("/calculations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .headers(authHeaders()),
+        ).andExpect(status().isOk)
 
         crns.forEach {
             verify(telemetryClient, timeout(20000)).trackEvent(

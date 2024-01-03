@@ -16,7 +16,7 @@ class AssessmentApiService(
     private val clock: Clock,
 ) {
 
-    suspend fun getRecentAssessment(crn: String): OffenderAssessment? =
+    fun getRecentAssessment(crn: String): OffenderAssessment? =
         assessmentApiClient.getAssessmentSummaries(crn)
             .filter {
                 it.assessmentStatus in COMPLETE_STATUSES &&
@@ -32,13 +32,13 @@ class AssessmentApiService(
                 }
             }
 
-    suspend fun getAssessmentAnswers(assessmentId: String): Map<AdditionalFactorForWomen?, String?> =
+    fun getAssessmentAnswers(assessmentId: String): Map<AdditionalFactorForWomen?, String?> =
         assessmentApiClient.getAssessmentAnswers(assessmentId).associateBy(
             { AdditionalFactorForWomen.from(it.questionCode) },
             { it.answers.firstOrNull()?.refAnswerCode },
         ).filterKeys { it != null }
 
-    suspend fun getAssessmentNeeds(offenderAssessment: OffenderAssessment?): Map<Need, NeedSeverity> =
+    fun getAssessmentNeeds(offenderAssessment: OffenderAssessment?): Map<Need, NeedSeverity> =
         offenderAssessment?.let { assessment ->
             assessmentApiClient.getAssessmentNeeds(assessment.assessmentId)
                 .filter { it.need != null && it.severity != null }

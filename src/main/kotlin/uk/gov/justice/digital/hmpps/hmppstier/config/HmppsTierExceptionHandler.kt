@@ -20,7 +20,7 @@ class HmppsTierExceptionHandler {
     }
 
     @ExceptionHandler(EntityNotFoundException::class)
-    suspend fun handleEntityNotFoundException(e: EntityNotFoundException): ResponseEntity<ErrorResponse> {
+    fun handleEntityNotFoundException(e: EntityNotFoundException): ResponseEntity<ErrorResponse> {
         log.error("EntityNotFoundException: {}", e.message)
         return ResponseEntity
             .status(NOT_FOUND)
@@ -28,7 +28,7 @@ class HmppsTierExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageConversionException::class)
-    suspend fun handleHttpMessageConversionException(e: HttpMessageConversionException): ResponseEntity<ErrorResponse> {
+    fun handleHttpMessageConversionException(e: HttpMessageConversionException): ResponseEntity<ErrorResponse> {
         log.error("HttpMessageConversionException: {}", e.message)
         return ResponseEntity
             .status(BAD_REQUEST)
@@ -36,7 +36,7 @@ class HmppsTierExceptionHandler {
     }
 
     @ExceptionHandler(IllegalArgumentException::class)
-    suspend fun handleIllegalArgumentException(e: IllegalArgumentException): ResponseEntity<ErrorResponse> {
+    fun handleIllegalArgumentException(e: IllegalArgumentException): ResponseEntity<ErrorResponse> {
         log.error("IllegalArgumentException: {}", e.message)
         return ResponseEntity
             .status(BAD_REQUEST)
@@ -44,7 +44,7 @@ class HmppsTierExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException::class)
-    suspend fun handleMethodArgumentTypeMismatchException(e: MethodArgumentTypeMismatchException): ResponseEntity<ErrorResponse> {
+    fun handleMethodArgumentTypeMismatchException(e: MethodArgumentTypeMismatchException): ResponseEntity<ErrorResponse> {
         log.error("MethodArgumentTypeMismatchException: {}", e.message)
         return ResponseEntity
             .status(BAD_REQUEST)
@@ -52,7 +52,7 @@ class HmppsTierExceptionHandler {
     }
 
     @ExceptionHandler(Exception::class)
-    suspend fun handleException(e: Exception): ResponseEntity<ErrorResponse> {
+    fun handleException(e: Exception): ResponseEntity<ErrorResponse> {
         log.error("Exception", e)
         return ResponseEntity
             .status(BAD_REQUEST)

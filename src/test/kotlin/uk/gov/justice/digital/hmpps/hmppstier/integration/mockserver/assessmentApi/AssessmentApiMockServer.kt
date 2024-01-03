@@ -135,7 +135,8 @@ class AssessmentApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
 
     fun getNotFoundAssessment(crn: String) {
         val request = HttpRequest.request().withPath("/offenders/crn/$crn/assessments/summary")
-        assessmentApi.`when`(request, Times.exactly(1)).respond(HttpResponse.notFoundResponse())
+        assessmentApi.`when`(request, Times.exactly(1))
+            .respond(HttpResponse.notFoundResponse().withContentType(MediaType.APPLICATION_JSON))
     }
 
     private fun getStartOfYear(year: Int): LocalDateTime = LocalDateTime.now().withYear(year).with(firstDayOfYear())

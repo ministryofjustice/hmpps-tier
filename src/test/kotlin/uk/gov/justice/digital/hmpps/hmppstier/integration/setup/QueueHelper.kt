@@ -24,28 +24,10 @@ fun putRecallMessageOnDomainQueue(client: SqsAsyncClient, queueUrl: String, crn:
     client.sendMessage(SendMessageRequest.builder().queueUrl(queueUrl).messageBody(message).build()).get()
 }
 
-fun noMessagesCurrentlyOnQueue(client: SqsAsyncClient, queueUrl: String) {
-    await untilCallTo {
-        client.countMessagesOnQueue(queueUrl).get()
-    } matches { it == 0 }
-}
-
 fun oneMessageCurrentlyOnQueue(client: SqsAsyncClient, queueUrl: String) {
     await untilCallTo {
         client.countMessagesOnQueue(queueUrl).get()
     } matches { it == 1 }
-}
-
-fun oneMessageCurrentlyOnDeadletterQueue(client: SqsAsyncClient, queueUrl: String) {
-    await untilCallTo {
-        client.countMessagesOnQueue(queueUrl).get()
-    } matches { it == 1 }
-}
-
-fun noMessagesCurrentlyOnDeadletterQueue(client: SqsAsyncClient, queueUrl: String) {
-    await untilCallTo {
-        client.countMessagesOnQueue(queueUrl).get()
-    } matches { it == 0 }
 }
 
 private fun calculationMessage(crn: String): String {

@@ -27,7 +27,7 @@ class TierCalculationController(private val tierReader: TierReader) {
     )
     @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
     @GetMapping("crn/{crn}/tier")
-    suspend fun getLatestTierCalculation(@PathVariable(required = true) crn: String): TierDto = tierReader.getLatestTierByCrn(
+    fun getLatestTierCalculation(@PathVariable(required = true) crn: String): TierDto = tierReader.getLatestTierByCrn(
         crn
     ) ?: throw EntityNotFoundException("Tier Result Not Found for $crn")
 
@@ -40,10 +40,11 @@ class TierCalculationController(private val tierReader: TierReader) {
     )
     @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
     @GetMapping("crn/{crn}/tier/details")
-    suspend fun getLatestTierCalculationDetails(@PathVariable(required = true) crn: String) = tierReader.getLatestTierDetailsByCrn(
-        crn
-    )
-        ?: throw EntityNotFoundException("Tier Result Not Found for $crn")
+    fun getLatestTierCalculationDetails(@PathVariable(required = true) crn: String) =
+        tierReader.getLatestTierDetailsByCrn(
+            crn
+        )
+            ?: throw EntityNotFoundException("Tier Result Not Found for $crn")
 
     @Operation(summary = "Retrieve tiering score by crn and calculation ID")
     @ApiResponses(
@@ -54,7 +55,7 @@ class TierCalculationController(private val tierReader: TierReader) {
     )
     @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
     @GetMapping("crn/{crn}/tier/{calculationId}")
-    suspend fun getTierCalculationById(
+    fun getTierCalculationById(
         @PathVariable(required = true) crn: String,
         @PathVariable(required = true) calculationId: UUID
     ): TierDto = tierReader.getTierByCalculationId(crn, calculationId)

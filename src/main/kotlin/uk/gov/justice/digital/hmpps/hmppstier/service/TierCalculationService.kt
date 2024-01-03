@@ -17,18 +17,29 @@ class TierCalculationService(
     private val telemetryService: TelemetryService,
     private val tierUpdater: TierUpdater,
 ) {
-
     private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator()
     private val changeLevelCalculator: ChangeLevelCalculator = ChangeLevelCalculator()
     private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(assessmentApiService)
 
-    suspend fun calculateTierForCrn(crn: String, recalculationSource: RecalculationSource): Unit = try {
-        calculateTier(crn).let {
-            val isUpdated = tierUpdater.updateTier(it, crn)
-            successUpdater.update(crn, it.uuid)
-            telemetryService.trackTierCalculated(it, isUpdated, recalculationSource)
-            log.info("Tier calculated for $crn. Different from previous tier: $isUpdated from listener: ${recalculationSource.name}.")
-        }
+    fun deleteCalculationsForCrn(crn: String, reason: String) = try {
+        tierUpdater.removeTierCalculationsFor(crn)
+        telemetryService.trackEvent(
+            TelemetryEventType.TIER_CALCULATION_REMOVED,
+            mapOf("crn" to crn, "reason" to reason)
+        )
+    } catch (e: Exception) {
+        log.error("Unable to remove tier calculations for $crn")
+        telemetryService.trackEvent(
+            TelemetryEventType.TIER_CALCULATION_REMOVAL_FAILED,
+            mapOf("crn" to crn, "reasonToDelete" to reason, "failureReason" to e.message),
+        )
+    }
+
+    fun calculateTierForCrn(crn: String, recalculationSource: RecalculationSource): Unit = try {
+        val tierCalculation = calculateTier(crn)
+        val isUpdated = tierUpdater.updateTier(tierCalculation, crn)
+        successUpdater.update(crn, tierCalculation.uuid)
+        telemetryService.trackTierCalculated(tierCalculation, isUpdated, recalculationSource)
     } catch (e: Exception) {
         log.error("Unable to calculate tier for $crn", e)
         telemetryService.trackEvent(
@@ -37,7 +48,7 @@ class TierCalculationService(
         )
     }
 
-    private suspend fun calculateTier(crn: String): TierCalculationEntity {
+    private fun calculateTier(crn: String): TierCalculationEntity {
         val deliusInputs = tierToDeliusApiService.getTierToDelius(crn)
         val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
 

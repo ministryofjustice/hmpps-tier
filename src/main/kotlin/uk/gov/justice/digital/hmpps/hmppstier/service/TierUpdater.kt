@@ -10,6 +10,8 @@ class TierUpdater(
     private val tierCalculationRepository: TierCalculationRepository,
 ) {
 
+    fun removeTierCalculationsFor(crn: String) = tierCalculationRepository.deleteAllByCrn(crn)
+
     @Transactional
     fun updateTier(
         it: TierCalculationEntity,

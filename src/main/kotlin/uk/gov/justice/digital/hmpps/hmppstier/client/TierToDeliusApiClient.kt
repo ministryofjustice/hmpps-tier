@@ -1,30 +1,46 @@
 package uk.gov.justice.digital.hmpps.hmppstier.client
 
 import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.beans.factory.annotation.Qualifier
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.stereotype.Component
-import org.springframework.web.reactive.function.client.WebClient
-import org.springframework.web.reactive.function.client.awaitBody
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.RestClient
+import org.springframework.web.client.body
 import java.math.BigDecimal
 import java.time.LocalDate
 
 @Component
-class TierToDeliusApiClient(@Qualifier("tierToDeliusApiClientWebClientAppScope") private val webClient: WebClient) {
-    suspend fun getDeliusTier(crn: String): TierToDeliusResponse {
-        return webClient
+class TierToDeliusApiClient(
+    @Qualifier("tierToDeliusApiClientWebClientAppScope") private val restClient: RestClient,
+    private val objectMapper: ObjectMapper,
+) {
+    fun getDeliusTier(crn: String): TierToDeliusResponse {
+        return restClient
             .get()
             .uri("/tier-details/$crn")
-            .retrieve()
-            .awaitBody()
+            .exchange { req, res ->
+                when (res.statusCode) {
+                    HttpStatus.OK -> objectMapper.readValue<TierToDeliusResponse>(res.body)
+                    HttpStatus.NOT_FOUND -> throw HttpClientErrorException(
+                        res.statusCode,
+                        "Not Found from GET ${req.uri}"
+                    )
+
+                    else -> throw HttpClientErrorException(res.statusCode, res.statusText)
+                }
+            }
     }
 
-    suspend fun getActiveCrns(): List<String> = webClient
+    fun getActiveCrns(): List<String> = restClient
         .get()
         .uri("/probation-cases")
         .accept(APPLICATION_JSON)
         .retrieve()
-        .awaitBody()
+        .body<List<String>>()!!
 }
 
 /***

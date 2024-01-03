@@ -1,9 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import software.amazon.awssdk.services.sqs.model.MessageAttributeValue
@@ -11,7 +8,6 @@ import software.amazon.awssdk.services.sqs.model.SendMessageRequest
 import uk.gov.justice.digital.hmpps.hmppstier.client.TierToDeliusApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.controller.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.controller.TierCalculationMessage
-import uk.gov.justice.digital.hmpps.hmppstier.controller.TriggerCsv
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
 
@@ -26,24 +22,15 @@ class TriggerCalculationService(
         ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found")
 
     private val hmppsOffenderSqsClient = hmppsQueueService.findByQueueId("hmppsoffenderqueue")!!.sqsClient
-    suspend fun sendEvents(crns: List<TriggerCsv>) {
-        CoroutineScope(Dispatchers.IO).launch {
-            crns.forEach { csv ->
-                csv.crn?.let {
-                    publishToHMPPSOffenderQueue(it, RecalculationSource.LimitedRecalculation)
-                }
-            }
-        }
-    }
 
-    suspend fun recalculateAll() {
+    fun recalculateAll() {
         tierToDeliusApiClient.getActiveCrns()
             .forEach { crn ->
                 publishToHMPPSOffenderQueue(crn, RecalculationSource.FullRecalculation)
             }
     }
 
-    suspend fun recalculate(crns: List<String>) = crns.forEach { crn ->
+    fun recalculate(crns: List<String>) = crns.forEach { crn ->
         publishToHMPPSOffenderQueue(crn, RecalculationSource.LimitedRecalculation)
     }
 

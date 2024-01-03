@@ -5,13 +5,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import kotlinx.coroutines.runBlocking
-import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.Assertions
-import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.DisplayName
-import org.junit.jupiter.api.Nested
-import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.*
 import org.junit.jupiter.api.extension.ExtendWith
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusConviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusRegistration
@@ -45,7 +39,7 @@ class TierToDeliusApiServiceTest {
     }
 
     @Test
-    fun `Previous Enforcement Activity Should be true if API response is true`() = runBlocking {
+    fun `Previous Enforcement Activity Should be true if API response is true`() {
         val tierToDeliusResponse = TierToDeliusResponse(
             "Male",
             emptyList(),
@@ -61,7 +55,7 @@ class TierToDeliusApiServiceTest {
     }
 
     @Test
-    fun `ogrs score and rsr should be zero when null`() = runBlocking {
+    fun `ogrs score and rsr should be zero when null`() {
         val tierToDeliusResponse = TierToDeliusResponse(
             "Male",
             emptyList(),
@@ -83,7 +77,7 @@ class TierToDeliusApiServiceTest {
     inner class SimpleRoshTests {
 
         @Test
-        fun `should return null for No Rosh`() = runBlocking {
+        fun `should return null for No Rosh`() {
             val tierToDeliusResponse = TierToDeliusResponse(
                 "Male",
                 emptyList(),
@@ -100,7 +94,7 @@ class TierToDeliusApiServiceTest {
         }
 
         @Test
-        fun `Should return RoSH level if present`() = runBlocking {
+        fun `Should return RoSH level if present`() {
             val tierToDeliusResponse = TierToDeliusResponse(
                 "Male",
                 listOf(DeliusRegistration("RMRH", null, LocalDate.now())),
@@ -117,7 +111,7 @@ class TierToDeliusApiServiceTest {
         }
 
         @Test
-        fun `Should return RoSH level Case Insensitive`() = runBlocking {
+        fun `Should return RoSH level Case Insensitive`() {
             val tierToDeliusResponse = TierToDeliusResponse(
                 "Male",
                 listOf(DeliusRegistration("rmrh", null, LocalDate.now())),
@@ -134,7 +128,7 @@ class TierToDeliusApiServiceTest {
         }
 
         @Test
-        fun `Should return RoSH level if present as first value in list`() = runBlocking {
+        fun `Should return RoSH level if present as first value in list`() {
             val tierToDeliusResponse = TierToDeliusResponse(
                 "Male",
                 listOf(
@@ -155,7 +149,7 @@ class TierToDeliusApiServiceTest {
         }
 
         @Test
-        fun `Should return RoSH level if present as middle value in list`() = runBlocking {
+        fun `Should return RoSH level if present as middle value in list`() {
             val tierToDeliusResponse = TierToDeliusResponse(
                 "Male",
                 listOf(
@@ -181,7 +175,7 @@ class TierToDeliusApiServiceTest {
     inner class SimpleMappaTests {
 
         @Test
-        fun `should return null for No Mappa`() = runBlocking {
+        fun `should return null for No Mappa`() {
             val tierToDeliusResponse = TierToDeliusResponse(
                 "Male",
                 emptyList(),
@@ -198,7 +192,7 @@ class TierToDeliusApiServiceTest {
         }
 
         @Test
-        fun `Should return Mappa level if present`() = runBlocking {
+        fun `Should return Mappa level if present`() {
             val tierToDeliusResponse = TierToDeliusResponse(
                 "Male",
                 listOf(DeliusRegistration("MAPP", "M3", LocalDate.now())),
@@ -215,7 +209,7 @@ class TierToDeliusApiServiceTest {
         }
 
         @Test
-        fun `Should return Mappa level Case Insensitive`() = runBlocking {
+        fun `Should return Mappa level Case Insensitive`() {
             val tierToDeliusResponse = TierToDeliusResponse(
                 "Male",
                 listOf(DeliusRegistration("MAPP", "m3", LocalDate.now())),
@@ -232,7 +226,7 @@ class TierToDeliusApiServiceTest {
         }
 
         @Test
-        fun `Should return Mappa level if present as first value in list`() = runBlocking {
+        fun `Should return Mappa level if present as first value in list`() {
             val tierToDeliusResponse = TierToDeliusResponse(
                 "Male",
                 listOf(
@@ -254,7 +248,7 @@ class TierToDeliusApiServiceTest {
         }
 
         @Test
-        fun `Should return null for invalid Mappa code`() = runBlocking {
+        fun `Should return null for invalid Mappa code`() {
             val tierToDeliusResponse = TierToDeliusResponse(
                 "Male",
                 listOf(
@@ -280,7 +274,7 @@ class TierToDeliusApiServiceTest {
     inner class SimpleComplexityTests {
 
         @Test
-        fun `should count complexity factors `() = runBlocking {
+        fun `should count complexity factors `() {
             val tierToDeliusResponse = TierToDeliusResponse(
                 "Male",
                 getValidRegistrations(
@@ -301,7 +295,7 @@ class TierToDeliusApiServiceTest {
         }
 
         @Test
-        fun `should not count complexity factors duplicates`() = runBlocking {
+        fun `should not count complexity factors duplicates`() {
             val tierToDeliusResponse = TierToDeliusResponse(
                 "Male",
                 getValidRegistrations(
@@ -322,7 +316,7 @@ class TierToDeliusApiServiceTest {
         }
 
         @Test
-        fun `should not count complexity factors none`() = runBlocking {
+        fun `should not count complexity factors none`() {
             val tierToDeliusResponse = TierToDeliusResponse(
                 "Male",
                 emptyList(),
@@ -338,7 +332,7 @@ class TierToDeliusApiServiceTest {
         }
 
         @Test
-        fun `Should return Complexity Factor Case Insensitive`() = runBlocking {
+        fun `Should return Complexity Factor Case Insensitive`() {
             val tierToDeliusResponse = TierToDeliusResponse(
                 "Male",
                 listOf(
@@ -356,7 +350,7 @@ class TierToDeliusApiServiceTest {
         }
 
         @Test
-        fun `Should return Complexity Factor if present as first value in list`() = runBlocking {
+        fun `Should return Complexity Factor if present as first value in list`() {
             val tierToDeliusResponse = TierToDeliusResponse(
                 "Male",
                 listOf(
@@ -376,7 +370,7 @@ class TierToDeliusApiServiceTest {
         }
 
         @Test
-        fun `Should return empty List if no Complexity Factors present`() = runBlocking {
+        fun `Should return empty List if no Complexity Factors present`() {
             val tierToDeliusResponse = TierToDeliusResponse(
                 "Male",
                 listOf(

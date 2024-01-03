@@ -15,7 +15,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepo
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
-import java.util.UUID
+import java.util.*
 
 class ThenSteps : En {
     @Autowired

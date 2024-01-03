@@ -1,15 +1,10 @@
 package uk.gov.justice.digital.hmpps.hmppstier.jpa.entity
 
 import com.vladmihalcea.hibernate.type.json.JsonType
-import jakarta.persistence.Column
-import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Id
-import jakarta.persistence.Table
+import jakarta.persistence.*
 import org.hibernate.annotations.Type
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 @Entity
 @Table(name = "tier_calculation")

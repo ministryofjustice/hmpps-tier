@@ -16,7 +16,6 @@ class TriggerCalculationServiceTest {
         val hmppsQueueService = mockk<HmppsQueueService>()
         val objectMapper = ObjectMapper()
         val tierToDeliusApiClient = mockk<TierToDeliusApiClient>()
-        val tierCalculationService = mockk<TierCalculationService>()
 
         every { hmppsQueueService.findByQueueId("hmppsoffenderqueue") } returns null
 
