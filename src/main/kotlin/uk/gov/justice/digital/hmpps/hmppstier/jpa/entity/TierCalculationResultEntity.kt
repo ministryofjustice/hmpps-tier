@@ -7,11 +7,11 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.*
 import java.io.Serializable
 
 data class TierCalculationResultEntity(
-  val protect: TierLevel<ProtectLevel>,
-  val change: TierLevel<ChangeLevel>,
-  val calculationVersion: String,
-  val deliusInputs: DeliusInputs? = null,
-  val assessment: OffenderAssessment? = null,
-  val additionalFactorsForWomen: Map<AdditionalFactorForWomen, String?>? = null,
-  val needs: Map<Need, NeedSeverity>? = null,
+    val protect: TierLevel<ProtectLevel>,
+    val change: TierLevel<ChangeLevel>,
+    val calculationVersion: String,
+    val deliusInputs: DeliusInputs? = null,
+    val assessment: OffenderAssessment? = null,
+    val additionalFactorsForWomen: Map<AdditionalFactorForWomen, String?>? = null,
+    val needs: Map<Need, NeedSeverity>? = null,
 ) : Serializable
