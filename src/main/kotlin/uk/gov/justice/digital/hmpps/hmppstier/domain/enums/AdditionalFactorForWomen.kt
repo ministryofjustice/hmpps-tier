@@ -8,9 +8,7 @@ enum class AdditionalFactorForWomen(val section: String, val answerCode: String)
     ;
 
     companion object {
-        fun from(value: String?): AdditionalFactorForWomen? {
-            return values()
-                .firstOrNull { code -> code.answerCode.equals(value, true) }
-        }
+        fun from(value: String?): AdditionalFactorForWomen? =
+            entries.firstOrNull { code -> code.answerCode.equals(value, true) }
     }
 }

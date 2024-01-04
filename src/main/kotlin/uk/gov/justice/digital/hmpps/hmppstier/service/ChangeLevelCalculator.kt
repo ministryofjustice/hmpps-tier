@@ -2,20 +2,13 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusInputs
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.IOM
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.NEEDS
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.NO_MANDATE_FOR_CHANGE
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.NO_VALID_ASSESSMENT
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.OGRS
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ONE
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.THREE
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.TWO
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.ZERO
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 
-class ChangeLevelCalculator {
+object ChangeLevelCalculator {
 
     fun calculate(
         deliusInputs: DeliusInputs,
@@ -57,8 +50,6 @@ class ChangeLevelCalculator {
             else -> 0
         }
 
-    companion object {
-        private val TIER_NO_MANDATE = TierLevel(ZERO, 0, mapOf(NO_MANDATE_FOR_CHANGE to 0))
-        private val TIER_NO_ASSESSMENT = TierLevel(TWO, 0, mapOf(NO_VALID_ASSESSMENT to 0))
-    }
+    private val TIER_NO_MANDATE = TierLevel(ZERO, 0, mapOf(NO_MANDATE_FOR_CHANGE to 0))
+    private val TIER_NO_ASSESSMENT = TierLevel(TWO, 0, mapOf(NO_VALID_ASSESSMENT to 0))
 }

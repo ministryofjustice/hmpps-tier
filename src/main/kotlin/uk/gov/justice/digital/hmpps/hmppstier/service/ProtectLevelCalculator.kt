@@ -2,32 +2,18 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.ADDITIONAL_FACTORS_FOR_WOMEN
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.COMPLEXITY
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.MAPPA
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.ROSH
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.RSR
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M1
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M2
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M3
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel.A
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel.B
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel.C
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel.D
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.HIGH
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.MEDIUM
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.VERY_HIGH
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_B_RSR_LOWER
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_B_RSR_UPPER
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_RSR_LOWER
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.TIER_C_RSR_UPPER
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.*
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.*
 import java.math.BigDecimal
 
-class ProtectLevelCalculator {
+object ProtectLevelCalculator {
 
     fun calculate(
         rsr: BigDecimal,
@@ -78,7 +64,5 @@ class ProtectLevelCalculator {
     private fun getComplexityPoints(complexityFactors: Collection<ComplexityFactor>): Int =
         complexityFactors.count().times(2)
 
-    companion object {
-        private const val LEVEL_A_LOWER_THRESHOLD = 150
-    }
+    private const val LEVEL_A_LOWER_THRESHOLD = 150
 }

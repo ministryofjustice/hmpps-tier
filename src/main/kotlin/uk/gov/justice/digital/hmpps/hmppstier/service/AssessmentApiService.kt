@@ -32,11 +32,13 @@ class AssessmentApiService(
                 }
             }
 
-    fun getAssessmentAnswers(assessmentId: String): Map<AdditionalFactorForWomen?, String?> =
-        assessmentApiClient.getAssessmentAnswers(assessmentId).associateBy(
-            { AdditionalFactorForWomen.from(it.questionCode) },
-            { it.answers.firstOrNull()?.refAnswerCode },
-        ).filterKeys { it != null }
+    fun getAssessmentAnswers(assessmentId: String): Map<AdditionalFactorForWomen, String?> =
+        assessmentApiClient.getAssessmentAnswers(assessmentId)
+            .mapNotNull { question ->
+                AdditionalFactorForWomen.from(question.questionCode)?.let {
+                    it to question.answers.firstOrNull()?.refAnswerCode
+                }
+            }.toMap()
 
     fun getAssessmentNeeds(offenderAssessment: OffenderAssessment?): Map<Need, NeedSeverity> =
         offenderAssessment?.let { assessment ->

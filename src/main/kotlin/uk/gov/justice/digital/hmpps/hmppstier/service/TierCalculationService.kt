@@ -17,15 +17,11 @@ class TierCalculationService(
     private val telemetryService: TelemetryService,
     private val tierUpdater: TierUpdater,
 ) {
-    private val protectLevelCalculator: ProtectLevelCalculator = ProtectLevelCalculator()
-    private val changeLevelCalculator: ChangeLevelCalculator = ChangeLevelCalculator()
-    private val additionalFactorsForWomen: AdditionalFactorsForWomen = AdditionalFactorsForWomen(assessmentApiService)
-
     fun deleteCalculationsForCrn(crn: String, reason: String) = try {
         tierUpdater.removeTierCalculationsFor(crn)
         telemetryService.trackEvent(
             TelemetryEventType.TIER_CALCULATION_REMOVED,
-            mapOf("crn" to crn, "reason" to reason)
+            mapOf("crn" to crn, "reason" to reason),
         )
     } catch (e: Exception) {
         log.error("Unable to remove tier calculations for $crn")
@@ -51,18 +47,24 @@ class TierCalculationService(
     private fun calculateTier(crn: String): TierCalculationEntity {
         val deliusInputs = tierToDeliusApiService.getTierToDelius(crn)
         val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
+        val additionalFactorForWomen = offenderAssessment?.let {
+            if (deliusInputs.isFemale) assessmentApiService.getAssessmentAnswers(it.assessmentId)
+            else null
+        }
+        val needs = assessmentApiService.getAssessmentNeeds(offenderAssessment)
 
-        val additionalFactorsPoints = additionalFactorsForWomen.calculate(
-            offenderAssessment,
+        val additionalFactorsPoints = AdditionalFactorsForWomen.calculate(
+            additionalFactorForWomen,
             deliusInputs.isFemale,
             deliusInputs.previousEnforcementActivity,
         )
 
-        val protectLevel =
-            protectLevelCalculator.calculate(deliusInputs.rsrScore, additionalFactorsPoints, deliusInputs.registrations)
-        val changeLevel = changeLevelCalculator.calculate(
+        val protectLevel = ProtectLevelCalculator.calculate(
+            deliusInputs.rsrScore, additionalFactorsPoints, deliusInputs.registrations,
+        )
+        val changeLevel = ChangeLevelCalculator.calculate(
             deliusInputs,
-            assessmentApiService.getAssessmentNeeds(offenderAssessment),
+            needs,
             hasNoAssessment(offenderAssessment),
         )
 
@@ -73,6 +75,10 @@ class TierCalculationService(
                 change = changeLevel,
                 protect = protectLevel,
                 calculationVersion = "2",
+                deliusInputs = deliusInputs,
+                assessment = offenderAssessment,
+                additionalFactorsForWomen = additionalFactorForWomen,
+                needs = needs,
             ),
         )
     }
