@@ -12,32 +12,32 @@ import java.util.*
 
 @Service
 class TierReader(
-  private val tierCalculationRepository: TierCalculationRepository,
-  private val tierSummaryRepository: TierSummaryRepository,
+    private val tierCalculationRepository: TierCalculationRepository,
+    private val tierSummaryRepository: TierSummaryRepository,
 ) {
-  fun getLatestTierByCrn(crn: String): TierDto? =
-    tierSummaryRepository.findByIdOrNull(crn)?.let {
-      log.info("Found latest tier calculation for $crn")
-      TierDto.from(it)
+    fun getLatestTierByCrn(crn: String): TierDto? =
+        tierSummaryRepository.findByIdOrNull(crn)?.let {
+            log.info("Found latest tier calculation for $crn")
+            TierDto.from(it)
+        }
+
+    fun getLatestTierDetailsByCrn(crn: String): TierDetailsDto? =
+        getLatestTierCalculation(crn)?.let {
+            log.info("Found latest tier calculation for $crn")
+            TierDetailsDto.from(it)
+        }
+
+    fun getTierByCalculationId(crn: String, calculationId: UUID): TierDto? =
+        tierCalculationRepository.findByCrnAndUuid(crn, calculationId)?.let {
+            log.info("Found tier for $crn and $calculationId")
+            TierDto.from(it)
+        }
+
+    private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
+        tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
+
+    companion object {
+        private val log =
+            LoggerFactory.getLogger(this::class.java)
     }
-
-  fun getLatestTierDetailsByCrn(crn: String): TierDetailsDto? =
-    getLatestTierCalculation(crn)?.let {
-      log.info("Found latest tier calculation for $crn")
-      TierDetailsDto.from(it)
-    }
-
-  fun getTierByCalculationId(crn: String, calculationId: UUID): TierDto? =
-    tierCalculationRepository.findByCrnAndUuid(crn, calculationId)?.let {
-      log.info("Found tier for $crn and $calculationId")
-      TierDto.from(it)
-    }
-
-  private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
-    tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
-
-  companion object {
-    private val log =
-      LoggerFactory.getLogger(this::class.java)
-  }
 }

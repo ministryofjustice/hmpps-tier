@@ -12,20 +12,20 @@ import java.util.UUID
 @Table(name = "tier_summary")
 class TierSummary(
 
-  @Id
-  val crn: String,
+    @Id
+    val crn: String,
 
-  var uuid: UUID,
-  @Column(name = "protect_level")
-  var protectLevel: String,
-  @Column(name = "change_level")
-  var changeLevel: Int,
+    var uuid: UUID,
+    @Column(name = "protect_level")
+    var protectLevel: String,
+    @Column(name = "change_level")
+    var changeLevel: Int,
 
-  @Version
-  val version: Long = 0,
+    @Version
+    val version: Long = 0,
 
-  @LastModifiedDate
-  val lastModified: LocalDateTime = LocalDateTime.now()
+    @LastModifiedDate
+    val lastModified: LocalDateTime = LocalDateTime.now()
 )
 
 interface TierSummaryRepository : JpaRepository<TierSummary, String>
