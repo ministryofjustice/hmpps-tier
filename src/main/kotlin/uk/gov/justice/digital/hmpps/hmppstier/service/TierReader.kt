@@ -1,19 +1,22 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.slf4j.LoggerFactory
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDetailsDto
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierSummaryRepository
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
-import java.util.UUID
+import java.util.*
 
 @Service
 class TierReader(
     private val tierCalculationRepository: TierCalculationRepository,
+    private val tierSummaryRepository: TierSummaryRepository,
 ) {
     fun getLatestTierByCrn(crn: String): TierDto? =
-        getLatestTierCalculation(crn)?.let {
+        tierSummaryRepository.findByIdOrNull(crn)?.let {
             log.info("Found latest tier calculation for $crn")
             TierDto.from(it)
         }

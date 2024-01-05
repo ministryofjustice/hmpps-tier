@@ -1,6 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.jpa.entity
 
-import com.vladmihalcea.hibernate.type.json.JsonType
+import io.hypersistence.utils.hibernate.type.json.JsonType
 import jakarta.persistence.*
 import org.hibernate.annotations.Type
 import java.time.LocalDateTime
@@ -27,4 +27,7 @@ data class TierCalculationEntity(
     @Type(JsonType::class)
     @Column(columnDefinition = "jsonb")
     val data: TierCalculationResultEntity,
-)
+) {
+    fun protectLevel() = data.protect.tier.value
+    fun changeLevel() = data.change.tier.value
+}

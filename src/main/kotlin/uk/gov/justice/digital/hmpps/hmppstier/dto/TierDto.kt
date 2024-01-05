@@ -4,8 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierSummary
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 data class TierDto @JsonCreator constructor(
 
@@ -26,9 +27,17 @@ data class TierDto @JsonCreator constructor(
     companion object {
         fun from(calculation: TierCalculationEntity): TierDto {
             return TierDto(
-                calculation.data.protect.tier.value.plus(calculation.data.change.tier.value),
+                "${calculation.protectLevel()}${calculation.changeLevel()}",
                 calculation.uuid,
                 calculation.created,
+            )
+        }
+
+        fun from(summary: TierSummary): TierDto {
+            return TierDto(
+                "${summary.protectLevel}${summary.changeLevel}",
+                summary.uuid,
+                summary.lastModified,
             )
         }
     }
