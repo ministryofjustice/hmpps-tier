@@ -14,7 +14,10 @@ class TierUpdater(
     private val tierSummaryRepository: TierSummaryRepository,
 ) {
 
-    fun removeTierCalculationsFor(crn: String) = tierCalculationRepository.deleteAllByCrn(crn)
+    fun removeTierCalculationsFor(crn: String) {
+        tierCalculationRepository.deleteAllByCrn(crn)
+        tierSummaryRepository.deleteById(crn)
+    }
 
     @Transactional
     fun updateTier(
