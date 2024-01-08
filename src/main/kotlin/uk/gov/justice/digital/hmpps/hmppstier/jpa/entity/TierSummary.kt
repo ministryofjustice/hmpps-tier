@@ -32,11 +32,11 @@ class TierSummary(
 interface TierSummaryRepository : JpaRepository<TierSummary, String> {
     @Query(
         """
-    select ts.protectLevel, ts.changeLevel, count(1) 
-    from TierSummary ts
-    group by ts.protectLevel, ts.changeLevel
-    order by ts.protectLevel, ts.changeLevel
-  """
+        select ts.protectLevel as protectLevel, ts.changeLevel as changeLevel, count(ts.crn) as count
+        from TierSummary ts
+        group by ts.protectLevel, ts.changeLevel
+        order by ts.protectLevel, ts.changeLevel
+        """
     )
     fun getTierCounts(): List<TierCounts>
 }
