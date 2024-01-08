@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCounts
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierReader
 import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundException
 import java.util.*
@@ -17,6 +18,11 @@ import java.util.*
 @RestController
 @RequestMapping(produces = [APPLICATION_JSON_VALUE])
 class TierCalculationController(private val tierReader: TierReader) {
+
+    @Operation(summary = "Retrieve number of cases for each tier")
+    @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
+    @GetMapping("tier-counts")
+    fun getTierCounts(): List<TierCounts> = tierReader.getTierCounts()
 
     @Operation(summary = "Retrieve tiering score by crn")
     @ApiResponses(

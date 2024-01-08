@@ -15,6 +15,9 @@ class TierReader(
     private val tierCalculationRepository: TierCalculationRepository,
     private val tierSummaryRepository: TierSummaryRepository,
 ) {
+
+    fun getTierCounts() = tierSummaryRepository.getTierCounts()
+
     fun getLatestTierByCrn(crn: String): TierDto? =
         tierSummaryRepository.findByIdOrNull(crn)?.let {
             log.info("Found latest tier calculation for $crn")
