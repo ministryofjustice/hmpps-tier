@@ -104,7 +104,7 @@ class SetupData(
 
     private fun assessmentsApi() {
         if (hasValidAssessment) {
-            arnsApi.getAssessment(crn, AssessmentSummary(assessmentId, assessmentDate, "LAYER3","COMPLETE"))
+            arnsApi.getAssessment(crn, AssessmentSummary(assessmentId, assessmentDate, "LAYER3", "COMPLETE"))
 
             if (gender == "Female") {
                 assessmentApi.getAnswers(assessmentId, assessmentAnswers.values)

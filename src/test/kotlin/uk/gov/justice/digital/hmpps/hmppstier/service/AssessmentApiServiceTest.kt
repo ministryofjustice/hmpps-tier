@@ -318,9 +318,11 @@ internal class AssessmentApiServiceTest {
         @Test
         fun `Should return if inside Threshold`() {
             val crn = "T123456"
-            val timeline = Timeline(listOf(
-                AssessmentSummary(1234, LocalDateTime.now(clock).minusWeeks(55), "LAYER3", "COMPLETE")
-            ))
+            val timeline = Timeline(
+                listOf(
+                    AssessmentSummary(1234, LocalDateTime.now(clock).minusWeeks(55), "LAYER3", "COMPLETE")
+                )
+            )
 
             coEvery { arnsApiClient.getTimeline(crn) } returns timeline
             val returnValue = assessmentService.getRecentAssessment(crn)
@@ -333,9 +335,11 @@ internal class AssessmentApiServiceTest {
         @Test
         fun `Should return none if outside Threshold`() {
             val crn = "T123456"
-            val timeline = Timeline(listOf(
-                AssessmentSummary(1234, LocalDateTime.now(clock).minusWeeks(55).minusDays(2), "LAYER3", "COMPLETE")
-            ))
+            val timeline = Timeline(
+                listOf(
+                    AssessmentSummary(1234, LocalDateTime.now(clock).minusWeeks(55).minusDays(2), "LAYER3", "COMPLETE")
+                )
+            )
             coEvery { arnsApiClient.getTimeline(crn) } returns timeline
             val returnValue = assessmentService.getRecentAssessment(crn)
 
@@ -347,9 +351,11 @@ internal class AssessmentApiServiceTest {
         @Test
         fun `Should return none if not complete date`() {
             val crn = "T123456"
-            val timeline = Timeline(listOf(
-                AssessmentSummary(1234, null, "LAYER3", "IN_PROGRESS")
-            ))
+            val timeline = Timeline(
+                listOf(
+                    AssessmentSummary(1234, null, "LAYER3", "IN_PROGRESS")
+                )
+            )
 
             coEvery { arnsApiClient.getTimeline(crn) } returns timeline
             val returnValue = assessmentService.getRecentAssessment(crn)
