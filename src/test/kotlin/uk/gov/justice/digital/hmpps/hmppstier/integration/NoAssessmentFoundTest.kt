@@ -1,7 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension.Companion.assessmentApi
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
@@ -22,7 +22,7 @@ class NoAssessmentFoundTest : IntegrationTestBase() {
                 ),
             ),
         )
-        assessmentApi.getNotFoundAssessment(crn)
+        arnsApi.getNotFoundAssessment(crn)
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 8234567890)
         calculateTierFor(crn)
         expectTierChangedById("A2")

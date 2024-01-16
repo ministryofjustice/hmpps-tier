@@ -1,12 +1,12 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.bdd
 
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.IMPULSIVITY
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.TEMPER_CONTROL
+import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentSummary
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.*
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension.Companion.assessmentApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Answer
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Assessment
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Need
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
@@ -23,7 +23,7 @@ class SetupData(
     private var hasValidAssessment: Boolean = false
     private var currentTier: String = "UD0"
     private var gender: String = "Male"
-    private var needs: MutableList<Need> = mutableListOf()
+    private var needs: MutableList<Pair<Need, NeedSeverity>> = mutableListOf()
     private var ogrs: String = "0"
     private var registrations: MutableList<Registration> = mutableListOf()
     private var convictions: MutableList<Conviction> = mutableListOf()
@@ -64,9 +64,9 @@ class SetupData(
         this.ogrs = ogrs
     }
 
-    fun setNeeds(vararg needs: Need) {
+    fun setNeeds(vararg needs: Pair<Need, NeedSeverity>) {
         setValidAssessment() // There needs to be a valid assessment to access needs code path
-        this.needs.addAll(needs)
+        this.needs.addAll(needs.toList())
     }
 
     fun setCurrentTier(currentTier: String) {
@@ -104,14 +104,14 @@ class SetupData(
 
     private fun assessmentsApi() {
         if (hasValidAssessment) {
-            assessmentApi.getAssessment(crn, Assessment(assessmentDate, assessmentId, "COMPLETE"))
+            arnsApi.getAssessment(crn, AssessmentSummary(assessmentId, assessmentDate, "LAYER3","COMPLETE"))
 
             if (gender == "Female") {
                 assessmentApi.getAnswers(assessmentId, assessmentAnswers.values)
             }
             when {
-                needs.any() -> assessmentApi.getNeeds(assessmentId, needs)
-                else -> assessmentApi.getNoSeverityNeeds(assessmentId)
+                needs.any() -> arnsApi.getNeeds(crn, needs)
+                else -> arnsApi.getNoSeverityNeeds(crn)
             }
         }
     }

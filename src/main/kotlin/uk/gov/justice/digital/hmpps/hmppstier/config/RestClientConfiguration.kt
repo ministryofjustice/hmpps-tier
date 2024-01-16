@@ -13,6 +13,7 @@ import java.time.Duration
 
 @Configuration
 class RestClientConfiguration(
+    @Value("\${arns.endpoint.url}") private val arnsApiRootUri: String,
     @Value("\${assessment.endpoint.url}") private val assessmentApiRootUri: String,
     @Value("\${tier-to-delius.endpoint.url}") private val tierToDeliusApiRootUri: String,
 ) {
@@ -33,7 +34,15 @@ class RestClientConfiguration(
     }
 
     @Bean
-    fun assessmentWebClientAppScope(
+    fun arnsRestClient(
+        authorizedClientManager: OAuth2AuthorizedClientManager,
+        builder: RestClient.Builder,
+    ): RestClient {
+        return getOAuthWebClient(authorizedClientManager, builder, arnsApiRootUri, "assessment-api")
+    }
+
+    @Bean
+    fun assessmentRestClient(
         authorizedClientManager: OAuth2AuthorizedClientManager,
         builder: RestClient.Builder,
     ): RestClient {
@@ -41,7 +50,7 @@ class RestClientConfiguration(
     }
 
     @Bean
-    fun tierToDeliusApiClientWebClientAppScope(
+    fun tierToDeliusRestClient(
         authorizedClientManager: OAuth2AuthorizedClientManager,
         builder: RestClient.Builder,
     ): RestClient {
@@ -54,7 +63,7 @@ class RestClientConfiguration(
         rootUri: String,
         registrationId: String,
     ) = builder
-        .requestFactory(withTimeouts(Duration.ofSeconds(1), Duration.ofSeconds(5)))
+        .requestFactory(withTimeouts(Duration.ofSeconds(1), Duration.ofSeconds(10)))
         .requestInterceptor(HmppsAuthInterceptor(clientManager, registrationId))
         .baseUrl(rootUri)
         .defaultHeaders {

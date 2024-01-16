@@ -21,6 +21,10 @@ management.endpoint:
   health.cache.time-to-live: 0
   info.cache.time-to-live: 0
 
+arns:
+  endpoint:
+    url: http://localhost:8094
+
 assessment:
   endpoint:
     url: http://localhost:8092

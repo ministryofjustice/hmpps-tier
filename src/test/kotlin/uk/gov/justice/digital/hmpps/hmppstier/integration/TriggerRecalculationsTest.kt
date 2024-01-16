@@ -6,6 +6,8 @@ import org.mockito.kotlin.verify
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
@@ -32,7 +34,7 @@ class TriggerRecalculationsTest : IntegrationTestBase() {
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = assessmentId)
 
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, assessmentId)
-        AssessmentApiExtension.assessmentApi.getOutdatedAssessment(crn, assessmentId)
+        arnsApi.getOutdatedAssessment(crn, assessmentId)
 
         mockMvc.perform(
             post("/calculations")
@@ -76,7 +78,7 @@ class TriggerRecalculationsTest : IntegrationTestBase() {
             restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = assessmentId)
 
             restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, assessmentId = assessmentId)
-            AssessmentApiExtension.assessmentApi.getOutdatedAssessment(crn, assessmentId = assessmentId)
+            arnsApi.getOutdatedAssessment(crn, assessmentId = assessmentId)
         }
 
         mockMvc.perform(

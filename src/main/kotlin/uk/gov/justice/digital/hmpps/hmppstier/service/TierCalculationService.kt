@@ -47,11 +47,12 @@ class TierCalculationService(
     private fun calculateTier(crn: String): TierCalculationEntity {
         val deliusInputs = tierToDeliusApiService.getTierToDelius(crn)
         val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
+
         val additionalFactorForWomen = offenderAssessment?.let {
             if (deliusInputs.isFemale) assessmentApiService.getAssessmentAnswers(it.assessmentId)
             else null
         }
-        val needs = assessmentApiService.getAssessmentNeeds(offenderAssessment)
+        val needs = offenderAssessment?.let { assessmentApiService.getAssessmentNeeds(crn) } ?: mapOf()
 
         val additionalFactorsPoints = AdditionalFactorsForWomen.calculate(
             additionalFactorForWomen,
