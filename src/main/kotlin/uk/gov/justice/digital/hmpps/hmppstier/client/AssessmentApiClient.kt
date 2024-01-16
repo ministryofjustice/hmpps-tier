@@ -11,44 +11,16 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestClient
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import java.time.LocalDateTime
 
 @Component
 class AssessmentApiClient(
-    @Qualifier("assessmentWebClientAppScope") private val restClient: RestClient,
+    @Qualifier("assessmentRestClient") private val restClient: RestClient,
     private val objectMapper: ObjectMapper,
 ) {
 
     fun getAssessmentAnswers(assessmentId: String): List<Question> {
         return getAssessmentAnswersCall(assessmentId)
-    }
-
-    fun getAssessmentNeeds(assessmentId: String): List<AssessmentNeed> {
-        return restClient
-            .get()
-            .uri("/assessments/oasysSetId/$assessmentId/needs")
-            .exchange { _, res ->
-                when (res.statusCode) {
-                    OK -> objectMapper.readValue(res.body)
-                    NOT_FOUND -> listOf()
-                    else -> throw HttpClientErrorException(res.statusCode, res.statusText)
-                }
-            }
-    }
-
-    fun getAssessmentSummaries(crn: String): List<OffenderAssessment> {
-        return restClient
-            .get()
-            .uri("/offenders/crn/$crn/assessments/summary?assessmentType=LAYER_3")
-            .exchange { _, res ->
-                when (res.statusCode) {
-                    OK -> objectMapper.readValue(res.body)
-                    NOT_FOUND -> listOf()
-                    else -> throw HttpClientErrorException(res.statusCode, res.statusText)
-                }
-            }
     }
 
     private fun getAssessmentAnswersCall(assessmentId: String): List<Question> {
@@ -81,14 +53,6 @@ data class OffenderAssessment @JsonCreator constructor(
 
     @JsonProperty("assessmentStatus")
     val assessmentStatus: String?,
-)
-
-data class AssessmentNeed @JsonCreator constructor(
-    @JsonProperty("section")
-    val need: Need?,
-
-    @JsonProperty("severity")
-    val severity: NeedSeverity?,
 )
 
 data class Question @JsonCreator constructor(

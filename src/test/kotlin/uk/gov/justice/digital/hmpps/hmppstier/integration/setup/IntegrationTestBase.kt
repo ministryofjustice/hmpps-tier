@@ -22,8 +22,9 @@ import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest
 import uk.gov.justice.digital.hmpps.hmppstier.controller.DomainEventsMessage
 import uk.gov.justice.digital.hmpps.hmppstier.controller.SQSMessage
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension.Companion.assessmentApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.hmppsAuth.HmppsAuthApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
@@ -36,6 +37,7 @@ import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
 import java.util.*
 
 @ExtendWith(
+    ArnsApiExtension::class,
     AssessmentApiExtension::class,
     HmppsAuthApiExtension::class,
     TierToDeliusApiExtension::class,
@@ -107,14 +109,14 @@ abstract class IntegrationTestBase {
         assessmentId: Long,
     ) {
         if (includeAssessmentApi) {
-            assessmentApi.getCurrentAssessment(crn, assessmentId)
+            arnsApi.getCurrentAssessment(crn, assessmentId)
         }
-        assessmentApi.getNoSeverityNeeds(assessmentId)
+        arnsApi.getNoSeverityNeeds(crn)
     }
 
     fun restOfSetupWithFemaleOffender(crn: String, assessmentId: Long) {
-        assessmentApi.getCurrentAssessment(crn, assessmentId)
-        assessmentApi.getNotFoundNeeds(assessmentId)
+        arnsApi.getCurrentAssessment(crn, assessmentId)
+        arnsApi.getNotFoundNeeds(crn)
     }
 
     fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl, crn)

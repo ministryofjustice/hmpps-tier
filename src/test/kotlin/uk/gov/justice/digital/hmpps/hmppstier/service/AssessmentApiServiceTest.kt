@@ -20,10 +20,11 @@ import java.time.ZoneId
 @ExtendWith(MockKExtension::class)
 @DisplayName("Detail Service tests")
 internal class AssessmentApiServiceTest {
+    private val arnsApiClient: ArnsApiClient = mockk(relaxUnitFun = true)
     private val assessmentApiClient: AssessmentApiClient = mockk(relaxUnitFun = true)
     private val clock =
         Clock.fixed(LocalDate.of(2021, 1, 20).atStartOfDay(ZoneId.systemDefault()).toInstant(), ZoneId.systemDefault())
-    private val assessmentService = AssessmentApiService(assessmentApiClient, clock)
+    private val assessmentService = AssessmentApiService(arnsApiClient, assessmentApiClient, clock)
 
     @BeforeEach
     fun resetAllMocks() {
@@ -232,58 +233,81 @@ internal class AssessmentApiServiceTest {
 
         @Test
         fun `Should return empty Map if no Needs`() {
-            val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null, "COMPLETE")
-            val needs = listOf<AssessmentNeed>()
+            val crn = "T123456"
+            val assessedNeeds = AssessedNeeds()
 
-            coEvery { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) } returns needs
-            val returnValue = assessmentService.getAssessmentNeeds(assessment)
+            coEvery { arnsApiClient.getNeedsForCrn(crn) } returns assessedNeeds
+            val returnValue = assessmentService.getAssessmentNeeds(crn)
 
             assertThat(returnValue).isEmpty()
 
-            coVerify { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) }
+            coVerify { arnsApiClient.getNeedsForCrn(crn) }
         }
 
         @Test
         fun `Should return Needs`() {
-            val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null, "COMPLETE")
-            val needs = listOf(
-                AssessmentNeed(
-                    Need.ACCOMMODATION,
-                    NeedSeverity.NO_NEED,
+            val crn = "T123456"
+            val needs = AssessedNeeds(
+                identifiedNeeds = listOf(
+                    AssessedNeed(
+                        Need.ACCOMMODATION.toString(),
+                        "Accommodation",
+                        true,
+                        false,
+                        false,
+                        false,
+                        NeedSeverity.STANDARD,
+                        true,
+                        4
+                    )
                 ),
             )
 
-            coEvery { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) } returns needs
-            val returnValue = assessmentService.getAssessmentNeeds(assessment)
+            coEvery { arnsApiClient.getNeedsForCrn(crn) } returns needs
+            val returnValue = assessmentService.getAssessmentNeeds(crn)
 
             assertThat(returnValue).hasSize(1)
-            assertThat(returnValue).containsEntry(Need.ACCOMMODATION, NeedSeverity.NO_NEED)
-
-            coVerify { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) }
+            assertThat(returnValue).containsEntry(Need.ACCOMMODATION, NeedSeverity.STANDARD)
         }
 
         @Test
         fun `Should return Multiple Needs`() {
-            val assessment = OffenderAssessment("1234", LocalDateTime.now(clock), null, "COMPLETE")
-            val needs = listOf(
-                AssessmentNeed(
-                    Need.ACCOMMODATION,
-                    NeedSeverity.NO_NEED,
-                ),
-                AssessmentNeed(
-                    Need.ALCOHOL_MISUSE,
-                    NeedSeverity.SEVERE,
+            val crn = "T123456"
+            val needs = AssessedNeeds(
+                identifiedNeeds = listOf(
+                    AssessedNeed(
+                        Need.ACCOMMODATION.toString(),
+                        "Accommodation",
+                        true,
+                        false,
+                        false,
+                        true,
+                        NeedSeverity.STANDARD,
+                        true,
+                        4
+                    ),
+                    AssessedNeed(
+                        Need.ALCOHOL_MISUSE.toString(),
+                        "Alcohol Misuse",
+                        true,
+                        true,
+                        true,
+                        true,
+                        NeedSeverity.SEVERE,
+                        true,
+                        4
+                    )
                 ),
             )
 
-            coEvery { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) } returns needs
-            val returnValue = assessmentService.getAssessmentNeeds(assessment)
+            coEvery { arnsApiClient.getNeedsForCrn(crn) } returns needs
+            val returnValue = assessmentService.getAssessmentNeeds(crn)
 
             assertThat(returnValue).hasSize(2)
-            assertThat(returnValue).containsEntry(Need.ACCOMMODATION, NeedSeverity.NO_NEED)
+            assertThat(returnValue).containsEntry(Need.ACCOMMODATION, NeedSeverity.STANDARD)
             assertThat(returnValue).containsEntry(Need.ALCOHOL_MISUSE, NeedSeverity.SEVERE)
 
-            coVerify { assessmentApiClient.getAssessmentNeeds(assessment.assessmentId) }
+            coVerify { arnsApiClient.getNeedsForCrn(crn) }
         }
     }
 
@@ -293,123 +317,83 @@ internal class AssessmentApiServiceTest {
 
         @Test
         fun `Should return if inside Threshold`() {
-            val crn = "123"
-            val assessment = OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55), null, "COMPLETE")
+            val crn = "T123456"
+            val timeline = Timeline(
+                listOf(
+                    AssessmentSummary(1234, LocalDateTime.now(clock).minusWeeks(55), "LAYER3", "COMPLETE")
+                )
+            )
 
-            coEvery { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
+            coEvery { arnsApiClient.getTimeline(crn) } returns timeline
             val returnValue = assessmentService.getRecentAssessment(crn)
 
             assertThat(returnValue).isNotNull
 
-            coVerify { assessmentApiClient.getAssessmentSummaries(crn) }
+            coVerify { arnsApiClient.getTimeline(crn) }
         }
 
         @Test
         fun `Should return none if outside Threshold`() {
-            val crn = "123"
-            val assessment =
-                OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), null, "COMPLETE")
-            // more recent, but voided
-            val voidedAssessment = OffenderAssessment(
-                "1234",
-                LocalDateTime.now(clock).minusWeeks(40),
-                LocalDateTime.now(clock),
-                "COMPLETE"
+            val crn = "T123456"
+            val timeline = Timeline(
+                listOf(
+                    AssessmentSummary(1234, LocalDateTime.now(clock).minusWeeks(55).minusDays(2), "LAYER3", "COMPLETE")
+                )
             )
-
-            coEvery { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment, voidedAssessment)
+            coEvery { arnsApiClient.getTimeline(crn) } returns timeline
             val returnValue = assessmentService.getRecentAssessment(crn)
 
             assertThat(returnValue).isNull()
 
-            coVerify { assessmentApiClient.getAssessmentSummaries(crn) }
-        }
-
-        @Test
-        fun `Should return none if voided`() {
-            val crn = "123"
-            val assessment = OffenderAssessment(
-                "1234",
-                LocalDateTime.now(clock).minusWeeks(55).minusDays(1),
-                LocalDateTime.now(clock),
-                "COMPLETE"
-            )
-
-            coEvery { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
-            val returnValue = assessmentService.getRecentAssessment(crn)
-            assertThat(returnValue).isNull()
-
-            coVerify { assessmentApiClient.getAssessmentSummaries(crn) }
+            coVerify { arnsApiClient.getTimeline(crn) }
         }
 
         @Test
         fun `Should return none if not complete date`() {
-            val crn = "123"
-            val assessment = OffenderAssessment("1234", null, LocalDateTime.now(clock), "COMPLETE")
+            val crn = "T123456"
+            val timeline = Timeline(
+                listOf(
+                    AssessmentSummary(1234, null, "LAYER3", "IN_PROGRESS")
+                )
+            )
 
-            coEvery { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
+            coEvery { arnsApiClient.getTimeline(crn) } returns timeline
             val returnValue = assessmentService.getRecentAssessment(crn)
             assertThat(returnValue).isNull()
 
-            coVerify { assessmentApiClient.getAssessmentSummaries(crn) }
-        }
-
-        @Test
-        fun `Should return none if none valid`() {
-            val crn = "123"
-
-            coEvery { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf()
-            val returnValue = assessmentService.getRecentAssessment(crn)
-            assertThat(returnValue).isNull()
-
-            coVerify { assessmentApiClient.getAssessmentSummaries(crn) }
-        }
-
-        @Test
-        fun `Should return none if not complete status`() {
-            val crn = "123"
-            val assessment = OffenderAssessment("1234", null, LocalDateTime.now(clock), "OTHER_STATUS")
-
-            coEvery { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment)
-            val returnValue = assessmentService.getRecentAssessment(crn)
-            assertThat(returnValue).isNull()
-
-            coVerify { assessmentApiClient.getAssessmentSummaries(crn) }
+            coVerify { arnsApiClient.getTimeline(crn) }
         }
 
         @Test
         fun `Should return latest of two COMPLETED`() {
-            val crn = "123"
-            val assessment =
-                OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), null, "COMPLETE")
-            // more recent
-            val assessmentNewer = OffenderAssessment("4321", LocalDateTime.now(clock).minusWeeks(40), null, "COMPLETE")
+            val crn = "T123456"
+            val older = AssessmentSummary(1234, LocalDateTime.now(clock).minusWeeks(55), "LAYER3", "COMPLETE")
+            val newer = AssessmentSummary(4321, LocalDateTime.now(clock).minusWeeks(40), "LAYER3", "COMPLETE")
+            val timeline = Timeline(listOf(older, newer))
 
-            coEvery { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment, assessmentNewer)
+            coEvery { arnsApiClient.getTimeline(crn) } returns timeline
             val returnValue = assessmentService.getRecentAssessment(crn)
 
             assertThat(returnValue).isNotNull
-            assertThat(returnValue!!.assessmentId).isEqualTo(assessmentNewer.assessmentId)
+            assertThat(returnValue!!.assessmentId).isEqualTo(newer.id.toString())
 
-            coVerify { assessmentApiClient.getAssessmentSummaries(crn) }
+            coVerify { arnsApiClient.getTimeline(crn) }
         }
 
         @Test
         fun `Should return latest one LOCKED_INCOMPLETE`() {
-            val crn = "123"
-            val assessment =
-                OffenderAssessment("1234", LocalDateTime.now(clock).minusWeeks(55).minusDays(1), null, "COMPLETE")
-            // more recent
-            val assessmentNewer =
-                OffenderAssessment("4321", LocalDateTime.now(clock).minusWeeks(40), null, "LOCKED_INCOMPLETE")
+            val crn = "T123456"
+            val older = AssessmentSummary(1234, LocalDateTime.now(clock).minusWeeks(55), "LAYER3", "COMPLETE")
+            val newer = AssessmentSummary(4321, LocalDateTime.now(clock).minusWeeks(40), "LAYER3", "LOCKED_INCOMPLETE")
+            val timeline = Timeline(listOf(older, newer))
 
-            coEvery { assessmentApiClient.getAssessmentSummaries(crn) } returns listOf(assessment, assessmentNewer)
+            coEvery { arnsApiClient.getTimeline(crn) } returns timeline
             val returnValue = assessmentService.getRecentAssessment(crn)
 
             assertThat(returnValue).isNotNull
-            assertThat(returnValue!!.assessmentId).isEqualTo(assessmentNewer.assessmentId)
+            assertThat(returnValue!!.assessmentId).isEqualTo(newer.id.toString())
 
-            coVerify { assessmentApiClient.getAssessmentSummaries(crn) }
+            coVerify { arnsApiClient.getTimeline(crn) }
         }
     }
 }

@@ -50,16 +50,6 @@ class DomainEventsListenerTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `no tier performed if domain event is not one the service is interested in`() {
-        val crn = "N671982"
-        sendDomainEvent(DomainEventsMessage("unknown.event.type", PersonReference(listOf(Identifiers("CRN", crn)))))
-        verify(tierCalculationService, never()).calculateTierForCrn(
-            crn,
-            DomainEventRecalculation,
-        )
-    }
-
-    @Test
     fun `tier details of merged offender are deleted and recalculated appropriately`() {
         val eventType = "probation-case.merge.completed"
         val target = "M987654"

@@ -15,7 +15,7 @@ import java.time.LocalDate
 
 @Component
 class TierToDeliusApiClient(
-    @Qualifier("tierToDeliusApiClientWebClientAppScope") private val restClient: RestClient,
+    @Qualifier("tierToDeliusRestClient") private val restClient: RestClient,
     private val objectMapper: ObjectMapper,
 ) {
     fun getDeliusTier(crn: String): TierToDeliusResponse {

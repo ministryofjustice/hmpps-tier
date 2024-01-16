@@ -9,10 +9,11 @@ import software.amazon.awssdk.services.sqs.model.PurgeQueueRequest
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M1
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M3
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.HIGH
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.MEDIUM
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Need
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Requirement
@@ -20,8 +21,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnQueu
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
 import java.time.LocalDateTime
-import java.util.Locale
-import java.util.UUID
+import java.util.*
 
 class BddSteps : En {
 
@@ -113,59 +113,59 @@ class BddSteps : En {
             setupData.setOgrs(ogrs)
         }
         Given("the assessment need {string} with severity {string}") { need: String, severity: String ->
-            setupData.setNeeds(Need(need.capitalize(), need, severity))
+            setupData.setNeeds(Need.valueOf(need.capitalize()) to NeedSeverity.valueOf(severity))
         }
         Given("an offender scores 21 change points") {
             setupData.setOgrs("90") // 9 points
             setupData.setNeeds(
-                Need("Accomodation", "ACCOMMODATION", "SEVERE"),
-                Need("Education Training and Employability", "EDUCATION_TRAINING_AND_EMPLOYABILITY", "SEVERE"),
-                Need("Relationships", "RELATIONSHIPS", "SEVERE"),
-                Need("Lifestyle and Associates", "LIFESTYLE_AND_ASSOCIATES", "SEVERE"),
-                Need("Drug Misuse", "DRUG_MISUSE", "SEVERE"),
-                Need("Alcohol Misuse", "ALCOHOL_MISUSE", "SEVERE"),
+                Need.ACCOMMODATION to NeedSeverity.SEVERE,
+                Need.EDUCATION_TRAINING_AND_EMPLOYABILITY to NeedSeverity.SEVERE,
+                Need.RELATIONSHIPS to NeedSeverity.SEVERE,
+                Need.LIFESTYLE_AND_ASSOCIATES to NeedSeverity.SEVERE,
+                Need.DRUG_MISUSE to NeedSeverity.SEVERE,
+                Need.ALCOHOL_MISUSE to NeedSeverity.SEVERE,
             ) // 12 points
         }
         Given("an offender scores 20 change points") {
             setupData.setOgrs("100") // 10 points
             setupData.setNeeds(
-                Need("Accomodation", "ACCOMMODATION", "SEVERE"),
-                Need("Education Training and Employability", "EDUCATION_TRAINING_AND_EMPLOYABILITY", "SEVERE"),
-                Need("Relationships", "RELATIONSHIPS", "SEVERE"),
-                Need("Lifestyle and Associates", "LIFESTYLE_AND_ASSOCIATES", "SEVERE"),
-                Need("Drug Misuse", "DRUG_MISUSE", "SEVERE"),
+                Need.ACCOMMODATION to NeedSeverity.SEVERE,
+                Need.EDUCATION_TRAINING_AND_EMPLOYABILITY to NeedSeverity.SEVERE,
+                Need.RELATIONSHIPS to NeedSeverity.SEVERE,
+                Need.LIFESTYLE_AND_ASSOCIATES to NeedSeverity.SEVERE,
+                Need.DRUG_MISUSE to NeedSeverity.SEVERE,
             ) // 10 points
         }
         Given("an offender scores 19 change points") {
             setupData.setOgrs("90") // 9 points
             setupData.setNeeds(
-                Need("Accomodation", "ACCOMMODATION", "SEVERE"),
-                Need("Education Training and Employability", "EDUCATION_TRAINING_AND_EMPLOYABILITY", "SEVERE"),
-                Need("Relationships", "RELATIONSHIPS", "SEVERE"),
-                Need("Lifestyle and Associates", "LIFESTYLE_AND_ASSOCIATES", "SEVERE"),
-                Need("Drug Misuse", "DRUG_MISUSE", "SEVERE"),
+                Need.ACCOMMODATION to NeedSeverity.SEVERE,
+                Need.EDUCATION_TRAINING_AND_EMPLOYABILITY to NeedSeverity.SEVERE,
+                Need.RELATIONSHIPS to NeedSeverity.SEVERE,
+                Need.LIFESTYLE_AND_ASSOCIATES to NeedSeverity.SEVERE,
+                Need.DRUG_MISUSE to NeedSeverity.SEVERE,
             ) // 10 points
         }
         Given("an offender scores 11 change points") {
             setupData.setOgrs("90") // 9 points
-            setupData.setNeeds(Need("Accomodation", "ACCOMMODATION", "SEVERE")) // 2 points
+            setupData.setNeeds(Need.ACCOMMODATION to NeedSeverity.SEVERE) // 2 points
         }
         Given("an offender scores 10 change points") {
             setupData.setNeeds(
-                Need("Accomodation", "ACCOMMODATION", "SEVERE"),
-                Need("Education Training and Employability", "EDUCATION_TRAINING_AND_EMPLOYABILITY", "SEVERE"),
-                Need("Relationships", "RELATIONSHIPS", "SEVERE"),
-                Need("Lifestyle and Associates", "LIFESTYLE_AND_ASSOCIATES", "SEVERE"),
-                Need("Drug Misuse", "DRUG_MISUSE", "SEVERE"),
+                Need.ACCOMMODATION to NeedSeverity.SEVERE,
+                Need.EDUCATION_TRAINING_AND_EMPLOYABILITY to NeedSeverity.SEVERE,
+                Need.RELATIONSHIPS to NeedSeverity.SEVERE,
+                Need.LIFESTYLE_AND_ASSOCIATES to NeedSeverity.SEVERE,
+                Need.DRUG_MISUSE to NeedSeverity.SEVERE,
             ) // 10 points
         }
         Given("an offender scores 9 change points") {
             setupData.setNeeds(
-                Need("Accomodation", "ACCOMMODATION", "SEVERE"),
-                Need("Education Training and Employability", "EDUCATION_TRAINING_AND_EMPLOYABILITY", "SEVERE"),
-                Need("Relationships", "RELATIONSHIPS", "SEVERE"),
-                Need("Lifestyle and Associates", "LIFESTYLE_AND_ASSOCIATES", "SEVERE"),
-                Need("Drug Misuse", "DRUG_MISUSE", "STANDARD"),
+                Need.ACCOMMODATION to NeedSeverity.SEVERE,
+                Need.EDUCATION_TRAINING_AND_EMPLOYABILITY to NeedSeverity.SEVERE,
+                Need.RELATIONSHIPS to NeedSeverity.SEVERE,
+                Need.LIFESTYLE_AND_ASSOCIATES to NeedSeverity.SEVERE,
+                Need.DRUG_MISUSE to NeedSeverity.STANDARD,
             ) // 9 points
         }
         Given("an offender scores 31 protect points") {
