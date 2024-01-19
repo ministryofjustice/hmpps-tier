@@ -37,7 +37,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
 
     @Test
     fun `uses latest registration - two mappa registrations present`() {
-        val crn = "X445599"
+        val crn = "X445600"
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -50,14 +50,14 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
                 ),
             ),
         )
-        arnsApi.getHighSeverityNeeds(crn)
+        arnsApi.getNotFoundAssessment(crn)
         calculateTierFor(crn)
         expectTierChangedById("A2")
     }
 
     @Test
     fun `exclude historic registrations from tier calculation`() {
-        val crn = "X445599"
+        val crn = "X445601"
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -69,14 +69,14 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
                 ),
             ),
         )
-        arnsApi.getNoSeverityNeeds(crn)
+        arnsApi.getNotFoundAssessment(crn)
         calculateTierFor(crn)
         expectLatestTierCalculation("D2")
     }
 
     @Test
     fun `uses mappa registration when latest is non-mappa but has mappa registration level`() {
-        val crn = "X445599"
+        val crn = "X445602"
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -87,7 +87,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
                 ),
             ),
         )
-        arnsApi.getNoSeverityNeeds(crn)
+        arnsApi.getNotFoundAssessment(crn)
         calculateTierFor(crn)
         expectTierChangedById("B2")
     }

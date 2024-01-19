@@ -9,17 +9,14 @@ import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.MediaType
-import uk.gov.justice.digital.hmpps.hmppstier.client.AssessedNeed
-import uk.gov.justice.digital.hmpps.hmppstier.client.AssessedNeeds
-import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentSummary
-import uk.gov.justice.digital.hmpps.hmppstier.client.Timeline
+import uk.gov.justice.digital.hmpps.hmppstier.client.*
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.objectMapper
 import java.time.LocalDateTime
-import java.time.Year
-import java.time.temporal.TemporalAdjusters
 
 class ArnsApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallback {
 
@@ -46,110 +43,53 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
         private const val MOCKSERVER_PORT = 8094
     }
 
-    fun getNeeds(crn: String, needs: List<Pair<Need, NeedSeverity>>) {
-        val request = HttpRequest.request().withPath("/needs/crn/$crn")
-        val response = AssessedNeeds(needs.map { it.assessedNeed() })
-        arnsApi.`when`(request, Times.exactly(1)).respond(
-            HttpResponse.response().withContentType(MediaType.APPLICATION_JSON)
-                .withBody(objectMapper().writeValueAsString(response))
+    fun getTierAssessmentDetails(
+        crn: String,
+        assessmentId: Long? = null,
+        needs: Map<Need, NeedSeverity> = Need.entries.associateWith { NeedSeverity.NO_NEED },
+        additionalFactors: Map<AdditionalFactorForWomen, SectionAnswer> = mapOf()
+    ) {
+        val request = HttpRequest.request().withPath("/tier-assessment/sections/$crn")
+        val need = needs.toMap()
+        val response = AssessmentForTier(
+            assessment = AssessmentSummary(assessmentId ?: 0, LocalDateTime.now().minusDays(30), "LAYER3", "COMPLETE"),
+            accommodation = need[ACCOMMODATION]?.let { NeedSection.Accommodation(it) },
+            educationTrainingEmployment = need[EDUCATION_TRAINING_AND_EMPLOYABILITY]?.let {
+                NeedSection.EducationTrainingEmployability(it)
+            },
+            relationships = (need[RELATIONSHIPS] ?: NeedSeverity.NO_NEED).let {
+                NeedSection.Relationships(
+                    it,
+                    additionalFactors[AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES] as SectionAnswer.YesNo?
+                        ?: SectionAnswer.YesNo.No
+                )
+            },
+            lifestyleAndAssociates = need[LIFESTYLE_AND_ASSOCIATES]?.let { NeedSection.LifestyleAndAssociates(it) },
+            drugMisuse = need[DRUG_MISUSE]?.let { NeedSection.DrugMisuse(it) },
+            alcoholMisuse = need[ALCOHOL_MISUSE]?.let { NeedSection.AlcoholMisuse(it) },
+            thinkingAndBehaviour = (need[THINKING_AND_BEHAVIOUR] ?: NeedSeverity.NO_NEED).let {
+                NeedSection.ThinkingAndBehaviour(
+                    it,
+                    additionalFactors.problem(AdditionalFactorForWomen.IMPULSIVITY),
+                    additionalFactors.problem(AdditionalFactorForWomen.TEMPER_CONTROL)
+                )
+            },
+            attitudes = need[ATTITUDES]?.let { NeedSection.Attitudes(it) }
         )
-    }
-
-    fun getNoSeverityNeeds(crn: String) {
-        val request = HttpRequest.request().withPath("/needs/crn/$crn")
         arnsApi.`when`(request, Times.exactly(1)).respond(
             HttpResponse.response().withContentType(MediaType.APPLICATION_JSON)
                 .withBody(
-                    objectMapper().writeValueAsString(AssessedNeeds(listOf((Need.ACCOMMODATION to NeedSeverity.NO_NEED).assessedNeed())))
+                    objectMapper().writeValueAsString(response)
                 )
         )
     }
 
-    fun getNotFoundNeeds(crn: String) {
-        val request = HttpRequest.request().withPath("/needs/crn/$crn")
-        arnsApi.`when`(request, Times.exactly(1)).respond(HttpResponse.notFoundResponse())
-    }
-
-    fun getHighSeverityNeeds(crn: String) {
-        val request = HttpRequest.request().withPath("/needs/crn/$crn")
-        arnsApi.`when`(request, Times.exactly(1)).respond(
-            HttpResponse.response()
-                .withContentType(MediaType.APPLICATION_JSON)
-                .withBody(
-                    objectMapper().writeValueAsString(
-                        AssessedNeeds(Need.entries.map { (it to NeedSeverity.SEVERE).assessedNeed() })
-                    )
-                )
-        )
-    }
-
-    fun getCurrentAssessment(crn: String, assessmentId: Long) {
-        val request = HttpRequest.request().withPath("/assessments/timeline/crn/$crn")
-        arnsApi.`when`(request, Times.exactly(1)).respond(
-            HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(
-                objectMapper().writeValueAsString(
-                    Timeline(
-                        listOf(
-                            AssessmentSummary(assessmentId, getStartOfYear(Year.now().value), "LAYER3", "COMPLETE")
-                        )
-                    )
-                )
-            )
-        )
-    }
-
-    fun getAssessment(crn: String, assessment: AssessmentSummary) {
-        val request = HttpRequest.request().withPath("/assessments/timeline/crn/$crn")
-        arnsApi.`when`(request, Times.exactly(1)).respond(
-            HttpResponse.response().withContentType(MediaType.APPLICATION_JSON)
-                .withBody(objectMapper().writeValueAsString(Timeline(listOf(assessment))))
-        )
-    }
-
-    fun getOutdatedAssessment(crn: String, assessmentId: Long) {
-        val request = HttpRequest.request().withPath("/assessments/timeline/crn/$crn")
-        arnsApi.`when`(request, Times.exactly(1)).respond(
-            HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(
-                objectMapper().writeValueAsString(
-                    Timeline(
-                        listOf(
-                            AssessmentSummary(
-                                assessmentId,
-                                getStartOfYear(2018),
-                                "LAYER3",
-                                "COMPLETE",
-                            ),
-                            AssessmentSummary(
-                                1235,
-                                getStartOfYear(2018),
-                                "LAYER3",
-                                "INCOMPLETE_LOCKED"
-                            ),
-                        )
-                    )
-                )
-            )
-        )
-    }
+    private fun Map<AdditionalFactorForWomen, SectionAnswer>.problem(additionFactor: AdditionalFactorForWomen) =
+        this[additionFactor] as SectionAnswer.Problem? ?: SectionAnswer.Problem.None
 
     fun getNotFoundAssessment(crn: String) {
-        val request = HttpRequest.request().withPath("/assessments/timeline/crn/$crn")
+        val request = HttpRequest.request().withPath("/tier-assessment/sections/$crn")
         arnsApi.`when`(request, Times.exactly(1))
             .respond(HttpResponse.notFoundResponse().withContentType(MediaType.APPLICATION_JSON))
     }
-
-    private fun getStartOfYear(year: Int): LocalDateTime =
-        LocalDateTime.now().withYear(year).with(TemporalAdjusters.firstDayOfYear())
-
-    private fun Pair<Need, NeedSeverity>.assessedNeed() = AssessedNeed(
-        first.name,
-        first.name,
-        false,
-        true,
-        true,
-        true,
-        second,
-        true,
-        2
-    )
 }

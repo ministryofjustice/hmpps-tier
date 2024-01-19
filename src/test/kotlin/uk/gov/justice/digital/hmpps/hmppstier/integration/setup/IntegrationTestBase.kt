@@ -24,7 +24,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.controller.DomainEventsMessage
 import uk.gov.justice.digital.hmpps.hmppstier.controller.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.hmppsAuth.HmppsAuthApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
@@ -38,7 +37,6 @@ import java.util.*
 
 @ExtendWith(
     ArnsApiExtension::class,
-    AssessmentApiExtension::class,
     HmppsAuthApiExtension::class,
     TierToDeliusApiExtension::class,
 )
@@ -105,18 +103,13 @@ abstract class IntegrationTestBase {
 
     fun restOfSetupWithMaleOffenderNoSevereNeeds(
         crn: String,
-        includeAssessmentApi: Boolean = true,
         assessmentId: Long,
     ) {
-        if (includeAssessmentApi) {
-            arnsApi.getCurrentAssessment(crn, assessmentId)
-        }
-        arnsApi.getNoSeverityNeeds(crn)
+        arnsApi.getTierAssessmentDetails(crn, assessmentId, mapOf(), mapOf())
     }
 
     fun restOfSetupWithFemaleOffender(crn: String, assessmentId: Long) {
-        arnsApi.getCurrentAssessment(crn, assessmentId)
-        arnsApi.getNotFoundNeeds(crn)
+        arnsApi.getTierAssessmentDetails(crn, assessmentId, mapOf(), mapOf())
     }
 
     fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl, crn)

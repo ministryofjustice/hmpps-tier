@@ -2,7 +2,13 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
+import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentForTier
+import uk.gov.justice.digital.hmpps.hmppstier.client.NeedSection
+import uk.gov.justice.digital.hmpps.hmppstier.client.SectionAnswer
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.*
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import java.time.Clock
@@ -46,16 +52,10 @@ class TierCalculationService(
 
     private fun calculateTier(crn: String): TierCalculationEntity {
         val deliusInputs = tierToDeliusApiService.getTierToDelius(crn)
-        val offenderAssessment = assessmentApiService.getRecentAssessment(crn)
-
-        val additionalFactorForWomen = offenderAssessment?.let {
-            if (deliusInputs.isFemale) assessmentApiService.getAssessmentAnswers(it.assessmentId)
-            else null
-        }
-        val needs = offenderAssessment?.let { assessmentApiService.getAssessmentNeeds(crn) } ?: mapOf()
+        val assessment = assessmentApiService.getTierAssessmentInformation(crn)
 
         val additionalFactorsPoints = AdditionalFactorsForWomen.calculate(
-            additionalFactorForWomen,
+            assessment?.additionalFactorsForWomen(),
             deliusInputs.isFemale,
             deliusInputs.previousEnforcementActivity,
         )
@@ -65,8 +65,8 @@ class TierCalculationService(
         )
         val changeLevel = ChangeLevelCalculator.calculate(
             deliusInputs,
-            needs,
-            hasNoAssessment(offenderAssessment),
+            assessment?.mapNeedsAndSeverities() ?: mapOf(),
+            assessment == null,
         )
 
         return TierCalculationEntity(
@@ -77,18 +77,32 @@ class TierCalculationService(
                 protect = protectLevel,
                 calculationVersion = "2",
                 deliusInputs = deliusInputs,
-                assessment = offenderAssessment,
-                additionalFactorsForWomen = additionalFactorForWomen,
-                needs = needs,
+                assessmentSummary = assessment
             ),
         )
     }
 
-    private fun hasNoAssessment(offenderAssessment: OffenderAssessment?): Boolean =
-        (offenderAssessment == null)
+    private fun AssessmentForTier.mapNeedsAndSeverities() = listOfNotNull(
+        accommodation?.mapSeverity(),
+        educationTrainingEmployment?.mapSeverity(),
+        relationships?.mapSeverity(),
+        lifestyleAndAssociates?.mapSeverity(),
+        drugMisuse?.mapSeverity(),
+        alcoholMisuse?.mapSeverity(),
+        thinkingAndBehaviour?.mapSeverity(),
+        attitudes?.mapSeverity(),
+    ).toMap()
+
+    private fun AssessmentForTier.additionalFactorsForWomen(): Map<AdditionalFactorForWomen, SectionAnswer> =
+        listOfNotNull(
+            relationships?.parentalResponsibilities?.let { PARENTING_RESPONSIBILITIES to it },
+            thinkingAndBehaviour?.impulsivity?.let { IMPULSIVITY to it },
+            thinkingAndBehaviour?.temperControl?.let { TEMPER_CONTROL to it }
+        ).toMap()
+
+    private fun NeedSection.mapSeverity(): Pair<Need, NeedSeverity> = section to severity
 
     companion object {
-        private val log =
-            LoggerFactory.getLogger(this::class.java)
+        private val log = LoggerFactory.getLogger(this::class.java)
     }
 }

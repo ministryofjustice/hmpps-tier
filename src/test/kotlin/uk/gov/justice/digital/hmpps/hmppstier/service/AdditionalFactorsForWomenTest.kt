@@ -2,47 +2,18 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import uk.gov.justice.digital.hmpps.hmppstier.client.SectionAnswer
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
 
 class AdditionalFactorsForWomenTest {
 
     @Test
-    fun `should not count assessment additional factors duplicates`() {
-        val result = AdditionalFactorsForWomen.calculate(
-            mapOf(
-                PARENTING_RESPONSIBILITIES to "Y",
-                PARENTING_RESPONSIBILITIES to "Y",
-                PARENTING_RESPONSIBILITIES to "Y",
-                PARENTING_RESPONSIBILITIES to "Y",
-                PARENTING_RESPONSIBILITIES to "Y",
-                PARENTING_RESPONSIBILITIES to "Y",
-            ),
-            offenderIsFemale = true,
-            previousEnforcementActivity = false,
-        )
-        assertThat(result).isEqualTo(2)
-    }
-
-    @Test
-    fun `should not count assessment additional factors duplicates mixed answers`() {
-        val result = AdditionalFactorsForWomen.calculate(
-            mapOf(
-                PARENTING_RESPONSIBILITIES to "YES",
-                PARENTING_RESPONSIBILITIES to "Y",
-            ),
-            offenderIsFemale = true,
-            previousEnforcementActivity = false,
-        )
-        assertThat(result).isEqualTo(2)
-    }
-
-    @Test
     fun `should add multiple additional factors`() {
         val result = AdditionalFactorsForWomen.calculate(
             mapOf(
-                PARENTING_RESPONSIBILITIES to "Y",
-                AdditionalFactorForWomen.TEMPER_CONTROL to "1",
+                PARENTING_RESPONSIBILITIES to SectionAnswer.YesNo.Yes,
+                AdditionalFactorForWomen.TEMPER_CONTROL to SectionAnswer.Problem.Some,
             ),
             offenderIsFemale = true,
             previousEnforcementActivity = false,
@@ -64,8 +35,8 @@ class AdditionalFactorsForWomenTest {
     fun `should count both Temper and Impulsivity as max '1'`() {
         val result = AdditionalFactorsForWomen.calculate(
             mapOf(
-                AdditionalFactorForWomen.IMPULSIVITY to "2",
-                AdditionalFactorForWomen.TEMPER_CONTROL to "1",
+                AdditionalFactorForWomen.IMPULSIVITY to SectionAnswer.Problem.Significant,
+                AdditionalFactorForWomen.TEMPER_CONTROL to SectionAnswer.Problem.Some,
             ),
             offenderIsFemale = true,
             previousEnforcementActivity = false,
@@ -77,7 +48,7 @@ class AdditionalFactorsForWomenTest {
     fun `should count Temper without Impulsivity as max '2'`() {
         val result = AdditionalFactorsForWomen.calculate(
             mapOf(
-                AdditionalFactorForWomen.TEMPER_CONTROL to "1",
+                AdditionalFactorForWomen.TEMPER_CONTROL to SectionAnswer.Problem.Some,
             ),
             offenderIsFemale = true,
             previousEnforcementActivity = false,
@@ -89,7 +60,7 @@ class AdditionalFactorsForWomenTest {
     fun `should count Impulsivity without Temper as max '1'`() {
         val result = AdditionalFactorsForWomen.calculate(
             mapOf(
-                AdditionalFactorForWomen.IMPULSIVITY to "2",
+                AdditionalFactorForWomen.IMPULSIVITY to SectionAnswer.Problem.Significant,
             ),
             offenderIsFemale = true,
             previousEnforcementActivity = false,
@@ -101,7 +72,7 @@ class AdditionalFactorsForWomenTest {
     fun `should ignore negative Parenting`() {
         val result = AdditionalFactorsForWomen.calculate(
             mapOf(
-                PARENTING_RESPONSIBILITIES to "N",
+                PARENTING_RESPONSIBILITIES to SectionAnswer.YesNo.No,
             ),
             offenderIsFemale = true,
             previousEnforcementActivity = false,
@@ -113,7 +84,7 @@ class AdditionalFactorsForWomenTest {
     fun `should ignore negative Impulsivity`() {
         val result = AdditionalFactorsForWomen.calculate(
             mapOf(
-                AdditionalFactorForWomen.IMPULSIVITY to "0",
+                AdditionalFactorForWomen.IMPULSIVITY to SectionAnswer.Problem.None,
             ),
             offenderIsFemale = true,
             previousEnforcementActivity = false,
@@ -125,7 +96,7 @@ class AdditionalFactorsForWomenTest {
     fun `should ignore negative Temper`() {
         val result = AdditionalFactorsForWomen.calculate(
             mapOf(
-                AdditionalFactorForWomen.TEMPER_CONTROL to "0",
+                AdditionalFactorForWomen.TEMPER_CONTROL to SectionAnswer.Problem.None,
             ),
             offenderIsFemale = true,
             previousEnforcementActivity = false,

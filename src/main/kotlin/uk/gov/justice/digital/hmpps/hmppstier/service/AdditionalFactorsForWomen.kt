@@ -1,11 +1,12 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
+import uk.gov.justice.digital.hmpps.hmppstier.client.SectionAnswer
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.*
 
 object AdditionalFactorsForWomen {
     fun calculate(
-        additionalFactorForWomen: Map<AdditionalFactorForWomen, String?>?,
+        additionalFactorForWomen: Map<AdditionalFactorForWomen, SectionAnswer>?,
         offenderIsFemale: Boolean,
         previousEnforcementActivity: Boolean,
     ): Int =
@@ -21,20 +22,13 @@ object AdditionalFactorsForWomen {
             else -> 0
         }
 
-    private fun getAdditionalFactorsAssessmentComplexityPoints(additionalFactors: Map<AdditionalFactorForWomen, String?>): Int =
-        additionalFactors
-            .let { answers ->
-                val parenting = when {
-                    isYes(answers[PARENTING_RESPONSIBILITIES]) -> 1
-                    else -> 0
-                }
-                // We dont take the cumulative score, just '1' if at least one of these two is present
-                val selfControl = when {
-                    isAnswered(answers[IMPULSIVITY]) || isAnswered(answers[TEMPER_CONTROL]) -> 1
-                    else -> 0
-                }
-                (parenting + selfControl).times(2)
-            }
+    private fun getAdditionalFactorsAssessmentComplexityPoints(additionalFactors: Map<AdditionalFactorForWomen, SectionAnswer>): Int =
+        additionalFactors.let { answers ->
+            val parenting = if (isAnswered(answers[PARENTING_RESPONSIBILITIES])) 1 else 0
+            // We don't take the cumulative score, just '1' if at least one of these two is present
+            val selfControl = if (isAnswered(answers[IMPULSIVITY]) || isAnswered(answers[TEMPER_CONTROL])) 1 else 0
+            (parenting + selfControl).times(2)
+        }
 
     private fun getBreachRecallComplexityPoints(previousEnforcementActivity: Boolean): Int =
         if (previousEnforcementActivity) {
@@ -43,9 +37,5 @@ object AdditionalFactorsForWomen {
             0
         }
 
-    private fun isYes(value: String?): Boolean =
-        value.equals("YES", true) || value.equals("Y", true)
-
-    private fun isAnswered(value: String?): Boolean =
-        (value?.toInt() ?: 0) > 0
+    private fun isAnswered(value: SectionAnswer?): Boolean = (value?.score ?: 0) > 0
 }

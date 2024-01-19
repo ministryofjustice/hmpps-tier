@@ -24,7 +24,3 @@ class TriggerTierCalculationController(private val triggerCalculationService: Tr
         }
     }
 }
-
-data class TriggerCsv(
-    var crn: String? = null,
-)

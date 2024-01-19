@@ -6,12 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import software.amazon.awssdk.services.sqs.SqsAsyncClient
 import software.amazon.awssdk.services.sqs.model.PurgeQueueRequest
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M1
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M3
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.HIGH
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.MEDIUM
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
@@ -184,8 +181,8 @@ class BddSteps : En {
         }
         Given("an offender scores 51 protect points") {
             setupData.setGender("Female")
-            setupData.setAssessmentAnswer("11.2", "1") // 2
-            setupData.setAssessmentAnswer("6.9", "YES") // 2
+            setupData.setAssessmentAnswer(AdditionalFactorForWomen.IMPULSIVITY.name, "1") // 2
+            setupData.setAssessmentAnswer(AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES.name, "YES") // 2
             setupData.addRegistration(Registration(registerLevel = M1.registerCode)) // 5
             setupData.addRegistration(Registration(typeCode = HIGH.registerCode))
             setupData.addConviction(Conviction())
@@ -263,7 +260,7 @@ class BddSteps : En {
         And("a completed Layer 3 assessment dated 55 weeks ago") {
             setupData.setAssessmentDate(LocalDateTime.now().minusWeeks(55))
         }
-        And("has the following OASys complexity answer: {string} {string} : {string}") { _: String, question: String, answer: String ->
+        And("has the following OASys complexity answer: {string} {string} : {string}") { question: String, _: String, answer: String ->
             setupData.setAssessmentAnswer(question, answer)
         }
         And("has an active conviction with a Previous Enforcement Activity") {
