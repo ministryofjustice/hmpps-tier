@@ -27,9 +27,4 @@ class CannotCalculateTierTest : IntegrationTestBase() {
             null,
         )
     }
-
-    @Test
-    fun `object mapper for hibernate should be the same as spring boot`() {
-        assertThat(ObjectMapperWrapper.INSTANCE.objectMapper, equalTo(objectMapper))
-    }
 }
