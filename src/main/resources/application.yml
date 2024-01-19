@@ -10,6 +10,7 @@ spring:
       WRITE_DATES_AS_TIMESTAMPS: false
     deserialization:
       fail-on-ignored-properties: false
+      fail-on-unknown-properties: false
 
   datasource:
     url: 'jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?stringtype=unspecified'
