@@ -1,5 +1,8 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
+import io.hypersistence.utils.hibernate.type.util.ObjectMapperWrapper
+import org.hamcrest.MatcherAssert.assertThat
+import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.timeout
 import org.mockito.kotlin.verify
@@ -23,5 +26,10 @@ class CannotCalculateTierTest : IntegrationTestBase() {
             ),
             null,
         )
+    }
+
+    @Test
+    fun `object mapper for hibernate should be the same as spring boot`() {
+        assertThat(ObjectMapperWrapper.INSTANCE.objectMapper, equalTo(objectMapper))
     }
 }
