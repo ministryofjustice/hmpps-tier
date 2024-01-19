@@ -1,12 +1,11 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.bdd
 
-import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentSummary
+import uk.gov.justice.digital.hmpps.hmppstier.client.SectionAnswer
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension.Companion.assessmentApi
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.response.domain.Answer
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
@@ -29,14 +28,10 @@ class SetupData(
     private var convictions: MutableList<Conviction> = mutableListOf()
     private var rsr: String = "0"
     private var previousEnforcementActivity: Boolean = false
-    private var assessmentAnswers: MutableMap<String, Answer> = mutableMapOf(
-        IMPULSIVITY.answerCode to Answer(IMPULSIVITY.answerCode, "Impulsivity", "0"),
-        TEMPER_CONTROL.answerCode to Answer(TEMPER_CONTROL.answerCode, "Temper control", "0"),
-        PARENTING_RESPONSIBILITIES.answerCode to Answer(
-            PARENTING_RESPONSIBILITIES.answerCode,
-            "Parental responsibilities",
-            "NO"
-        ),
+    private var assessmentAnswers: MutableMap<AdditionalFactorForWomen, SectionAnswer> = mutableMapOf(
+        IMPULSIVITY to SectionAnswer.Problem.None,
+        TEMPER_CONTROL to SectionAnswer.Problem.None,
+        PARENTING_RESPONSIBILITIES to SectionAnswer.YesNo.No
     )
 
     fun setRsr(rsr: String) {
@@ -83,7 +78,16 @@ class SetupData(
 
     fun setAssessmentAnswer(question: String, answer: String) {
         setValidAssessment()
-        this.assessmentAnswers[question] = Answer(question, this.assessmentAnswers[question]!!.questionText, answer)
+        val additionalFactor: AdditionalFactorForWomen = checkNotNull(AdditionalFactorForWomen.valueOf(question))
+        val sectionAnswer: SectionAnswer = when (answer) {
+            "YES" -> SectionAnswer.YesNo.Yes
+            "NO" -> SectionAnswer.YesNo.No
+            "0" -> SectionAnswer.Problem.None
+            "1" -> SectionAnswer.Problem.Some
+            "2" -> SectionAnswer.Problem.Significant
+            else -> SectionAnswer.YesNo.Unknown
+        }
+        this.assessmentAnswers[additionalFactor] = sectionAnswer
     }
 
     fun setAssessmentDate(date: LocalDateTime) {
@@ -104,15 +108,12 @@ class SetupData(
 
     private fun assessmentsApi() {
         if (hasValidAssessment) {
-            arnsApi.getAssessment(crn, AssessmentSummary(assessmentId, assessmentDate, "LAYER3", "COMPLETE"))
-
-            if (gender == "Female") {
-                assessmentApi.getAnswers(assessmentId, assessmentAnswers.values)
-            }
-            when {
-                needs.any() -> arnsApi.getNeeds(crn, needs)
-                else -> arnsApi.getNoSeverityNeeds(crn)
-            }
+            arnsApi.getTierAssessmentDetails(
+                crn,
+                assessmentId,
+                needs.toMap(),
+                assessmentAnswers
+            )
         }
     }
 }

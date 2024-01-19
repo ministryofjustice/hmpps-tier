@@ -23,7 +23,7 @@ class NoAssessmentFoundTest : IntegrationTestBase() {
             ),
         )
         arnsApi.getNotFoundAssessment(crn)
-        restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 8234567890)
+
         calculateTierFor(crn)
         expectTierChangedById("A2")
     }

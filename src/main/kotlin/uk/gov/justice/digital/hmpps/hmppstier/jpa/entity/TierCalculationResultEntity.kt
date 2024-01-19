@@ -1,9 +1,10 @@
 package uk.gov.justice.digital.hmpps.hmppstier.jpa.entity
 
-import uk.gov.justice.digital.hmpps.hmppstier.client.OffenderAssessment
+import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentForTier
 import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusInputs
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.*
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import java.io.Serializable
 
 data class TierCalculationResultEntity(
@@ -11,7 +12,5 @@ data class TierCalculationResultEntity(
     val change: TierLevel<ChangeLevel>,
     val calculationVersion: String,
     val deliusInputs: DeliusInputs? = null,
-    val assessment: OffenderAssessment? = null,
-    val additionalFactorsForWomen: Map<AdditionalFactorForWomen, String?>? = null,
-    val needs: Map<Need, NeedSeverity>? = null,
+    val assessmentSummary: AssessmentForTier? = null
 ) : Serializable

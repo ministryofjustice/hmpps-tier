@@ -9,7 +9,7 @@ import java.time.Duration
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
-class RetryInterceptor(private val retries: Int = 3, private val delay: Duration = Duration.ofMillis(200)) :
+class RetryInterceptor(private val retries: Int = 3, private val delay: Duration = Duration.ofMillis(350)) :
     ClientHttpRequestInterceptor {
     override fun intercept(
         request: HttpRequest,

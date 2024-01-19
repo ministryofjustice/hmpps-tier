@@ -6,9 +6,4 @@ enum class AdditionalFactorForWomen(val section: String, val answerCode: String)
     TEMPER_CONTROL("11", "11.4"),
     PARENTING_RESPONSIBILITIES("6", "6.9"),
     ;
-
-    companion object {
-        fun from(value: String?): AdditionalFactorForWomen? =
-            entries.firstOrNull { code -> code.answerCode.equals(value, true) }
-    }
 }

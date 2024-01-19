@@ -1,8 +1,9 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Test
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.assessmentApi.AssessmentApiExtension.Companion.assessmentApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
@@ -14,7 +15,6 @@ class TierCalculationTest : IntegrationTestBase() {
     @Test
     fun `no NSis returned Female Offender`() {
         val crn = "X386786"
-        arnsApi.getNotFoundAssessment(crn)
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -26,8 +26,7 @@ class TierCalculationTest : IntegrationTestBase() {
                 ),
             ),
         )
-
-        restOfSetupWithFemaleOffender(crn, 2234567890)
+        arnsApi.getNotFoundAssessment(crn)
 
         calculateTierFor(crn)
         expectTierChangedById("D2")
@@ -45,8 +44,7 @@ class TierCalculationTest : IntegrationTestBase() {
                 ),
             ),
         )
-        restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
-        arnsApi.getOutdatedAssessment(crn, 1234567890)
+        arnsApi.getNotFoundAssessment(crn)
 
         calculateTierFor(crn)
         expectTierChangedById("A2")
@@ -60,8 +58,7 @@ class TierCalculationTest : IntegrationTestBase() {
                 ),
             ),
         )
-        restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
-        arnsApi.getOutdatedAssessment(crn, 1234567890)
+        arnsApi.getNotFoundAssessment(crn)
 
         calculateTierFor(crn)
         expectTierChangedById("A2")
@@ -79,8 +76,7 @@ class TierCalculationTest : IntegrationTestBase() {
                 ),
             ),
         )
-        restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
-        arnsApi.getOutdatedAssessment(crn, 1234567890)
+        arnsApi.getNotFoundAssessment(crn)
 
         calculateTierFor(crn)
         expectTierChangedById("A2")
@@ -95,11 +91,10 @@ class TierCalculationTest : IntegrationTestBase() {
                 ),
             ),
         )
-        arnsApi.getHighSeverityNeeds(crn)
-        arnsApi.getCurrentAssessment(crn, 4234568899) // assessment not out of date
+        arnsApi.getTierAssessmentDetails(crn, 4234568899, Need.entries.associateWith { NeedSeverity.SEVERE })
 
         calculateTierFor(crn)
-        expectTierChangedById("A1")
+        expectTierChangedById("A3")
     }
 
     @Test
@@ -114,8 +109,7 @@ class TierCalculationTest : IntegrationTestBase() {
                 ),
             ),
         )
-        restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568890)
-        arnsApi.getOutdatedAssessment(crn, 4234568890)
+        arnsApi.getNotFoundAssessment(crn)
 
         calculateTierFor(crn)
         expectTierChangedById("A2")
@@ -129,8 +123,7 @@ class TierCalculationTest : IntegrationTestBase() {
                 ),
             ),
         )
-        restOfSetupWithMaleOffenderNoSevereNeeds(crn, false, 4234568891)
-        arnsApi.getCurrentAssessment(crn, 4234568891) // assessment not out of date
+        restOfSetupWithMaleOffenderNoSevereNeeds(crn, 4234568891)
         calculateTierFor(crn)
         expectTierChangedById("A1")
     }
