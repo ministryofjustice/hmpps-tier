@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestClient
 import org.springframework.web.client.body
+import uk.gov.justice.digital.hmpps.hmppstier.exception.CrnNotFoundException
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -25,10 +26,7 @@ class TierToDeliusApiClient(
             .exchange { req, res ->
                 when (res.statusCode) {
                     HttpStatus.OK -> objectMapper.readValue<TierToDeliusResponse>(res.body)
-                    HttpStatus.NOT_FOUND -> throw HttpClientErrorException(
-                        res.statusCode,
-                        "Not Found from GET ${req.uri}"
-                    )
+                    HttpStatus.NOT_FOUND -> throw CrnNotFoundException("Not Found from GET ${req.uri}")
 
                     else -> throw HttpClientErrorException(res.statusCode, res.statusText)
                 }
