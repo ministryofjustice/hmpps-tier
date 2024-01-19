@@ -9,6 +9,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWo
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
+import uk.gov.justice.digital.hmpps.hmppstier.exception.CrnNotFoundException
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import java.time.Clock
@@ -35,6 +36,7 @@ class TierCalculationService(
             TelemetryEventType.TIER_CALCULATION_REMOVAL_FAILED,
             mapOf("crn" to crn, "reasonToDelete" to reason, "failureReason" to e.message),
         )
+        checkForCrnNotFound(e)
     }
 
     fun calculateTierForCrn(crn: String, recalculationSource: RecalculationSource): Unit = try {
@@ -48,6 +50,11 @@ class TierCalculationService(
             TelemetryEventType.TIER_CALCULATION_FAILED,
             mapOf("crn" to crn, "exception" to e.message, "recalculationReason" to recalculationSource.name),
         )
+        checkForCrnNotFound(e)
+    }
+
+    private fun checkForCrnNotFound(e: Exception) {
+        if (e !is CrnNotFoundException) throw e
     }
 
     private fun calculateTier(crn: String): TierCalculationEntity {
