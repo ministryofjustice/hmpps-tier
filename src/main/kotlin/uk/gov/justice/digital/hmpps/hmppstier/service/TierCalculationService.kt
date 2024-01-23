@@ -36,7 +36,6 @@ class TierCalculationService(
             TelemetryEventType.TIER_CALCULATION_REMOVAL_FAILED,
             mapOf("crn" to crn, "reasonToDelete" to reason, "failureReason" to e.message),
         )
-        checkForCrnNotFound(e)
     }
 
     fun calculateTierForCrn(crn: String, recalculationSource: RecalculationSource): Unit = try {
@@ -50,11 +49,15 @@ class TierCalculationService(
             TelemetryEventType.TIER_CALCULATION_FAILED,
             mapOf("crn" to crn, "exception" to e.message, "recalculationReason" to recalculationSource.name),
         )
-        checkForCrnNotFound(e)
+        checkForCrnNotFound(crn, e)
     }
 
-    private fun checkForCrnNotFound(e: Exception) {
-        if (e !is CrnNotFoundException) throw e
+    private fun checkForCrnNotFound(crn: String, e: Exception) {
+        if (e is CrnNotFoundException) {
+            deleteCalculationsForCrn(crn, "Not Found in Delius")
+        } else {
+            throw e
+        }
     }
 
     private fun calculateTier(crn: String): TierCalculationEntity {
