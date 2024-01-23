@@ -14,7 +14,7 @@ class TriggerTierCalculationController(private val triggerCalculationService: Tr
 
     @PreAuthorize("hasRole('ROLE_MANAGEMENT_TIER_UPDATE')")
     @PostMapping("/calculations")
-    fun recalculateTiers(@RequestBody(required = false) crns: List<String>?) {
+    fun recalculateTiers(@RequestBody(required = false) crns: Set<String>?) {
         Thread.ofVirtual().start {
             if (crns.isNullOrEmpty()) {
                 triggerCalculationService.recalculateAll()

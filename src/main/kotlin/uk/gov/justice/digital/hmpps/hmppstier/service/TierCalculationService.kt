@@ -76,7 +76,7 @@ class TierCalculationService(
         val changeLevel = ChangeLevelCalculator.calculate(
             deliusInputs,
             assessment?.mapNeedsAndSeverities() ?: mapOf(),
-            assessment == null,
+            assessment?.assessment == null,
         )
 
         return TierCalculationEntity(

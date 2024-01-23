@@ -30,7 +30,7 @@ class TriggerCalculationService(
             }
     }
 
-    fun recalculate(crns: List<String>) = crns.forEach { crn ->
+    fun recalculate(crns: Collection<String>) = crns.forEach { crn ->
         publishToHMPPSOffenderQueue(crn, RecalculationSource.LimitedRecalculation)
     }
 
