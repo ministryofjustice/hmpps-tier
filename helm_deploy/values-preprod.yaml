@@ -15,8 +15,8 @@ generic-service:
     delius-pre-prod-1: 52.56.240.62/32
     delius-pre-prod-2: 18.130.110.168/32
     delius-pre-prod-3: 35.178.44.184/32
-  scheduledDowntime:
-    enabled: true
+#  scheduledDowntime:
+#    enabled: true
   namespace_secrets:
     hmpps-domain-events-topic:
       HMPPS_SQS_TOPICS_HMPPSCALCULATIONCOMPLETETOPIC_ARN: "topic_arn"
