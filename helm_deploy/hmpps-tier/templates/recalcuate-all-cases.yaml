@@ -17,14 +17,14 @@ spec:
               args:
                 - /bin/sh
                 - -c
-                - 'curl -fsSL -X POST "https://$BASE_URL/calculations?dryRun=DRY_RUN" --header "Authorization: Bearer $(curl -fsSL --request POST "$AUTH_BASE_URL/oauth/token?grant_type=client_credentials" --user "$CLIENT_ID:$CLIENT_SECRET"  | jq -r .access_token)" --header "Content-Type: application/json"'
+                - 'curl -fsSL -X POST "https://$BASE_URL/calculations?dryRun=$DRY_RUN" --header "Authorization: Bearer $(curl -fsSL --request POST "$AUTH_BASE_URL/oauth/token?grant_type=client_credentials" --user "$CLIENT_ID:$CLIENT_SECRET"  | jq -r .access_token)" --header "Content-Type: application/json"'
               env:
                 - name: AUTH_BASE_URL
                   value: {{ index .Values "generic-service" "env" "OAUTH_ENDPOINT_URL" }}
                 - name: BASE_URL
                   value: {{ index .Values "generic-service" "ingress" "host" }}
                 - name: DRY_RUN
-                  value: {{ index .Values "generic-service" "env" "FULL_RECALC_DRY_RUN" }}
+                  value: "{{ index .Values "generic-service" "env" "FULL_RECALC_DRY_RUN" }}"
                 - name: CLIENT_ID
                   valueFrom:
                     secretKeyRef:
