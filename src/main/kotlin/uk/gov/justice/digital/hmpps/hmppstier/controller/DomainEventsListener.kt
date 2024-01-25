@@ -44,7 +44,7 @@ class DomainEventsListener(
     }
 
     private fun calculateTier(crn: String?) = crn?.also {
-        calculator.calculateTierForCrn(it, RecalculationSource.DomainEventRecalculation)
+        calculator.calculateTierForCrn(it, RecalculationSource.DomainEventRecalculation, true)
     }
 }
 

@@ -61,7 +61,7 @@ class DomainEventsListenerTest : IntegrationTestBase() {
                 mapOf("sourceCRN" to source),
             )
         )
-        verify(tierCalculationService, timeout(5000)).calculateTierForCrn(target, DomainEventRecalculation)
+        verify(tierCalculationService, timeout(5000)).calculateTierForCrn(target, DomainEventRecalculation, true)
         verify(tierCalculationService, timeout(5000)).deleteCalculationsForCrn(source, eventType)
     }
 
@@ -76,6 +76,6 @@ class DomainEventsListenerTest : IntegrationTestBase() {
             )
         )
         verify(tierCalculationService, timeout(5000)).deleteCalculationsForCrn(crn, eventType)
-        verify(tierCalculationService, never()).calculateTierForCrn(crn, DomainEventRecalculation)
+        verify(tierCalculationService, never()).calculateTierForCrn(crn, DomainEventRecalculation, true)
     }
 }

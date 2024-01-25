@@ -32,7 +32,7 @@ class TriggerRecalculationsTest : IntegrationTestBase() {
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId)
 
         mockMvc.perform(
-            post("/calculations")
+            post("/calculations?dryRun=false")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(
                     objectMapper.writeValueAsString(listOf(crn)),
@@ -74,7 +74,7 @@ class TriggerRecalculationsTest : IntegrationTestBase() {
         }
 
         mockMvc.perform(
-            post("/calculations")
+            post("/calculations?dryRun=false")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
                 .headers(authHeaders()),

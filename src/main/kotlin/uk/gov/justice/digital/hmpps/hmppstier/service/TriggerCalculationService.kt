@@ -23,23 +23,23 @@ class TriggerCalculationService(
 
     private val hmppsOffenderSqsClient = hmppsQueueService.findByQueueId("hmppsoffenderqueue")!!.sqsClient
 
-    fun recalculateAll() {
+    fun recalculateAll(dryRun: Boolean) {
         tierToDeliusApiClient.getActiveCrns()
             .forEach { crn ->
-                publishToHMPPSOffenderQueue(crn, RecalculationSource.FullRecalculation)
+                publishToHMPPSOffenderQueue(crn, RecalculationSource.FullRecalculation, dryRun)
             }
     }
 
-    fun recalculate(crns: Collection<String>) = crns.forEach { crn ->
-        publishToHMPPSOffenderQueue(crn, RecalculationSource.LimitedRecalculation)
+    fun recalculate(crns: Collection<String>, dryRun: Boolean) = crns.forEach { crn ->
+        publishToHMPPSOffenderQueue(crn, RecalculationSource.LimitedRecalculation, dryRun)
     }
 
-    private fun publishToHMPPSOffenderQueue(crn: String, recalculationSource: RecalculationSource) {
+    private fun publishToHMPPSOffenderQueue(crn: String, recalculationSource: RecalculationSource, dryRun: Boolean) {
         val sendMessage = SendMessageRequest.builder().queueUrl(
             hmppsOffenderQueueUrl,
         ).messageBody(
             objectMapper.writeValueAsString(
-                crnToOffenderSqsMessage(crn, recalculationSource),
+                crnToOffenderSqsMessage(crn, recalculationSource, dryRun),
             ),
         ).messageAttributes(
             mapOf(
@@ -51,9 +51,13 @@ class TriggerCalculationService(
         hmppsOffenderSqsClient.sendMessage(sendMessage)
     }
 
-    private fun crnToOffenderSqsMessage(crn: String, recalculationSource: RecalculationSource): SQSMessage = SQSMessage(
+    private fun crnToOffenderSqsMessage(
+        crn: String,
+        recalculationSource: RecalculationSource,
+        dryRun: Boolean
+    ): SQSMessage = SQSMessage(
         objectMapper.writeValueAsString(
-            TierCalculationMessage(crn, recalculationSource),
+            TierCalculationMessage(crn, recalculationSource, dryRun),
         ),
     )
 

@@ -29,6 +29,7 @@ class TierCalculationRequiredEventListener(
         calculator.calculateTierForCrn(
             recalculation.crn,
             recalculation.recalculationSource ?: RecalculationSource.OffenderEventRecalculation,
+            !recalculation.dryRun
         )
     }
 
@@ -42,7 +43,11 @@ class TierCalculationRequiredEventListener(
     }
 }
 
-data class TierCalculationMessage(val crn: String, val recalculationSource: RecalculationSource? = null)
+data class TierCalculationMessage(
+    val crn: String,
+    val recalculationSource: RecalculationSource? = null,
+    val dryRun: Boolean = false
+)
 
 data class SQSMessage(
     @JsonProperty("Message") val message: String,
