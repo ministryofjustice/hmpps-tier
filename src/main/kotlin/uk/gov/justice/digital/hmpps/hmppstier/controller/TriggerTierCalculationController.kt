@@ -2,10 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.controller
 
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import uk.gov.justice.digital.hmpps.hmppstier.service.TriggerCalculationService
 
 @RestController
@@ -14,12 +11,15 @@ class TriggerTierCalculationController(private val triggerCalculationService: Tr
 
     @PreAuthorize("hasRole('ROLE_MANAGEMENT_TIER_UPDATE')")
     @PostMapping("/calculations")
-    fun recalculateTiers(@RequestBody(required = false) crns: Set<String>?) {
+    fun recalculateTiers(
+        @RequestBody(required = false) crns: Set<String>?,
+        @RequestParam(required = false, defaultValue = "true") dryRun: Boolean
+    ) {
         Thread.ofVirtual().start {
             if (crns.isNullOrEmpty()) {
-                triggerCalculationService.recalculateAll()
+                triggerCalculationService.recalculateAll(dryRun)
             } else {
-                triggerCalculationService.recalculate(crns)
+                triggerCalculationService.recalculate(crns, dryRun)
             }
         }
     }

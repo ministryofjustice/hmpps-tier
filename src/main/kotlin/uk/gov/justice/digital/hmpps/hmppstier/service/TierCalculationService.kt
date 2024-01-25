@@ -12,6 +12,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import uk.gov.justice.digital.hmpps.hmppstier.exception.CrnNotFoundException
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
+import uk.gov.justice.digital.hmpps.hmppstier.service.TelemetryEventType.*
 import java.time.Clock
 import java.time.LocalDateTime
 
@@ -23,33 +24,49 @@ class TierCalculationService(
     private val successUpdater: SuccessUpdater,
     private val telemetryService: TelemetryService,
     private val tierUpdater: TierUpdater,
+    private val tierReader: TierReader
 ) {
     fun deleteCalculationsForCrn(crn: String, reason: String) = try {
         tierUpdater.removeTierCalculationsFor(crn)
         telemetryService.trackEvent(
-            TelemetryEventType.TIER_CALCULATION_REMOVED,
+            TIER_CALCULATION_REMOVED,
             mapOf("crn" to crn, "reason" to reason),
         )
     } catch (e: Exception) {
         log.error("Unable to remove tier calculations for $crn")
         telemetryService.trackEvent(
-            TelemetryEventType.TIER_CALCULATION_REMOVAL_FAILED,
+            TIER_CALCULATION_REMOVAL_FAILED,
             mapOf("crn" to crn, "reasonToDelete" to reason, "failureReason" to e.message),
         )
     }
 
-    fun calculateTierForCrn(crn: String, recalculationSource: RecalculationSource): Unit = try {
-        val tierCalculation = calculateTier(crn)
-        val isUpdated = tierUpdater.updateTier(tierCalculation, crn)
-        successUpdater.update(crn, tierCalculation.uuid)
-        telemetryService.trackTierCalculated(tierCalculation, isUpdated, recalculationSource)
-    } catch (e: Exception) {
-        log.error("Unable to calculate tier for $crn", e)
-        telemetryService.trackEvent(
-            TelemetryEventType.TIER_CALCULATION_FAILED,
-            mapOf("crn" to crn, "exception" to e.message, "recalculationReason" to recalculationSource.name),
-        )
-        checkForCrnNotFound(crn, e)
+    fun calculateTierForCrn(crn: String, recalculationSource: RecalculationSource, allowUpdates: Boolean) {
+        try {
+            val tierCalculation = calculateTier(crn)
+            if (allowUpdates) {
+                val isUpdated = tierUpdater.updateTier(tierCalculation, crn)
+                successUpdater.update(crn, tierCalculation.uuid)
+                telemetryService.trackTierCalculated(tierCalculation, isUpdated, recalculationSource)
+            } else {
+                val currentTier = tierReader.getLatestTierByCrn(crn)
+                telemetryService.trackEvent(
+                    TIER_RECALCULATION_DRY_RUN,
+                    mapOf(
+                        "currentTier" to currentTier?.tierScore,
+                        "calculatedTier" to "${tierCalculation.protectLevel()}${tierCalculation.changeLevel()}"
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            val eventType = if (allowUpdates) TIER_CALCULATION_FAILED else TIER_RECALCULATION_DRY_RUN_FAILURE
+            telemetryService.trackEvent(
+                eventType,
+                mapOf("crn" to crn, "exception" to e.message, "recalculationReason" to recalculationSource.name),
+            )
+            if (allowUpdates) {
+                checkForCrnNotFound(crn, e)
+            }
+        }
     }
 
     private fun checkForCrnNotFound(crn: String, e: Exception) {

@@ -108,10 +108,6 @@ abstract class IntegrationTestBase {
         arnsApi.getTierAssessmentDetails(crn, assessmentId, mapOf(), mapOf())
     }
 
-    fun restOfSetupWithFemaleOffender(crn: String, assessmentId: Long) {
-        arnsApi.getTierAssessmentDetails(crn, assessmentId, mapOf(), mapOf())
-    }
-
     fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl, crn)
     fun calculateTierForDomainEvent(crn: String) = putMessageOnDomainQueue(
         domainEventQueueClient,
