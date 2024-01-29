@@ -111,7 +111,7 @@ class TierCalculationService(
 
     private fun AssessmentForTier.mapNeedsAndSeverities() = listOfNotNull(
         accommodation?.mapSeverity(),
-        educationTrainingEmployment?.mapSeverity(),
+        educationTrainingEmployability?.mapSeverity(),
         relationships?.mapSeverity(),
         lifestyleAndAssociates?.mapSeverity(),
         drugMisuse?.mapSeverity(),
@@ -127,7 +127,7 @@ class TierCalculationService(
             thinkingAndBehaviour?.temperControl?.let { TEMPER_CONTROL to it }
         ).toMap()
 
-    private fun NeedSection.mapSeverity(): Pair<Need, NeedSeverity> = section to severity
+    private fun NeedSection.mapSeverity(): Pair<Need, NeedSeverity>? = severity?.let { section to it }
 
     companion object {
         private val log = LoggerFactory.getLogger(this::class.java)

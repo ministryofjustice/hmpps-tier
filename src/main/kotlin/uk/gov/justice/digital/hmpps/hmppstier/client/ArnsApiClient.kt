@@ -20,7 +20,7 @@ class ArnsApiClient(
     fun getTierAssessmentInformation(crn: String): AssessmentForTier? = restClient
         .get()
         .uri("/tier-assessment/sections/$crn")
-        .exchange { _, res ->
+        .exchange<AssessmentForTier?> { _, res ->
             when (res.statusCode) {
                 HttpStatus.OK -> objectMapper.readValue(res.body)
                 HttpStatus.NOT_FOUND -> null
@@ -32,7 +32,8 @@ class ArnsApiClient(
 data class AssessmentForTier(
     val assessment: AssessmentSummary?,
     val accommodation: NeedSection.Accommodation?,
-    val educationTrainingEmployment: NeedSection.EducationTrainingEmployability?,
+    @JsonAlias("educationTrainingEmployment")
+    val educationTrainingEmployability: NeedSection.EducationTrainingEmployability?,
     val relationships: NeedSection.Relationships?,
     val lifestyleAndAssociates: NeedSection.LifestyleAndAssociates?,
     val drugMisuse: NeedSection.DrugMisuse?,
@@ -43,7 +44,7 @@ data class AssessmentForTier(
 
 sealed interface NeedSection {
     val section: Need
-    val severity: NeedSeverity
+    val severity: NeedSeverity?
 
     data class Accommodation(override val severity: NeedSeverity) : NeedSection {
         override val section = Need.ACCOMMODATION
