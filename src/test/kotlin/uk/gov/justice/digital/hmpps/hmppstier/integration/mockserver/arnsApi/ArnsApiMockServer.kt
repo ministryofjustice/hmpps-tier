@@ -54,7 +54,7 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
         val response = AssessmentForTier(
             assessment = AssessmentSummary(assessmentId ?: 0, LocalDateTime.now().minusDays(30), "LAYER3", "COMPLETE"),
             accommodation = need[ACCOMMODATION]?.let { NeedSection.Accommodation(it) },
-            educationTrainingEmployment = need[EDUCATION_TRAINING_AND_EMPLOYABILITY]?.let {
+            educationTrainingEmployability = need[EDUCATION_TRAINING_AND_EMPLOYABILITY]?.let {
                 NeedSection.EducationTrainingEmployability(it)
             },
             relationships = (need[RELATIONSHIPS] ?: NeedSeverity.NO_NEED).let {
