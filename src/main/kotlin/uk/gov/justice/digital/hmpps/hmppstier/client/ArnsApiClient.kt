@@ -46,42 +46,42 @@ sealed interface NeedSection {
     val section: Need
     val severity: NeedSeverity?
 
-    data class Accommodation(override val severity: NeedSeverity) : NeedSection {
+    data class Accommodation(override val severity: NeedSeverity?) : NeedSection {
         override val section = Need.ACCOMMODATION
     }
 
-    data class EducationTrainingEmployability(override val severity: NeedSeverity) : NeedSection {
+    data class EducationTrainingEmployability(override val severity: NeedSeverity?) : NeedSection {
         override val section = Need.EDUCATION_TRAINING_AND_EMPLOYABILITY
     }
 
     data class Relationships(
-        override val severity: NeedSeverity,
+        override val severity: NeedSeverity?,
         val parentalResponsibilities: SectionAnswer.YesNo
     ) : NeedSection {
         override val section = Need.RELATIONSHIPS
     }
 
-    data class LifestyleAndAssociates(override val severity: NeedSeverity) : NeedSection {
+    data class LifestyleAndAssociates(override val severity: NeedSeverity?) : NeedSection {
         override val section = Need.LIFESTYLE_AND_ASSOCIATES
     }
 
-    data class DrugMisuse(override val severity: NeedSeverity) : NeedSection {
+    data class DrugMisuse(override val severity: NeedSeverity?) : NeedSection {
         override val section = Need.DRUG_MISUSE
     }
 
-    data class AlcoholMisuse(override val severity: NeedSeverity) : NeedSection {
+    data class AlcoholMisuse(override val severity: NeedSeverity?) : NeedSection {
         override val section = Need.ALCOHOL_MISUSE
     }
 
     data class ThinkingAndBehaviour(
-        override val severity: NeedSeverity,
+        override val severity: NeedSeverity?,
         val impulsivity: SectionAnswer.Problem,
         val temperControl: SectionAnswer.Problem
     ) : NeedSection {
         override val section = Need.THINKING_AND_BEHAVIOUR
     }
 
-    data class Attitudes(override val severity: NeedSeverity) : NeedSection {
+    data class Attitudes(override val severity: NeedSeverity?) : NeedSection {
         override val section = Need.ATTITUDES
     }
 }
