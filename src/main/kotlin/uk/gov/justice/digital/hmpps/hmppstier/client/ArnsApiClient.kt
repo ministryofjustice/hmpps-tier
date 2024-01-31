@@ -32,7 +32,6 @@ class ArnsApiClient(
 data class AssessmentForTier(
     val assessment: AssessmentSummary?,
     val accommodation: NeedSection.Accommodation?,
-    @JsonAlias("educationTrainingEmployment")
     val educationTrainingEmployability: NeedSection.EducationTrainingEmployability?,
     val relationships: NeedSection.Relationships?,
     val lifestyleAndAssociates: NeedSection.LifestyleAndAssociates?,
