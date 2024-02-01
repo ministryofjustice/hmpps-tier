@@ -33,18 +33,18 @@ class DomainEventsListener(
             }
 
             "probation-case.merge.completed" -> {
-                calculateTier(message.crn)
+                calculateTier(message.crn, message.eventType)
                 message.sourceCrn?.also {
                     calculator.deleteCalculationsForCrn(it, message.eventType)
                 }
             }
 
-            else -> calculateTier(message.crn)
+            else -> calculateTier(message.crn, message.eventType)
         }
     }
 
-    private fun calculateTier(crn: String?) = crn?.also {
-        calculator.calculateTierForCrn(it, RecalculationSource.DomainEventRecalculation, true)
+    private fun calculateTier(crn: String?, eventType: String) = crn?.also {
+        calculator.calculateTierForCrn(it, RecalculationSource.EventSource.DomainEventRecalculation(eventType), true)
     }
 }
 

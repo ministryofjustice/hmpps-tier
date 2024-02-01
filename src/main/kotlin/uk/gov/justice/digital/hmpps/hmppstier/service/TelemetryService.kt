@@ -21,14 +21,20 @@ class TelemetryService(@Autowired private val telemetryClient: TelemetryClient) 
             } else {
                 TIER_UNCHANGED
             },
-            mapOf(
+            listOfNotNull(
                 "crn" to calculation.crn,
                 "protect" to calculation.data.protect.tier.value,
                 "change" to calculation.data.change.tier.value.toString(),
                 "version" to calculation.data.calculationVersion,
-                "recalculationReason" to recalculationSource.name,
-            ),
+                "recalculationSource" to recalculationSource::class.simpleName,
+                recalculationSource.reason()?.let { "recalculationReason" to it },
+            ).toMap(),
         )
+    }
+
+    private fun RecalculationSource.reason() = when (this) {
+        is RecalculationSource.EventSource -> type
+        else -> null
     }
 
     fun trackEvent(eventType: TelemetryEventType, customDimensions: Map<String, String?>) {

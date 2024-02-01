@@ -61,7 +61,12 @@ class TierCalculationService(
             val eventType = if (allowUpdates) TIER_CALCULATION_FAILED else TIER_RECALCULATION_DRY_RUN_FAILURE
             telemetryService.trackEvent(
                 eventType,
-                mapOf("crn" to crn, "exception" to e.message, "recalculationReason" to recalculationSource.name),
+                mapOf(
+                    "crn" to crn,
+                    "exception" to e.message,
+                    "recalculationSource" to recalculationSource::class.simpleName,
+                    "recalculationReason" to if (recalculationSource is RecalculationSource.EventSource) recalculationSource.type else ""
+                ),
             )
             if (allowUpdates) {
                 checkForCrnNotFound(crn, e)

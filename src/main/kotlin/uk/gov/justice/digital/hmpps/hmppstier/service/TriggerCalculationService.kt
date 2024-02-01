@@ -57,7 +57,7 @@ class TriggerCalculationService(
         dryRun: Boolean
     ): SQSMessage = SQSMessage(
         objectMapper.writeValueAsString(
-            TierCalculationMessage(crn, recalculationSource, dryRun),
+            TierCalculationMessage(crn, recalculationSource::class.simpleName, dryRun),
         ),
     )
 

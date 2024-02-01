@@ -19,7 +19,8 @@ class CannotCalculateTierTest : IntegrationTestBase() {
             mapOf(
                 "crn" to "X123456",
                 "exception" to "404 Not Found from GET http://localhost:8093/tier-details/X123456",
-                "recalculationReason" to "OffenderEventRecalculation",
+                "recalculationSource" to "OffenderEventRecalculation",
+                "recalculationReason" to "OFFENDER_MANAGEMENT_TIER_CALCULATION_REQUIRED"
             ),
             null,
         )
