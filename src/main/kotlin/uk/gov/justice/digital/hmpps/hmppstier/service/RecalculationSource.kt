@@ -5,7 +5,7 @@ sealed interface RecalculationSource {
 
     data object LimitedRecalculation : RecalculationSource
 
-    data object Other : RecalculationSource
+    data class Other(val type: String?) : RecalculationSource
 
     sealed interface EventSource : RecalculationSource {
         val type: String
@@ -20,7 +20,7 @@ sealed interface RecalculationSource {
             LimitedRecalculation::class.simpleName -> LimitedRecalculation
             EventSource.OffenderEventRecalculation::class.simpleName -> EventSource.OffenderEventRecalculation(eventType!!)
             EventSource.DomainEventRecalculation::class.simpleName -> EventSource.DomainEventRecalculation(eventType!!)
-            else -> throw IllegalArgumentException("Unknown Recalculation Source / Reason => $value : $eventType")
+            else -> Other(eventType)
         }
     }
 }
