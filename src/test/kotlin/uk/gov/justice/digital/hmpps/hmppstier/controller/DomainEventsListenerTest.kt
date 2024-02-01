@@ -9,7 +9,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliu
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
-import uk.gov.justice.digital.hmpps.hmppstier.service.RecalculationSource.DomainEventRecalculation
+import uk.gov.justice.digital.hmpps.hmppstier.service.RecalculationSource
 
 class DomainEventsListenerTest : IntegrationTestBase() {
     @Test
@@ -61,7 +61,11 @@ class DomainEventsListenerTest : IntegrationTestBase() {
                 mapOf("sourceCRN" to source),
             )
         )
-        verify(tierCalculationService, timeout(5000)).calculateTierForCrn(target, DomainEventRecalculation, true)
+        verify(tierCalculationService, timeout(5000)).calculateTierForCrn(
+            target,
+            RecalculationSource.EventSource.DomainEventRecalculation(eventType),
+            true
+        )
         verify(tierCalculationService, timeout(5000)).deleteCalculationsForCrn(source, eventType)
     }
 
@@ -76,6 +80,10 @@ class DomainEventsListenerTest : IntegrationTestBase() {
             )
         )
         verify(tierCalculationService, timeout(5000)).deleteCalculationsForCrn(crn, eventType)
-        verify(tierCalculationService, never()).calculateTierForCrn(crn, DomainEventRecalculation, true)
+        verify(tierCalculationService, never()).calculateTierForCrn(
+            crn,
+            RecalculationSource.EventSource.DomainEventRecalculation(eventType),
+            true
+        )
     }
 }

@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.service.RecalculationSource
+import uk.gov.justice.digital.hmpps.hmppstier.service.RecalculationSource.EventSource.OffenderEventRecalculation
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 
 @Service
@@ -28,14 +29,17 @@ class TierCalculationRequiredEventListener(
         val recalculation = getRecalculation(msg)
         calculator.calculateTierForCrn(
             recalculation.crn,
-            recalculation.recalculationSource ?: RecalculationSource.OffenderEventRecalculation,
+            RecalculationSource.of(
+                recalculation.recalculationSource ?: OffenderEventRecalculation::class.simpleName!!,
+                recalculation.eventType
+            ),
             !recalculation.dryRun
         )
     }
 
     private fun getRecalculation(msg: String): TierCalculationMessage {
-        val (message) = objectMapper.readValue<SQSMessage>(msg)
-        return objectMapper.readValue<TierCalculationMessage>(message)
+        val (message, attributes) = objectMapper.readValue<SQSMessage>(msg)
+        return objectMapper.readValue<TierCalculationMessage>(message).forEventType(attributes.eventType)
     }
 
     companion object {
@@ -45,9 +49,17 @@ class TierCalculationRequiredEventListener(
 
 data class TierCalculationMessage(
     val crn: String,
-    val recalculationSource: RecalculationSource? = null,
+    val recalculationSource: String? = null,
     val dryRun: Boolean = false
-)
+) {
+    var eventType: String? = null
+        private set
+
+    fun forEventType(eventType: String?): TierCalculationMessage {
+        this.eventType = eventType
+        return this
+    }
+}
 
 data class SQSMessage(
     @JsonProperty("Message") val message: String,

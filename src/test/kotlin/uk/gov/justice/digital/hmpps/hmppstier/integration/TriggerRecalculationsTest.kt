@@ -46,7 +46,7 @@ class TriggerRecalculationsTest : IntegrationTestBase() {
                 "protect" to "A",
                 "change" to "1",
                 "version" to "2",
-                "recalculationReason" to "LimitedRecalculation",
+                "recalculationSource" to "LimitedRecalculation",
             ),
             null,
         )
@@ -88,7 +88,7 @@ class TriggerRecalculationsTest : IntegrationTestBase() {
                     "protect" to "A",
                     "change" to "1",
                     "version" to "2",
-                    "recalculationReason" to "FullRecalculation",
+                    "recalculationSource" to "FullRecalculation",
                 ),
                 null,
             )
