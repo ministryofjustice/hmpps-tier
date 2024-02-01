@@ -20,7 +20,8 @@ class CannotCalculateTierTest : IntegrationTestBase() {
                 "crn" to "X123456",
                 "exception" to "404 Not Found from GET http://localhost:8093/tier-details/X123456",
                 "recalculationSource" to "OffenderEventRecalculation",
-                "recalculationReason" to "OFFENDER_MANAGEMENT_TIER_CALCULATION_REQUIRED"
+                "recalculationReason" to "OFFENDER_MANAGEMENT_TIER_CALCULATION_REQUIRED",
+                "duplicateAttempt" to "false"
             ),
             null,
         )

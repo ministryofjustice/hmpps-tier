@@ -34,11 +34,11 @@ class TierCalculationService(
             mapOf("crn" to crn, "reason" to reason),
         )
     } catch (e: Exception) {
-        log.error("Unable to remove tier calculations for $crn")
         telemetryService.trackEvent(
             TIER_CALCULATION_REMOVAL_FAILED,
             mapOf("crn" to crn, "reasonToDelete" to reason, "failureReason" to e.message),
         )
+        throw e
     }
 
     fun calculateTierForCrn(crn: String, recalculationSource: RecalculationSource, allowUpdates: Boolean) {
@@ -59,10 +59,6 @@ class TierCalculationService(
                 )
             }
         } catch (e: Exception) {
-            if (e is DataIntegrityViolationException) {
-                log.error("Multiple concurrent attempts to calculate tier for $crn => $recalculationSource")
-                return
-            }
             val eventType = if (allowUpdates) TIER_CALCULATION_FAILED else TIER_RECALCULATION_DRY_RUN_FAILURE
             telemetryService.trackEvent(
                 eventType,
@@ -70,7 +66,8 @@ class TierCalculationService(
                     "crn" to crn,
                     "exception" to e.message,
                     "recalculationSource" to recalculationSource::class.simpleName,
-                    "recalculationReason" to if (recalculationSource is RecalculationSource.EventSource) recalculationSource.type else ""
+                    "recalculationReason" to if (recalculationSource is RecalculationSource.EventSource) recalculationSource.type else "",
+                    "duplicateAttempt" to (e is DataIntegrityViolationException).toString()
                 ),
             )
             if (allowUpdates) {
@@ -80,10 +77,10 @@ class TierCalculationService(
     }
 
     private fun checkForCrnNotFound(crn: String, e: Exception) {
-        if (e is CrnNotFoundException) {
-            deleteCalculationsForCrn(crn, "Not Found in Delius")
-        } else {
-            throw e
+        when (e) {
+            is DataIntegrityViolationException -> return
+            is CrnNotFoundException -> deleteCalculationsForCrn(crn, "Not Found in Delius")
+            else -> throw e
         }
     }
 
@@ -138,8 +135,4 @@ class TierCalculationService(
         ).toMap()
 
     private fun NeedSection.mapSeverity(): Pair<Need, NeedSeverity>? = severity?.let { section to it }
-
-    companion object {
-        private val log = LoggerFactory.getLogger(this::class.java)
-    }
 }
