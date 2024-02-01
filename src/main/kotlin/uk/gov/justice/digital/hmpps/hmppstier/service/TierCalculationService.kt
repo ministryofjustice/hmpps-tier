@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.slf4j.LoggerFactory
+import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentForTier
 import uk.gov.justice.digital.hmpps.hmppstier.client.NeedSection
@@ -58,6 +59,10 @@ class TierCalculationService(
                 )
             }
         } catch (e: Exception) {
+            if (e is DataIntegrityViolationException) {
+                log.error("Multiple concurrent attempts to calculate tier for $crn => $recalculationSource")
+                return
+            }
             val eventType = if (allowUpdates) TIER_CALCULATION_FAILED else TIER_RECALCULATION_DRY_RUN_FAILURE
             telemetryService.trackEvent(
                 eventType,

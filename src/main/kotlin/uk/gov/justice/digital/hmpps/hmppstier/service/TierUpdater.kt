@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierSummary
@@ -14,6 +15,7 @@ class TierUpdater(
     private val tierSummaryRepository: TierSummaryRepository,
 ) {
 
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun removeTierCalculationsFor(crn: String) {
         tierCalculationRepository.deleteAllByCrn(crn)
         tierSummaryRepository.deleteById(crn)
