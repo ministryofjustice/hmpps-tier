@@ -1,5 +1,5 @@
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.13.0"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.1"
     kotlin("plugin.spring") version "1.9.22"
     kotlin("plugin.jpa") version "1.9.22"
     jacoco
@@ -36,13 +36,13 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.7.0")
+    implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.7.1")
 
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.1.1")
+    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:2.2.1")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -52,10 +52,10 @@ dependencies {
     testImplementation("org.mock-server:mockserver-netty:5.15.0")
 
     testImplementation("com.ninja-squad:springmockk:4.0.2")
-    testImplementation("org.assertj:assertj-core:3.25.1")
+    testImplementation("org.assertj:assertj-core:3.25.2")
     testImplementation("org.awaitility:awaitility-kotlin:4.2.0")
-    testImplementation("io.jsonwebtoken:jjwt-impl:0.12.3")
-    testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+    testImplementation("io.jsonwebtoken:jjwt-impl:0.12.5")
+    testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
     testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
