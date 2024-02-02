@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 
 import io.jsonwebtoken.Jwts
-import io.jsonwebtoken.SignatureAlgorithm
 import org.springframework.context.annotation.Bean
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
@@ -14,7 +13,7 @@ import java.util.*
 
 @Component
 class JwtAuthHelper {
-    private val keyPair: KeyPair
+    private lateinit var keyPair: KeyPair
 
     init {
         val gen = KeyPairGenerator.getInstance("RSA")
@@ -32,11 +31,11 @@ class JwtAuthHelper {
         )
 
         return Jwts.builder()
-            .setId(UUID.randomUUID().toString())
-            .setSubject("hmpps-tier")
-            .addClaims(claims)
-            .setExpiration(Date(System.currentTimeMillis() + Duration.ofHours(1).toMillis()))
-            .signWith(keyPair.private, SignatureAlgorithm.RS256)
+            .id(UUID.randomUUID().toString())
+            .subject("hmpps-tier")
+            .claims(claims)
+            .expiration(Date(System.currentTimeMillis() + Duration.ofHours(1).toMillis()))
+            .signWith(keyPair.private)
             .compact()
     }
 }
