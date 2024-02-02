@@ -16,24 +16,30 @@ class MockServerPlugin : EventListener {
     private var arnsApiExtension: ArnsApiExtension = ArnsApiExtension()
 
     override fun setEventPublisher(publisher: EventPublisher?) {
-        publisher!!.registerHandlerFor(TestRunStarted::class.java, this::testRunStarted)
-        publisher.registerHandlerFor(TestRunFinished::class.java, this::testRunFinished)
-        publisher.registerHandlerFor(TestCaseStarted::class.java, this::testCaseStarted)
+        publisher!!.registerHandlerFor(TestRunStarted::class.java) {
+            testRunStarted()
+        }
+        publisher.registerHandlerFor(TestRunFinished::class.java) {
+            testRunFinished()
+        }
+        publisher.registerHandlerFor(TestCaseStarted::class.java) {
+            testCaseStarted()
+        }
     }
 
-    fun testRunStarted(event: TestRunStarted) {
+    fun testRunStarted() {
         tierToDeliusApiExtension.beforeAll(null)
         hmppsAuthApiExtension.beforeAll(null)
         arnsApiExtension.beforeAll(null)
     }
 
-    fun testCaseStarted(event: TestCaseStarted) {
+    fun testCaseStarted() {
         tierToDeliusApiExtension.beforeEach(null)
         hmppsAuthApiExtension.beforeEach(null)
         arnsApiExtension.beforeEach(null)
     }
 
-    fun testRunFinished(event: TestRunFinished) {
+    fun testRunFinished() {
         tierToDeliusApiExtension.afterAll(null)
         hmppsAuthApiExtension.afterAll(null)
         arnsApiExtension.afterAll(null)
