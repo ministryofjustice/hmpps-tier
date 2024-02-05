@@ -63,14 +63,14 @@ class RestClientConfiguration(
         rootUri: String,
         registrationId: String,
     ) = builder
-        .requestFactory(withTimeouts(Duration.ofSeconds(1), Duration.ofSeconds(10)))
+        .requestFactory(withTimeouts(Duration.ofSeconds(1), Duration.ofSeconds(40)))
         .requestInterceptor(HmppsAuthInterceptor(clientManager, registrationId))
+        .requestInterceptor(RetryInterceptor())
         .baseUrl(rootUri)
         .defaultHeaders {
             it.contentType = MediaType.APPLICATION_JSON
             it.accept = listOf(MediaType.APPLICATION_JSON)
         }
-        .requestInterceptor(RetryInterceptor())
         .build()
 
     fun withTimeouts(connection: Duration, read: Duration) =
