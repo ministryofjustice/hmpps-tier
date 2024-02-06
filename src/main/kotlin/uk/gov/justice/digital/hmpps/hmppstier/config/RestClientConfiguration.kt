@@ -14,7 +14,6 @@ import java.time.Duration
 @Configuration
 class RestClientConfiguration(
     @Value("\${arns.endpoint.url}") private val arnsApiRootUri: String,
-    @Value("\${assessment.endpoint.url}") private val assessmentApiRootUri: String,
     @Value("\${tier-to-delius.endpoint.url}") private val tierToDeliusApiRootUri: String,
 ) {
 
@@ -39,14 +38,6 @@ class RestClientConfiguration(
         builder: RestClient.Builder,
     ): RestClient {
         return getOAuthWebClient(authorizedClientManager, builder, arnsApiRootUri, "assessment-api")
-    }
-
-    @Bean
-    fun assessmentRestClient(
-        authorizedClientManager: OAuth2AuthorizedClientManager,
-        builder: RestClient.Builder,
-    ): RestClient {
-        return getOAuthWebClient(authorizedClientManager, builder, assessmentApiRootUri, "assessment-api")
     }
 
     @Bean
