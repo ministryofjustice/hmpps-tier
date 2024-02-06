@@ -6,9 +6,9 @@ generic-service:
   env:
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: https://sign-in-preprod.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json
     OAUTH_ENDPOINT_URL: https://sign-in-preprod.hmpps.service.justice.gov.uk/auth
-    ARNS_ENDPOINT_URL: https://assess-risks-and-needs-preprod.hmpps.service.justice.gov.uk
+    ARNS_ENDPOINT_URL: http://hmpps-assess-risks-and-needs.hmpps-assess-risks-and-needs-preprod.svc.cluster.local
     HMPPS_TIER_ENDPOINT_URL: https://hmpps-tier-preprod.hmpps.service.justice.gov.uk
-    TIER_TO_DELIUS_ENDPOINT_URL: https://tier-to-delius-preprod.hmpps.service.justice.gov.uk
+    TIER_TO_DELIUS_ENDPOINT_URL: http://tier-to-delius.hmpps-probation-integration-services-preprod.svc.cluster.local
     FULL_RECALC_DRY_RUN: "false"
 
   allowlist:
