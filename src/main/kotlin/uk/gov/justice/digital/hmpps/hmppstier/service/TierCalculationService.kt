@@ -53,6 +53,7 @@ class TierCalculationService(
                 telemetryService.trackEvent(
                     TIER_RECALCULATION_DRY_RUN,
                     mapOf(
+                        "crn" to crn,
                         "currentTier" to currentTier?.tierScore,
                         "calculatedTier" to "${tierCalculation.protectLevel()}${tierCalculation.changeLevel()}"
                     )
