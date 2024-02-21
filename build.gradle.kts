@@ -26,7 +26,7 @@ repositories {
 }
 dependencies {
 
-    runtimeOnly("org.postgresql:postgresql:42.7.1")
+    runtimeOnly("org.postgresql:postgresql:42.7.2")
     runtimeOnly("com.zaxxer:HikariCP")
     runtimeOnly("org.flywaydb:flyway-core")
 
