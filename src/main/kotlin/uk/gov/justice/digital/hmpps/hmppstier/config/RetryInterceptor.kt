@@ -5,6 +5,7 @@ import org.springframework.http.client.ClientHttpRequestExecution
 import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.web.client.RestClientException
+import java.io.IOException
 import java.net.http.HttpConnectTimeoutException
 import java.net.http.HttpTimeoutException
 import java.time.Duration
@@ -19,7 +20,10 @@ class RetryInterceptor(private val retries: Int = 3, private val delay: Duration
         execution: ClientHttpRequestExecution
     ): ClientHttpResponse = retry(
         retries,
-        listOf(RestClientException::class, HttpTimeoutException::class, HttpConnectTimeoutException::class),
+        listOf(
+            RestClientException::class,
+            IOException::class
+        ),
         delay
     ) {
         execution.execute(request, body)
