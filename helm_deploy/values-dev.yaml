@@ -28,4 +28,4 @@ generic-prometheus-alerts:
 
 recalculate:
   tier:
-    schedule: 0 18 * * 5
+    schedule: 30 6 * * 1
