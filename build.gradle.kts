@@ -1,5 +1,5 @@
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.3"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.4"
     kotlin("plugin.spring") version "1.9.23"
     kotlin("plugin.jpa") version "1.9.23"
     jacoco
@@ -17,7 +17,7 @@ dependencyCheck {
     suppressionFiles.add("suppressions.xml")
 }
 
-val cucumberVersion by extra("7.15.0")
+val cucumberVersion by extra("7.16.0")
 val springDocVersion by extra("1.6.14")
 
 repositories {
