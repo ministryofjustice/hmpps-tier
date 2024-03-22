@@ -38,6 +38,7 @@ class TierToDeliusApiService(private val tierToDeliusApiClient: TierToDeliusApiC
             getComplexityFactors(registrations),
             getRosh(registrations),
             getMappa(registrations),
+            isUnsupervised(registrations)
         )
     }
 
@@ -52,4 +53,7 @@ class TierToDeliusApiService(private val tierToDeliusApiClient: TierToDeliusApiC
 
     private fun hasIomNominal(registrations: Collection<DeliusRegistration>): Boolean =
         registrations.any { it.code == IomNominal.IOM_NOMINAL.registerCode }
+
+    private fun isUnsupervised(registrations: Collection<DeliusRegistration>): Boolean =
+        registrations.any { it.code == DeliusRegistration.TWO_THIRDS_CODE }
 }

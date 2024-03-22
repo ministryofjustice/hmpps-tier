@@ -3,10 +3,11 @@ package uk.gov.justice.digital.hmpps.hmppstier.dto
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
+import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto.Companion.getSuffix
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 data class TierDetailsDto @JsonCreator constructor(
 
@@ -28,8 +29,9 @@ data class TierDetailsDto @JsonCreator constructor(
 ) {
 
     companion object {
-        fun from(calculation: TierCalculationEntity) = TierDetailsDto(
-            calculation.data.protect.tier.value.plus(calculation.data.change.tier.value),
+        fun from(calculation: TierCalculationEntity, includeSuffix: Boolean) = TierDetailsDto(
+            calculation.data.protect.tier.value.plus(calculation.data.change.tier.value)
+                .plus(getSuffix(calculation.data.deliusInputs?.registrations?.unsupervised, includeSuffix)),
             calculation.uuid,
             calculation.created,
             calculation.data,

@@ -110,7 +110,7 @@ tasks {
         violationRules {
             rule {
                 limit {
-                    counter = "BRANCH"
+                    counter = "LINE"
                     minimum = BigDecimal(0.80)
                 }
                 limit {

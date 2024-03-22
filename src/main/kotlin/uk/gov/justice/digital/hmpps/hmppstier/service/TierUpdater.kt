@@ -31,7 +31,14 @@ class TierUpdater(
         val summary = tierSummaryRepository.findByIdOrNull(tierCalculation.crn)?.apply {
             protectLevel = tierCalculation.protectLevel()
             changeLevel = tierCalculation.changeLevel()
-        } ?: TierSummary(crn, tierCalculation.uuid, tierCalculation.protectLevel(), tierCalculation.changeLevel())
+            unsupervised = tierCalculation.data.deliusInputs?.registrations?.unsupervised == true
+        } ?: TierSummary(
+            crn,
+            tierCalculation.uuid,
+            tierCalculation.protectLevel(),
+            tierCalculation.changeLevel(),
+            tierCalculation.data.deliusInputs?.registrations?.unsupervised == true
+        )
         tierSummaryRepository.save(summary)
         return isUpdated
     }
@@ -41,6 +48,8 @@ class TierUpdater(
         crn: String,
     ): Boolean {
         val oldTierCal = tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
-        return newTierCal.data.protect.tier != oldTierCal?.data?.protect?.tier || newTierCal.data.change.tier != oldTierCal.data.change.tier
+        return newTierCal.data.protect.tier != oldTierCal?.data?.protect?.tier ||
+            newTierCal.data.change.tier != oldTierCal.data.change.tier ||
+            newTierCal.data.deliusInputs?.registrations?.unsupervised != oldTierCal.data.deliusInputs?.registrations?.unsupervised
     }
 }

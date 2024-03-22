@@ -10,6 +10,7 @@ generic-service:
     HMPPS_TIER_ENDPOINT_URL: https://hmpps-tier-preprod.hmpps.service.justice.gov.uk
     TIER_TO_DELIUS_ENDPOINT_URL: https://tier-to-delius-preprod.hmpps.service.justice.gov.uk
     FULL_RECALC_DRY_RUN: "false"
+    TIER_UNSUPERVISED_SUFFIX: "true"
 
   allowlist:
     delius-pre-prod-1: 52.56.240.62/32

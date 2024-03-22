@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
 import org.junit.jupiter.api.Test
+import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusRegistration
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
@@ -90,5 +91,23 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
         arnsApi.getNotFoundAssessment(crn)
         calculateTierFor(crn)
         expectTierChangedById("B2")
+    }
+
+    @Test
+    fun `uses two thirds registration to add suffix to tier`() {
+        val crn = "X445603"
+        tierToDeliusApi.getFullDetails(
+            crn,
+            TierDetails(
+                convictions = listOf(Conviction()),
+                registrations = listOf(
+                    Registration(registerLevel = "M2", typeCode = "HREG", startDate = LocalDate.of(2016, 6, 28)),
+                    Registration(typeCode = DeliusRegistration.TWO_THIRDS_CODE, startDate = LocalDate.of(2024, 3, 22)),
+                ),
+            ),
+        )
+        arnsApi.getNotFoundAssessment(crn)
+        calculateTierFor(crn)
+        expectTierChangedById("B2S")
     }
 }

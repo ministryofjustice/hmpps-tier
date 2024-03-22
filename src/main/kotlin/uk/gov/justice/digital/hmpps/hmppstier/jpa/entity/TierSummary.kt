@@ -22,6 +22,8 @@ class TierSummary(
     @Column(name = "change_level")
     var changeLevel: Int,
 
+    var unsupervised: Boolean,
+
     @Version
     val version: Long = 0,
 

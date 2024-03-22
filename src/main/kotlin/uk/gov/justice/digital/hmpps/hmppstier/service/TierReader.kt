@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDetailsDto
@@ -14,34 +15,41 @@ import java.util.*
 class TierReader(
     private val tierCalculationRepository: TierCalculationRepository,
     private val tierSummaryRepository: TierSummaryRepository,
+    @Value("\${tier.unsupervised.suffix}") private val includeSuffix: Boolean
 ) {
 
     fun getTierCounts() = tierSummaryRepository.getTierCounts()
 
     fun getLatestTierByCrn(crn: String): TierDto? =
         tierSummaryRepository.findByIdOrNull(crn)?.let {
-            TierDto.from(it)
+            TierDto.from(it, includeSuffix)
         } ?: getLatestTierCalculation(crn)?.let {
             try {
                 tierSummaryRepository.save(
                     TierSummary(
-                        it.crn, it.uuid, it.protectLevel(), it.changeLevel(), 0, it.created
+                        it.crn,
+                        it.uuid,
+                        it.protectLevel(),
+                        it.changeLevel(),
+                        it.data.deliusInputs?.registrations?.unsupervised == true,
+                        0,
+                        it.created
                     )
                 )
             } catch (ignored: Exception) {
                 // Doesn't matter if insert fails, should still return the result from the read
             }
-            TierDto.from(it)
+            TierDto.from(it, includeSuffix)
         }
 
     fun getLatestTierDetailsByCrn(crn: String): TierDetailsDto? =
         getLatestTierCalculation(crn)?.let {
-            TierDetailsDto.from(it)
+            TierDetailsDto.from(it, includeSuffix)
         }
 
     fun getTierByCalculationId(crn: String, calculationId: UUID): TierDto? =
         tierCalculationRepository.findByCrnAndUuid(crn, calculationId)?.let {
-            TierDto.from(it)
+            TierDto.from(it, includeSuffix)
         }
 
     private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
