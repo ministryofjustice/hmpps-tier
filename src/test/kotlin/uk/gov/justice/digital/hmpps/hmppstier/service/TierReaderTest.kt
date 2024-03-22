@@ -2,9 +2,9 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
@@ -17,6 +17,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierSummary
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierSummaryRepository
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import java.math.BigDecimal
@@ -32,11 +33,11 @@ internal class TierReaderTest {
     @Mock
     internal lateinit var tierCalculationRepository: TierCalculationRepository
 
-    @InjectMocks
     internal lateinit var tierReader: TierReader
 
     @Test
     fun `where summary doesn't exist detail is returned`() {
+        tierReader = TierReader(tierCalculationRepository, tierSummaryRepository, true)
         val tierCalculation = TierCalculationEntity(
             1L,
             UUID.randomUUID(),
@@ -64,5 +65,24 @@ internal class TierReaderTest {
         assertThat(res?.tierScore, equalTo("C3S"))
 
         verify(tierSummaryRepository).save(any())
+    }
+
+    @Test
+    fun `when suffix deactivated no suffix is provided`() {
+        tierReader = TierReader(tierCalculationRepository, tierSummaryRepository, false)
+        val tierSummary = TierSummary(
+            "S123456",
+            UUID.randomUUID(),
+            "C",
+            3,
+            true,
+            0,
+            LocalDateTime.now()
+        )
+
+        whenever(tierSummaryRepository.findById(tierSummary.crn)).thenReturn(Optional.of(tierSummary))
+
+        val res = tierReader.getLatestTierByCrn(tierSummary.crn)
+        assertThat(res?.tierScore, equalTo("C3"))
     }
 }

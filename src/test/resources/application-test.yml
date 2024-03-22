@@ -74,3 +74,5 @@ oauth:
     id: client-id
     secret: client-secret
 
+tier.unsupervised.suffix: true
+

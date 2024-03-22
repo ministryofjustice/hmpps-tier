@@ -34,7 +34,7 @@ class TierSummary(
 interface TierSummaryRepository : JpaRepository<TierSummary, String> {
     @Query(
         """
-        select ts.protectLevel as protectLevel, ts.changeLevel as changeLevel, ts.unsupervised as unsupervised, count(ts.crn) as count
+        select ts.protectLevel as protectLevel, ts.changeLevel as changeLevel, count(ts.crn) as count
         from TierSummary ts
         group by ts.protectLevel, ts.changeLevel
         order by ts.protectLevel, ts.changeLevel
@@ -46,6 +46,5 @@ interface TierSummaryRepository : JpaRepository<TierSummary, String> {
 interface TierCounts {
     val protectLevel: String
     val changeLevel: Int
-    val unsupervised: Boolean
     val count: Int
 }

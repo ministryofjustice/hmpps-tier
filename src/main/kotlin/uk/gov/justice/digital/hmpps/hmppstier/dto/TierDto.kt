@@ -25,22 +25,29 @@ data class TierDto @JsonCreator constructor(
     ) {
 
     companion object {
-        fun from(calculation: TierCalculationEntity): TierDto {
-            val suffix = if (calculation.data.deliusInputs?.registrations?.unsupervised == true) "S" else ""
+        private const val UNSUPERVISED_SUFFIX = "S"
+        fun from(calculation: TierCalculationEntity, includeSuffix: Boolean): TierDto {
             return TierDto(
-                "${calculation.protectLevel()}${calculation.changeLevel()}$suffix",
+                "${calculation.protectLevel()}${calculation.changeLevel()}${
+                    getSuffix(
+                        calculation.data.deliusInputs?.registrations?.unsupervised,
+                        includeSuffix
+                    )
+                }",
                 calculation.uuid,
                 calculation.created,
             )
         }
 
-        fun from(summary: TierSummary): TierDto {
-            val suffix = if (summary.unsupervised) "S" else ""
+        fun from(summary: TierSummary, includeSuffix: Boolean): TierDto {
             return TierDto(
-                "${summary.protectLevel}${summary.changeLevel}$suffix",
+                "${summary.protectLevel}${summary.changeLevel}${getSuffix(summary.unsupervised, includeSuffix)}",
                 summary.uuid,
                 summary.lastModified,
             )
         }
+
+        fun getSuffix(unsupervised: Boolean?, includeSuffix: Boolean) =
+            if (unsupervised == true && includeSuffix) UNSUPERVISED_SUFFIX else ""
     }
 }
