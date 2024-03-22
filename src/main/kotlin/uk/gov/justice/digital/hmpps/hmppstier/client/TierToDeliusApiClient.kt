@@ -63,7 +63,11 @@ data class DeliusRegistration @JsonCreator constructor(
     val code: String,
     val level: String?,
     val date: LocalDate,
-)
+) {
+    companion object {
+        const val TWO_THIRDS_CODE = "PRC"
+    }
+}
 
 data class DeliusConviction @JsonCreator constructor(
     val terminationDate: LocalDate?,

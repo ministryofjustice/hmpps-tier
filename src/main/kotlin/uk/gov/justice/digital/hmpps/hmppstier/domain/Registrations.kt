@@ -9,4 +9,5 @@ data class Registrations(
     val complexityFactors: Collection<ComplexityFactor>,
     val rosh: Rosh?,
     val mappa: Mappa?,
+    val unsupervised: Boolean?
 )

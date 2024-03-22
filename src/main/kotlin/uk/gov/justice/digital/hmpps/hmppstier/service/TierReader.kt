@@ -25,7 +25,13 @@ class TierReader(
             try {
                 tierSummaryRepository.save(
                     TierSummary(
-                        it.crn, it.uuid, it.protectLevel(), it.changeLevel(), 0, it.created
+                        it.crn,
+                        it.uuid,
+                        it.protectLevel(),
+                        it.changeLevel(),
+                        it.data.deliusInputs?.registrations?.unsupervised == true,
+                        0,
+                        it.created
                     )
                 )
             } catch (ignored: Exception) {

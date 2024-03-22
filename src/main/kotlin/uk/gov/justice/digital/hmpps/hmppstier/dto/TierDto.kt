@@ -26,16 +26,18 @@ data class TierDto @JsonCreator constructor(
 
     companion object {
         fun from(calculation: TierCalculationEntity): TierDto {
+            val suffix = if (calculation.data.deliusInputs?.registrations?.unsupervised == true) "S" else ""
             return TierDto(
-                "${calculation.protectLevel()}${calculation.changeLevel()}",
+                "${calculation.protectLevel()}${calculation.changeLevel()}$suffix",
                 calculation.uuid,
                 calculation.created,
             )
         }
 
         fun from(summary: TierSummary): TierDto {
+            val suffix = if (summary.unsupervised) "S" else ""
             return TierDto(
-                "${summary.protectLevel}${summary.changeLevel}",
+                "${summary.protectLevel}${summary.changeLevel}$suffix",
                 summary.uuid,
                 summary.lastModified,
             )
