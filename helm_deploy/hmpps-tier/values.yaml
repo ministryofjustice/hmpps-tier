@@ -26,7 +26,7 @@ generic-service:
     annotations:
       nginx.ingress.kubernetes.io/custom-http-errors: "418"
       external-dns.alpha.kubernetes.io/aws-weight: "100"
-      nginx.ingress.kubernetes.io/configuration-snippet: |
+      nginx.ingress.kubernetes.io/server-snippet: |
         server_tokens off;
         location /queue-admin/retry-all-dlqs {
           deny all;

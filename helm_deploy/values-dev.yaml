@@ -29,4 +29,4 @@ generic-prometheus-alerts:
 
 recalculate:
   tier:
-    schedule: 30 6 * * 1
+    schedule: 0 18 * * MON-FRI
