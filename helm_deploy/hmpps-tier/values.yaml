@@ -26,6 +26,12 @@ generic-service:
     annotations:
       nginx.ingress.kubernetes.io/custom-http-errors: "418"
       external-dns.alpha.kubernetes.io/aws-weight: "100"
+      nginx.ingress.kubernetes.io/server-snippet: |
+        server_tokens off;
+        location /queue-admin/retry-all-dlqs {
+          deny all;
+          return 401;
+        }
 
   # Environment variables to load into the deployment
   env:
