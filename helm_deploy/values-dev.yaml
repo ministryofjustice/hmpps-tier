@@ -11,6 +11,7 @@ generic-service:
     TIER_TO_DELIUS_ENDPOINT_URL: https://tier-to-delius-dev.hmpps.service.justice.gov.uk
     FULL_RECALC_DRY_RUN: "false"
     TIER_UNSUPERVISED_SUFFIX: "true"
+    JDK_JAVA_OPTIONS: "-Djdk.httpclient.keepalive.timeout=30"
 
   allowlist:
     dxw-vpn: 54.76.254.148/32
