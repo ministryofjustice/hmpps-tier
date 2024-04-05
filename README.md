@@ -7,7 +7,7 @@
 https://app.circleci.com/pipelines/github/ministryofjustice/hmpps-tier
 
 ### Prerequisites  
-* Java JDK 18  
+* Java JDK 21
 * An editor/IDE
 * Gradle  
 * Docker  
