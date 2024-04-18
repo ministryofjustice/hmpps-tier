@@ -17,7 +17,7 @@ dependencyCheck {
     suppressionFiles.add("suppressions.xml")
 }
 
-val cucumberVersion by extra("7.16.1")
+val cucumberVersion by extra("7.17.0")
 val springDocVersion by extra("1.6.14")
 
 repositories {
@@ -36,7 +36,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.7.3")
+    implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.7.4")
 
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
