@@ -10,7 +10,7 @@ generic-service:
     HMPPS_TIER_ENDPOINT_URL: https://hmpps-tier.hmpps.service.justice.gov.uk
     TIER_TO_DELIUS_ENDPOINT_URL: http://tier-to-delius.hmpps-probation-integration-services-prod.svc.cluster.local
     FULL_RECALC_DRY_RUN: "false"
-    TIER_UNSUPERVISED_SUFFIX: "false"
+    TIER_UNSUPERVISED_SUFFIX: "true"
 
   allowlist:
     delius-prod-1: 52.56.115.146/32
