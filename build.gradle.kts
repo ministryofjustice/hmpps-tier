@@ -1,5 +1,5 @@
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.6"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.0"
     kotlin("plugin.spring") version "2.0.0"
     kotlin("plugin.jpa") version "2.0.0"
     jacoco
@@ -28,7 +28,7 @@ dependencies {
 
     runtimeOnly("org.postgresql:postgresql:42.7.3")
     runtimeOnly("com.zaxxer:HikariCP")
-    runtimeOnly("org.flywaydb:flyway-core")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
 
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
 
