@@ -1,0 +1,1 @@
+spring.datasource.url: 'jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?stringtype=unspecified&sslmode=verify-full'
