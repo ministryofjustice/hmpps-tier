@@ -1,5 +1,5 @@
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.0"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.1"
     kotlin("plugin.spring") version "2.0.0"
     kotlin("plugin.jpa") version "2.0.0"
     jacoco
@@ -17,7 +17,7 @@ dependencyCheck {
     suppressionFiles.add("suppressions.xml")
 }
 
-val cucumberVersion by extra("7.18.0")
+val cucumberVersion by extra("7.18.1")
 val springDocVersion by extra("1.6.14")
 
 repositories {
@@ -30,19 +30,19 @@ dependencies {
     runtimeOnly("com.zaxxer:HikariCP")
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
 
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.7.6")
+    implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.8.1")
 
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:4.1.0-beta")
+    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:4.1.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -52,14 +52,14 @@ dependencies {
     testImplementation("org.mock-server:mockserver-netty:5.15.0")
 
     testImplementation("com.ninja-squad:springmockk:4.0.2")
-    testImplementation("org.assertj:assertj-core:3.26.0")
+    testImplementation("org.assertj:assertj-core:3.26.3")
     testImplementation("org.awaitility:awaitility-kotlin:4.2.1")
-    testImplementation("io.jsonwebtoken:jjwt-impl:0.12.5")
-    testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
+    testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
+    testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
     testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
-    testImplementation("org.junit.platform:junit-platform-console:1.10.2")
+    testImplementation("org.junit.platform:junit-platform-console:1.10.3")
 }
 
 jacoco {
