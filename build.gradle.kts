@@ -42,7 +42,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:4.1.0")
+    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:4.2.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -53,7 +53,7 @@ dependencies {
 
     testImplementation("com.ninja-squad:springmockk:4.0.2")
     testImplementation("org.assertj:assertj-core:3.26.3")
-    testImplementation("org.awaitility:awaitility-kotlin:4.2.1")
+    testImplementation("org.awaitility:awaitility-kotlin:4.2.2")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
     testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
