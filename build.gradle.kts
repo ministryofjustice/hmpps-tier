@@ -1,5 +1,5 @@
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.2"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.3"
     kotlin("plugin.spring") version "2.0.10"
     kotlin("plugin.jpa") version "2.0.10"
     jacoco
@@ -42,7 +42,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:4.2.0")
+    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:4.3.1")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -59,7 +59,7 @@ dependencies {
     testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
-    testImplementation("org.junit.platform:junit-platform-console:1.10.3")
+    testImplementation("org.junit.platform:junit-platform-console:1.11.0")
 }
 
 jacoco {
