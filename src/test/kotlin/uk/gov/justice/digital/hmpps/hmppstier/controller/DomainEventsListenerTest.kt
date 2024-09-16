@@ -70,6 +70,30 @@ class DomainEventsListenerTest : IntegrationTestBase() {
     }
 
     @Test
+    fun `tier details of unmerged offenders are recalculated appropriately`() {
+        val eventType = "probation-case.unmerge.completed"
+        val target = "M987655"
+        val source = "D987655"
+        sendDomainEvent(
+            DomainEventsMessage(
+                eventType,
+                PersonReference(listOf(Identifiers("CRN", target))),
+                mapOf("unmergedCRN" to target, "reactivatedCRN" to source),
+            )
+        )
+        verify(tierCalculationService, timeout(5000)).calculateTierForCrn(
+            target,
+            RecalculationSource.EventSource.DomainEventRecalculation(eventType),
+            true
+        )
+        verify(tierCalculationService, timeout(5000)).calculateTierForCrn(
+            source,
+            RecalculationSource.EventSource.DomainEventRecalculation(eventType),
+            true
+        )
+    }
+
+    @Test
     fun `tier details of gdpr deleted crn are deleted`() {
         val eventType = "probation-case.deleted.gdpr"
         val crn = "D765432"

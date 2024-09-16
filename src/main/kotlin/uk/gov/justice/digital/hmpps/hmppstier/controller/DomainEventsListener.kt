@@ -39,6 +39,11 @@ class DomainEventsListener(
                 }
             }
 
+            "probation-case.unmerge.completed" -> {
+                calculateTier(message.unmergedCrn, message.eventType)
+                calculateTier(message.reactivatedCrn, message.eventType)
+            }
+
             else -> calculateTier(message.crn, message.eventType)
         }
     }
@@ -55,6 +60,8 @@ data class DomainEventsMessage(
 ) {
     val crn = personReference.identifiers.firstOrNull { it.type == "CRN" }?.value
     val sourceCrn = additionalInformation?.get("sourceCRN") as String?
+    val unmergedCrn = additionalInformation?.get("unmergedCRN") as String?
+    val reactivatedCrn = additionalInformation?.get("reactivatedCRN") as String?
 }
 
 data class PersonReference(
