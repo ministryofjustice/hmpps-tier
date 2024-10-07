@@ -36,7 +36,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.8.2")
+    implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.8.3")
 
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
@@ -59,7 +59,7 @@ dependencies {
     testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
-    testImplementation("org.junit.platform:junit-platform-console:1.11.1")
+    testImplementation("org.junit.platform:junit-platform-console:1.11.2")
 }
 
 jacoco {
