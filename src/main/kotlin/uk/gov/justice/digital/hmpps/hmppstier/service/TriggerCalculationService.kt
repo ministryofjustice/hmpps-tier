@@ -48,14 +48,17 @@ class TriggerCalculationService(
         )
         val messageBody = SQSMessage(objectMapper.writeValueAsString(domainEvent))
         log.info("publishing event type {} for crn {}", eventType, crn)
-        sqsClient.sendMessage(SendMessageRequest.builder()
-            .queueUrl(queueUrl)
-            .messageBody(objectMapper.writeValueAsString(messageBody))
-            .messageAttributes(
-                mapOf(
-                    "eventType" to MessageAttributeValue.builder().dataType("String").stringValue(eventType).build(),
-                ),
-            ).build())
+        sqsClient.sendMessage(
+            SendMessageRequest.builder()
+                .queueUrl(queueUrl)
+                .messageBody(objectMapper.writeValueAsString(messageBody))
+                .messageAttributes(
+                    mapOf(
+                        "eventType" to MessageAttributeValue.builder().dataType("String").stringValue(eventType)
+                            .build(),
+                    ),
+                ).build()
+        )
     }
 
     companion object {

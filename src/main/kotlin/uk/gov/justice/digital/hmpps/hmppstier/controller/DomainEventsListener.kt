@@ -58,7 +58,12 @@ class DomainEventsListener(
         }
     }
 
-    private fun calculateTier(crn: String?, eventType: String, dryRun: Boolean = false, recalculationSource: String? = null) = crn?.also {
+    private fun calculateTier(
+        crn: String?,
+        eventType: String,
+        dryRun: Boolean = false,
+        recalculationSource: String? = null
+    ) = crn?.also {
         val source = recalculationSource?.let { RecalculationSource.of(recalculationSource, eventType) }
             ?: RecalculationSource.EventSource.DomainEventRecalculation(eventType)
         calculator.calculateTierForCrn(crn, source, true)
