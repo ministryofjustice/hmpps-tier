@@ -11,6 +11,7 @@ generic-service:
     TIER_TO_DELIUS_ENDPOINT_URL: https://tier-to-delius-dev.hmpps.service.justice.gov.uk
     FULL_RECALC_DRY_RUN: "false"
     TIER_UNSUPERVISED_SUFFIX: "true"
+    SENTRY_ENVIRONMENT: dev
 
   allowlist:
     dxw-vpn: 54.76.254.148/32
@@ -23,7 +24,6 @@ generic-service:
 generic-prometheus-alerts:
   businessHoursOnly: true
   sqsNumberAlertQueueNames:
-    - "Digital-Prison-Services-dev-hmpps_tier_offender_events_queue_dl"
     - "manage-a-workforce-development-hmpps_tier_domain_events_dlq"
   sqsAlertsTotalMessagesThreshold: 1
 

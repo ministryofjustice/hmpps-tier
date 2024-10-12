@@ -60,13 +60,6 @@ abstract class IntegrationTestBase {
     @SpyBean
     lateinit var telemetryClient: TelemetryClient
 
-    private val offenderEventsQueue by lazy {
-        hmppsQueueService.findByQueueId("hmppsoffenderqueue")
-            ?: throw MissingQueueException("HmppsQueue hmppsoffenderqueue not found")
-    }
-    private val offenderEventsDlqClient by lazy { offenderEventsQueue.sqsDlqClient }
-    private val offenderEventsClient by lazy { offenderEventsQueue.sqsClient }
-
     private val domainEventQueue by lazy {
         hmppsQueueService.findByQueueId("hmppsdomaineventsqueue")
             ?: throw MissingQueueException("HmppsQueue hmppsdomaineventsqueue not found")
@@ -88,13 +81,9 @@ abstract class IntegrationTestBase {
 
     @BeforeEach
     fun `purge Queues`() {
-        offenderEventsClient.purgeQueue(PurgeQueueRequest.builder().queueUrl(offenderEventsQueue.queueUrl).build())
-            .get()
         calculationCompleteClient.purgeQueue(
             PurgeQueueRequest.builder().queueUrl(calculationCompleteQueue.queueUrl).build(),
         ).get()
-        offenderEventsDlqClient!!.purgeQueue(PurgeQueueRequest.builder().queueUrl(offenderEventsQueue.dlqUrl).build())
-            .get()
         domainEventQueueClient.purgeQueue(PurgeQueueRequest.builder().queueUrl(domainEventQueue.queueUrl).build()).get()
         domainEventQueueDlqClient!!.purgeQueue(PurgeQueueRequest.builder().queueUrl(domainEventQueue.dlqUrl).build())
             .get()
@@ -108,7 +97,6 @@ abstract class IntegrationTestBase {
         arnsApi.getTierAssessmentDetails(crn, assessmentId, mapOf(), mapOf())
     }
 
-    fun calculateTierFor(crn: String) = putMessageOnQueue(offenderEventsClient, offenderEventsQueue.queueUrl, crn)
     fun calculateTierForDomainEvent(crn: String) = putMessageOnDomainQueue(
         domainEventQueueClient,
         domainEventQueue.queueUrl,

@@ -17,7 +17,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
         val crn = "X473878"
         tierToDeliusApi.getFullDetails(crn, TierDetails(convictions = listOf(Conviction())))
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 7234567890)
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("B1")
     }
 
@@ -32,7 +32,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
             ),
         )
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 6234567890)
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("B1")
     }
 
@@ -52,7 +52,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
             ),
         )
         arnsApi.getNotFoundAssessment(crn)
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("A2")
     }
 
@@ -71,7 +71,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
             ),
         )
         arnsApi.getNotFoundAssessment(crn)
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectLatestTierCalculation("D2")
     }
 
@@ -89,7 +89,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
             ),
         )
         arnsApi.getNotFoundAssessment(crn)
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("B2")
     }
 
@@ -107,7 +107,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
             ),
         )
         arnsApi.getNotFoundAssessment(crn)
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("B2S")
     }
 }

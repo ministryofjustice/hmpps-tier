@@ -14,7 +14,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.MEDIUM
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Requirement
-import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnQueue
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnDomainQueue
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
 import java.time.LocalDateTime
@@ -34,13 +34,13 @@ class BddSteps : En {
     @Autowired
     private lateinit var hmppsQueueService: HmppsQueueService
 
-    @Qualifier("hmppsoffenderqueue-sqs-client")
+    @Qualifier("hmppsdomaineventsqueue-sqs-client")
     @Autowired
-    lateinit var offenderEventsClient: SqsAsyncClient
+    lateinit var domainEventsClient: SqsAsyncClient
 
     private val eventQueueUrl by lazy {
-        hmppsQueueService.findByQueueId("hmppsoffenderqueue")?.queueUrl
-            ?: throw MissingQueueException("HmppsQueue tiercalculationqueue not found")
+        hmppsQueueService.findByQueueId("hmppsdomaineventsqueue")?.queueUrl
+            ?: throw MissingQueueException("HmppsQueue hmppsdomaineventsqueue not found")
     }
 
     private lateinit var setupData: SetupData
@@ -57,7 +57,7 @@ class BddSteps : En {
 
         Before { _: Scenario ->
 
-            offenderEventsClient.purgeQueue(PurgeQueueRequest.builder().queueUrl(eventQueueUrl).build()).get()
+            domainEventsClient.purgeQueue(PurgeQueueRequest.builder().queueUrl(eventQueueUrl).build()).get()
             calculationCompleteClient.purgeQueue(PurgeQueueRequest.builder().queueUrl(calculationCompleteUrl).build())
                 .get()
 
@@ -289,7 +289,7 @@ class BddSteps : En {
 
         When("a tier is calculated") {
             setupData.prepareResponses()
-            putMessageOnQueue(offenderEventsClient, eventQueueUrl, crn)
+            putMessageOnDomainQueue(domainEventsClient, eventQueueUrl, crn)
         }
     }
 }

@@ -11,6 +11,7 @@ generic-service:
     TIER_TO_DELIUS_ENDPOINT_URL: https://tier-to-delius-preprod.hmpps.service.justice.gov.uk
     FULL_RECALC_DRY_RUN: "false"
     TIER_UNSUPERVISED_SUFFIX: "true"
+    SENTRY_ENVIRONMENT: preprod
 
   allowlist:
     delius-pre-prod-1: 52.56.240.62/32
@@ -21,10 +22,6 @@ generic-service:
   namespace_secrets:
     hmpps-domain-events-topic:
       HMPPS_SQS_TOPICS_HMPPSCALCULATIONCOMPLETETOPIC_ARN: "topic_arn"
-    hmpps-tier-offender-events-sqs-instance-output:
-      HMPPS_SQS_QUEUES_HMPPSOFFENDERQUEUE_QUEUE_NAME: "sqs_ptpu_name"
-    hmpps-tier-offender-events-sqs-dl-instance-output:
-      HMPPS_SQS_QUEUES_HMPPSOFFENDERQUEUE_DLQ_NAME: "sqs_ptpu_name"
     sqs-domain-events-secret:
       HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_QUEUE_NAME: "sqs_queue_name"
     sqs-domain-events-dl-secret:
@@ -35,7 +32,6 @@ generic-service:
 generic-prometheus-alerts:
   businessHoursOnly: true
   sqsNumberAlertQueueNames:
-    - "Digital-Prison-Services-preprod-hmpps_tier_offender_events_queue_dl"
     - "manage-a-workforce-preproduction-hmpps_tier_domain_events_dlq"
   sqsAlertsTotalMessagesThreshold: 1
 

@@ -28,7 +28,7 @@ class TierCalculationTest : IntegrationTestBase() {
         )
         arnsApi.getNotFoundAssessment(crn)
 
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("D2")
     }
 
@@ -46,7 +46,7 @@ class TierCalculationTest : IntegrationTestBase() {
         )
         arnsApi.getNotFoundAssessment(crn)
 
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("A2")
 
         tierToDeliusApi.getFullDetails(
@@ -60,7 +60,7 @@ class TierCalculationTest : IntegrationTestBase() {
         )
         arnsApi.getNotFoundAssessment(crn)
 
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("A2")
     }
 
@@ -78,7 +78,7 @@ class TierCalculationTest : IntegrationTestBase() {
         )
         arnsApi.getNotFoundAssessment(crn)
 
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("A2")
 
         tierToDeliusApi.getFullDetails(
@@ -93,7 +93,7 @@ class TierCalculationTest : IntegrationTestBase() {
         )
         arnsApi.getTierAssessmentDetails(crn, 4234568899, Need.entries.associateWith { NeedSeverity.SEVERE })
 
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("A3")
     }
 
@@ -111,7 +111,7 @@ class TierCalculationTest : IntegrationTestBase() {
         )
         arnsApi.getNotFoundAssessment(crn)
 
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("A2")
 
         tierToDeliusApi.getFullDetails(
@@ -124,7 +124,7 @@ class TierCalculationTest : IntegrationTestBase() {
             ),
         )
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, 4234568891)
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("A1")
     }
 
@@ -142,7 +142,7 @@ class TierCalculationTest : IntegrationTestBase() {
         )
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234568890)
 
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("A1")
 
         tierToDeliusApi.getFullDetails(
@@ -156,7 +156,7 @@ class TierCalculationTest : IntegrationTestBase() {
         )
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234568890)
 
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("B1")
     }
 
@@ -174,7 +174,7 @@ class TierCalculationTest : IntegrationTestBase() {
         )
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234568890)
 
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectLatestTierCalculation("A1")
 
         tierToDeliusApi.getFullDetails(
@@ -188,7 +188,7 @@ class TierCalculationTest : IntegrationTestBase() {
         )
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234568890)
 
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectLatestTierCalculation("B1")
     }
 

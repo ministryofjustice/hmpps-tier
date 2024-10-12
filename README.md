@@ -55,17 +55,9 @@ If you want to write the tier back into community-api, also run hmpps-tier-to-de
 
 Localstack has SQS and SNS. The queue and topic are set up and populated in `setup-sqs.sh` You can access them from the command line as per the following example
 
-Offender events queue attributes
+Force a local tier calculation by calling the `/calculations` API
 ```shell
-AWS_ACCESS_KEY_ID=key AWS_SECRET_ACCESS_KEY=secret aws sqs get-queue-attributes --queue-url http://localhost:4576/queue/Digital-Prison-Services-dev-hmpps_tier_offender_events_queue --attribute-names ApproximateNumberOfMessages --endpoint-url=http://localhost:4576
-```
-
-Force a local tier calculation by publishing a message to the offender events SNS topic like this: 
-```shell
-AWS_ACCESS_KEY_ID=key AWS_SECRET_ACCESS_KEY=secret aws --endpoint-url=http://localhost:4575 sns publish \
-    --topic-arn arn:aws:sns:eu-west-2:000000000000:offender_events \
-    --message-attributes '{"eventType": {"DataType": "String","StringValue": "OFFENDER_MANAGEMENT_TIER_CALCULATION_REQUIRED"},"source": {"DataType": "String","StringValue": "delius"},"id": {"DataType": "String","StringValue": "fcf89ef7-f6e8-ee95-326f-8ce87d3b8ea0"},"contentType": {"DataType": "String","StringValue": "text/plain;charset=UTF-8"},"timestamp": {"DataType": "Number","StringValue": "1611149702333"}}' \
-    --message '{"offenderId":2500468261,"crn":"X320741","sourceId":11174,"eventDatetime":"2021-01-20T13:34:59"}'
+curl --json '["A123456"]' 'http://localhost:8080/calculations?dryRun=false'
 ```
     
 View the tier calculation complete event:

@@ -9,11 +9,6 @@ import uk.gov.justice.hmpps.sqs.countMessagesOnQueue
 import java.nio.file.Files
 import java.nio.file.Paths
 
-fun putMessageOnQueue(client: SqsAsyncClient, queueUrl: String, crn: String) {
-    val message = calculationMessage(crn)
-    client.sendMessage(SendMessageRequest.builder().queueUrl(queueUrl).messageBody(message).build()).get()
-}
-
 fun putMessageOnDomainQueue(client: SqsAsyncClient, queueUrl: String, crn: String) {
     val message = calculationDomainMessage(crn)
     client.sendMessage(SendMessageRequest.builder().queueUrl(queueUrl).messageBody(message).build()).get()
@@ -28,11 +23,6 @@ fun oneMessageCurrentlyOnQueue(client: SqsAsyncClient, queueUrl: String) {
     await untilCallTo {
         client.countMessagesOnQueue(queueUrl).get()
     } matches { it == 1 }
-}
-
-private fun calculationMessage(crn: String): String {
-    return Files.readString(Paths.get("src/test/resources/fixtures/sqs/tier-calculation-event.json"))
-        .replace("X373878", crn)
 }
 
 private fun calculationDomainMessage(crn: String): String {
