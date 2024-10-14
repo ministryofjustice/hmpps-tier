@@ -20,7 +20,7 @@ class NoSentenceTest : IntegrationTestBase() {
             ),
         )
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 5234567890)
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("A0")
     }
 }

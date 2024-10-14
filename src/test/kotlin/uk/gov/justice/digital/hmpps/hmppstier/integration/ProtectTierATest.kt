@@ -24,7 +24,7 @@ class ProtectTierATest : IntegrationTestBase() {
             ),
         )
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 5234567891)
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("A1")
     }
 
@@ -41,7 +41,7 @@ class ProtectTierATest : IntegrationTestBase() {
             ),
         )
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 5234567892)
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("A1")
     }
 
@@ -58,7 +58,7 @@ class ProtectTierATest : IntegrationTestBase() {
             ),
         )
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 5234567893)
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("A1")
     }
 
@@ -79,7 +79,7 @@ class ProtectTierATest : IntegrationTestBase() {
             ),
         )
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 5234567894)
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("B1")
     }
 }

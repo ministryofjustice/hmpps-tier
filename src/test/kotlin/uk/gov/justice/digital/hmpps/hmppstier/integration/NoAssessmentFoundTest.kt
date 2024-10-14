@@ -24,7 +24,7 @@ class NoAssessmentFoundTest : IntegrationTestBase() {
         )
         arnsApi.getNotFoundAssessment(crn)
 
-        calculateTierFor(crn)
+        calculateTierForDomainEvent(crn)
         expectTierChangedById("A2")
     }
 }

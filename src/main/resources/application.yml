@@ -61,8 +61,6 @@ hmpps:
     reactiveApi: true
     queueAdminRole: ROLE_TIER_API_QUEUE_ADMIN
     queues:
-      hmppsoffenderqueue:
-        asyncQueueClient: true
       hmppsdomaineventsqueue:
         asyncQueueClient: true
     topics:
