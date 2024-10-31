@@ -7,7 +7,7 @@ on:
 
 jobs:
   trivy:
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/security_trivy.yml@e45d186d3bf49471463ffb60b47288cebc91a2b6 # v1
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/security_trivy.yml@8764f1a96d9a11b0e251308595d54132943d2c2e # v1
     with:
       channel_id: probation-integration-notifications
     secrets:
