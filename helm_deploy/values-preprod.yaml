@@ -9,7 +9,6 @@ generic-service:
     ARNS_ENDPOINT_URL: https://assess-risks-and-needs-preprod.hmpps.service.justice.gov.uk
     HMPPS_TIER_ENDPOINT_URL: https://hmpps-tier-preprod.hmpps.service.justice.gov.uk
     TIER_TO_DELIUS_ENDPOINT_URL: https://tier-to-delius-preprod.hmpps.service.justice.gov.uk
-    FULL_RECALC_DRY_RUN: "false"
     TIER_UNSUPERVISED_SUFFIX: "true"
     SENTRY_ENVIRONMENT: preprod
 
@@ -35,6 +34,6 @@ generic-prometheus-alerts:
     - "manage-a-workforce-preproduction-hmpps_tier_domain_events_dlq"
   sqsAlertsTotalMessagesThreshold: 1
 
-recalculate:
-  tier:
-    schedule: 30 6 * * 1
+full-recalculation:
+  schedule: 30 6 * * 1
+  dry-run: false

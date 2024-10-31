@@ -9,7 +9,6 @@ generic-service:
     ARNS_ENDPOINT_URL: http://hmpps-assess-risks-and-needs.hmpps-assess-risks-and-needs-prod.svc.cluster.local
     HMPPS_TIER_ENDPOINT_URL: https://hmpps-tier.hmpps.service.justice.gov.uk
     TIER_TO_DELIUS_ENDPOINT_URL: http://tier-to-delius.hmpps-probation-integration-services-prod.svc.cluster.local
-    FULL_RECALC_DRY_RUN: "false"
     TIER_UNSUPERVISED_SUFFIX: "true"
     SENTRY_ENVIRONMENT: prod
 
@@ -27,6 +26,6 @@ generic-prometheus-alerts:
   sqsAlertsTotalMessagesThreshold: 1
   ingress5xxErrorWindowMinutes: 4
 
-recalculate:
-  tier:
-    schedule: 0 18 * * 5
+full-recalculation:
+  schedule: 0 18 * * 5
+  dry-run: false

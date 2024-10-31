@@ -3,7 +3,7 @@ kind: CronJob
 metadata:
   name: recalculate-tiers
 spec:
-  schedule: {{ .Values.recalculate.tier.schedule }}
+  schedule: {{ index .Values "full-recalculation" "schedule" }}
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
@@ -13,28 +13,40 @@ spec:
         spec:
           containers:
             - name: recalculate-tiers
-              image: ghcr.io/ministryofjustice/hmpps-devops-tools
-              args:
-                - /bin/sh
-                - -c
-                - 'curl -fsSL -X POST "https://$BASE_URL/calculations?dryRun=$DRY_RUN" --header "Authorization: Bearer $(curl -fsSL --request POST "$AUTH_BASE_URL/oauth/token?grant_type=client_credentials" --user "$CLIENT_ID:$CLIENT_SECRET"  | jq -r .access_token)" --header "Content-Type: application/json"'
+              image: "quay.io/hmpps/hmpps-tier:{{ index .Values "generic-service" "image" "tag" }}"
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                runAsNonRoot: true
+                allowPrivilegeEscalation: false
+                seccompProfile:
+                  type: RuntimeDefault
+              resources:
+                requests:
+                  memory: "1Gi"
+                  cpu: "4"
+                limits:
+                  memory: "2Gi"
+                  cpu: "4"
               env:
-                - name: AUTH_BASE_URL
-                  value: {{ index .Values "generic-service" "env" "OAUTH_ENDPOINT_URL" }}
-                - name: BASE_URL
-                  value: {{ index .Values "generic-service" "ingress" "host" }}
-                - name: DRY_RUN
-                  value: "{{ index .Values "generic-service" "env" "FULL_RECALC_DRY_RUN" }}"
-                - name: CLIENT_ID
+                {{- range $secret, $envs := index .Values "generic-service" "namespace_secrets" }}
+                  {{- range $key, $val := $envs }}
+                - name: {{ $key }}
                   valueFrom:
                     secretKeyRef:
-                      name: hmpps-tier
-                      key: OAUTH_CLIENT_ID
-                      optional: false
-                - name: CLIENT_SECRET
-                  valueFrom:
-                    secretKeyRef:
-                      name: hmpps-tier
-                      key: OAUTH_CLIENT_SECRET
-                      optional: false
+                      key: {{ trimSuffix "?" $val }}
+                      name: {{ $secret }}{{ if hasSuffix "?" $val }}
+                      optional: true{{ end }}  {{- end }}
+                {{- end }}
+                {{- range $key, $val := index .Values "generic-service" "env" }}
+                - name: {{ $key }}
+                  value: "{{ $val }}"
+                {{- end }}
+                - name: MESSAGING_CONSUMER_ENABLED
+                  value: "false"
+                - name: FULL-RECALCULATION_ENABLED
+                  value: "true"
+                - name: FULL-RECALCULATION_DRY-RUN
+                  value: "{{ index .Values "full-recalculation" "dry-run" }}"
           restartPolicy: Never
