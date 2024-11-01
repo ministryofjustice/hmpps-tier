@@ -11,6 +11,7 @@ spec:
     spec:
       template:
         spec:
+          serviceAccountName: hmpps-tier
           containers:
             - name: recalculate-tiers
               image: "quay.io/hmpps/hmpps-tier:{{ index .Values "generic-service" "image" "tag" }}"
