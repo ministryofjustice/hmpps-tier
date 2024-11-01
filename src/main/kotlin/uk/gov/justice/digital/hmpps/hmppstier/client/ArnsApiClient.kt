@@ -19,7 +19,7 @@ class ArnsApiClient(
 ) {
     fun getTierAssessmentInformation(crn: String): AssessmentForTier? = restClient
         .get()
-        .uri("/tier-assessment/sections/$crn")
+        .uri("/tier-assessment/sections/{crn}", crn)
         .exchange<AssessmentForTier?> { _, res ->
             when (res.statusCode) {
                 HttpStatus.OK -> objectMapper.readValue(res.body)

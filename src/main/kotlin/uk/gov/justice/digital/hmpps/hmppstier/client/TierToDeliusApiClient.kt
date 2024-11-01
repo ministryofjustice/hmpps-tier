@@ -22,7 +22,7 @@ class TierToDeliusApiClient(
     fun getDeliusTier(crn: String): TierToDeliusResponse {
         return restClient
             .get()
-            .uri("/tier-details/$crn")
+            .uri("/tier-details/{crn}", crn)
             .exchange { req, res ->
                 when (res.statusCode) {
                     HttpStatus.OK -> objectMapper.readValue<TierToDeliusResponse>(res.body)
