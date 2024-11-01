@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.awspring.cloud.sqs.annotation.SqsListener
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.dao.CannotAcquireLockException
 import org.springframework.jdbc.CannotGetJdbcConnectionException
 import org.springframework.orm.ObjectOptimisticLockingFailureException
@@ -18,6 +19,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.RecalculationSource
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 
 @Service
+@ConditionalOnProperty("messaging.consumer.enabled", matchIfMissing = true)
 class DomainEventsListener(
     private val calculator: TierCalculationService,
     private val objectMapper: ObjectMapper,
