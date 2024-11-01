@@ -73,6 +73,10 @@ generic-service:
 
   serviceAccountName: hmpps-tier
 
+  retryDlqCronjob:
+    enabled: true
+    retryDlqSchedule: 0 7 * * 1-5 # Every weekday at 07:00 UTC
+
 generic-prometheus-alerts:
   targetApplication: hmpps-tier
   alertSeverity: probation-integration-notifications
