@@ -35,5 +35,5 @@ generic-prometheus-alerts:
   sqsAlertsTotalMessagesThreshold: 1
 
 full-recalculation:
-  schedule: 30 6 * * 1
+  schedule: 0 8 * * 1 # Every Monday at 08:00 UTC
   dry-run: false
