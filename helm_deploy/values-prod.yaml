@@ -27,5 +27,5 @@ generic-prometheus-alerts:
   ingress5xxErrorWindowMinutes: 4
 
 full-recalculation:
-  schedule: 0 18 * * 5
+  schedule: 0 18 * * 5 # Every Friday at 18:00 UTC
   dry-run: false

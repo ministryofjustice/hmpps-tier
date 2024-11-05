@@ -75,7 +75,7 @@ generic-service:
 
   retryDlqCronjob:
     enabled: true
-    retryDlqSchedule: 0 7 * * 1-5 # Every weekday at 07:00 UTC
+    retryDlqSchedule: 30 7 * * * # Every day at 07:30 UTC
 
 generic-prometheus-alerts:
   targetApplication: hmpps-tier
