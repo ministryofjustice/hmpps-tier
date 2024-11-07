@@ -45,7 +45,11 @@ class TierCalculationService(
         throw e
     }
 
-    fun calculateTierForCrn(crn: String, recalculationSource: RecalculationSource, allowUpdates: Boolean): TierCalculationEntity? {
+    fun calculateTierForCrn(
+        crn: String,
+        recalculationSource: RecalculationSource,
+        allowUpdates: Boolean
+    ): TierCalculationEntity? {
         try {
             val tierCalculation = calculateTier(crn)
             if (allowUpdates) {
