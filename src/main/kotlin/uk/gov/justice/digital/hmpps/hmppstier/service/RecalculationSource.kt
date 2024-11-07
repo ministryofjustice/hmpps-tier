@@ -5,6 +5,8 @@ sealed interface RecalculationSource {
 
     data object LimitedRecalculation : RecalculationSource
 
+    data object OnDemandRecalculation : RecalculationSource
+
     data class Other(val type: String?) : RecalculationSource
 
     sealed interface EventSource : RecalculationSource {
@@ -17,6 +19,7 @@ sealed interface RecalculationSource {
         fun of(value: String, eventType: String?): RecalculationSource = when (value) {
             FullRecalculation::class.simpleName -> FullRecalculation
             LimitedRecalculation::class.simpleName -> LimitedRecalculation
+            OnDemandRecalculation::class.simpleName -> OnDemandRecalculation
             EventSource.DomainEventRecalculation::class.simpleName -> EventSource.DomainEventRecalculation(eventType!!)
             else -> Other(eventType)
         }

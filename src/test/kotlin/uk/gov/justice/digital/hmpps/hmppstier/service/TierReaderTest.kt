@@ -2,12 +2,14 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.equalTo
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.mockito.Answers.RETURNS_DEEP_STUBS
 import org.mockito.Mock
+import org.mockito.Mockito.mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusInputs
@@ -33,11 +35,14 @@ internal class TierReaderTest {
     @Mock
     internal lateinit var tierCalculationRepository: TierCalculationRepository
 
+    @Mock
+    internal lateinit var tierCalculationService: TierCalculationService
+
     internal lateinit var tierReader: TierReader
 
     @Test
     fun `where summary doesn't exist detail is returned`() {
-        tierReader = TierReader(tierCalculationRepository, tierSummaryRepository, true)
+        tierReader = TierReader(tierCalculationRepository, tierSummaryRepository, tierCalculationService, true)
         val tierCalculation = TierCalculationEntity(
             1L,
             UUID.randomUUID(),
@@ -68,8 +73,21 @@ internal class TierReaderTest {
     }
 
     @Test
+    fun `tier is recalculated on the fly`() {
+        tierReader = TierReader(tierCalculationRepository, tierSummaryRepository, tierCalculationService, true)
+        val tierCalculation = mock<TierCalculationEntity>(RETURNS_DEEP_STUBS)
+        val crn = "N123567"
+        whenever(tierSummaryRepository.findById(crn)).thenReturn(Optional.empty())
+        whenever(tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)).thenReturn(null)
+        whenever(tierCalculationService.calculateTierForCrn(eq(crn), any(), any())).thenReturn(tierCalculation)
+
+        val res = tierReader.getLatestTierByCrn(crn)
+        assertThat(res?.calculationId, equalTo(tierCalculation.uuid))
+    }
+
+    @Test
     fun `when suffix deactivated no suffix is provided`() {
-        tierReader = TierReader(tierCalculationRepository, tierSummaryRepository, false)
+        tierReader = TierReader(tierCalculationRepository, tierSummaryRepository, tierCalculationService, false)
         val tierSummary = TierSummary(
             "S123456",
             UUID.randomUUID(),

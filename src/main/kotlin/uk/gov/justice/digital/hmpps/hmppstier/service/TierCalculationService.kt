@@ -1,7 +1,8 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.dao.DataIntegrityViolationException
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentForTier
 import uk.gov.justice.digital.hmpps.hmppstier.client.NeedSection
@@ -10,9 +11,11 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWo
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
+import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.exception.CrnNotFoundException
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierSummaryRepository
 import uk.gov.justice.digital.hmpps.hmppstier.service.TelemetryEventType.*
 import java.time.Clock
 import java.time.LocalDateTime
@@ -25,7 +28,8 @@ class TierCalculationService(
     private val successUpdater: SuccessUpdater,
     private val telemetryService: TelemetryService,
     private val tierUpdater: TierUpdater,
-    private val tierReader: TierReader
+    private val tierSummaryRepository: TierSummaryRepository,
+    @Value("\${tier.unsupervised.suffix}") private val includeSuffix: Boolean,
 ) {
     fun deleteCalculationsForCrn(crn: String, reason: String) = try {
         tierUpdater.removeTierCalculationsFor(crn)
@@ -41,7 +45,7 @@ class TierCalculationService(
         throw e
     }
 
-    fun calculateTierForCrn(crn: String, recalculationSource: RecalculationSource, allowUpdates: Boolean) {
+    fun calculateTierForCrn(crn: String, recalculationSource: RecalculationSource, allowUpdates: Boolean): TierCalculationEntity? {
         try {
             val tierCalculation = calculateTier(crn)
             if (allowUpdates) {
@@ -49,7 +53,7 @@ class TierCalculationService(
                 successUpdater.update(crn, tierCalculation.uuid)
                 telemetryService.trackTierCalculated(tierCalculation, isUpdated, recalculationSource)
             } else {
-                val currentTier = tierReader.getLatestTierByCrn(crn)
+                val currentTier = tierSummaryRepository.findByIdOrNull(crn)?.let { TierDto.from(it, includeSuffix) }
                 telemetryService.trackEvent(
                     TIER_RECALCULATION_DRY_RUN,
                     mapOf(
@@ -59,6 +63,7 @@ class TierCalculationService(
                     )
                 )
             }
+            return tierCalculation
         } catch (e: Exception) {
             val eventType = if (allowUpdates) TIER_CALCULATION_FAILED else TIER_RECALCULATION_DRY_RUN_FAILURE
             telemetryService.trackEvent(
@@ -74,6 +79,7 @@ class TierCalculationService(
             if (allowUpdates) {
                 checkForCrnNotFound(crn, e)
             }
+            return null
         }
     }
 
