@@ -3,11 +3,11 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierSummaryRepository
 import java.time.Clock
 
 @ExtendWith(MockitoExtension::class)
@@ -31,13 +31,20 @@ internal class TierUpdaterTest {
     internal lateinit var tierUpdater: TierUpdater
 
     @Mock
-    internal lateinit var tierReader: TierReader
-
-    @InjectMocks
-    internal lateinit var tierCalculationService: TierCalculationService
+    internal lateinit var tierSummaryRepository: TierSummaryRepository
 
     @Test
     fun `failure to remove tier logs to app insights`() {
+        val tierCalculationService = TierCalculationService(
+            clock,
+            assessmentApiService,
+            tierToDeliusApiService,
+            successUpdater,
+            telemetryService,
+            tierUpdater,
+            tierSummaryRepository,
+            true
+        )
         val crn = "D123456"
         val reason = "Events Terminated"
         val message = "Some issue with db"
