@@ -44,7 +44,7 @@ dependencies {
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.2.2")
 
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta:7.19.0")
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta:7.19.1")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
