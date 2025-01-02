@@ -20,12 +20,6 @@ generic-service:
   scheduledDowntime:
     enabled: true
 
-generic-prometheus-alerts:
-  businessHoursOnly: true
-  sqsNumberAlertQueueNames:
-    - "manage-a-workforce-development-hmpps_tier_domain_events_dlq"
-  sqsAlertsTotalMessagesThreshold: 1
-
 full-recalculation:
   schedule: 0 8 * * 1 # Every Monday at 08:00 UTC
   dry-run: false

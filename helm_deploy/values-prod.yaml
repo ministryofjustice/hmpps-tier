@@ -17,15 +17,6 @@ generic-service:
     delius-prod-2: 35.178.104.253/32
     delius-prod-3: 35.177.47.45/32
 
-generic-prometheus-alerts:
-  sqsOldestAlertQueueNames:
-    - "manage-a-workforce-production-hmpps_tier_domain_events_queue"
-  sqsNumberAlertQueueNames:
-    - "manage-a-workforce-production-hmpps_tier_domain_events_dlq"
-  sqsAlertsOldestThreshold: 15
-  sqsAlertsTotalMessagesThreshold: 1
-  ingress5xxErrorWindowMinutes: 4
-
 full-recalculation:
   schedule: 0 18 * * 5 # Every Friday at 18:00 UTC
   dry-run: false
