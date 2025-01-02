@@ -28,12 +28,6 @@ generic-service:
 
   serviceAccountName: hmpps-tier
 
-generic-prometheus-alerts:
-  businessHoursOnly: true
-  sqsNumberAlertQueueNames:
-    - "manage-a-workforce-preproduction-hmpps_tier_domain_events_dlq"
-  sqsAlertsTotalMessagesThreshold: 1
-
 full-recalculation:
   schedule: 0 8 * * 1 # Every Monday at 08:00 UTC
   dry-run: false
