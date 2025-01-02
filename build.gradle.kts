@@ -17,9 +17,6 @@ dependencyCheck {
     suppressionFiles.add("suppressions.xml")
 }
 
-val cucumberVersion by extra("7.18.0")
-val springDocVersion by extra("1.6.14")
-
 repositories {
     mavenLocal()
     mavenCentral()
@@ -58,9 +55,9 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.2.2")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
-    testImplementation("io.cucumber:cucumber-spring:$cucumberVersion")
-    testImplementation("io.cucumber:cucumber-java8:$cucumberVersion")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:$cucumberVersion")
+    testImplementation("io.cucumber:cucumber-spring:7.20.1")
+    testImplementation("io.cucumber:cucumber-java8:7.20.1")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.20.1")
     testImplementation("org.junit.platform:junit-platform-console:1.11.4")
 }
 
