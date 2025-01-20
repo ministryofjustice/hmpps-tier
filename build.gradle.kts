@@ -23,7 +23,7 @@ repositories {
 }
 dependencies {
 
-    runtimeOnly("org.postgresql:postgresql:42.7.4")
+    runtimeOnly("org.postgresql:postgresql:42.7.5")
     runtimeOnly("com.zaxxer:HikariCP")
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
 
@@ -51,7 +51,7 @@ dependencies {
     testImplementation("org.mock-server:mockserver-netty:5.15.0")
 
     testImplementation("com.ninja-squad:springmockk:4.0.2")
-    testImplementation("org.assertj:assertj-core:3.27.2")
+    testImplementation("org.assertj:assertj-core:3.27.3")
     testImplementation("org.awaitility:awaitility-kotlin:4.2.2")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
