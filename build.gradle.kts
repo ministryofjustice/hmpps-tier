@@ -1,7 +1,7 @@
 plugins {
     id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.1.2"
-    kotlin("plugin.spring") version "2.1.0"
-    kotlin("plugin.jpa") version "2.1.0"
+    kotlin("plugin.spring") version "2.1.10"
+    kotlin("plugin.jpa") version "2.1.10"
     jacoco
 }
 
@@ -55,9 +55,9 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.2.2")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
-    testImplementation("io.cucumber:cucumber-spring:7.20.1")
-    testImplementation("io.cucumber:cucumber-java8:7.20.1")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.20.1")
+    testImplementation("io.cucumber:cucumber-spring:7.21.0")
+    testImplementation("io.cucumber:cucumber-java8:7.21.0")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.21.0")
     testImplementation("org.junit.platform:junit-platform-console:1.11.4")
 }
 
