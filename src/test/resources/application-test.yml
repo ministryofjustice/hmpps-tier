@@ -8,7 +8,7 @@ spring:
           public-key-location: classpath:local-public-key.pub
 
   flyway:
-    locations: classpath:db/migration/development,classpath:db/migration/all
+    locations: classpath:db/migration/all,classpath:db/migration/test
 
 logging:
   level:

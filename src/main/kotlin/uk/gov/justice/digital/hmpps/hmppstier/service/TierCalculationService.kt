@@ -145,5 +145,5 @@ class TierCalculationService(
             thinkingAndBehaviour?.temperControl?.let { TEMPER_CONTROL to it }
         ).toMap()
 
-    private fun NeedSection.mapSeverity(): Pair<Need, NeedSeverity>? = severity?.let { section to it }
+    private fun NeedSection.mapSeverity(): Pair<Need, NeedSeverity>? = getSeverity()?.let { section to it }
 }

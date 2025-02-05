@@ -97,7 +97,7 @@ tasks {
                 files(
                     classDirectories.files.map {
                         fileTree(it) {
-                            exclude("**/config/**")
+                            exclude("**/config/**", "**/client/NeedSection**", "**/cronjob/**")
                         }
                     }
                 )
@@ -124,7 +124,7 @@ tasks {
                 files(
                     classDirectories.files.map {
                         fileTree(it) {
-                            exclude("**/config/**")
+                            exclude("**/config/**", "**/client/NeedSection**", "**/service/RecalculationSource**", "**/cronjob/**")
                         }
                     }
                 )
