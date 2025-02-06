@@ -88,7 +88,7 @@ abstract class IntegrationTestBase {
         domainEventQueueClient.purgeQueue(PurgeQueueRequest.builder().queueUrl(domainEventQueue.queueUrl).build()).get()
         domainEventQueueDlqClient!!.purgeQueue(PurgeQueueRequest.builder().queueUrl(domainEventQueue.dlqUrl).build())
             .get()
-        val toDelete = tierCalculationRepository.findAll().filter { it.crn !in setOf("F987546","F987564") }
+        val toDelete = tierCalculationRepository.findAll().filter { it.crn !in setOf("F987546", "F987564") }
         tierCalculationRepository.deleteAllById(toDelete.map { it.id })
     }
 
