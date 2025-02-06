@@ -79,12 +79,16 @@ sealed interface NeedSection {
     ) : NeedSection {
         override val section = Need.ACCOMMODATION
         override val threshold = Threshold(2, 7)
+
         @get:JsonIgnore
         val noFixedAbodeOrTransient: YesNo by questionAnswers.withDefault { YesNo.Unknown }
+
         @get:JsonIgnore
         val suitabilityOfAccommodation: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val permanenceOfAccommodation: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val locationOfAccommodation: Problem by questionAnswers.withDefault { Problem.Missing }
     }
@@ -96,12 +100,16 @@ sealed interface NeedSection {
     ) : NeedSection {
         override val section = Need.EDUCATION_TRAINING_AND_EMPLOYABILITY
         override val threshold = Threshold(3, 7)
+
         @get:JsonIgnore
         val unemployed: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val employmentHistory: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val workRelatedSkills: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val attitudeToEmployment: Problem by questionAnswers.withDefault { Problem.Missing }
     }
@@ -114,10 +122,13 @@ sealed interface NeedSection {
     ) : NeedSection {
         override val section = Need.RELATIONSHIPS
         override val threshold = Threshold(2, 5)
+
         @get:JsonIgnore
         val relCloseFamily: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val experienceOfChildhood: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val prevCloseRelationships: Problem by questionAnswers.withDefault { Problem.Missing }
     }
@@ -129,10 +140,13 @@ sealed interface NeedSection {
     ) : NeedSection {
         override val section = Need.LIFESTYLE_AND_ASSOCIATES
         override val threshold = Threshold(2, 5)
+
         @get:JsonIgnore
         val regActivitiesEncourageOffending: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val easilyInfluenced: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val recklessness: Problem by questionAnswers.withDefault { Problem.Missing }
     }
@@ -144,12 +158,16 @@ sealed interface NeedSection {
     ) : NeedSection {
         override val section = Need.DRUG_MISUSE
         override val threshold = Threshold(2, 8)
+
         @get:JsonIgnore
         val currentDrugNoted: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val everInjectedDrugs: Frequency by questionAnswers.withDefault { Frequency.Unknown }
+
         @get:JsonIgnore
         val motivationToTackleDrugMisuse: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val drugsMajorActivity: Problem by questionAnswers.withDefault { Problem.Missing }
     }
@@ -161,12 +179,16 @@ sealed interface NeedSection {
     ) : NeedSection {
         override val section = Need.ALCOHOL_MISUSE
         override val threshold = Threshold(4, 7)
+
         @get:JsonIgnore
         val currentUse: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val bingeDrinking: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val frequencyAndLevel: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val alcoholTackleMotivation: Problem by questionAnswers.withDefault { Problem.Missing }
     }
@@ -180,12 +202,16 @@ sealed interface NeedSection {
     ) : NeedSection {
         override val section = Need.THINKING_AND_BEHAVIOUR
         override val threshold = Threshold(4, 7)
+
         @get:JsonIgnore
         val recogniseProblems: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val problemSolvingSkills: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val awarenessOfConsequences: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val understandsViewsOfOthers: Problem by questionAnswers.withDefault { Problem.Missing }
     }
@@ -197,12 +223,16 @@ sealed interface NeedSection {
     ) : NeedSection {
         override val section = Need.ATTITUDES
         override val threshold = Threshold(2, 7)
+
         @get:JsonIgnore
         val proCriminalAttitudes: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val attitudesTowardsSupervision: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val attitudesTowardsCommunitySociety: Problem by questionAnswers.withDefault { Problem.Missing }
+
         @get:JsonIgnore
         val motivationToAddressBehaviour: Problem by questionAnswers.withDefault { Problem.Missing }
     }
@@ -224,7 +254,6 @@ sealed interface SectionAnswer {
         Never(0), Previous(1), Currently(2), Unknown(0)
     }
 }
-
 
 data class AssessmentSummary(
     @JsonAlias("assessmentId")
