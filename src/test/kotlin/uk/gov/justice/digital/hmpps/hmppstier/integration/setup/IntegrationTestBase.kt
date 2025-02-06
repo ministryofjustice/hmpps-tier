@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDO
 import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.http.HttpHeaders
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
@@ -54,10 +55,10 @@ abstract class IntegrationTestBase {
     @Autowired
     protected lateinit var hmppsQueueService: HmppsQueueService
 
-    @SpyBean
+    @MockitoSpyBean
     lateinit var tierCalculationService: TierCalculationService
 
-    @SpyBean
+    @MockitoSpyBean
     lateinit var telemetryClient: TelemetryClient
 
     private val domainEventQueue by lazy {
@@ -87,7 +88,8 @@ abstract class IntegrationTestBase {
         domainEventQueueClient.purgeQueue(PurgeQueueRequest.builder().queueUrl(domainEventQueue.queueUrl).build()).get()
         domainEventQueueDlqClient!!.purgeQueue(PurgeQueueRequest.builder().queueUrl(domainEventQueue.dlqUrl).build())
             .get()
-        tierCalculationRepository.deleteAll()
+        val toDelete = tierCalculationRepository.findAll().filter { it.crn !in setOf("F987546", "F987564") }
+        tierCalculationRepository.deleteAllById(toDelete.map { it.id })
     }
 
     fun restOfSetupWithMaleOffenderNoSevereNeeds(
@@ -129,11 +131,11 @@ abstract class IntegrationTestBase {
     fun expectTierCalculationBadRequest(crn: String, calculationId: String) =
         tierCalculationResult(crn, calculationId).andExpect(status().isBadRequest)
 
-    private fun tierCalculationResult(crn: String, calculationId: String) = request("/crn/$crn/tier/$calculationId")
+    internal fun tierCalculationResult(crn: String, calculationId: String) = request("/crn/$crn/tier/$calculationId")
 
     private fun request(uri: String) = mockMvc.perform(get(uri).headers(authHeaders()).contentType("application/json"))
 
-    private fun latestTierCalculationResult(crn: String) = request("/crn/$crn/tier")
+    internal fun latestTierCalculationResult(crn: String) = request("/crn/$crn/tier")
 
     fun expectLatestTierCalculation(tierScore: String) {
         oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteQueue.queueUrl)

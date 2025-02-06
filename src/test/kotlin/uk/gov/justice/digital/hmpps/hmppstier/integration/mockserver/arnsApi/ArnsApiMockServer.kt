@@ -9,7 +9,12 @@ import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.MediaType
-import uk.gov.justice.digital.hmpps.hmppstier.client.*
+import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentForTier
+import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentSummary
+import uk.gov.justice.digital.hmpps.hmppstier.client.NeedSection
+import uk.gov.justice.digital.hmpps.hmppstier.client.SectionAnswer
+import uk.gov.justice.digital.hmpps.hmppstier.client.SectionAnswer.Problem
+import uk.gov.justice.digital.hmpps.hmppstier.client.SectionAnswer.YesNo
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need.*
@@ -53,43 +58,126 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
         val need = needs.toMap()
         val response = AssessmentForTier(
             assessment = AssessmentSummary(assessmentId ?: 0, LocalDateTime.now().minusDays(30), "LAYER3", "COMPLETE"),
-            accommodation = need[ACCOMMODATION]?.let { NeedSection.Accommodation(it) },
-            educationTrainingEmployability = need[EDUCATION_TRAINING_AND_EMPLOYABILITY]?.let {
-                NeedSection.EducationTrainingEmployability(it)
-            },
-            relationships = (need[RELATIONSHIPS] ?: NeedSeverity.NO_NEED).let {
-                NeedSection.Relationships(
-                    it,
-                    additionalFactors[AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES] as SectionAnswer.YesNo?
-                        ?: SectionAnswer.YesNo.No
-                )
-            },
-            lifestyleAndAssociates = need[LIFESTYLE_AND_ASSOCIATES]?.let { NeedSection.LifestyleAndAssociates(it) },
-            drugMisuse = need[DRUG_MISUSE]?.let { NeedSection.DrugMisuse(it) },
-            alcoholMisuse = need[ALCOHOL_MISUSE]?.let { NeedSection.AlcoholMisuse(it) },
-            thinkingAndBehaviour = (need[THINKING_AND_BEHAVIOUR] ?: NeedSeverity.NO_NEED).let {
-                NeedSection.ThinkingAndBehaviour(
-                    it,
-                    additionalFactors.problem(AdditionalFactorForWomen.IMPULSIVITY),
-                    additionalFactors.problem(AdditionalFactorForWomen.TEMPER_CONTROL)
-                )
-            },
-            attitudes = need[ATTITUDES]?.let { NeedSection.Attitudes(it) }
+            accommodation = need[ACCOMMODATION]?.let { accommodation(it) },
+            educationTrainingEmployability = need[EDUCATION_TRAINING_AND_EMPLOYABILITY]?.let { ete(it) },
+            relationships = relationships(
+                (need[RELATIONSHIPS] ?: NeedSeverity.NO_NEED),
+                additionalFactors[AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES] as YesNo? ?: YesNo.No
+            ),
+            lifestyleAndAssociates = need[LIFESTYLE_AND_ASSOCIATES]?.let { lifestyle(it) },
+            drugMisuse = need[DRUG_MISUSE]?.let { drugMisuse(it) },
+            alcoholMisuse = need[ALCOHOL_MISUSE]?.let { alcoholMisuse(it) },
+            thinkingAndBehaviour = thinkingAndBehaviour(
+                (need[THINKING_AND_BEHAVIOUR] ?: NeedSeverity.NO_NEED),
+                additionalFactors.problem(AdditionalFactorForWomen.IMPULSIVITY),
+                additionalFactors.problem(AdditionalFactorForWomen.TEMPER_CONTROL)
+            ),
+            attitudes = need[ATTITUDES]?.let { attitudes(it) }
         )
+        val json = objectMapper().writeValueAsString(response)
         arnsApi.`when`(request, Times.exactly(1)).respond(
-            HttpResponse.response().withContentType(MediaType.APPLICATION_JSON)
-                .withBody(
-                    objectMapper().writeValueAsString(response)
-                )
+            HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(json)
         )
     }
 
     private fun Map<AdditionalFactorForWomen, SectionAnswer>.problem(additionFactor: AdditionalFactorForWomen) =
-        this[additionFactor] as SectionAnswer.Problem? ?: SectionAnswer.Problem.None
+        this[additionFactor] as Problem? ?: Problem.None
 
     fun getNotFoundAssessment(crn: String) {
         val request = HttpRequest.request().withPath("/tier-assessment/sections/$crn")
         arnsApi.`when`(request, Times.exactly(1))
             .respond(HttpResponse.notFoundResponse().withContentType(MediaType.APPLICATION_JSON))
+    }
+
+    private fun accommodation(severity: NeedSeverity): NeedSection.Accommodation? {
+        val questions = listOf("suitabilityOfAccommodation", "permanenceOfAccommodation", "locationOfAccommodation")
+        val noFixedAbode = if (severity == NeedSeverity.NO_NEED) YesNo.No else YesNo.Yes
+        val questionAnswers = when (severity) {
+            NeedSeverity.NO_NEED -> questions.map { it to Problem.None }
+            NeedSeverity.STANDARD -> questions.map { it to Problem.Some }
+            NeedSeverity.SEVERE -> questions.map { it to Problem.Significant }
+        }.toMap() + ("noFixedAbodeOrTransient" to noFixedAbode)
+        return NeedSection.Accommodation(YesNo.No, YesNo.No, questionAnswers)
+    }
+
+    private fun ete(severity: NeedSeverity): NeedSection.EducationTrainingEmployability? {
+        val questions = listOf("unemployed", "employmentHistory", "workRelatedSkills", "attitudeToEmployment")
+        val questionAnswers = when (severity) {
+            NeedSeverity.NO_NEED -> questions.map { it to Problem.None }
+            NeedSeverity.STANDARD -> questions.map { it to Problem.Some }
+            NeedSeverity.SEVERE -> questions.map { it to Problem.Significant }
+        }.toMap()
+        return NeedSection.EducationTrainingEmployability(YesNo.No, YesNo.No, questionAnswers)
+    }
+
+    private fun relationships(severity: NeedSeverity, parentalResponsibilities: YesNo): NeedSection.Relationships? {
+        val questions = listOf("relCloseFamily", "experienceOfChildhood", "prevCloseRelationships")
+        val questionAnswers = when (severity) {
+            NeedSeverity.NO_NEED -> questions.map { it to Problem.None }
+            NeedSeverity.STANDARD -> questions.map { it to Problem.Some }
+            NeedSeverity.SEVERE -> questions.map { it to Problem.Significant }
+        }.toMap()
+        return NeedSection.Relationships(YesNo.No, YesNo.No, questionAnswers, parentalResponsibilities)
+    }
+
+    private fun lifestyle(severity: NeedSeverity): NeedSection.LifestyleAndAssociates? {
+        val questions = listOf("regActivitiesEncourageOffending", "easilyInfluenced", "recklessness")
+        val questionAnswers = when (severity) {
+            NeedSeverity.NO_NEED -> questions.map { it to Problem.None }
+            NeedSeverity.STANDARD -> questions.map { it to Problem.Some }
+            NeedSeverity.SEVERE -> questions.map { it to Problem.Significant }
+        }.toMap()
+        return NeedSection.LifestyleAndAssociates(YesNo.No, YesNo.No, questionAnswers)
+    }
+
+    private fun drugMisuse(severity: NeedSeverity): NeedSection.DrugMisuse? {
+        val questions = listOf("currentDrugNoted", "motivationToTackleDrugMisuse", "drugsMajorActivity")
+        val injected: YesNo = if (severity == NeedSeverity.NO_NEED) YesNo.No else YesNo.Yes
+        val questionAnswers = when (severity) {
+            NeedSeverity.NO_NEED -> questions.map { it to Problem.None }
+            NeedSeverity.STANDARD -> questions.map { it to Problem.Some }
+            NeedSeverity.SEVERE -> questions.map { it to Problem.Significant }
+        }.toMap() + ("everInjectedDrugs" to injected)
+        return NeedSection.DrugMisuse(YesNo.No, YesNo.No, questionAnswers)
+    }
+
+    private fun alcoholMisuse(severity: NeedSeverity): NeedSection.AlcoholMisuse? {
+        val questions = listOf("currentUse", "bingeDrinking", "frequencyAndLevel", "alcoholTackleMotivation")
+        val questionAnswers = when (severity) {
+            NeedSeverity.NO_NEED -> questions.map { it to Problem.None }
+            NeedSeverity.STANDARD -> questions.map { it to Problem.Some }
+            NeedSeverity.SEVERE -> questions.map { it to Problem.Significant }
+        }.toMap()
+        return NeedSection.AlcoholMisuse(YesNo.No, YesNo.No, questionAnswers)
+    }
+
+    private fun thinkingAndBehaviour(
+        severity: NeedSeverity,
+        impulsivity: Problem,
+        temperControl: Problem
+    ): NeedSection.ThinkingAndBehaviour? {
+        val questions =
+            listOf("recogniseProblems", "problemSolvingSkills", "awarenessOfConsequences", "understandsViewsOfOthers")
+        val questionAnswers = when (severity) {
+            NeedSeverity.NO_NEED -> questions.map { it to Problem.None }
+            NeedSeverity.STANDARD -> questions.map { it to Problem.Some }
+            NeedSeverity.SEVERE -> questions.map { it to Problem.Significant }
+        }.toMap()
+        return NeedSection.ThinkingAndBehaviour(YesNo.No, YesNo.No, questionAnswers, impulsivity, temperControl)
+    }
+
+    private fun attitudes(severity: NeedSeverity): NeedSection.Attitudes? {
+        val questions = listOf(
+            "proCriminalAttitudes",
+            "attitudesTowardsSupervision",
+            "attitudesTowardsCommunitySociety",
+            "motivationToAddressBehaviour"
+        )
+        val questionAnswers = when (severity) {
+            NeedSeverity.NO_NEED -> questions.map { it to Problem.None }
+            NeedSeverity.STANDARD -> questions.map { it to Problem.Some }
+            NeedSeverity.SEVERE -> questions.map { it to Problem.Significant }
+        }.toMap()
+        return NeedSection.Attitudes(YesNo.No, YesNo.No, questionAnswers)
     }
 }
