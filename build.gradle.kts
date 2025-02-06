@@ -97,7 +97,7 @@ tasks {
                 files(
                     classDirectories.files.map {
                         fileTree(it) {
-                            exclude("**/config/**", "**/client/NeedSection**", "**/cronjob/**")
+                            exclude("**/config/**")
                         }
                     }
                 )
