@@ -36,6 +36,18 @@ class TierCalculationController(private val tierReader: TierReader) {
     fun getLatestTierCalculation(@PathVariable(required = true) crn: String): TierDto =
         tierReader.getLatestTierByCrn(crn) ?: throw EntityNotFoundException("Tier Result Not Found for $crn")
 
+    @Operation(summary = "Retrieve tier history by crn")
+    @ApiResponses(
+        value = [
+            ApiResponse(responseCode = "200", description = "OK"),
+            ApiResponse(responseCode = "404", description = "Result Not Found"),
+        ],
+    )
+    @PreAuthorize("hasRole('ROLE_HMPPS_TIER')")
+    @GetMapping("crn/{crn}/tier/history")
+    fun getTierHistory(@PathVariable(required = true) crn: String): List<TierDto> =
+        tierReader.getTierHistory(crn)
+
     @Operation(summary = "Retrieve latest tiering calculation details including inputs and scores")
     @ApiResponses(
         value = [
