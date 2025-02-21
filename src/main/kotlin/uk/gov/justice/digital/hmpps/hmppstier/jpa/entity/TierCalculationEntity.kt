@@ -27,6 +27,9 @@ data class TierCalculationEntity(
     @Type(JsonType::class)
     @Column(columnDefinition = "jsonb")
     val data: TierCalculationResultEntity,
+
+    @Column
+    val changeReason: String? = null,
 ) {
     fun protectLevel() = data.protect.tier.value
     fun changeLevel() = data.change.tier.value

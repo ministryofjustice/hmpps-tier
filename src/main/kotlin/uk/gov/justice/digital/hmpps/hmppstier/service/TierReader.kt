@@ -53,6 +53,10 @@ class TierReader(
         tierCalculationRepository.findByCrnAndUuid(crn, calculationId)
             ?.let { TierDto.from(it, includeSuffix) }
 
+    fun getTierHistory(crn: String): List<TierDto> =
+        tierCalculationRepository.findByCrnOrderByCreatedDesc(crn)
+            .map { TierDto.from(it, includeSuffix) }
+
     private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
         tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
 }

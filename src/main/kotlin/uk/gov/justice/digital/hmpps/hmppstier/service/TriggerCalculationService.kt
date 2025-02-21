@@ -40,6 +40,7 @@ class TriggerCalculationService(
         val eventType = "internal.recalculate-tier"
         val domainEvent = DomainEventsMessage(
             eventType = eventType,
+            description = "Automated tier re-calculation",
             personReference = PersonReference(listOf(Identifiers("CRN", crn))),
             additionalInformation = mapOf(
                 "dryRun" to dryRun,

@@ -1,6 +1,9 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
+import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Test
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
@@ -188,8 +191,18 @@ class TierCalculationTest : IntegrationTestBase() {
         )
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234568890)
 
-        calculateTierForDomainEvent(crn)
+        calculateTierForRecallDomainEvent(crn)
         expectLatestTierCalculation("B1")
+
+        tierHistory(crn)
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()", equalTo(2)))
+            .andExpect(
+                jsonPath(
+                    "$.*.changeReason",
+                    equalTo(listOf("A recall to custody process was started", "A breach was concluded"))
+                )
+            )
     }
 
     @Test

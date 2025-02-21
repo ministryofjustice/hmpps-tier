@@ -51,7 +51,7 @@ class TierCalculationService(
         allowUpdates: Boolean
     ): TierCalculationEntity? {
         try {
-            val tierCalculation = calculateTier(crn)
+            val tierCalculation = calculateTier(crn, recalculationSource)
             if (allowUpdates) {
                 val isUpdated = tierUpdater.updateTier(tierCalculation, crn)
                 successUpdater.update(crn, tierCalculation.uuid)
@@ -95,7 +95,7 @@ class TierCalculationService(
         }
     }
 
-    private fun calculateTier(crn: String): TierCalculationEntity {
+    private fun calculateTier(crn: String, recalculationSource: RecalculationSource): TierCalculationEntity {
         val deliusInputs = tierToDeliusApiService.getTierToDelius(crn)
         val assessment = assessmentApiService.getTierAssessmentInformation(crn)
 
@@ -124,6 +124,7 @@ class TierCalculationService(
                 deliusInputs = deliusInputs,
                 assessmentSummary = assessment
             ),
+            changeReason = recalculationSource.changeReason
         )
     }
 

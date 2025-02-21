@@ -19,16 +19,19 @@ internal class TierDtoTest {
         val changeLevel = ChangeLevel.TWO
         val calculationId = UUID.randomUUID()
         val calculationDate = LocalDateTime.now()
+        val changeReason = "test"
 
         val tierDto = TierDto(
             protectLevel.value.plus(changeLevel.value),
             calculationId,
             calculationDate,
+            changeReason
         )
 
         assertThat(tierDto.tierScore).isEqualTo(protectLevel.value.plus(changeLevel.value))
         assertThat(tierDto.calculationId).isEqualTo(calculationId)
         assertThat(tierDto.calculationDate).isEqualTo(calculationDate)
+        assertThat(tierDto.changeReason).isEqualTo(changeReason)
     }
 
     @Test

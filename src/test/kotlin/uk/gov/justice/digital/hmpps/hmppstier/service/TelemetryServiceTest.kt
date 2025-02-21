@@ -64,7 +64,7 @@ internal class TelemetryServiceTest {
         service.trackTierCalculated(
             tierCalculation,
             true,
-            RecalculationSource.EventSource.DomainEventRecalculation(eventType)
+            RecalculationSource.EventSource.DomainEventRecalculation(eventType, "Some event type")
         )
 
         verify {
@@ -89,7 +89,7 @@ internal class TelemetryServiceTest {
         service.trackTierCalculated(
             tierCalculation,
             false,
-            RecalculationSource.EventSource.DomainEventRecalculation(eventType)
+            RecalculationSource.EventSource.DomainEventRecalculation(eventType, "Some event type")
         )
 
         verify {

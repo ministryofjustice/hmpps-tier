@@ -22,8 +22,10 @@ data class TierDto @JsonCreator constructor(
     @JsonProperty("calculationDate")
     val calculationDate: LocalDateTime,
 
-    ) {
-
+    @Schema(description = "Calculation Change Reason", example = "A registration was added")
+    @JsonProperty("changeReason")
+    val changeReason: String?,
+) {
     companion object {
         private const val UNSUPERVISED_SUFFIX = "S"
         fun from(calculation: TierCalculationEntity, includeSuffix: Boolean): TierDto {
@@ -36,6 +38,7 @@ data class TierDto @JsonCreator constructor(
                 }",
                 calculation.uuid,
                 calculation.created,
+                calculation.changeReason
             )
         }
 
@@ -44,6 +47,7 @@ data class TierDto @JsonCreator constructor(
                 "${summary.protectLevel}${summary.changeLevel}${getSuffix(summary.unsupervised, includeSuffix)}",
                 summary.uuid,
                 summary.lastModified,
+                null
             )
         }
 
