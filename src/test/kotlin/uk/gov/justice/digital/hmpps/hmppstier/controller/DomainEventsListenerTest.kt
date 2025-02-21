@@ -68,7 +68,10 @@ class DomainEventsListenerTest : IntegrationTestBase() {
         )
         verify(tierCalculationService, timeout(5000)).calculateTierForCrn(
             target,
-            RecalculationSource.EventSource.DomainEventRecalculation(eventType, "The case was merged from D987654 into M987654"),
+            RecalculationSource.EventSource.DomainEventRecalculation(
+                eventType,
+                "The case was merged from D987654 into M987654"
+            ),
             true
         )
         verify(tierCalculationService, timeout(5000)).deleteCalculationsForCrn(source, eventType)
@@ -89,12 +92,18 @@ class DomainEventsListenerTest : IntegrationTestBase() {
         )
         verify(tierCalculationService, timeout(5000)).calculateTierForCrn(
             target,
-            RecalculationSource.EventSource.DomainEventRecalculation(eventType, "The case was un-merged from M987655 and D987655"),
+            RecalculationSource.EventSource.DomainEventRecalculation(
+                eventType,
+                "The case was un-merged from M987655 and D987655"
+            ),
             true
         )
         verify(tierCalculationService, timeout(5000)).calculateTierForCrn(
             source,
-            RecalculationSource.EventSource.DomainEventRecalculation(eventType, "The case was un-merged from M987655 and D987655"),
+            RecalculationSource.EventSource.DomainEventRecalculation(
+                eventType,
+                "The case was un-merged from M987655 and D987655"
+            ),
             true
         )
     }
@@ -138,23 +147,57 @@ class DomainEventsListenerTest : IntegrationTestBase() {
                 "requirementMainType" to "Unpaid Work",
             )
         )
+
         @JvmStatic
         fun changeReasons() = listOf(
             arguments(event.copy(eventType = "enforcement.breach.concluded"), "A breach was concluded"),
             arguments(event.copy(eventType = "enforcement.breach.raised"), "A breach was raised"),
-            arguments(event.copy(eventType = "enforcement.recall.concluded"), "A recall to custody process was concluded"),
+            arguments(
+                event.copy(eventType = "enforcement.recall.concluded"),
+                "A recall to custody process was concluded"
+            ),
             arguments(event.copy(eventType = "enforcement.recall.raised"), "A recall to custody process was started"),
             arguments(event.copy(eventType = "probation-case.engagement.created"), "The case was created"),
-            arguments(event.copy(eventType = "probation-case.merge.completed"), "The case was merged from A000001 into A000002"),
-            arguments(event.copy(eventType = "probation-case.unmerge.completed"), "The case was un-merged from A000003 and A000004"),
-            arguments(event.copy(eventType = "probation-case.registration.added"), "A registration of type 'High RoSH' was added"),
-            arguments(event.copy(eventType = "probation-case.registration.deleted"), "A registration of type 'High RoSH' was removed"),
-            arguments(event.copy(eventType = "probation-case.registration.deregistered"), "A registration of type 'High RoSH' was removed"),
-            arguments(event.copy(eventType = "probation-case.registration.updated"), "A registration of type 'High RoSH' was updated"),
-            arguments(event.copy(eventType = "probation-case.requirement.created"), "A requirement of type 'Unpaid Work' was added"),
-            arguments(event.copy(eventType = "probation-case.requirement.deleted"), "A requirement of type 'Unpaid Work' was removed"),
-            arguments(event.copy(eventType = "probation-case.requirement.terminated"), "A requirement of type 'Unpaid Work' was terminated"),
-            arguments(event.copy(eventType = "probation-case.requirement.unterminated"), "A requirement of type 'Unpaid Work' was un-terminated"),
+            arguments(
+                event.copy(eventType = "probation-case.merge.completed"),
+                "The case was merged from A000001 into A000002"
+            ),
+            arguments(
+                event.copy(eventType = "probation-case.unmerge.completed"),
+                "The case was un-merged from A000003 and A000004"
+            ),
+            arguments(
+                event.copy(eventType = "probation-case.registration.added"),
+                "A registration of type 'High RoSH' was added"
+            ),
+            arguments(
+                event.copy(eventType = "probation-case.registration.deleted"),
+                "A registration of type 'High RoSH' was removed"
+            ),
+            arguments(
+                event.copy(eventType = "probation-case.registration.deregistered"),
+                "A registration of type 'High RoSH' was removed"
+            ),
+            arguments(
+                event.copy(eventType = "probation-case.registration.updated"),
+                "A registration of type 'High RoSH' was updated"
+            ),
+            arguments(
+                event.copy(eventType = "probation-case.requirement.created"),
+                "A requirement of type 'Unpaid Work' was added"
+            ),
+            arguments(
+                event.copy(eventType = "probation-case.requirement.deleted"),
+                "A requirement of type 'Unpaid Work' was removed"
+            ),
+            arguments(
+                event.copy(eventType = "probation-case.requirement.terminated"),
+                "A requirement of type 'Unpaid Work' was terminated"
+            ),
+            arguments(
+                event.copy(eventType = "probation-case.requirement.unterminated"),
+                "A requirement of type 'Unpaid Work' was un-terminated"
+            ),
             arguments(event.copy(eventType = "risk-assessment.scores.determined"), "An OASys assessment was produced"),
         )
     }
