@@ -52,13 +52,13 @@ dependencies {
 
     testImplementation("com.ninja-squad:springmockk:4.0.2")
     testImplementation("org.assertj:assertj-core:3.27.3")
-    testImplementation("org.awaitility:awaitility-kotlin:4.2.2")
+    testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
     testImplementation("io.cucumber:cucumber-spring:7.21.1")
     testImplementation("io.cucumber:cucumber-java8:7.21.1")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:7.21.1")
-    testImplementation("org.junit.platform:junit-platform-console:1.11.4")
+    testImplementation("org.junit.platform:junit-platform-console:1.12.0")
 }
 
 jacoco {
