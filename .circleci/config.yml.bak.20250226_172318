@@ -1,11 +1,17 @@
 version: 2.1
+
 orbs:
   hmpps: ministryofjustice/hmpps@9
   slack: circleci/slack@4.12.5
+
 parameters:
+  alerts-slack-channel:
+    type: string
+    default: probation-integration-notifications
   releases-slack-channel:
     type: string
     default: probation-integration-notifications
+
 jobs:
   validate:
     executor:
@@ -18,16 +24,18 @@ jobs:
       - hmpps/install_aws_cli
       - run:
           name: Wait for SQS to be ready
-          command: curl -4 --connect-timeout 30 --retry-connrefused --retry 2 --retry-delay 5 http://localhost:4566
+          command: curl -4 --connect-timeout 30 --retry-connrefused --retry 2
+            --retry-delay 5 http://localhost:4566
       - restore_cache:
           keys:
             - gradle-{{ checksum "build.gradle.kts" }}
             - gradle-
       - run:
-          command: ./gradlew -Dorg.gradle.jvmargs="--illegal-access=permit" -Dkotlin.daemon.jvm.options="--illegal-access=permit" check
+          command: ./gradlew -Dorg.gradle.jvmargs="--illegal-access=permit"
+            -Dkotlin.daemon.jvm.options="--illegal-access=permit" check
       - when:
           condition:
-            equal: [main, << pipeline.git.branch >>]
+            equal: [ main, << pipeline.git.branch >> ]
           steps:
             - slack/notify:
                 event: fail
@@ -44,6 +52,7 @@ jobs:
       - store_artifacts:
           path: build/reports/coverage
           destination: coverage
+
 workflows:
   version: 2
   build-test-and-deploy:
@@ -111,3 +120,32 @@ workflows:
           requires:
             - request-prod-approval
           helm_timeout: 5m
+
+  security:
+    triggers:
+      - schedule:
+          cron: "45 9 * * 1-5"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - hmpps/veracode_pipeline_scan:
+          slack_channel: << pipeline.parameters.alerts-slack-channel >>
+          context:
+            - hmpps-common-vars
+            - veracode-credentials
+  security-weekly:
+    triggers:
+      - schedule:
+          cron: "32 5 * * 1"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - hmpps/veracode_policy_scan:
+          slack_channel: << pipeline.parameters.alerts-slack-channel >>
+          context:
+            - veracode-credentials
+            - hmpps-common-vars
