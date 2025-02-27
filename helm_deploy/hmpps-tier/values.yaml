@@ -11,7 +11,7 @@ generic-service:
       memory: 1Gi
 
   image:
-    repository: quay.io/hmpps/hmpps-tier
+    repository: ghcr.io/ministryofjustice/hmpps-tier
     tag: app_version # override at deployment time
     port: 8080
 
