@@ -81,6 +81,8 @@ jobs:
     needs:
       - build
       - helm_lint
+      - deploy_dev
+      - deploy_preprod
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
     secrets: inherit
     with:
