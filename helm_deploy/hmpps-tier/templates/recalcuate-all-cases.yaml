@@ -14,7 +14,7 @@ spec:
           serviceAccountName: hmpps-tier
           containers:
             - name: recalculate-tiers
-              image: "quay.io/hmpps/hmpps-tier:{{ index .Values "generic-service" "image" "tag" }}"
+              image: "ghcr.io/ministryofjustice/hmpps-tier:{{ index .Values "generic-service" "image" "tag" }}"
               securityContext:
                 capabilities:
                   drop:
