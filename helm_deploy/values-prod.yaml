@@ -20,3 +20,7 @@ generic-service:
 full-recalculation:
   schedule: 0 18 * * 5 # Every Friday at 18:00 UTC
   dry-run: false
+
+generic-prometheus-alerts:
+  sqsOldestAlertQueueNames:
+    - probation-integration-prod-hmpps-tier-events-queue
