@@ -77,3 +77,4 @@ generic-prometheus-alerts:
   targetApplication: hmpps-tier
   alertSeverity: probation-integration-notifications
   businessHoursOnly: true
+  sqsAlertsOldestThreshold: 30
