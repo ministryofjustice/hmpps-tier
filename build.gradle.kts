@@ -33,7 +33,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.9.8")
+    implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.9.9")
 
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
@@ -41,7 +41,7 @@ dependencies {
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.2")
 
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.5.0")
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.6.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -55,9 +55,9 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
-    testImplementation("io.cucumber:cucumber-spring:7.21.1")
-    testImplementation("io.cucumber:cucumber-java8:7.21.1")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.21.1")
+    testImplementation("io.cucumber:cucumber-spring:7.22.0")
+    testImplementation("io.cucumber:cucumber-java8:7.22.0")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.22.0")
     testImplementation("org.junit.platform:junit-platform-console:1.12.1")
 }
 
