@@ -27,7 +27,7 @@ dependencies {
     runtimeOnly("com.zaxxer:HikariCP")
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
 
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.6")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -39,9 +39,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.2")
+    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.4")
 
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.10.0")
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.11.1")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
