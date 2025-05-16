@@ -58,6 +58,9 @@ sealed interface NeedSection {
     @get:JsonIgnore
     val threshold: Threshold
 
+    @get:JsonIgnore
+    val sanThresholdOverride: Threshold?
+
     fun getScore(): Int? =
         if (questionAnswers.values.all { it == SectionAnswer.Problem.Missing || it == SectionAnswer.YesNo.Unknown }) {
             null
@@ -65,11 +68,14 @@ sealed interface NeedSection {
             questionAnswers.values.sumOf { it.score }
         }
 
-    fun getSeverity(): NeedSeverity? = when {
-        getScore() == null -> null
-        getScore()!! >= threshold.severe -> NeedSeverity.SEVERE
-        getScore()!! >= threshold.standard -> NeedSeverity.STANDARD
-        else -> NeedSeverity.NO_NEED
+    fun getSeverity(sanIndicator: Boolean): NeedSeverity? {
+        val threshold = if (sanIndicator) sanThresholdOverride ?: threshold else threshold
+        return when {
+            getScore() == null -> null
+            getScore()!! >= threshold.severe -> NeedSeverity.SEVERE
+            getScore()!! >= threshold.standard -> NeedSeverity.STANDARD
+            else -> NeedSeverity.NO_NEED
+        }
     }
 
     data class Accommodation(
@@ -79,6 +85,7 @@ sealed interface NeedSection {
     ) : NeedSection {
         override val section = Need.ACCOMMODATION
         override val threshold = Threshold(2, 7)
+        override val sanThresholdOverride = Threshold(3, 5)
 
         @get:JsonIgnore
         val noFixedAbodeOrTransient: YesNo by questionAnswers.withDefault { YesNo.Unknown }
@@ -100,6 +107,7 @@ sealed interface NeedSection {
     ) : NeedSection {
         override val section = Need.EDUCATION_TRAINING_AND_EMPLOYABILITY
         override val threshold = Threshold(3, 7)
+        override val sanThresholdOverride = null
 
         @get:JsonIgnore
         val unemployed: Problem by questionAnswers.withDefault { Problem.Missing }
@@ -122,6 +130,7 @@ sealed interface NeedSection {
     ) : NeedSection {
         override val section = Need.RELATIONSHIPS
         override val threshold = Threshold(2, 5)
+        override val sanThresholdOverride = null
 
         @get:JsonIgnore
         val relCloseFamily: Problem by questionAnswers.withDefault { Problem.Missing }
@@ -140,6 +149,7 @@ sealed interface NeedSection {
     ) : NeedSection {
         override val section = Need.LIFESTYLE_AND_ASSOCIATES
         override val threshold = Threshold(2, 5)
+        override val sanThresholdOverride = null
 
         @get:JsonIgnore
         val regActivitiesEncourageOffending: Problem by questionAnswers.withDefault { Problem.Missing }
@@ -158,6 +168,7 @@ sealed interface NeedSection {
     ) : NeedSection {
         override val section = Need.DRUG_MISUSE
         override val threshold = Threshold(2, 8)
+        override val sanThresholdOverride = Threshold(2, 6)
 
         @get:JsonIgnore
         val currentDrugNoted: Problem by questionAnswers.withDefault { Problem.Missing }
@@ -179,6 +190,7 @@ sealed interface NeedSection {
     ) : NeedSection {
         override val section = Need.ALCOHOL_MISUSE
         override val threshold = Threshold(4, 7)
+        override val sanThresholdOverride = Threshold(2, 4)
 
         @get:JsonIgnore
         val currentUse: Problem by questionAnswers.withDefault { Problem.Missing }
@@ -202,6 +214,7 @@ sealed interface NeedSection {
     ) : NeedSection {
         override val section = Need.THINKING_AND_BEHAVIOUR
         override val threshold = Threshold(4, 7)
+        override val sanThresholdOverride = Threshold(3, 5)
 
         @get:JsonIgnore
         val recogniseProblems: Problem by questionAnswers.withDefault { Problem.Missing }
@@ -223,6 +236,7 @@ sealed interface NeedSection {
     ) : NeedSection {
         override val section = Need.ATTITUDES
         override val threshold = Threshold(2, 7)
+        override val sanThresholdOverride = Threshold(1, 5)
 
         @get:JsonIgnore
         val proCriminalAttitudes: Problem by questionAnswers.withDefault { Problem.Missing }
@@ -262,6 +276,9 @@ data class AssessmentSummary(
     @JsonAlias("assessmentType")
     val type: String,
     val status: String,
+    val sanIndicator: Boolean,
 )
+
+fun AssessmentSummary?.isSanAssessment() = this?.sanIndicator == true
 
 data class Threshold(val standard: Int, val severe: Int)
