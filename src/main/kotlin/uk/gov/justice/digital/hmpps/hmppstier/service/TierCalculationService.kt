@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentForTier
 import uk.gov.justice.digital.hmpps.hmppstier.client.NeedSection
 import uk.gov.justice.digital.hmpps.hmppstier.client.SectionAnswer
+import uk.gov.justice.digital.hmpps.hmppstier.client.isSanAssessment
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
@@ -129,14 +130,14 @@ class TierCalculationService(
     }
 
     private fun AssessmentForTier.mapNeedsAndSeverities() = listOfNotNull(
-        accommodation?.mapSeverity(),
-        educationTrainingEmployability?.mapSeverity(),
-        relationships?.mapSeverity(),
-        lifestyleAndAssociates?.mapSeverity(),
-        drugMisuse?.mapSeverity(),
-        alcoholMisuse?.mapSeverity(),
-        thinkingAndBehaviour?.mapSeverity(),
-        attitudes?.mapSeverity(),
+        accommodation?.mapSeverity(assessment.isSanAssessment()),
+        educationTrainingEmployability?.mapSeverity(assessment.isSanAssessment()),
+        relationships?.mapSeverity(assessment.isSanAssessment()),
+        lifestyleAndAssociates?.mapSeverity(assessment.isSanAssessment()),
+        drugMisuse?.mapSeverity(assessment.isSanAssessment()),
+        alcoholMisuse?.mapSeverity(assessment.isSanAssessment()),
+        thinkingAndBehaviour?.mapSeverity(assessment.isSanAssessment()),
+        attitudes?.mapSeverity(assessment.isSanAssessment()),
     ).toMap()
 
     private fun AssessmentForTier.additionalFactorsForWomen(): Map<AdditionalFactorForWomen, SectionAnswer> =
@@ -146,5 +147,6 @@ class TierCalculationService(
             thinkingAndBehaviour?.temperControl?.let { TEMPER_CONTROL to it }
         ).toMap()
 
-    private fun NeedSection.mapSeverity(): Pair<Need, NeedSeverity>? = getSeverity()?.let { section to it }
+    private fun NeedSection.mapSeverity(sanIndicator: Boolean): Pair<Need, NeedSeverity>? =
+        getSeverity(sanIndicator)?.let { section to it }
 }

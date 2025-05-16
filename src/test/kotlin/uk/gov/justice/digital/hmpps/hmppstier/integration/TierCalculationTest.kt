@@ -1,5 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.module.kotlin.readValue
 import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Test
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
@@ -129,6 +131,26 @@ class TierCalculationTest : IntegrationTestBase() {
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, 4234568891)
         calculateTierForDomainEvent(crn)
         expectTierChangedById("A1")
+    }
+
+    @Test
+    fun `calculation is done based on san threshold for san assessment`() {
+        val crn = "X548198"
+        val tierDetails = TierDetails(convictions = listOf(Conviction(sentenceCode = "SC")))
+        tierToDeliusApi.getFullDetails(crn, tierDetails)
+        arnsApi.getTierAssessmentDetails(crn, 53212345, Need.entries.associateWith { NeedSeverity.NO_NEED })
+        calculateTierForDomainEvent(crn)
+        expectTierChangedById("B1")
+
+        tierToDeliusApi.getFullDetails(crn, tierDetails)
+        arnsApi.getTierAssessmentDetails(crn, 53212345, Need.entries.associateWith { NeedSeverity.STANDARD })
+        calculateTierForDomainEvent(crn)
+        expectTierChangedById("B2")
+
+        tierToDeliusApi.getFullDetails(crn, tierDetails)
+        arnsApi.getTierAssessmentDetails(crn, 53212345, Need.entries.associateWith { NeedSeverity.SEVERE })
+        calculateTierForDomainEvent(crn)
+        expectTierChangedById("B3")
     }
 
     @Test
