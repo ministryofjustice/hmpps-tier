@@ -1,7 +1,7 @@
 plugins {
     id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.1.0"
-    kotlin("plugin.spring") version "2.1.20"
-    kotlin("plugin.jpa") version "2.1.20"
+    kotlin("plugin.spring") version "2.1.21"
+    kotlin("plugin.jpa") version "2.1.21"
     jacoco
 }
 
@@ -41,7 +41,7 @@ dependencies {
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.4")
 
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.11.1")
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.12.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
