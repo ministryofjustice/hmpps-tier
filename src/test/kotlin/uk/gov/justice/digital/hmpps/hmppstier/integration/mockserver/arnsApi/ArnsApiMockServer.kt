@@ -52,25 +52,33 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
         crn: String,
         assessmentId: Long? = null,
         needs: Map<Need, NeedSeverity> = Need.entries.associateWith { NeedSeverity.NO_NEED },
-        additionalFactors: Map<AdditionalFactorForWomen, SectionAnswer> = mapOf()
+        additionalFactors: Map<AdditionalFactorForWomen, SectionAnswer> = mapOf(),
+        sanIndicator: Boolean = false,
     ) {
         val request = HttpRequest.request().withPath("/tier-assessment/sections/$crn")
         val need = needs.toMap()
         val response = AssessmentForTier(
-            assessment = AssessmentSummary(assessmentId ?: 0, LocalDateTime.now().minusDays(30), "LAYER3", "COMPLETE"),
-            accommodation = need[ACCOMMODATION]?.let { accommodation(it) },
+            assessment = AssessmentSummary(
+                assessmentId ?: 0,
+                LocalDateTime.now().minusDays(30),
+                "LAYER3",
+                "COMPLETE",
+                sanIndicator
+            ),
+            accommodation = need[ACCOMMODATION]?.let { accommodation(it, sanIndicator) },
             educationTrainingEmployability = need[EDUCATION_TRAINING_AND_EMPLOYABILITY]?.let { ete(it) },
             relationships = relationships(
                 (need[RELATIONSHIPS] ?: NeedSeverity.NO_NEED),
                 additionalFactors[AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES] as YesNo? ?: YesNo.No
             ),
             lifestyleAndAssociates = need[LIFESTYLE_AND_ASSOCIATES]?.let { lifestyle(it) },
-            drugMisuse = need[DRUG_MISUSE]?.let { drugMisuse(it) },
-            alcoholMisuse = need[ALCOHOL_MISUSE]?.let { alcoholMisuse(it) },
+            drugMisuse = need[DRUG_MISUSE]?.let { drugMisuse(it, sanIndicator) },
+            alcoholMisuse = need[ALCOHOL_MISUSE]?.let { alcoholMisuse(it, sanIndicator) },
             thinkingAndBehaviour = thinkingAndBehaviour(
                 (need[THINKING_AND_BEHAVIOUR] ?: NeedSeverity.NO_NEED),
                 additionalFactors.problem(AdditionalFactorForWomen.IMPULSIVITY),
-                additionalFactors.problem(AdditionalFactorForWomen.TEMPER_CONTROL)
+                additionalFactors.problem(AdditionalFactorForWomen.TEMPER_CONTROL),
+                sanIndicator
             ),
             attitudes = need[ATTITUDES]?.let { attitudes(it) }
         )
@@ -89,9 +97,9 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
             .respond(HttpResponse.notFoundResponse().withContentType(MediaType.APPLICATION_JSON))
     }
 
-    private fun accommodation(severity: NeedSeverity): NeedSection.Accommodation? {
+    private fun accommodation(severity: NeedSeverity, sanIndicator: Boolean): NeedSection.Accommodation? {
         val questions = listOf("suitabilityOfAccommodation", "permanenceOfAccommodation", "locationOfAccommodation")
-        val noFixedAbode = if (severity == NeedSeverity.NO_NEED) YesNo.No else YesNo.Yes
+        val noFixedAbode = if (severity == NeedSeverity.NO_NEED || sanIndicator) YesNo.No else YesNo.Yes
         val questionAnswers = when (severity) {
             NeedSeverity.NO_NEED -> questions.map { it to Problem.None }
             NeedSeverity.STANDARD -> questions.map { it to Problem.Some }
@@ -130,23 +138,23 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
         return NeedSection.LifestyleAndAssociates(YesNo.No, YesNo.No, questionAnswers)
     }
 
-    private fun drugMisuse(severity: NeedSeverity): NeedSection.DrugMisuse? {
+    private fun drugMisuse(severity: NeedSeverity, sanIndicator: Boolean): NeedSection.DrugMisuse? {
         val questions = listOf("currentDrugNoted", "motivationToTackleDrugMisuse", "drugsMajorActivity")
-        val injected: YesNo = if (severity == NeedSeverity.NO_NEED) YesNo.No else YesNo.Yes
+        val injected: YesNo = if (severity == NeedSeverity.NO_NEED || sanIndicator) YesNo.No else YesNo.Yes
         val questionAnswers = when (severity) {
             NeedSeverity.NO_NEED -> questions.map { it to Problem.None }
-            NeedSeverity.STANDARD -> questions.map { it to Problem.Some }
+            NeedSeverity.STANDARD -> questions.mapIndexed { i, q -> q to if (sanIndicator && i % 2 == 0) Problem.None else Problem.Some }
             NeedSeverity.SEVERE -> questions.map { it to Problem.Significant }
         }.toMap() + ("everInjectedDrugs" to injected)
         return NeedSection.DrugMisuse(YesNo.No, YesNo.No, questionAnswers)
     }
 
-    private fun alcoholMisuse(severity: NeedSeverity): NeedSection.AlcoholMisuse? {
+    private fun alcoholMisuse(severity: NeedSeverity, sanIndicator: Boolean): NeedSection.AlcoholMisuse? {
         val questions = listOf("currentUse", "bingeDrinking", "frequencyAndLevel", "alcoholTackleMotivation")
         val questionAnswers = when (severity) {
             NeedSeverity.NO_NEED -> questions.map { it to Problem.None }
-            NeedSeverity.STANDARD -> questions.map { it to Problem.Some }
-            NeedSeverity.SEVERE -> questions.map { it to Problem.Significant }
+            NeedSeverity.STANDARD -> questions.mapIndexed { i, q -> q to if (sanIndicator && i % 2 == 0) Problem.None else Problem.Some }
+            NeedSeverity.SEVERE -> questions.mapIndexed { i, q -> q to if (sanIndicator && i % 2 == 0) Problem.None else Problem.Significant }
         }.toMap()
         return NeedSection.AlcoholMisuse(YesNo.No, YesNo.No, questionAnswers)
     }
@@ -154,14 +162,15 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     private fun thinkingAndBehaviour(
         severity: NeedSeverity,
         impulsivity: Problem,
-        temperControl: Problem
+        temperControl: Problem,
+        sanIndicator: Boolean
     ): NeedSection.ThinkingAndBehaviour? {
         val questions =
             listOf("recogniseProblems", "problemSolvingSkills", "awarenessOfConsequences", "understandsViewsOfOthers")
         val questionAnswers = when (severity) {
             NeedSeverity.NO_NEED -> questions.map { it to Problem.None }
-            NeedSeverity.STANDARD -> questions.map { it to Problem.Some }
-            NeedSeverity.SEVERE -> questions.map { it to Problem.Significant }
+            NeedSeverity.STANDARD -> questions.mapIndexed { i, q -> q to if (sanIndicator && i == 0) Problem.None else Problem.Some }
+            NeedSeverity.SEVERE -> questions.mapIndexed { i, q -> q to if (sanIndicator && i != 0) Problem.Some else Problem.Significant }
         }.toMap()
         return NeedSection.ThinkingAndBehaviour(YesNo.No, YesNo.No, questionAnswers, impulsivity, temperControl)
     }
