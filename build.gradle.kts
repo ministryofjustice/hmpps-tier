@@ -23,7 +23,7 @@ repositories {
 }
 dependencies {
 
-    runtimeOnly("org.postgresql:postgresql:42.7.5")
+    runtimeOnly("org.postgresql:postgresql:42.7.6")
     runtimeOnly("com.zaxxer:HikariCP")
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
 
@@ -41,7 +41,7 @@ dependencies {
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.5")
 
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.12.0")
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.13.2")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -55,10 +55,10 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
-    testImplementation("io.cucumber:cucumber-spring:7.22.2")
-    testImplementation("io.cucumber:cucumber-java8:7.22.2")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.22.2")
-    testImplementation("org.junit.platform:junit-platform-console:1.12.2")
+    testImplementation("io.cucumber:cucumber-spring:7.23.0")
+    testImplementation("io.cucumber:cucumber-java8:7.23.0")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.23.0")
+    testImplementation("org.junit.platform:junit-platform-console:1.13.0")
 }
 
 jacoco {
