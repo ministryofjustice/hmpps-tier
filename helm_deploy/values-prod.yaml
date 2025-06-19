@@ -22,5 +22,6 @@ full-recalculation:
   dry-run: false
 
 generic-prometheus-alerts:
+  sqsAlertsOldestThreshold: 420
   sqsOldestAlertQueueNames:
     - probation-integration-prod-hmpps-tier-events-queue
