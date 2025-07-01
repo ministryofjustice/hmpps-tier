@@ -77,7 +77,8 @@ task("cucumber") {
             val jacocoAgent = zipTree(configurations.jacocoAgent.get().singleFile)
                 .filter { it.name == "jacocoagent.jar" }
                 .singleFile
-            jvmArgs = listOf("-javaagent:$jacocoAgent=destfile=${layout.buildDirectory.get().asFile}/jacoco/cucumber.exec,append=false")
+            jvmArgs =
+                listOf("-javaagent:$jacocoAgent=destfile=${layout.buildDirectory.get().asFile}/jacoco/cucumber.exec,append=false")
         }
     }
 }
@@ -88,7 +89,12 @@ tasks {
         finalizedBy("cucumber")
     }
     getByName<JacocoReport>("jacocoTestReport") {
-        executionData(files("${layout.buildDirectory.get().asFile}/jacoco/cucumber.exec", "${layout.buildDirectory.get().asFile}/jacoco/test.exec"))
+        executionData(
+            files(
+                "${layout.buildDirectory.get().asFile}/jacoco/cucumber.exec",
+                "${layout.buildDirectory.get().asFile}/jacoco/test.exec"
+            )
+        )
         reports {
             xml.required.set(false)
             csv.required.set(false)
@@ -107,7 +113,10 @@ tasks {
         }
     }
     getByName<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
-        executionData("${layout.buildDirectory.get().asFile}jacoco/cucumber.exec", "${layout.buildDirectory.get().asFile}/jacoco/test.exec")
+        executionData(
+            "${layout.buildDirectory.get().asFile}jacoco/cucumber.exec",
+            "${layout.buildDirectory.get().asFile}/jacoco/test.exec"
+        )
         violationRules {
             rule {
                 limit {
