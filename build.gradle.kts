@@ -1,7 +1,9 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.2.0"
-    kotlin("plugin.spring") version "2.1.21"
-    kotlin("plugin.jpa") version "2.1.21"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.0"
+    kotlin("plugin.spring") version "2.2.0"
+    kotlin("plugin.jpa") version "2.2.0"
     jacoco
 }
 
@@ -39,9 +41,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.5")
+    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.6")
 
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.14.0")
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.16.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -58,7 +60,7 @@ dependencies {
     testImplementation("io.cucumber:cucumber-spring:7.23.0")
     testImplementation("io.cucumber:cucumber-java8:7.23.0")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:7.23.0")
-    testImplementation("org.junit.platform:junit-platform-console:1.13.1")
+    testImplementation("org.junit.platform:junit-platform-console:1.13.2")
 }
 
 jacoco {
@@ -75,7 +77,8 @@ task("cucumber") {
             val jacocoAgent = zipTree(configurations.jacocoAgent.get().singleFile)
                 .filter { it.name == "jacocoagent.jar" }
                 .singleFile
-            jvmArgs = listOf("-javaagent:$jacocoAgent=destfile=$buildDir/jacoco/cucumber.exec,append=false")
+            jvmArgs =
+                listOf("-javaagent:$jacocoAgent=destfile=${layout.buildDirectory.get().asFile}/jacoco/cucumber.exec,append=false")
         }
     }
 }
@@ -86,11 +89,16 @@ tasks {
         finalizedBy("cucumber")
     }
     getByName<JacocoReport>("jacocoTestReport") {
-        executionData(files("$buildDir/jacoco/cucumber.exec", "$buildDir/jacoco/test.exec"))
+        executionData(
+            files(
+                "${layout.buildDirectory.get().asFile}/jacoco/cucumber.exec",
+                "${layout.buildDirectory.get().asFile}/jacoco/test.exec"
+            )
+        )
         reports {
             xml.required.set(false)
             csv.required.set(false)
-            html.outputLocation.set(file("$buildDir/reports/coverage"))
+            html.outputLocation.set(file("${layout.buildDirectory.get().asFile}/reports/coverage"))
         }
         afterEvaluate {
             classDirectories.setFrom(
@@ -105,7 +113,10 @@ tasks {
         }
     }
     getByName<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
-        executionData("$buildDir/jacoco/cucumber.exec", "$buildDir/jacoco/test.exec")
+        executionData(
+            "${layout.buildDirectory.get().asFile}/jacoco/cucumber.exec",
+            "${layout.buildDirectory.get().asFile}/jacoco/test.exec"
+        )
         violationRules {
             rule {
                 limit {
@@ -140,17 +151,14 @@ tasks {
     getByName<Test>("test") {
         exclude("**/CucumberRunnerTest*")
     }
+}
 
-    compileKotlin {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_21.toString()
-        }
-    }
-    compileTestKotlin {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_21.toString()
-        }
-    }
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+}
+
+kotlin {
+    compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
 }
 
 tasks.named<JavaExec>("bootRun") {
