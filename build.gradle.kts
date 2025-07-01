@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.0"
     kotlin("plugin.spring") version "2.2.0"
@@ -140,17 +142,14 @@ tasks {
     getByName<Test>("test") {
         exclude("**/CucumberRunnerTest*")
     }
+}
 
-    compileKotlin {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_21.toString()
-        }
-    }
-    compileTestKotlin {
-        kotlinOptions {
-            jvmTarget = JavaVersion.VERSION_21.toString()
-        }
-    }
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(21))
+}
+
+kotlin {
+    compilerOptions.jvmTarget.set(JvmTarget.JVM_21)
 }
 
 tasks.named<JavaExec>("bootRun") {
