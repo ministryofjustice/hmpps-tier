@@ -114,7 +114,7 @@ tasks {
     }
     getByName<JacocoCoverageVerification>("jacocoTestCoverageVerification") {
         executionData(
-            "${layout.buildDirectory.get().asFile}jacoco/cucumber.exec",
+            "${layout.buildDirectory.get().asFile}/jacoco/cucumber.exec",
             "${layout.buildDirectory.get().asFile}/jacoco/test.exec"
         )
         violationRules {
