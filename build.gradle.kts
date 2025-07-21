@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.0"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.1"
     kotlin("plugin.spring") version "2.2.0"
     kotlin("plugin.jpa") version "2.2.0"
     jacoco
@@ -35,15 +35,15 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.10.2")
+    implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.10.3")
 
     implementation("org.springframework.boot:spring-boot-starter-security")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.6")
+    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.7")
 
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.16.0")
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.17.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -57,11 +57,15 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
-    testImplementation("io.cucumber:cucumber-spring:7.23.0")
-    testImplementation("io.cucumber:cucumber-java8:7.23.0")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.23.0")
-    testImplementation("org.junit.platform:junit-platform-console:1.13.3")
+    testImplementation("io.cucumber:cucumber-spring:7.26.0")
+    testImplementation("io.cucumber:cucumber-java8:7.26.0")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.26.0")
+    testImplementation("org.junit.platform:junit-platform-console:1.13.3") // Manually set to 1.13.3 for cucumber 7.26.0
+    testImplementation("org.junit.platform:junit-platform-launcher:1.13.3") // Manually set to 1.13.3 for cucumber 7.26.0
 }
+
+// Manually set to 5.13.3 for cucumber 7.26.0. Should be able to be removed when Spring updates to JUnit 5.13.3
+ext["junit-jupiter.version"] = "5.13.3"
 
 jacoco {
     toolVersion = "0.8.12"
