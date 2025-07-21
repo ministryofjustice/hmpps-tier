@@ -57,11 +57,15 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
-    testImplementation("io.cucumber:cucumber-spring:7.25.0")
-    testImplementation("io.cucumber:cucumber-java8:7.25.0")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.25.0")
-    testImplementation("org.junit.platform:junit-platform-console:1.13.3")
+    testImplementation("io.cucumber:cucumber-spring:7.26.0")
+    testImplementation("io.cucumber:cucumber-java8:7.26.0")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.26.0")
+    testImplementation("org.junit.platform:junit-platform-console:1.13.3") // Manually set to 1.13.3 for cucumber 7.26.0
+    testImplementation("org.junit.platform:junit-platform-launcher:1.13.3") // Manually set to 1.13.3 for cucumber 7.26.0
 }
+
+// Manually set to 5.13.3 for cucumber 7.26.0. Should be able to be removed when Spring updates to JUnit 5.13.3
+ext["junit-jupiter.version"] = "5.13.3"
 
 jacoco {
     toolVersion = "0.8.12"
