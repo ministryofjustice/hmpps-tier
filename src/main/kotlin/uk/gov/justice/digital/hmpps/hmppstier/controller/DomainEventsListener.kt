@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.awspring.cloud.sqs.annotation.SqsListener
+import io.sentry.Sentry
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.dao.CannotAcquireLockException
 import org.springframework.jdbc.CannotGetJdbcConnectionException
@@ -32,7 +33,12 @@ class DomainEventsListener(
         if (attributes.eventType == "risk-assessment.scores.determined" && domainEventMessage.eventType != "assessment.summary.produced") {
             return
         }
-        retry(3, RETRYABLE_EXCEPTIONS) { handleMessage(domainEventMessage) }
+        try {
+            retry(3, RETRYABLE_EXCEPTIONS) { handleMessage(domainEventMessage) }
+        } catch (e: Exception) {
+            Sentry.captureException(e)
+            throw e
+        }
     }
 
     private fun handleMessage(message: DomainEventsMessage) {
