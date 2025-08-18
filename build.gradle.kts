@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.4"
-    kotlin("plugin.spring") version "2.2.0"
-    kotlin("plugin.jpa") version "2.2.0"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.6"
+    kotlin("plugin.spring") version "2.2.10"
+    kotlin("plugin.jpa") version "2.2.10"
     jacoco
 }
 
@@ -43,7 +43,7 @@ dependencies {
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.10")
 
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.18.0")
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.19.1")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -55,11 +55,11 @@ dependencies {
     testImplementation("com.ninja-squad:springmockk:4.0.2")
     testImplementation("org.assertj:assertj-core:3.27.4")
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
-    testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
-    testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
-    testImplementation("io.cucumber:cucumber-spring:7.27.0")
-    testImplementation("io.cucumber:cucumber-java8:7.27.0")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.27.0")
+    testImplementation("io.jsonwebtoken:jjwt-impl:0.12.7")
+    testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.7")
+    testImplementation("io.cucumber:cucumber-spring:7.27.1")
+    testImplementation("io.cucumber:cucumber-java8:7.27.1")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.27.1")
     testImplementation("org.junit.platform:junit-platform-console:1.13.4") // Manually set to 1.13.4 for cucumber 7.26.0
     testImplementation("org.junit.platform:junit-platform-launcher:1.13.4") // Manually set to 1.13.4 for cucumber 7.26.0
 }
