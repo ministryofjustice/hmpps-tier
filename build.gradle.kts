@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.6"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.7"
     kotlin("plugin.spring") version "2.2.10"
     kotlin("plugin.jpa") version "2.2.10"
     jacoco
@@ -29,7 +29,7 @@ dependencies {
     runtimeOnly("com.zaxxer:HikariCP")
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
 
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.11")
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -55,11 +55,11 @@ dependencies {
     testImplementation("com.ninja-squad:springmockk:4.0.2")
     testImplementation("org.assertj:assertj-core:3.27.4")
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
-    testImplementation("io.jsonwebtoken:jjwt-impl:0.12.7")
-    testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.7")
-    testImplementation("io.cucumber:cucumber-spring:7.27.1")
-    testImplementation("io.cucumber:cucumber-java8:7.27.1")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.27.1")
+    testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
+    testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
+    testImplementation("io.cucumber:cucumber-spring:7.27.2")
+    testImplementation("io.cucumber:cucumber-java8:7.27.2")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.27.2")
     testImplementation("org.junit.platform:junit-platform-console:1.13.4") // Manually set to 1.13.4 for cucumber 7.26.0
     testImplementation("org.junit.platform:junit-platform-launcher:1.13.4") // Manually set to 1.13.4 for cucumber 7.26.0
 }
