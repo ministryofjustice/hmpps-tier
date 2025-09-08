@@ -29,7 +29,7 @@ dependencies {
     runtimeOnly("com.zaxxer:HikariCP")
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
 
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.11")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13")
 
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -57,9 +57,9 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
-    testImplementation("io.cucumber:cucumber-spring:7.27.2")
-    testImplementation("io.cucumber:cucumber-java8:7.27.2")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.27.2")
+    testImplementation("io.cucumber:cucumber-spring:7.28.1")
+    testImplementation("io.cucumber:cucumber-java8:7.28.1")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.28.1")
     testImplementation("org.junit.platform:junit-platform-console:1.13.4") // Manually set to 1.13.4 for cucumber 7.26.0
     testImplementation("org.junit.platform:junit-platform-launcher:1.13.4") // Manually set to 1.13.4 for cucumber 7.26.0
 }
