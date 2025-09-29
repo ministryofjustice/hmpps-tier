@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.0.2"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.1.1"
     kotlin("plugin.spring") version "2.2.20"
     kotlin("plugin.jpa") version "2.2.20"
     jacoco
@@ -43,7 +43,7 @@ dependencies {
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.11")
 
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.21.1")
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.22.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -53,7 +53,7 @@ dependencies {
     testImplementation("org.mock-server:mockserver-netty:5.15.0")
 
     testImplementation("com.ninja-squad:springmockk:4.0.2")
-    testImplementation("org.assertj:assertj-core:3.27.5")
+    testImplementation("org.assertj:assertj-core:3.27.6")
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
