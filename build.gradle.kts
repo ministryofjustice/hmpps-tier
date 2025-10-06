@@ -60,8 +60,8 @@ dependencies {
     testImplementation("io.cucumber:cucumber-spring:7.30.0")
     testImplementation("io.cucumber:cucumber-java8:7.30.0")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:7.30.0")
-    testImplementation("org.junit.platform:junit-platform-console:1.13.4") // Manually set to 1.13.4 for cucumber 7.26.0
-    testImplementation("org.junit.platform:junit-platform-launcher:1.13.4") // Manually set to 1.13.4 for cucumber 7.26.0
+    testImplementation("org.junit.platform:junit-platform-console:6.0.0") // Manually set to 6.0.0 for cucumber 7.26.0
+    testImplementation("org.junit.platform:junit-platform-launcher:6.0.0") // Manually set to 6.0.0 for cucumber 7.26.0
 }
 
 // Manually set to 5.13.3 for cucumber 7.26.0. Should be able to be removed when Spring updates to JUnit 5.13.3
