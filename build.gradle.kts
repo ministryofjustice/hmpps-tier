@@ -41,9 +41,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.6.0")
+    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.6.1")
 
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.24.0")
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.25.0")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
@@ -57,9 +57,9 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
-    testImplementation("io.cucumber:cucumber-spring:7.30.0")
-    testImplementation("io.cucumber:cucumber-java8:7.30.0")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.30.0")
+    testImplementation("io.cucumber:cucumber-spring:7.31.0")
+    testImplementation("io.cucumber:cucumber-java8:7.31.0")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.31.0")
     testImplementation("org.junit.platform:junit-platform-console:1.13.4") // Manually set to 1.13.4 for cucumber 7.26.0
     testImplementation("org.junit.platform:junit-platform-launcher:1.13.4") // Manually set to 1.13.4 for cucumber 7.26.0
 }
