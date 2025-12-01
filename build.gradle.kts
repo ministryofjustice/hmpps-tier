@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.1.4"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.2.0"
     kotlin("plugin.spring") version "2.2.21"
     kotlin("plugin.jpa") version "2.2.21"
     jacoco
@@ -41,9 +41,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
 
-    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.6.1")
+    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.6.3")
 
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.27.0")
+    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.27.1")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
