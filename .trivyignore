@@ -13,6 +13,6 @@ CVE-2022-45868
 # Suppression for tomcat vulnerability affecting jsp compilation in the default servlet
 #   can be suppressed as we do not use the default servlet and haven't configured it for write either
 CVE-2024-50379
-# Suppresion for gnupg vulnerability affecting gpgsm
+# Suppression for gnupg vulnerability affecting gpgsm
 #   can be suppressed as we do not use gpnpg in our build or pipeline
 CVE-2025-68973
