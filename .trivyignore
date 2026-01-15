@@ -12,4 +12,4 @@ CVE-2022-45868
 CVE-2024-50379
 # Suppression for gnupg vulnerability affecting gpgsm
 #   can be suppressed as we do not use gpnpg in our build or pipeline
-CVE-2025-68973
+CVE-2025-68973 exp:2026-02-01
