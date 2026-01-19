@@ -7,9 +7,9 @@ import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.http.HttpHeaders
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
@@ -88,7 +88,7 @@ abstract class IntegrationTestBase {
         domainEventQueueDlqClient!!.purgeQueue(PurgeQueueRequest.builder().queueUrl(domainEventQueue.dlqUrl).build())
             .get()
         val toDelete = tierCalculationRepository.findAll().filter { it.crn !in setOf("F987546", "F987564") }
-        tierCalculationRepository.deleteAllById(toDelete.map { it.id })
+        tierCalculationRepository.deleteAllById(toDelete.mapNotNull { it.id })
     }
 
     fun restOfSetupWithMaleOffenderNoSevereNeeds(

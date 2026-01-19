@@ -11,12 +11,12 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliu
 
 class MockServerPlugin : EventListener {
 
-    private var tierToDeliusApiExtension: TierToDeliusApiExtension = TierToDeliusApiExtension()
-    private var hmppsAuthApiExtension: HmppsAuthApiExtension = HmppsAuthApiExtension()
-    private var arnsApiExtension: ArnsApiExtension = ArnsApiExtension()
+    private val tierToDeliusApiExtension = TierToDeliusApiExtension()
+    private val hmppsAuthApiExtension = HmppsAuthApiExtension()
+    private val arnsApiExtension = ArnsApiExtension()
 
-    override fun setEventPublisher(publisher: EventPublisher?) {
-        publisher!!.registerHandlerFor(TestRunStarted::class.java) {
+    override fun setEventPublisher(publisher: EventPublisher) {
+        publisher.registerHandlerFor(TestRunStarted::class.java) {
             testRunStarted()
         }
         publisher.registerHandlerFor(TestRunFinished::class.java) {
@@ -28,20 +28,20 @@ class MockServerPlugin : EventListener {
     }
 
     fun testRunStarted() {
-        tierToDeliusApiExtension.beforeAll(null)
-        hmppsAuthApiExtension.beforeAll(null)
-        arnsApiExtension.beforeAll(null)
+        tierToDeliusApiExtension.start()
+        hmppsAuthApiExtension.start()
+        arnsApiExtension.start()
     }
 
     fun testCaseStarted() {
-        tierToDeliusApiExtension.beforeEach(null)
-        hmppsAuthApiExtension.beforeEach(null)
-        arnsApiExtension.beforeEach(null)
+        tierToDeliusApiExtension.reset()
+        hmppsAuthApiExtension.reset()
+        arnsApiExtension.reset()
     }
 
     fun testRunFinished() {
-        tierToDeliusApiExtension.afterAll(null)
-        hmppsAuthApiExtension.afterAll(null)
-        arnsApiExtension.afterAll(null)
+        tierToDeliusApiExtension.stop()
+        hmppsAuthApiExtension.stop()
+        arnsApiExtension.stop()
     }
 }

@@ -6,11 +6,8 @@ spring:
 
   jackson:
     date-format: "yyyy-MM-dd HH:mm:ss"
-    serialization:
-      WRITE_DATES_AS_TIMESTAMPS: false
     deserialization:
-      fail-on-ignored-properties: false
-      fail-on-unknown-properties: false
+      FAIL_ON_UNKNOWN_PROPERTIES: false
 
   datasource:
     url: 'jdbc:postgresql://${database.endpoint:localhost:5432}/${database.name:postgres}?stringtype=unspecified'

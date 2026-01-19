@@ -29,15 +29,19 @@ class ArnsApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallback
         lateinit var arnsApi: ArnsApiMockServer
     }
 
-    override fun beforeAll(context: ExtensionContext?) {
+    override fun beforeAll(context: ExtensionContext) = start()
+    override fun beforeEach(context: ExtensionContext) = reset()
+    override fun afterAll(context: ExtensionContext) = stop()
+
+    fun start() {
         arnsApi = ArnsApiMockServer()
     }
 
-    override fun beforeEach(context: ExtensionContext?) {
+    fun reset() {
         arnsApi.reset()
     }
 
-    override fun afterAll(context: ExtensionContext?) {
+    fun stop() {
         arnsApi.stop()
     }
 }

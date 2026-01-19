@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.3.0"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.0.0"
     kotlin("plugin.spring") version "2.3.0"
     kotlin("plugin.jpa") version "2.3.0"
     jacoco
@@ -26,30 +26,32 @@ repositories {
 dependencies {
 
     runtimeOnly("org.postgresql:postgresql:42.7.8")
-    runtimeOnly("com.zaxxer:HikariCP")
+    implementation("org.springframework.boot:spring-boot-starter-flyway")
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
 
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.14")
-
-    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-webmvc")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-security-oauth2-client")
+    implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("io.hypersistence:hypersistence-utils-hibernate-63:3.14.1")
+    implementation("io.hypersistence:hypersistence-utils-hibernate-71:3.14.1")
 
-    implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
-    implementation("org.springframework.boot:spring-boot-starter-oauth2-client")
+    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:6.0.0")
 
-    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.6.3")
-
-    implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.29.0")
+    implementation(platform("io.sentry:sentry-bom:8.29.0"))
+    implementation("io.sentry:sentry-spring-boot-4")
+    implementation("io.sentry:sentry-logback")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
-        exclude(module = "mockito-core")
     }
-    testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
     testImplementation("org.mock-server:mockserver-netty:5.15.0")
 
     testImplementation("com.ninja-squad:springmockk:5.0.1")
@@ -60,12 +62,7 @@ dependencies {
     testImplementation("io.cucumber:cucumber-spring:7.33.0")
     testImplementation("io.cucumber:cucumber-java8:7.33.0")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:7.33.0")
-    testImplementation("org.junit.platform:junit-platform-console:1.13.4") // Manually set to 1.13.4 for cucumber 7.26.0
-    testImplementation("org.junit.platform:junit-platform-launcher:1.13.4") // Manually set to 1.13.4 for cucumber 7.26.0
 }
-
-// Manually set to 5.13.3 for cucumber 7.26.0. Should be able to be removed when Spring updates to JUnit 5.13.3
-ext["junit-jupiter.version"] = "5.13.3"
 
 jacoco {
     toolVersion = "0.8.12"
