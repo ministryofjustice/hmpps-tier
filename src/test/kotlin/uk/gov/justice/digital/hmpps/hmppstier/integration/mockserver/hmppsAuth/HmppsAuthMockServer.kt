@@ -16,16 +16,22 @@ class HmppsAuthApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCal
         lateinit var hmppsAuth: HmppsAuthMockServer
     }
 
-    override fun beforeAll(context: ExtensionContext?) {
+    override fun beforeAll(context: ExtensionContext) = start()
+
+    override fun beforeEach(context: ExtensionContext) = reset()
+
+    override fun afterAll(context: ExtensionContext) = stop()
+
+    fun start() {
         hmppsAuth = HmppsAuthMockServer()
     }
 
-    override fun beforeEach(context: ExtensionContext?) {
+    fun reset() {
         hmppsAuth.reset()
         hmppsAuth.setupOauth()
     }
 
-    override fun afterAll(context: ExtensionContext?) {
+    fun stop() {
         hmppsAuth.stop()
     }
 }

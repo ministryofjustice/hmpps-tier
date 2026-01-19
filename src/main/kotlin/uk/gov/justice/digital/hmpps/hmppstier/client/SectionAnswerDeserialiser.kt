@@ -6,11 +6,12 @@ import com.fasterxml.jackson.databind.DeserializationContext
 import com.fasterxml.jackson.databind.JsonDeserializer
 import com.fasterxml.jackson.databind.JsonNode
 import com.fasterxml.jackson.databind.ObjectMapper
-import org.springframework.boot.jackson.JsonComponent
+import org.springframework.boot.jackson.JacksonComponent
+
 import uk.gov.justice.digital.hmpps.hmppstier.client.SectionAnswer.*
 import java.io.IOException
 
-@JsonComponent
+@JacksonComponent
 class SectionAnswerDeserialiser : JsonDeserializer<SectionAnswer>() {
     @Throws(IOException::class, JsonProcessingException::class)
     override fun deserialize(parser: JsonParser, context: DeserializationContext?): SectionAnswer? {

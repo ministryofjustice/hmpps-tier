@@ -10,7 +10,6 @@ import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.MediaType
-import org.slf4j.LoggerFactory
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.tierDetailsResponse
 
@@ -18,21 +17,23 @@ class TierToDeliusApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEach
 
     companion object {
         lateinit var tierToDeliusApi: TierToDeliusApiMockServer
-        private val log = LoggerFactory.getLogger(this::class.java)
     }
 
-    override fun beforeAll(context: ExtensionContext?) {
-        log.info("beforeAll called")
+    override fun beforeAll(context: ExtensionContext) = start()
+
+    override fun beforeEach(context: ExtensionContext) = reset()
+
+    override fun afterAll(context: ExtensionContext) = stop()
+
+    fun start() {
         tierToDeliusApi = TierToDeliusApiMockServer()
     }
 
-    override fun beforeEach(context: ExtensionContext?) {
-        log.info("beforeEach called")
+    fun reset() {
         tierToDeliusApi.reset()
     }
 
-    override fun afterAll(context: ExtensionContext?) {
-        log.info("afterAll called")
+    fun stop() {
         tierToDeliusApi.stop()
     }
 }
