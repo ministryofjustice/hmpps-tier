@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.0.0"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.0.1"
     kotlin("plugin.spring") version "2.3.0"
     kotlin("plugin.jpa") version "2.3.0"
     jacoco
@@ -25,7 +25,7 @@ repositories {
 }
 dependencies {
 
-    runtimeOnly("org.postgresql:postgresql:42.7.8")
+    runtimeOnly("org.postgresql:postgresql:42.7.9")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
 
@@ -43,7 +43,7 @@ dependencies {
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:6.0.0")
 
-    implementation(platform("io.sentry:sentry-bom:8.29.0"))
+    implementation(platform("io.sentry:sentry-bom:8.31.0"))
     implementation("io.sentry:sentry-spring-boot-4")
     implementation("io.sentry:sentry-logback")
 
@@ -55,7 +55,7 @@ dependencies {
     testImplementation("org.mock-server:mockserver-netty:5.15.0")
 
     testImplementation("com.ninja-squad:springmockk:5.0.1")
-    testImplementation("org.assertj:assertj-core:3.27.6")
+    testImplementation("org.assertj:assertj-core:3.27.7")
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
