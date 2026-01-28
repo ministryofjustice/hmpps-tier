@@ -65,23 +65,19 @@ dependencies {
 }
 
 jacoco {
-    toolVersion = "0.8.12"
+    toolVersion = "0.8.14"
 }
 
-task("cucumber") {
+tasks.register<JavaExec>("cucumber") {
     dependsOn("assemble", "testClasses")
     finalizedBy("jacocoTestCoverageVerification")
-    doLast {
-        javaexec {
-            mainClass.set("io.cucumber.core.cli.Main")
-            classpath = sourceSets["test"].runtimeClasspath
-            val jacocoAgent = zipTree(configurations.jacocoAgent.get().singleFile)
-                .filter { it.name == "jacocoagent.jar" }
-                .singleFile
-            jvmArgs =
-                listOf("-javaagent:$jacocoAgent=destfile=${layout.buildDirectory.get().asFile}/jacoco/cucumber.exec,append=false")
-        }
-    }
+    mainClass.set("io.cucumber.core.cli.Main")
+    classpath = sourceSets["test"].runtimeClasspath
+    val jacocoAgent = zipTree(configurations.jacocoAgent.get().singleFile)
+        .filter { it.name == "jacocoagent.jar" }
+        .singleFile
+    jvmArgs =
+        listOf("-javaagent:$jacocoAgent=destfile=${layout.buildDirectory.get().asFile}/jacoco/cucumber.exec,append=false")
 }
 
 tasks {
