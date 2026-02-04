@@ -11,8 +11,7 @@ enum class Mappa(val registerCode: String) {
     companion object {
         fun from(value: String?, typeCode: String?): Mappa? {
             return if (typeCode == MAPPA_TYPE_CODE) {
-                values()
-                    .firstOrNull { code -> code.registerCode.equals(value, true) }
+                entries.firstOrNull { code -> code.registerCode.equals(value, true) }
             } else {
                 null
             }
