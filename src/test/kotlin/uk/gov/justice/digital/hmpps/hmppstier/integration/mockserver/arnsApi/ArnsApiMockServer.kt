@@ -109,7 +109,7 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
             NeedSeverity.STANDARD -> questions.map { it to Problem.Some }
             NeedSeverity.SEVERE -> questions.map { it to Problem.Significant }
         }.toMap() + ("noFixedAbodeOrTransient" to noFixedAbode)
-        return NeedSection.Accommodation(YesNo.No, YesNo.No, questionAnswers)
+        return NeedSection.Accommodation(YesNo.No, YesNo.No, HashMap(questionAnswers))
     }
 
     private fun ete(severity: NeedSeverity): NeedSection.EducationTrainingEmployability? {
@@ -119,7 +119,7 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
             NeedSeverity.STANDARD -> questions.map { it to Problem.Some }
             NeedSeverity.SEVERE -> questions.map { it to Problem.Significant }
         }.toMap()
-        return NeedSection.EducationTrainingEmployability(YesNo.No, YesNo.No, questionAnswers)
+        return NeedSection.EducationTrainingEmployability(YesNo.No, YesNo.No, HashMap(questionAnswers))
     }
 
     private fun relationships(severity: NeedSeverity, parentalResponsibilities: YesNo): NeedSection.Relationships? {
@@ -129,7 +129,7 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
             NeedSeverity.STANDARD -> questions.map { it to Problem.Some }
             NeedSeverity.SEVERE -> questions.map { it to Problem.Significant }
         }.toMap()
-        return NeedSection.Relationships(YesNo.No, YesNo.No, questionAnswers, parentalResponsibilities)
+        return NeedSection.Relationships(YesNo.No, YesNo.No, HashMap(questionAnswers), parentalResponsibilities)
     }
 
     private fun lifestyle(severity: NeedSeverity): NeedSection.LifestyleAndAssociates? {
@@ -139,7 +139,7 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
             NeedSeverity.STANDARD -> questions.map { it to Problem.Some }
             NeedSeverity.SEVERE -> questions.map { it to Problem.Significant }
         }.toMap()
-        return NeedSection.LifestyleAndAssociates(YesNo.No, YesNo.No, questionAnswers)
+        return NeedSection.LifestyleAndAssociates(YesNo.No, YesNo.No, HashMap(questionAnswers))
     }
 
     private fun drugMisuse(severity: NeedSeverity, sanIndicator: Boolean): NeedSection.DrugMisuse? {
@@ -150,7 +150,7 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
             NeedSeverity.STANDARD -> questions.mapIndexed { i, q -> q to if (sanIndicator && i % 2 == 0) Problem.None else Problem.Some }
             NeedSeverity.SEVERE -> questions.map { it to Problem.Significant }
         }.toMap() + ("everInjectedDrugs" to injected)
-        return NeedSection.DrugMisuse(YesNo.No, YesNo.No, questionAnswers)
+        return NeedSection.DrugMisuse(YesNo.No, YesNo.No, HashMap(questionAnswers))
     }
 
     private fun alcoholMisuse(severity: NeedSeverity, sanIndicator: Boolean): NeedSection.AlcoholMisuse? {
@@ -160,7 +160,7 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
             NeedSeverity.STANDARD -> questions.mapIndexed { i, q -> q to if (sanIndicator && i % 2 == 0) Problem.None else Problem.Some }
             NeedSeverity.SEVERE -> questions.mapIndexed { i, q -> q to if (sanIndicator && i % 2 == 0) Problem.None else Problem.Significant }
         }.toMap()
-        return NeedSection.AlcoholMisuse(YesNo.No, YesNo.No, questionAnswers)
+        return NeedSection.AlcoholMisuse(YesNo.No, YesNo.No, HashMap(questionAnswers))
     }
 
     private fun thinkingAndBehaviour(
@@ -176,7 +176,13 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
             NeedSeverity.STANDARD -> questions.mapIndexed { i, q -> q to if (sanIndicator && i == 0) Problem.None else Problem.Some }
             NeedSeverity.SEVERE -> questions.mapIndexed { i, q -> q to if (sanIndicator && i != 0) Problem.Some else Problem.Significant }
         }.toMap()
-        return NeedSection.ThinkingAndBehaviour(YesNo.No, YesNo.No, questionAnswers, impulsivity, temperControl)
+        return NeedSection.ThinkingAndBehaviour(
+            YesNo.No,
+            YesNo.No,
+            HashMap(questionAnswers),
+            impulsivity,
+            temperControl
+        )
     }
 
     private fun attitudes(severity: NeedSeverity): NeedSection.Attitudes? {
@@ -191,6 +197,6 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
             NeedSeverity.STANDARD -> questions.map { it to Problem.Some }
             NeedSeverity.SEVERE -> questions.map { it to Problem.Significant }
         }.toMap()
-        return NeedSection.Attitudes(YesNo.No, YesNo.No, questionAnswers)
+        return NeedSection.Attitudes(YesNo.No, YesNo.No, HashMap(questionAnswers))
     }
 }

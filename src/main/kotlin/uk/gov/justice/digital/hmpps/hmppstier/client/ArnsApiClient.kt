@@ -1,22 +1,21 @@
 package uk.gov.justice.digital.hmpps.hmppstier.client
 
 import com.fasterxml.jackson.annotation.JsonAlias
-import com.fasterxml.jackson.annotation.JsonFormat
 import com.fasterxml.jackson.annotation.JsonIgnore
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.RestClient
-import uk.gov.justice.digital.hmpps.hmppstier.client.SectionAnswer.Frequency
-import uk.gov.justice.digital.hmpps.hmppstier.client.SectionAnswer.Problem
-import uk.gov.justice.digital.hmpps.hmppstier.client.SectionAnswer.YesNo
+import uk.gov.justice.digital.hmpps.hmppstier.client.SectionAnswer.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
+import java.io.Serializable
 import java.time.LocalDateTime
 
 @Component
@@ -46,14 +45,14 @@ data class AssessmentForTier(
     val alcoholMisuse: NeedSection.AlcoholMisuse?,
     val thinkingAndBehaviour: NeedSection.ThinkingAndBehaviour?,
     val attitudes: NeedSection.Attitudes?,
-)
+) : Serializable
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-sealed interface NeedSection {
+sealed interface NeedSection : Serializable {
     val section: Need
     val linkedToReOffending: YesNo
     val linkedToHarm: YesNo
-    val questionAnswers: Map<String, SectionAnswer>
+    val questionAnswers: HashMap<String, SectionAnswer>
 
     @get:JsonIgnore
     val threshold: Threshold
@@ -78,54 +77,55 @@ sealed interface NeedSection {
         }
     }
 
+    @JsonSerialize
     data class Accommodation(
         override val linkedToHarm: YesNo = YesNo.Unknown,
         override val linkedToReOffending: YesNo = YesNo.Unknown,
-        override val questionAnswers: Map<String, SectionAnswer> = mapOf(),
+        override val questionAnswers: HashMap<String, SectionAnswer> = hashMapOf(),
     ) : NeedSection {
         override val section = Need.ACCOMMODATION
         override val threshold = Threshold(2, 7)
         override val sanThresholdOverride = Threshold(3, 5)
 
         @get:JsonIgnore
-        val noFixedAbodeOrTransient: YesNo by questionAnswers.withDefault { YesNo.Unknown }
+        val noFixedAbodeOrTransient = questionAnswers["noFixedAbodeOrTransient"] ?: YesNo.Unknown
 
         @get:JsonIgnore
-        val suitabilityOfAccommodation: Problem by questionAnswers.withDefault { Problem.Missing }
+        val suitabilityOfAccommodation = questionAnswers["suitabilityOfAccommodation"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val permanenceOfAccommodation: Problem by questionAnswers.withDefault { Problem.Missing }
+        val permanenceOfAccommodation = questionAnswers["permanenceOfAccommodation"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val locationOfAccommodation: Problem by questionAnswers.withDefault { Problem.Missing }
+        val locationOfAccommodation = questionAnswers["locationOfAccommodation"] ?: Problem.Missing
     }
 
     data class EducationTrainingEmployability(
         override val linkedToHarm: YesNo = YesNo.Unknown,
         override val linkedToReOffending: YesNo = YesNo.Unknown,
-        override val questionAnswers: Map<String, SectionAnswer> = mapOf(),
+        override val questionAnswers: HashMap<String, SectionAnswer> = hashMapOf(),
     ) : NeedSection {
         override val section = Need.EDUCATION_TRAINING_AND_EMPLOYABILITY
         override val threshold = Threshold(3, 7)
         override val sanThresholdOverride = null
 
         @get:JsonIgnore
-        val unemployed: Problem by questionAnswers.withDefault { Problem.Missing }
+        val unemployed = questionAnswers["unemployed"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val employmentHistory: Problem by questionAnswers.withDefault { Problem.Missing }
+        val employmentHistory = questionAnswers["employmentHistory"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val workRelatedSkills: Problem by questionAnswers.withDefault { Problem.Missing }
+        val workRelatedSkills = questionAnswers["workRelatedSkills"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val attitudeToEmployment: Problem by questionAnswers.withDefault { Problem.Missing }
+        val attitudeToEmployment = questionAnswers["attitudeToEmployment"] ?: Problem.Missing
     }
 
     data class Relationships(
         override val linkedToHarm: YesNo = YesNo.Unknown,
         override val linkedToReOffending: YesNo = YesNo.Unknown,
-        override val questionAnswers: Map<String, SectionAnswer> = mapOf(),
+        override val questionAnswers: HashMap<String, SectionAnswer> = hashMapOf(),
         val parentalResponsibilities: YesNo = YesNo.Unknown,
     ) : NeedSection {
         override val section = Need.RELATIONSHIPS
@@ -133,82 +133,82 @@ sealed interface NeedSection {
         override val sanThresholdOverride = null
 
         @get:JsonIgnore
-        val relCloseFamily: Problem by questionAnswers.withDefault { Problem.Missing }
+        val relCloseFamily = questionAnswers["relCloseFamily"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val experienceOfChildhood: Problem by questionAnswers.withDefault { Problem.Missing }
+        val experienceOfChildhood = questionAnswers["experienceOfChildhood"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val prevCloseRelationships: Problem by questionAnswers.withDefault { Problem.Missing }
+        val prevCloseRelationships = questionAnswers["prevCloseRelationships"] ?: Problem.Missing
     }
 
     data class LifestyleAndAssociates(
         override val linkedToHarm: YesNo = YesNo.Unknown,
         override val linkedToReOffending: YesNo = YesNo.Unknown,
-        override val questionAnswers: Map<String, SectionAnswer> = mapOf(),
+        override val questionAnswers: HashMap<String, SectionAnswer> = hashMapOf(),
     ) : NeedSection {
         override val section = Need.LIFESTYLE_AND_ASSOCIATES
         override val threshold = Threshold(2, 5)
         override val sanThresholdOverride = null
 
         @get:JsonIgnore
-        val regActivitiesEncourageOffending: Problem by questionAnswers.withDefault { Problem.Missing }
+        val regActivitiesEncourageOffending = questionAnswers["regActivitiesEncourageOffending"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val easilyInfluenced: Problem by questionAnswers.withDefault { Problem.Missing }
+        val easilyInfluenced = questionAnswers["easilyInfluenced"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val recklessness: Problem by questionAnswers.withDefault { Problem.Missing }
+        val recklessness = questionAnswers["recklessness"] ?: Problem.Missing
     }
 
     data class DrugMisuse(
         override val linkedToHarm: YesNo = YesNo.Unknown,
         override val linkedToReOffending: YesNo = YesNo.Unknown,
-        override val questionAnswers: Map<String, SectionAnswer> = mapOf(),
+        override val questionAnswers: HashMap<String, SectionAnswer> = hashMapOf(),
     ) : NeedSection {
         override val section = Need.DRUG_MISUSE
         override val threshold = Threshold(2, 8)
         override val sanThresholdOverride = Threshold(2, 6)
 
         @get:JsonIgnore
-        val currentDrugNoted: Problem by questionAnswers.withDefault { Problem.Missing }
+        val currentDrugNoted = questionAnswers["currentDrugNoted"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val everInjectedDrugs: Frequency by questionAnswers.withDefault { Frequency.Unknown }
+        val everInjectedDrugs = questionAnswers["everInjectedDrugs"] ?: Frequency.Unknown
 
         @get:JsonIgnore
-        val motivationToTackleDrugMisuse: Problem by questionAnswers.withDefault { Problem.Missing }
+        val motivationToTackleDrugMisuse = questionAnswers["motivationToTackleDrugMisuse"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val drugsMajorActivity: Problem by questionAnswers.withDefault { Problem.Missing }
+        val drugsMajorActivity = questionAnswers["drugsMajorActivity"] ?: Problem.Missing
     }
 
     data class AlcoholMisuse(
         override val linkedToHarm: YesNo = YesNo.Unknown,
         override val linkedToReOffending: YesNo = YesNo.Unknown,
-        override val questionAnswers: Map<String, SectionAnswer> = mapOf(),
+        override val questionAnswers: HashMap<String, SectionAnswer> = hashMapOf(),
     ) : NeedSection {
         override val section = Need.ALCOHOL_MISUSE
         override val threshold = Threshold(4, 7)
         override val sanThresholdOverride = Threshold(2, 4)
 
         @get:JsonIgnore
-        val currentUse: Problem by questionAnswers.withDefault { Problem.Missing }
+        val currentUse = questionAnswers["currentUse"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val bingeDrinking: Problem by questionAnswers.withDefault { Problem.Missing }
+        val bingeDrinking = questionAnswers["bingeDrinking"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val frequencyAndLevel: Problem by questionAnswers.withDefault { Problem.Missing }
+        val frequencyAndLevel = questionAnswers["frequencyAndLevel"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val alcoholTackleMotivation: Problem by questionAnswers.withDefault { Problem.Missing }
+        val alcoholTackleMotivation = questionAnswers["alcoholTackleMotivation"] ?: Problem.Missing
     }
 
     data class ThinkingAndBehaviour(
         override val linkedToHarm: YesNo = YesNo.Unknown,
         override val linkedToReOffending: YesNo = YesNo.Unknown,
-        override val questionAnswers: Map<String, SectionAnswer> = mapOf(),
+        override val questionAnswers: HashMap<String, SectionAnswer> = hashMapOf(),
         val impulsivity: Problem = Problem.Missing,
         val temperControl: Problem = Problem.Missing,
     ) : NeedSection {
@@ -217,38 +217,38 @@ sealed interface NeedSection {
         override val sanThresholdOverride = Threshold(3, 5)
 
         @get:JsonIgnore
-        val recogniseProblems: Problem by questionAnswers.withDefault { Problem.Missing }
+        val recogniseProblems = questionAnswers["recogniseProblems"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val problemSolvingSkills: Problem by questionAnswers.withDefault { Problem.Missing }
+        val problemSolvingSkills = questionAnswers["problemSolvingSkills"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val awarenessOfConsequences: Problem by questionAnswers.withDefault { Problem.Missing }
+        val awarenessOfConsequences = questionAnswers["awarenessOfConsequences"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val understandsViewsOfOthers: Problem by questionAnswers.withDefault { Problem.Missing }
+        val understandsViewsOfOthers = questionAnswers["understandsViewsOfOthers"] ?: Problem.Missing
     }
 
     data class Attitudes(
         override val linkedToHarm: YesNo = YesNo.Unknown,
         override val linkedToReOffending: YesNo = YesNo.Unknown,
-        override val questionAnswers: Map<String, SectionAnswer> = mapOf(),
+        override val questionAnswers: HashMap<String, SectionAnswer> = hashMapOf(),
     ) : NeedSection {
         override val section = Need.ATTITUDES
         override val threshold = Threshold(2, 7)
         override val sanThresholdOverride = Threshold(1, 5)
 
         @get:JsonIgnore
-        val proCriminalAttitudes: Problem by questionAnswers.withDefault { Problem.Missing }
+        val proCriminalAttitudes = questionAnswers["proCriminalAttitudes"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val attitudesTowardsSupervision: Problem by questionAnswers.withDefault { Problem.Missing }
+        val attitudesTowardsSupervision = questionAnswers["attitudesTowardsSupervision"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val attitudesTowardsCommunitySociety: Problem by questionAnswers.withDefault { Problem.Missing }
+        val attitudesTowardsCommunitySociety = questionAnswers["attitudesTowardsCommunitySociety"] ?: Problem.Missing
 
         @get:JsonIgnore
-        val motivationToAddressBehaviour: Problem by questionAnswers.withDefault { Problem.Missing }
+        val motivationToAddressBehaviour = questionAnswers["motivationToAddressBehaviour"] ?: Problem.Missing
     }
 }
 
@@ -277,8 +277,8 @@ data class AssessmentSummary(
     val type: String,
     val status: String,
     val sanIndicator: Boolean,
-)
+) : Serializable
 
 fun AssessmentSummary?.isSanAssessment() = this?.sanIndicator == true
 
-data class Threshold(val standard: Int, val severe: Int)
+data class Threshold(val standard: Int, val severe: Int) : Serializable

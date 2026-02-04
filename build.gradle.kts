@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.0.1"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.0.3"
     kotlin("plugin.spring") version "2.3.0"
     kotlin("plugin.jpa") version "2.3.0"
     jacoco
@@ -39,9 +39,9 @@ dependencies {
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("io.hypersistence:hypersistence-utils-hibernate-71:3.14.1")
+    implementation("io.hypersistence:hypersistence-utils-hibernate-71:3.15.1")
 
-    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:6.0.0")
+    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:6.0.1")
 
     implementation(platform("io.sentry:sentry-bom:8.31.0"))
     implementation("io.sentry:sentry-spring-boot-4")
@@ -59,9 +59,9 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
-    testImplementation("io.cucumber:cucumber-spring:7.33.0")
-    testImplementation("io.cucumber:cucumber-java8:7.33.0")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.33.0")
+    testImplementation("io.cucumber:cucumber-spring:7.34.2")
+    testImplementation("io.cucumber:cucumber-java8:7.34.2")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.34.2")
 }
 
 jacoco {

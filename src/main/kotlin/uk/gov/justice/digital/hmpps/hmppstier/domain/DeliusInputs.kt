@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.domain
 
+import java.io.Serializable
 import java.math.BigDecimal
 
 data class DeliusInputs(
@@ -9,4 +10,4 @@ data class DeliusInputs(
     val hasNoMandate: Boolean,
     val registrations: Registrations,
     val previousEnforcementActivity: Boolean,
-)
+) : Serializable

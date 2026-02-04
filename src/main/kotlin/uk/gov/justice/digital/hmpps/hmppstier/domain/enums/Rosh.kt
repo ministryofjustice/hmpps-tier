@@ -7,9 +7,6 @@ enum class Rosh(val registerCode: String) {
     ;
 
     companion object {
-        fun from(value: String?): Rosh? {
-            return values()
-                .firstOrNull { code -> code.registerCode.equals(value, true) }
-        }
+        fun from(value: String?) = entries.firstOrNull { code -> code.registerCode.equals(value, true) }
     }
 }
