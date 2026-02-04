@@ -176,7 +176,13 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
             NeedSeverity.STANDARD -> questions.mapIndexed { i, q -> q to if (sanIndicator && i == 0) Problem.None else Problem.Some }
             NeedSeverity.SEVERE -> questions.mapIndexed { i, q -> q to if (sanIndicator && i != 0) Problem.Some else Problem.Significant }
         }.toMap()
-        return NeedSection.ThinkingAndBehaviour(YesNo.No, YesNo.No, HashMap(questionAnswers), impulsivity, temperControl)
+        return NeedSection.ThinkingAndBehaviour(
+            YesNo.No,
+            YesNo.No,
+            HashMap(questionAnswers),
+            impulsivity,
+            temperControl
+        )
     }
 
     private fun attitudes(severity: NeedSeverity): NeedSection.Attitudes? {

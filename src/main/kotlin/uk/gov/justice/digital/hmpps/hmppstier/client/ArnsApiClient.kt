@@ -277,8 +277,8 @@ data class AssessmentSummary(
     val type: String,
     val status: String,
     val sanIndicator: Boolean,
-): Serializable
+) : Serializable
 
 fun AssessmentSummary?.isSanAssessment() = this?.sanIndicator == true
 
-data class Threshold(val standard: Int, val severe: Int): Serializable
+data class Threshold(val standard: Int, val severe: Int) : Serializable
