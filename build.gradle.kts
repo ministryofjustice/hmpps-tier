@@ -25,7 +25,7 @@ repositories {
 }
 dependencies {
 
-    runtimeOnly("org.postgresql:postgresql:42.7.9")
+    runtimeOnly("org.postgresql:postgresql:42.7.10")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
 
@@ -39,11 +39,11 @@ dependencies {
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("io.hypersistence:hypersistence-utils-hibernate-71:3.15.1")
+    implementation("io.hypersistence:hypersistence-utils-hibernate-71:3.15.2")
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.0.0")
 
-    implementation(platform("io.sentry:sentry-bom:8.31.0"))
+    implementation(platform("io.sentry:sentry-bom:8.32.0"))
     implementation("io.sentry:sentry-spring-boot-4")
     implementation("io.sentry:sentry-logback")
 
