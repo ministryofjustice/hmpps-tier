@@ -43,7 +43,7 @@ dependencies {
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.0.0")
 
-    implementation(platform("io.sentry:sentry-bom:8.32.0"))
+    implementation(platform("io.sentry:sentry-bom:8.33.0"))
     implementation("io.sentry:sentry-spring-boot-4")
     implementation("io.sentry:sentry-logback")
 
