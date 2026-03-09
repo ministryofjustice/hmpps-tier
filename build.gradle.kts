@@ -43,7 +43,7 @@ dependencies {
 
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.0.1")
 
-    implementation(platform("io.sentry:sentry-bom:8.33.0"))
+    implementation(platform("io.sentry:sentry-bom:8.34.1"))
     implementation("io.sentry:sentry-spring-boot-4")
     implementation("io.sentry:sentry-logback")
 
@@ -59,9 +59,9 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
-    testImplementation("io.cucumber:cucumber-spring:7.34.2")
-    testImplementation("io.cucumber:cucumber-java8:7.34.2")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.34.2")
+    testImplementation("io.cucumber:cucumber-spring:7.34.3")
+    testImplementation("io.cucumber:cucumber-java8:7.34.3")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.34.3")
 }
 
 jacoco {
