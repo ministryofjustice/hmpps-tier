@@ -17,11 +17,10 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierSummary
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierSummaryRepository
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationResultEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.repository.TierCalculationRepository
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.repository.TierSummaryRepository
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
@@ -42,7 +41,7 @@ internal class TierReaderTest {
 
     @Test
     fun `where summary doesn't exist detail is returned`() {
-        tierReader = TierReader(tierCalculationRepository, tierSummaryRepository, tierCalculationService, true)
+        tierReader = TierReader(tierCalculationRepository, tierSummaryRepository, tierCalculationService)
         val tierCalculation = TierCalculationEntity(
             1L,
             UUID.randomUUID(),
@@ -74,33 +73,14 @@ internal class TierReaderTest {
 
     @Test
     fun `tier is recalculated on the fly`() {
-        tierReader = TierReader(tierCalculationRepository, tierSummaryRepository, tierCalculationService, true)
+        tierReader = TierReader(tierCalculationRepository, tierSummaryRepository, tierCalculationService)
         val tierCalculation = mock<TierCalculationEntity>(RETURNS_DEEP_STUBS)
         val crn = "N123567"
         whenever(tierSummaryRepository.findById(crn)).thenReturn(Optional.empty())
         whenever(tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)).thenReturn(null)
-        whenever(tierCalculationService.calculateTierForCrn(eq(crn), any(), any())).thenReturn(tierCalculation)
+        whenever(tierCalculationService.calculateTierForCrn(eq(crn), any())).thenReturn(tierCalculation)
 
         val res = tierReader.getLatestTierByCrn(crn)
         assertThat(res?.calculationId, equalTo(tierCalculation.uuid))
-    }
-
-    @Test
-    fun `when suffix deactivated no suffix is provided`() {
-        tierReader = TierReader(tierCalculationRepository, tierSummaryRepository, tierCalculationService, false)
-        val tierSummary = TierSummary(
-            "S123456",
-            UUID.randomUUID(),
-            "C",
-            3,
-            true,
-            0,
-            LocalDateTime.now()
-        )
-
-        whenever(tierSummaryRepository.findById(tierSummary.crn)).thenReturn(Optional.of(tierSummary))
-
-        val res = tierReader.getLatestTierByCrn(tierSummary.crn)
-        assertThat(res?.tierScore, equalTo("C3"))
     }
 }

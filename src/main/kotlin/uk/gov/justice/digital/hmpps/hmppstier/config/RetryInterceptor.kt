@@ -6,8 +6,6 @@ import org.springframework.http.client.ClientHttpRequestInterceptor
 import org.springframework.http.client.ClientHttpResponse
 import org.springframework.web.client.RestClientException
 import java.io.IOException
-import java.net.http.HttpConnectTimeoutException
-import java.net.http.HttpTimeoutException
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
@@ -50,7 +48,7 @@ fun <T> retry(
             if (throwable == null) {
                 TimeUnit.MILLISECONDS.sleep(delay.toMillis() * count * count)
             } else {
-                throw throwable!!
+                throw throwable
             }
         }
     }

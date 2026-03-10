@@ -6,8 +6,10 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationResultEntity
 import java.time.LocalDateTime
-import java.util.UUID
+import java.util.*
 
 internal class TierCalculationEntityTest {
 

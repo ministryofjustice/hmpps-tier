@@ -2,9 +2,10 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.hmppstier.client.SectionAnswer
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.SectionAnswer
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
+import uk.gov.justice.digital.hmpps.hmppstier.service.calculation.AdditionalFactorsForWomen
 
 class AdditionalFactorsForWomenTest {
 

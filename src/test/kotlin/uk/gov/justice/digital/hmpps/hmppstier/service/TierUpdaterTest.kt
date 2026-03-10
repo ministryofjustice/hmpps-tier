@@ -7,7 +7,11 @@ import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierSummaryRepository
+import uk.gov.justice.digital.hmpps.hmppstier.domain.TelemetryEventType
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.repository.TierSummaryRepository
+import uk.gov.justice.digital.hmpps.hmppstier.messaging.publisher.DomainEventPublisher
+import uk.gov.justice.digital.hmpps.hmppstier.service.api.AssessmentApiService
+import uk.gov.justice.digital.hmpps.hmppstier.service.api.DeliusApiService
 import java.time.Clock
 
 @ExtendWith(MockitoExtension::class)
@@ -19,10 +23,10 @@ internal class TierUpdaterTest {
     internal lateinit var assessmentApiService: AssessmentApiService
 
     @Mock
-    internal lateinit var tierToDeliusApiService: TierToDeliusApiService
+    internal lateinit var deliusApiService: DeliusApiService
 
     @Mock
-    internal lateinit var successUpdater: SuccessUpdater
+    internal lateinit var domainEventPublisher: DomainEventPublisher
 
     @Mock
     internal lateinit var telemetryService: TelemetryService
@@ -38,12 +42,10 @@ internal class TierUpdaterTest {
         val tierCalculationService = TierCalculationService(
             clock,
             assessmentApiService,
-            tierToDeliusApiService,
-            successUpdater,
+            deliusApiService,
+            domainEventPublisher,
             telemetryService,
             tierUpdater,
-            tierSummaryRepository,
-            true
         )
         val crn = "D123456"
         val reason = "Events Terminated"

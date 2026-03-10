@@ -48,6 +48,4 @@ spec:
                   value: "false"
                 - name: FULL-RECALCULATION_ENABLED
                   value: "true"
-                - name: FULL-RECALCULATION_DRY-RUN
-                  value: "{{ index .Values "full-recalculation" "dry-run" }}"
           restartPolicy: Never
