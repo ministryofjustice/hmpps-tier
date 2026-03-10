@@ -1,9 +1,9 @@
-package uk.gov.justice.digital.hmpps.hmppstier.controller
+package uk.gov.justice.digital.hmpps.hmppstier.integration
 
-import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments.arguments
+import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.kotlin.never
 import org.mockito.kotlin.timeout
@@ -15,13 +15,12 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliu
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent
-import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent.Identifier
-import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent.PersonReference
+import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
 
 class DomainEventListenerTest : IntegrationTestBase() {
     @Test
     fun `can calculate tier on domain event`() {
-        val crn = "X432777"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -39,7 +38,7 @@ class DomainEventListenerTest : IntegrationTestBase() {
 
     @Test
     fun `can calculate tier on recall domain event`() {
-        val crn = "X432777"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -59,13 +58,13 @@ class DomainEventListenerTest : IntegrationTestBase() {
     @Test
     fun `tier details of merged offender are deleted and recalculated appropriately`() {
         val eventType = "probation-case.merge.completed"
-        val target = "M987654"
-        val source = "D987654"
+        val target = TestData.crn()
+        val source = TestData.crn()
         sendDomainEvent(
             DomainEvent(
                 eventType,
                 "A case has been merged",
-                PersonReference(listOf(Identifier("CRN", target))),
+                DomainEvent.PersonReference(listOf(DomainEvent.Identifier("CRN", target))),
                 mapOf("sourceCRN" to source, "targetCRN" to target),
             )
         )
@@ -73,7 +72,7 @@ class DomainEventListenerTest : IntegrationTestBase() {
             target,
             RecalculationSource.EventSource.DomainEventRecalculation(
                 eventType,
-                "The case was merged from D987654 into M987654"
+                "The case was merged from $source into $target"
             )
         )
         verify(tierCalculationService, timeout(5000)).deleteCalculationsForCrn(source, eventType)
@@ -88,7 +87,7 @@ class DomainEventListenerTest : IntegrationTestBase() {
             DomainEvent(
                 eventType,
                 "A case has been unmerged",
-                PersonReference(listOf(Identifier("CRN", target))),
+                DomainEvent.PersonReference(listOf(DomainEvent.Identifier("CRN", target))),
                 mapOf("unmergedCRN" to target, "reactivatedCRN" to source),
             )
         )
@@ -111,12 +110,12 @@ class DomainEventListenerTest : IntegrationTestBase() {
     @Test
     fun `tier details of gdpr deleted crn are deleted`() {
         val eventType = "probation-case.deleted.gdpr"
-        val crn = "D765432"
+        val crn = TestData.crn()
         sendDomainEvent(
             DomainEvent(
                 eventType,
                 "A case has been deleted",
-                PersonReference(listOf(Identifier("CRN", crn)))
+                DomainEvent.PersonReference(listOf(DomainEvent.Identifier("CRN", crn)))
             )
         )
         verify(tierCalculationService, timeout(5000)).deleteCalculationsForCrn(crn, eventType)
@@ -129,14 +128,14 @@ class DomainEventListenerTest : IntegrationTestBase() {
     @ParameterizedTest
     @MethodSource("changeReasons")
     fun `tier change reasons are derived from domain events`(event: DomainEvent, reason: String) {
-        assertThat(event.changeReason()).isEqualTo(reason)
+        Assertions.assertThat(event.changeReason()).isEqualTo(reason)
     }
 
     companion object {
         private val event = DomainEvent(
             eventType = "type",
             description = "description",
-            personReference = PersonReference(listOf(Identifier("CRN", "A000001"))),
+            personReference = DomainEvent.PersonReference(listOf(DomainEvent.Identifier("CRN", "A000001"))),
             additionalInformation = mapOf(
                 "sourceCRN" to "A000001",
                 "targetCRN" to "A000002",
@@ -149,55 +148,61 @@ class DomainEventListenerTest : IntegrationTestBase() {
 
         @JvmStatic
         fun changeReasons() = listOf(
-            arguments(event.copy(eventType = "enforcement.breach.concluded"), "A breach was concluded"),
-            arguments(event.copy(eventType = "enforcement.breach.raised"), "A breach was raised"),
-            arguments(
+            Arguments.arguments(event.copy(eventType = "enforcement.breach.concluded"), "A breach was concluded"),
+            Arguments.arguments(event.copy(eventType = "enforcement.breach.raised"), "A breach was raised"),
+            Arguments.arguments(
                 event.copy(eventType = "enforcement.recall.concluded"),
                 "A recall to custody process was concluded"
             ),
-            arguments(event.copy(eventType = "enforcement.recall.raised"), "A recall to custody process was started"),
-            arguments(event.copy(eventType = "probation-case.engagement.created"), "The case was created"),
-            arguments(
+            Arguments.arguments(
+                event.copy(eventType = "enforcement.recall.raised"),
+                "A recall to custody process was started"
+            ),
+            Arguments.arguments(event.copy(eventType = "probation-case.engagement.created"), "The case was created"),
+            Arguments.arguments(
                 event.copy(eventType = "probation-case.merge.completed"),
                 "The case was merged from A000001 into A000002"
             ),
-            arguments(
+            Arguments.arguments(
                 event.copy(eventType = "probation-case.unmerge.completed"),
                 "The case was un-merged from A000003 and A000004"
             ),
-            arguments(
+            Arguments.arguments(
                 event.copy(eventType = "probation-case.registration.added"),
                 "A registration of type 'High RoSH' was added"
             ),
-            arguments(
+            Arguments.arguments(
                 event.copy(eventType = "probation-case.registration.deleted"),
                 "A registration of type 'High RoSH' was removed"
             ),
-            arguments(
+            Arguments.arguments(
                 event.copy(eventType = "probation-case.registration.deregistered"),
                 "A registration of type 'High RoSH' was removed"
             ),
-            arguments(
+            Arguments.arguments(
                 event.copy(eventType = "probation-case.registration.updated"),
                 "A registration of type 'High RoSH' was updated"
             ),
-            arguments(
+            Arguments.arguments(
                 event.copy(eventType = "probation-case.requirement.created"),
                 "A requirement of type 'Unpaid Work' was added"
             ),
-            arguments(
+            Arguments.arguments(
                 event.copy(eventType = "probation-case.requirement.deleted"),
                 "A requirement of type 'Unpaid Work' was removed"
             ),
-            arguments(
+            Arguments.arguments(
                 event.copy(eventType = "probation-case.requirement.terminated"),
                 "A requirement of type 'Unpaid Work' was terminated"
             ),
-            arguments(
+            Arguments.arguments(
                 event.copy(eventType = "probation-case.requirement.unterminated"),
                 "A requirement of type 'Unpaid Work' was un-terminated"
             ),
-            arguments(event.copy(eventType = "risk-assessment.scores.determined"), "An OASys assessment was produced"),
+            Arguments.arguments(
+                event.copy(eventType = "risk-assessment.scores.determined"),
+                "An OASys assessment was produced"
+            ),
         )
     }
 }

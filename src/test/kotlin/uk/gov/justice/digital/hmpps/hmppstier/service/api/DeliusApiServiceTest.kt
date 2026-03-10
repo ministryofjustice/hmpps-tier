@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.hmpps.hmppstier.service
+package uk.gov.justice.digital.hmpps.hmppstier.service.api
 
 import io.mockk.clearMocks
 import io.mockk.coEvery
@@ -14,7 +14,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusResponse
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
-import uk.gov.justice.digital.hmpps.hmppstier.service.api.DeliusApiService
+import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
 import java.math.BigDecimal
 import java.time.LocalDate
 
@@ -24,7 +24,7 @@ class DeliusApiServiceTest {
     private val deliusApiClient: DeliusApiClient = mockk(relaxUnitFun = true)
     private val deliusApiService = DeliusApiService(deliusApiClient)
 
-    private val crn = "X123456"
+    private val crn = TestData.crn()
     private val sentenceTypeCode = "irrelevantSentenceType"
 
     @BeforeEach

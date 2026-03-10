@@ -134,9 +134,8 @@ tasks {
                         fileTree(it) {
                             exclude(
                                 "**/config/**",
-                                "**/client/NeedSection**",
-                                "**/service/RecalculationSource**",
-                                "**/cronjob/**"
+                                "**/cronjob/**",
+                                "**/domain/**"
                             )
                         }
                     }

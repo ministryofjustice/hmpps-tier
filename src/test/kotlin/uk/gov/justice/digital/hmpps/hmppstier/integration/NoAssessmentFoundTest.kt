@@ -10,13 +10,14 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliu
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.model.TierDto
+import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
 import java.util.*
 
 class NoAssessmentFoundTest : IntegrationTestBase() {
 
     @Test
     fun `changeLevel should be 2 if assessment returns 404`() {
-        val crn = "X273878"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(

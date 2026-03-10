@@ -21,6 +21,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationEntit
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationResultEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.repository.TierCalculationRepository
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.repository.TierSummaryRepository
+import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
@@ -75,7 +76,7 @@ internal class TierReaderTest {
     fun `tier is recalculated on the fly`() {
         tierReader = TierReader(tierCalculationRepository, tierSummaryRepository, tierCalculationService)
         val tierCalculation = mock<TierCalculationEntity>(RETURNS_DEEP_STUBS)
-        val crn = "N123567"
+        val crn = TestData.crn()
         whenever(tierSummaryRepository.findById(crn)).thenReturn(Optional.empty())
         whenever(tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)).thenReturn(null)
         whenever(tierCalculationService.calculateTierForCrn(eq(crn), any())).thenReturn(tierCalculation)

@@ -7,13 +7,14 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliu
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Requirement
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
 import java.time.LocalDate
 
 class MandateForChangeTest : IntegrationTestBase() {
 
     @Test
     fun `calculate change for concurrent custodial and non-custodial sentence`() {
-        val crn = "X676767"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -33,7 +34,7 @@ class MandateForChangeTest : IntegrationTestBase() {
 
     @Test
     fun `do not calculate change for terminated custodial sentence`() {
-        val crn = "X173878"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -50,7 +51,7 @@ class MandateForChangeTest : IntegrationTestBase() {
 
     @Test
     fun `calculate change for terminated non-custodial sentence and current non-custodial sentence with non-restrictive requirements`() {
-        val crn = "X505050"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -73,7 +74,7 @@ class MandateForChangeTest : IntegrationTestBase() {
 
     @Test
     fun `do not calculate change for terminated non-custodial sentence with non-restrictive requirements`() {
-        val crn = "X888888"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -97,7 +98,7 @@ class MandateForChangeTest : IntegrationTestBase() {
 
     @Test
     fun `do not calculate change when only restrictive requirements are present on a non-custodial sentence`() {
-        val crn = "X888866"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -121,7 +122,7 @@ class MandateForChangeTest : IntegrationTestBase() {
 
     @Test
     fun `calculate change with restrictive and non-restrictive requirements on a non-custodial sentence`() {
-        val crn = "X888855"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -146,7 +147,7 @@ class MandateForChangeTest : IntegrationTestBase() {
 
     @Test
     fun `do not calculate change when no requirements are present on a non-custodial sentence`() {
-        val crn = "X888844"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(

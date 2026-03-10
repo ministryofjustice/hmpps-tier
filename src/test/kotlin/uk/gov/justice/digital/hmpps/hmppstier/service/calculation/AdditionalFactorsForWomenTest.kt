@@ -1,11 +1,9 @@
-package uk.gov.justice.digital.hmpps.hmppstier.service
+package uk.gov.justice.digital.hmpps.hmppstier.service.calculation
 
-import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.SectionAnswer
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES
-import uk.gov.justice.digital.hmpps.hmppstier.service.calculation.AdditionalFactorsForWomen
 
 class AdditionalFactorsForWomenTest {
 
@@ -13,13 +11,13 @@ class AdditionalFactorsForWomenTest {
     fun `should add multiple additional factors`() {
         val result = AdditionalFactorsForWomen.calculate(
             mapOf(
-                PARENTING_RESPONSIBILITIES to SectionAnswer.YesNo.Yes,
+                AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to SectionAnswer.YesNo.Yes,
                 AdditionalFactorForWomen.TEMPER_CONTROL to SectionAnswer.Problem.Some,
             ),
             offenderIsFemale = true,
             previousEnforcementActivity = false,
         )
-        assertThat(result).isEqualTo(4)
+        Assertions.assertThat(result).isEqualTo(4)
     }
 
     @Test
@@ -29,7 +27,7 @@ class AdditionalFactorsForWomenTest {
             offenderIsFemale = true,
             previousEnforcementActivity = false,
         )
-        assertThat(result).isEqualTo(0)
+        Assertions.assertThat(result).isEqualTo(0)
     }
 
     @Test
@@ -42,7 +40,7 @@ class AdditionalFactorsForWomenTest {
             offenderIsFemale = true,
             previousEnforcementActivity = false,
         )
-        assertThat(result).isEqualTo(2) // 1 * 2 weighting for all additional factors
+        Assertions.assertThat(result).isEqualTo(2) // 1 * 2 weighting for all additional factors
     }
 
     @Test
@@ -54,7 +52,7 @@ class AdditionalFactorsForWomenTest {
             offenderIsFemale = true,
             previousEnforcementActivity = false,
         )
-        assertThat(result).isEqualTo(2) // 1 * 2 weighting for all additional factors
+        Assertions.assertThat(result).isEqualTo(2) // 1 * 2 weighting for all additional factors
     }
 
     @Test
@@ -66,19 +64,19 @@ class AdditionalFactorsForWomenTest {
             offenderIsFemale = true,
             previousEnforcementActivity = false,
         )
-        assertThat(result).isEqualTo(2) // 1 * 2 weighting for all additional factors
+        Assertions.assertThat(result).isEqualTo(2) // 1 * 2 weighting for all additional factors
     }
 
     @Test
     fun `should ignore negative Parenting`() {
         val result = AdditionalFactorsForWomen.calculate(
             mapOf(
-                PARENTING_RESPONSIBILITIES to SectionAnswer.YesNo.No,
+                AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES to SectionAnswer.YesNo.No,
             ),
             offenderIsFemale = true,
             previousEnforcementActivity = false,
         )
-        assertThat(result).isEqualTo(0)
+        Assertions.assertThat(result).isEqualTo(0)
     }
 
     @Test
@@ -90,7 +88,7 @@ class AdditionalFactorsForWomenTest {
             offenderIsFemale = true,
             previousEnforcementActivity = false,
         )
-        assertThat(result).isEqualTo(0)
+        Assertions.assertThat(result).isEqualTo(0)
     }
 
     @Test
@@ -102,7 +100,7 @@ class AdditionalFactorsForWomenTest {
             offenderIsFemale = true,
             previousEnforcementActivity = false,
         )
-        assertThat(result).isEqualTo(0)
+        Assertions.assertThat(result).isEqualTo(0)
     }
 
     @Test
@@ -112,7 +110,7 @@ class AdditionalFactorsForWomenTest {
             offenderIsFemale = true,
             previousEnforcementActivity = true,
         )
-        assertThat(result).isEqualTo(2)
+        Assertions.assertThat(result).isEqualTo(2)
     }
 
     @Test
@@ -122,6 +120,6 @@ class AdditionalFactorsForWomenTest {
             offenderIsFemale = true,
             previousEnforcementActivity = false,
         )
-        assertThat(result).isEqualTo(0)
+        Assertions.assertThat(result).isEqualTo(0)
     }
 }

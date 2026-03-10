@@ -8,13 +8,14 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliu
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
 import java.time.LocalDate
 
 class RegistrationEdgeCasesTest : IntegrationTestBase() {
 
     @Test
     fun `calculate change and protect when no registrations are found`() {
-        val crn = "X473878"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(crn, TierDetails(convictions = listOf(Conviction())))
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 7234567890)
         calculateTierForDomainEvent(crn)
@@ -23,7 +24,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
 
     @Test
     fun `calculate change and protect when registration level is missing`() {
-        val crn = "X445509"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -38,7 +39,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
 
     @Test
     fun `uses latest registration - two mappa registrations present`() {
-        val crn = "X445600"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -58,7 +59,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
 
     @Test
     fun `exclude historic registrations from tier calculation`() {
-        val crn = "X445601"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -77,7 +78,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
 
     @Test
     fun `uses mappa registration when latest is non-mappa but has mappa registration level`() {
-        val crn = "X445602"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -95,7 +96,7 @@ class RegistrationEdgeCasesTest : IntegrationTestBase() {
 
     @Test
     fun `uses two thirds registration to add suffix to tier`() {
-        val crn = "X445603"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(

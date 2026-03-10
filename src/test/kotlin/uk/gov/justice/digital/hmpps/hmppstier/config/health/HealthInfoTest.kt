@@ -1,9 +1,8 @@
-package uk.gov.justice.digital.hmpps.hmppstier.health
+package uk.gov.justice.digital.hmpps.hmppstier.config.health
 
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
 import org.springframework.boot.info.BuildProperties
-import uk.gov.justice.digital.hmpps.hmppstier.config.health.HealthInfo
 import java.util.*
 
 class HealthInfoTest {

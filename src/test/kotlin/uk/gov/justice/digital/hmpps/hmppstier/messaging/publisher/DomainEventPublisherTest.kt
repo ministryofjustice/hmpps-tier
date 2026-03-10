@@ -1,10 +1,9 @@
-package uk.gov.justice.digital.hmpps.hmppstier.service
+package uk.gov.justice.digital.hmpps.hmppstier.messaging.publisher
 
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.hmppstier.messaging.publisher.DomainEventPublisher
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingTopicException
 

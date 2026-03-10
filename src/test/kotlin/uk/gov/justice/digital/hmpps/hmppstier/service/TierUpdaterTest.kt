@@ -8,10 +8,10 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TelemetryEventType
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.repository.TierSummaryRepository
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.publisher.DomainEventPublisher
 import uk.gov.justice.digital.hmpps.hmppstier.service.api.AssessmentApiService
 import uk.gov.justice.digital.hmpps.hmppstier.service.api.DeliusApiService
+import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
 import java.time.Clock
 
 @ExtendWith(MockitoExtension::class)
@@ -34,9 +34,6 @@ internal class TierUpdaterTest {
     @Mock
     internal lateinit var tierUpdater: TierUpdater
 
-    @Mock
-    internal lateinit var tierSummaryRepository: TierSummaryRepository
-
     @Test
     fun `failure to remove tier logs to app insights`() {
         val tierCalculationService = TierCalculationService(
@@ -47,7 +44,7 @@ internal class TierUpdaterTest {
             telemetryService,
             tierUpdater,
         )
-        val crn = "D123456"
+        val crn = TestData.crn()
         val reason = "Events Terminated"
         val message = "Some issue with db"
         whenever(tierUpdater.removeTierCalculationsFor(crn)).thenThrow(RuntimeException(message))
