@@ -13,7 +13,7 @@ import java.util.*
 
 @Component
 class JwtAuthHelper {
-    private lateinit var keyPair: KeyPair
+    private var keyPair: KeyPair
 
     init {
         val gen = KeyPairGenerator.getInstance("RSA")

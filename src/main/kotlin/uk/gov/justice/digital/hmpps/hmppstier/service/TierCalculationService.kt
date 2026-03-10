@@ -1,23 +1,26 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.dao.DataIntegrityViolationException
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
-import uk.gov.justice.digital.hmpps.hmppstier.client.AssessmentForTier
-import uk.gov.justice.digital.hmpps.hmppstier.client.NeedSection
-import uk.gov.justice.digital.hmpps.hmppstier.client.SectionAnswer
-import uk.gov.justice.digital.hmpps.hmppstier.client.isSanAssessment
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.AssessmentForTier
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.AssessmentSummary
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.NeedSection
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.SectionAnswer
+import uk.gov.justice.digital.hmpps.hmppstier.domain.RecalculationSource
+import uk.gov.justice.digital.hmpps.hmppstier.domain.TelemetryEventType.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
-import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.exception.CrnNotFoundException
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierSummaryRepository
-import uk.gov.justice.digital.hmpps.hmppstier.service.TelemetryEventType.*
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationResultEntity
+import uk.gov.justice.digital.hmpps.hmppstier.messaging.publisher.DomainEventPublisher
+import uk.gov.justice.digital.hmpps.hmppstier.service.api.AssessmentApiService
+import uk.gov.justice.digital.hmpps.hmppstier.service.api.DeliusApiService
+import uk.gov.justice.digital.hmpps.hmppstier.service.calculation.AdditionalFactorsForWomen
+import uk.gov.justice.digital.hmpps.hmppstier.service.calculation.ChangeLevelCalculator
+import uk.gov.justice.digital.hmpps.hmppstier.service.calculation.ProtectLevelCalculator
 import java.time.Clock
 import java.time.LocalDateTime
 
@@ -25,13 +28,37 @@ import java.time.LocalDateTime
 class TierCalculationService(
     private val clock: Clock,
     private val assessmentApiService: AssessmentApiService,
-    private val tierToDeliusApiService: TierToDeliusApiService,
-    private val successUpdater: SuccessUpdater,
+    private val deliusApiService: DeliusApiService,
+    private val domainEventPublisher: DomainEventPublisher,
     private val telemetryService: TelemetryService,
     private val tierUpdater: TierUpdater,
-    private val tierSummaryRepository: TierSummaryRepository,
-    @Value("\${tier.unsupervised.suffix}") private val includeSuffix: Boolean,
 ) {
+    fun calculateTierForCrn(
+        crn: String,
+        recalculationSource: RecalculationSource
+    ): TierCalculationEntity? {
+        try {
+            val tierCalculation = calculateTier(crn, recalculationSource)
+            val isUpdated = tierUpdater.updateTier(tierCalculation, crn)
+            domainEventPublisher.update(crn, tierCalculation.uuid)
+            telemetryService.trackTierCalculated(tierCalculation, isUpdated, recalculationSource)
+            return tierCalculation
+        } catch (e: Exception) {
+            telemetryService.trackEvent(
+                TIER_CALCULATION_FAILED,
+                mapOf(
+                    "crn" to crn,
+                    "exception" to e.message,
+                    "recalculationSource" to recalculationSource::class.simpleName,
+                    "recalculationReason" to if (recalculationSource is RecalculationSource.EventSource) recalculationSource.type else "",
+                    "duplicateAttempt" to (e is DataIntegrityViolationException).toString()
+                ),
+            )
+            checkForCrnNotFound(crn, e)
+            return null
+        }
+    }
+
     fun deleteCalculationsForCrn(crn: String, reason: String) = try {
         tierUpdater.removeTierCalculationsFor(crn)
         telemetryService.trackEvent(
@@ -46,48 +73,6 @@ class TierCalculationService(
         throw e
     }
 
-    fun calculateTierForCrn(
-        crn: String,
-        recalculationSource: RecalculationSource,
-        allowUpdates: Boolean
-    ): TierCalculationEntity? {
-        try {
-            val tierCalculation = calculateTier(crn, recalculationSource)
-            if (allowUpdates) {
-                val isUpdated = tierUpdater.updateTier(tierCalculation, crn)
-                successUpdater.update(crn, tierCalculation.uuid)
-                telemetryService.trackTierCalculated(tierCalculation, isUpdated, recalculationSource)
-            } else {
-                val currentTier = tierSummaryRepository.findByIdOrNull(crn)?.let { TierDto.from(it, includeSuffix) }
-                telemetryService.trackEvent(
-                    TIER_RECALCULATION_DRY_RUN,
-                    mapOf(
-                        "crn" to crn,
-                        "currentTier" to currentTier?.tierScore,
-                        "calculatedTier" to "${tierCalculation.protectLevel()}${tierCalculation.changeLevel()}"
-                    )
-                )
-            }
-            return tierCalculation
-        } catch (e: Exception) {
-            val eventType = if (allowUpdates) TIER_CALCULATION_FAILED else TIER_RECALCULATION_DRY_RUN_FAILURE
-            telemetryService.trackEvent(
-                eventType,
-                mapOf(
-                    "crn" to crn,
-                    "exception" to e.message,
-                    "recalculationSource" to recalculationSource::class.simpleName,
-                    "recalculationReason" to if (recalculationSource is RecalculationSource.EventSource) recalculationSource.type else "",
-                    "duplicateAttempt" to (e is DataIntegrityViolationException).toString()
-                ),
-            )
-            if (allowUpdates) {
-                checkForCrnNotFound(crn, e)
-            }
-            return null
-        }
-    }
-
     private fun checkForCrnNotFound(crn: String, e: Exception) {
         when (e) {
             is DataIntegrityViolationException -> return
@@ -97,7 +82,7 @@ class TierCalculationService(
     }
 
     private fun calculateTier(crn: String, recalculationSource: RecalculationSource): TierCalculationEntity {
-        val deliusInputs = tierToDeliusApiService.getTierToDelius(crn)
+        val deliusInputs = deliusApiService.getTierToDelius(crn)
         val assessment = assessmentApiService.getTierAssessmentInformation(crn)
 
         val additionalFactorsPoints = AdditionalFactorsForWomen.calculate(
@@ -129,16 +114,19 @@ class TierCalculationService(
         )
     }
 
-    private fun AssessmentForTier.mapNeedsAndSeverities() = listOfNotNull(
-        accommodation?.mapSeverity(assessment.isSanAssessment()),
-        educationTrainingEmployability?.mapSeverity(assessment.isSanAssessment()),
-        relationships?.mapSeverity(assessment.isSanAssessment()),
-        lifestyleAndAssociates?.mapSeverity(assessment.isSanAssessment()),
-        drugMisuse?.mapSeverity(assessment.isSanAssessment()),
-        alcoholMisuse?.mapSeverity(assessment.isSanAssessment()),
-        thinkingAndBehaviour?.mapSeverity(assessment.isSanAssessment()),
-        attitudes?.mapSeverity(assessment.isSanAssessment()),
-    ).toMap()
+    private fun AssessmentForTier.mapNeedsAndSeverities(): Map<Need, NeedSeverity> {
+        val san = assessment.isSanAssessment()
+        return listOfNotNull(
+            accommodation?.mapSeverity(san),
+            educationTrainingEmployability?.mapSeverity(san),
+            relationships?.mapSeverity(san),
+            lifestyleAndAssociates?.mapSeverity(san),
+            drugMisuse?.mapSeverity(san),
+            alcoholMisuse?.mapSeverity(san),
+            thinkingAndBehaviour?.mapSeverity(san),
+            attitudes?.mapSeverity(san),
+        ).toMap()
+    }
 
     private fun AssessmentForTier.additionalFactorsForWomen(): Map<AdditionalFactorForWomen, SectionAnswer> =
         listOfNotNull(
@@ -149,4 +137,6 @@ class TierCalculationService(
 
     private fun NeedSection.mapSeverity(sanIndicator: Boolean): Pair<Need, NeedSeverity>? =
         getSeverity(sanIndicator)?.let { section to it }
+
+    private fun AssessmentSummary?.isSanAssessment() = this?.sanIndicator == true
 }

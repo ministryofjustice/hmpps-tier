@@ -7,6 +7,51 @@ plugins {
     jacoco
 }
 
+dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-webmvc")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-security-oauth2-client")
+    implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-flyway")
+    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.0.1")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2")
+    implementation("io.hypersistence:hypersistence-utils-hibernate-71:3.15.2")
+    implementation(platform("io.sentry:sentry-bom:8.33.0"))
+    implementation("io.sentry:sentry-spring-boot-4")
+    implementation("io.sentry:sentry-logback")
+
+    runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql")
+
+    testImplementation("org.springframework.boot:spring-boot-starter-test") {
+        exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
+    }
+    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
+    testImplementation("org.mock-server:mockserver-netty:5.15.0")
+    testImplementation("com.ninja-squad:springmockk:5.0.1")
+    testImplementation("org.assertj:assertj-core:3.27.7")
+    testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
+    testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
+    testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
+    testImplementation("io.cucumber:cucumber-spring:7.34.2")
+    testImplementation("io.cucumber:cucumber-java8:7.34.2")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.34.2")
+}
+
+java {
+    toolchain.languageVersion.set(JavaLanguageVersion.of(25))
+}
+
+kotlin {
+    compilerOptions {
+        jvmTarget.set(JvmTarget.JVM_25)
+        freeCompilerArgs.set(listOf("-Xannotation-default-target=param-property"))
+    }
+}
+
 configurations {
     implementation { exclude(module = "applicationinsights-spring-boot-starter") }
     implementation { exclude(module = "applicationinsights-logging-logback") }
@@ -17,51 +62,6 @@ configurations {
 
 dependencyCheck {
     suppressionFiles.add("suppressions.xml")
-}
-
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-dependencies {
-
-    runtimeOnly("org.postgresql:postgresql:42.7.10")
-    implementation("org.springframework.boot:spring-boot-starter-flyway")
-    runtimeOnly("org.flywaydb:flyway-database-postgresql")
-
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2")
-    implementation("org.springframework.boot:spring-boot-starter-webmvc")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springframework.boot:spring-boot-starter-security-oauth2-client")
-    implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
-
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-    implementation("io.hypersistence:hypersistence-utils-hibernate-71:3.15.2")
-
-    implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.0.1")
-
-    implementation(platform("io.sentry:sentry-bom:8.33.0"))
-    implementation("io.sentry:sentry-spring-boot-4")
-    implementation("io.sentry:sentry-logback")
-
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
-    }
-    testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
-    testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
-    testImplementation("org.mock-server:mockserver-netty:5.15.0")
-
-    testImplementation("com.ninja-squad:springmockk:5.0.1")
-    testImplementation("org.assertj:assertj-core:3.27.7")
-    testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
-    testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
-    testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
-    testImplementation("io.cucumber:cucumber-spring:7.34.2")
-    testImplementation("io.cucumber:cucumber-java8:7.34.2")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.34.2")
 }
 
 jacoco {
@@ -134,9 +134,8 @@ tasks {
                         fileTree(it) {
                             exclude(
                                 "**/config/**",
-                                "**/client/NeedSection**",
-                                "**/service/RecalculationSource**",
-                                "**/cronjob/**"
+                                "**/cronjob/**",
+                                "**/domain/**"
                             )
                         }
                     }
@@ -148,14 +147,6 @@ tasks {
     getByName<Test>("test") {
         exclude("**/CucumberRunnerTest*")
     }
-}
-
-java {
-    toolchain.languageVersion.set(JavaLanguageVersion.of(25))
-}
-
-kotlin {
-    compilerOptions.jvmTarget.set(JvmTarget.JVM_25)
 }
 
 tasks.named<JavaExec>("bootRun") {

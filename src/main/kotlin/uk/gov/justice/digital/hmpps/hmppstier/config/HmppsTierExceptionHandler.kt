@@ -9,8 +9,8 @@ import org.springframework.http.converter.HttpMessageConversionException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
-import uk.gov.justice.digital.hmpps.hmppstier.dto.ErrorResponse
-import uk.gov.justice.digital.hmpps.hmppstier.service.exception.EntityNotFoundException
+import uk.gov.justice.digital.hmpps.hmppstier.exception.EntityNotFoundException
+import uk.gov.justice.digital.hmpps.hmppstier.model.ErrorResponse
 
 @RestControllerAdvice
 class HmppsTierExceptionHandler {

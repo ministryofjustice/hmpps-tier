@@ -9,7 +9,6 @@ generic-service:
     ARNS_ENDPOINT_URL: https://assess-risks-and-needs-dev.hmpps.service.justice.gov.uk
     HMPPS_TIER_ENDPOINT_URL: https://hmpps-tier-dev.hmpps.service.justice.gov.uk
     TIER_TO_DELIUS_ENDPOINT_URL: https://tier-to-delius-dev.hmpps.service.justice.gov.uk
-    TIER_UNSUPERVISED_SUFFIX: "true"
     SENTRY_ENVIRONMENT: dev
 
   allowlist:
@@ -22,7 +21,6 @@ generic-service:
 
 full-recalculation:
   schedule: 0 8 * * 1 # Every Monday at 08:00 UTC
-  dry-run: false
 
 generic-prometheus-alerts:
   sqsOldestAlertQueueNames:

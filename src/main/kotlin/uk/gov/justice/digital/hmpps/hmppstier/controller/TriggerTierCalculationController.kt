@@ -2,24 +2,24 @@ package uk.gov.justice.digital.hmpps.hmppstier.controller
 
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.*
-import uk.gov.justice.digital.hmpps.hmppstier.service.TriggerCalculationService
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.hmppstier.service.RecalculationService
 
 @RestController
 @RequestMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
-class TriggerTierCalculationController(private val triggerCalculationService: TriggerCalculationService) {
+class TriggerTierCalculationController(private val recalculationService: RecalculationService) {
 
     @PreAuthorize("hasRole('ROLE_MANAGEMENT_TIER_UPDATE')")
     @PostMapping("/calculations")
-    fun recalculateTiers(
-        @RequestBody(required = false) crns: Set<String>?,
-        @RequestParam(required = false, defaultValue = "true") dryRun: Boolean
-    ) {
+    fun recalculateTiers(@RequestBody(required = false) crns: Set<String>?) {
         Thread.ofVirtual().start {
             if (crns.isNullOrEmpty()) {
-                triggerCalculationService.recalculateAll(dryRun)
+                recalculationService.recalculateAll()
             } else {
-                triggerCalculationService.recalculate(crns, dryRun)
+                recalculationService.recalculate(crns)
             }
         }
     }

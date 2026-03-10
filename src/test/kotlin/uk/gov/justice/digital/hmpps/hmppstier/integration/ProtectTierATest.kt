@@ -8,12 +8,13 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliu
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
 
 class ProtectTierATest : IntegrationTestBase() {
 
     @Test
     fun `Tier is A with Mappa M2`() {
-        val crn = "X333477"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -30,7 +31,7 @@ class ProtectTierATest : IntegrationTestBase() {
 
     @Test
     fun `Tier is A with Mappa M3`() {
-        val crn = "X333478"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -47,7 +48,7 @@ class ProtectTierATest : IntegrationTestBase() {
 
     @Test
     fun `Tier is A with ROSH VERY HIGH`() {
-        val crn = "X333479"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -64,7 +65,7 @@ class ProtectTierATest : IntegrationTestBase() {
 
     @Test
     fun `Tier is B with low Mappa but 31 points`() {
-        val crn = "X333480"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(

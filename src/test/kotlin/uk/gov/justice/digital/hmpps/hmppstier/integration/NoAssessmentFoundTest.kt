@@ -3,20 +3,21 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import uk.gov.justice.digital.hmpps.hmppstier.dto.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
-import java.util.UUID
+import uk.gov.justice.digital.hmpps.hmppstier.model.TierDto
+import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
+import java.util.*
 
 class NoAssessmentFoundTest : IntegrationTestBase() {
 
     @Test
     fun `changeLevel should be 2 if assessment returns 404`() {
-        val crn = "X273878"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(

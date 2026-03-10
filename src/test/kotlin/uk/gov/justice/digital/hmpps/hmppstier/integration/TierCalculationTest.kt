@@ -1,7 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.module.kotlin.readValue
 import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Test
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
@@ -14,12 +12,13 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliu
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
 
 class TierCalculationTest : IntegrationTestBase() {
 
     @Test
     fun `no NSis returned Female Offender`() {
-        val crn = "X386786"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -39,7 +38,7 @@ class TierCalculationTest : IntegrationTestBase() {
 
     @Test
     fun `Does write back when tier is unchanged`() {
-        val crn = "X432769"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -71,7 +70,7 @@ class TierCalculationTest : IntegrationTestBase() {
 
     @Test
     fun `Does write back when calculation result differs but tier is unchanged`() {
-        val crn = "X432779"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -104,7 +103,7 @@ class TierCalculationTest : IntegrationTestBase() {
 
     @Test
     fun `writes back when change level is changed`() {
-        val crn = "X432770"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -135,7 +134,7 @@ class TierCalculationTest : IntegrationTestBase() {
 
     @Test
     fun `calculation is done based on san threshold for san assessment`() {
-        val crn = "X548198"
+        val crn = TestData.crn()
         val tierDetails = TierDetails(convictions = listOf(Conviction(sentenceCode = "SC")))
         tierToDeliusApi.getFullDetails(crn, tierDetails)
         arnsApi.getTierAssessmentDetails(crn, 53212345, Need.entries.associateWith { NeedSeverity.NO_NEED })
@@ -155,7 +154,7 @@ class TierCalculationTest : IntegrationTestBase() {
 
     @Test
     fun `writes back when protect level is changed`() {
-        val crn = "X432771"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(
@@ -187,7 +186,7 @@ class TierCalculationTest : IntegrationTestBase() {
 
     @Test
     fun `returns latest tier calculation`() {
-        val crn = "X432777"
+        val crn = TestData.crn()
         tierToDeliusApi.getFullDetails(
             crn,
             TierDetails(

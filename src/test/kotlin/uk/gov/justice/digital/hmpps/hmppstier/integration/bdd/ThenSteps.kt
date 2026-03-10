@@ -7,12 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import software.amazon.awssdk.services.sqs.SqsAsyncClient
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest
-import uk.gov.justice.digital.hmpps.hmppstier.controller.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.oneMessageCurrentlyOnQueue
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
-import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.repository.TierCalculationRepository
+import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.SQSMessage
+import uk.gov.justice.digital.hmpps.hmppstier.messaging.publisher.TierCalculationDomainEvent
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
 import java.util.*
@@ -84,13 +84,13 @@ class ThenSteps : En {
         val message = calculationCompleteClient.receiveMessage(
             ReceiveMessageRequest.builder().queueUrl(calculationCompleteUrl).build()
         ).get()
-        val sqsMessage: SQSMessage = objectMapper.readValue(message.messages()[0].body(), SQSMessage::class.java)
-        val changeEvent: TierChangeEvent = objectMapper.readValue(sqsMessage.message, TierChangeEvent::class.java)
+        val sqsMessage = objectMapper.readValue(message.messages()[0].body(), SQSMessage::class.java)
+        val changeEvent = objectMapper.readValue(sqsMessage.message, TierCalculationDomainEvent::class.java)
 
         return tierCalculationRepository.findByCrnAndUuid(changeEvent.crn(), changeEvent.calculationId())!!
     }
 
-    private fun TierChangeEvent.crn(): String = this.personReference.identifiers[0].value
+    private fun TierCalculationDomainEvent.crn(): String = this.personReference.identifiers[0].value
 
-    private fun TierChangeEvent.calculationId(): UUID = this.additionalInformation.calculationId
+    private fun TierCalculationDomainEvent.calculationId(): UUID = this.additionalInformation.calculationId
 }

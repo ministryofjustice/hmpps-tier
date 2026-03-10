@@ -20,15 +20,15 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import software.amazon.awssdk.services.sqs.model.PurgeQueueRequest
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest
-import uk.gov.justice.digital.hmpps.hmppstier.controller.DomainEventsMessage
-import uk.gov.justice.digital.hmpps.hmppstier.controller.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.hmppsAuth.HmppsAuthApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.repository.TierCalculationRepository
+import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent
+import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.SQSMessage
+import uk.gov.justice.digital.hmpps.hmppstier.messaging.publisher.TierCalculationDomainEvent
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
-import uk.gov.justice.digital.hmpps.hmppstier.service.TierChangeEvent
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
 import java.time.ZonedDateTime
@@ -112,7 +112,7 @@ abstract class IntegrationTestBase {
 
     fun expectTierChangedById(tierScore: String) {
         oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteQueue.queueUrl)
-        val changeEvent: TierChangeEvent = tierChangeEvent()
+        val changeEvent = tierChangeEvent()
         val crn = changeEvent.crn()
         val calculationId = changeEvent.calculationId()
         val detailUrl = "http://localhost:8080/crn/$crn/tier/$calculationId"
@@ -149,22 +149,22 @@ abstract class IntegrationTestBase {
     fun expectLatestTierCalculationNotFound(crn: String) =
         latestTierCalculationResult(crn).andExpect(status().isNotFound)
 
-    private fun tierChangeEvent(): TierChangeEvent {
+    private fun tierChangeEvent(): TierCalculationDomainEvent {
         val message = calculationCompleteClient.receiveMessage(
             ReceiveMessageRequest.builder().queueUrl(calculationCompleteQueue.queueUrl).build(),
         ).get()
         val sqsMessage: SQSMessage = objectMapper.readValue(message.messages()[0].body(), SQSMessage::class.java)
-        return objectMapper.readValue(sqsMessage.message, TierChangeEvent::class.java)
+        return objectMapper.readValue(sqsMessage.message, TierCalculationDomainEvent::class.java)
     }
 
-    fun TierChangeEvent.crn(): String = this.personReference.identifiers[0].value
+    fun TierCalculationDomainEvent.crn(): String = this.personReference.identifiers[0].value
 
-    fun TierChangeEvent.calculationId(): UUID = this.additionalInformation.calculationId
+    fun TierCalculationDomainEvent.calculationId(): UUID = this.additionalInformation.calculationId
 
     internal fun authHeaders(): HttpHeaders = HttpHeaders().apply { setBearerAuth(jwtHelper.createJwt()) }
 
     fun sendDomainEvent(
-        message: DomainEventsMessage,
+        message: DomainEvent,
         queueUrl: String = domainEventQueue.queueUrl,
         om: ObjectMapper = objectMapper,
     ) = domainEventQueueClient.sendMessage(

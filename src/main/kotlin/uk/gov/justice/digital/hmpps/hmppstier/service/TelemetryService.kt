@@ -3,9 +3,11 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 import com.microsoft.applicationinsights.TelemetryClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
-import uk.gov.justice.digital.hmpps.hmppstier.service.TelemetryEventType.TIER_CHANGED
-import uk.gov.justice.digital.hmpps.hmppstier.service.TelemetryEventType.TIER_UNCHANGED
+import uk.gov.justice.digital.hmpps.hmppstier.domain.RecalculationSource
+import uk.gov.justice.digital.hmpps.hmppstier.domain.TelemetryEventType
+import uk.gov.justice.digital.hmpps.hmppstier.domain.TelemetryEventType.TIER_CHANGED
+import uk.gov.justice.digital.hmpps.hmppstier.domain.TelemetryEventType.TIER_UNCHANGED
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationEntity
 
 @Component
 class TelemetryService(@Autowired private val telemetryClient: TelemetryClient) {
