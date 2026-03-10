@@ -112,7 +112,8 @@ sealed interface NeedSection : Serializable {
         override val sanThresholdOverride = null
 
         @get:JsonIgnore
-        val regActivitiesEncourageOffending = questionAnswers["regActivitiesEncourageOffending"] ?: SectionAnswer.Problem.Missing
+        val regActivitiesEncourageOffending =
+            questionAnswers["regActivitiesEncourageOffending"] ?: SectionAnswer.Problem.Missing
 
         @get:JsonIgnore
         val easilyInfluenced = questionAnswers["easilyInfluenced"] ?: SectionAnswer.Problem.Missing
@@ -137,7 +138,8 @@ sealed interface NeedSection : Serializable {
         val everInjectedDrugs = questionAnswers["everInjectedDrugs"] ?: SectionAnswer.Frequency.Unknown
 
         @get:JsonIgnore
-        val motivationToTackleDrugMisuse = questionAnswers["motivationToTackleDrugMisuse"] ?: SectionAnswer.Problem.Missing
+        val motivationToTackleDrugMisuse =
+            questionAnswers["motivationToTackleDrugMisuse"] ?: SectionAnswer.Problem.Missing
 
         @get:JsonIgnore
         val drugsMajorActivity = questionAnswers["drugsMajorActivity"] ?: SectionAnswer.Problem.Missing
@@ -202,12 +204,15 @@ sealed interface NeedSection : Serializable {
         val proCriminalAttitudes = questionAnswers["proCriminalAttitudes"] ?: SectionAnswer.Problem.Missing
 
         @get:JsonIgnore
-        val attitudesTowardsSupervision = questionAnswers["attitudesTowardsSupervision"] ?: SectionAnswer.Problem.Missing
+        val attitudesTowardsSupervision =
+            questionAnswers["attitudesTowardsSupervision"] ?: SectionAnswer.Problem.Missing
 
         @get:JsonIgnore
-        val attitudesTowardsCommunitySociety = questionAnswers["attitudesTowardsCommunitySociety"] ?: SectionAnswer.Problem.Missing
+        val attitudesTowardsCommunitySociety =
+            questionAnswers["attitudesTowardsCommunitySociety"] ?: SectionAnswer.Problem.Missing
 
         @get:JsonIgnore
-        val motivationToAddressBehaviour = questionAnswers["motivationToAddressBehaviour"] ?: SectionAnswer.Problem.Missing
+        val motivationToAddressBehaviour =
+            questionAnswers["motivationToAddressBehaviour"] ?: SectionAnswer.Problem.Missing
     }
 }

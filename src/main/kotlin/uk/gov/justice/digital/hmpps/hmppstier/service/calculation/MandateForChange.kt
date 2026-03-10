@@ -8,9 +8,9 @@ object MandateForChange {
     private val custodialSentenceTypes = arrayOf("NC", "SC")
 
     fun Collection<DeliusConviction>.hasNoMandate(): Boolean = filter { isCurrent(it) }
-            .none {
-                isCustodial(it) || hasNonRestrictiveRequirements(it.requirements)
-            }
+        .none {
+            isCustodial(it) || hasNonRestrictiveRequirements(it.requirements)
+        }
 
     private fun isCurrent(conviction: DeliusConviction): Boolean =
         conviction.terminationDate == null

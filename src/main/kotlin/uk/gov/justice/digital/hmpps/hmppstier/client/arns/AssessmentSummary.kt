@@ -12,4 +12,4 @@ data class AssessmentSummary(
     val type: String,
     val status: String,
     val sanIndicator: Boolean,
-): Serializable
+) : Serializable
