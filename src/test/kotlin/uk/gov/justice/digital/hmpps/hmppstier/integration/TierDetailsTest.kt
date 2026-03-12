@@ -7,13 +7,14 @@ import org.junit.jupiter.api.Test
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.ResponseGenerator.deliusConviction
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.ResponseGenerator.deliusRegistration
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.ResponseGenerator.deliusResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.deliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
-import java.util.*
 
 class TierDetailsTest : IntegrationTestBase() {
 
@@ -21,11 +22,12 @@ class TierDetailsTest : IntegrationTestBase() {
     fun `tier counts endpoint includes newly calculated case`() {
         val beforeCount = tierCounts().sumOf { it.count }
         val crn = TestData.crn()
-        tierToDeliusApi.getFullDetails(
+        deliusApi.getFullDetails(
             crn,
-            TierDetails(
-                convictions = listOf(Conviction(sentenceCode = "SC")),
-                registrations = listOf(Registration("M2")),
+            deliusResponse(
+                convictions = listOf(deliusConviction(sentenceCode = "SC")),
+                registrations = listOf(deliusRegistration(level = "M2")),
+                latestReleaseDate = null,
             ),
         )
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234568890)
@@ -38,13 +40,14 @@ class TierDetailsTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `tier details endpoint returns latest calculation details`() {
-        val crn = "X${UUID.randomUUID().toString().replace("-", "").take(6)}"
-        tierToDeliusApi.getFullDetails(
+    fun `tier details v2 endpoint returns latest calculation details`() {
+        val crn = TestData.crn()
+        deliusApi.getFullDetails(
             crn,
-            TierDetails(
-                convictions = listOf(Conviction(sentenceCode = "SC")),
-                registrations = listOf(Registration("M2")),
+            deliusResponse(
+                convictions = listOf(deliusConviction(sentenceCode = "SC")),
+                registrations = listOf(deliusRegistration(level = "M2")),
+                latestReleaseDate = null,
             ),
         )
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234568890)
@@ -52,9 +55,7 @@ class TierDetailsTest : IntegrationTestBase() {
         calculateTierForDomainEvent(crn)
         expectLatestTierCalculation("A1")
 
-        mockMvc.perform(
-            get("/crn/$crn/tier/details").headers(authHeaders()).contentType("application/json"),
-        )
+        mockMvc.perform(get("/v2/crn/$crn/tier/details").headers(authHeaders()).contentType("application/json"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("tierScore", equalTo("A1")))
             .andExpect(jsonPath("calculationId").exists())
@@ -62,10 +63,34 @@ class TierDetailsTest : IntegrationTestBase() {
             .andExpect(jsonPath("data").exists())
     }
 
-    private fun tierCounts(): List<TierCountResponse> {
-        val response = mockMvc.perform(
-            get("/tier-counts").headers(authHeaders()).contentType("application/json"),
+    @Test
+    fun `tier details v3 endpoint returns latest calculation details`() {
+        val crn = TestData.crn()
+        deliusApi.getFullDetails(
+            crn,
+            deliusResponse(
+                registrations = listOf(
+                    deliusRegistration(category = "M2", level = "M2"),
+                    deliusRegistration(typeCode = Rosh.VERY_HIGH.registerCode)
+                ),
+            ),
         )
+        arnsApi.getRiskPredictors(crn, csrp = 5.5, arp = 10.1)
+
+        calculateTierForDomainEvent(crn)
+        expectLatestTierCalculation("A0")
+
+        mockMvc.perform(get("/v3/crn/$crn/tier/details").headers(authHeaders()).contentType("application/json"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("tierScore", equalTo("A")))
+            .andExpect(jsonPath("calculationId").exists())
+            .andExpect(jsonPath("calculationDate").exists())
+            .andExpect(jsonPath("data").exists())
+    }
+
+    private fun tierCounts(): List<TierCountResponse> {
+        val response = mockMvc
+            .perform(get("/tier-counts").headers(authHeaders()).contentType("application/json"))
             .andExpect(status().isOk)
             .andReturn()
 

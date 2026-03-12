@@ -6,8 +6,11 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationResultEntity
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Tier
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
+import uk.gov.justice.digital.hmpps.hmppstier.service.TierV2Reader.Companion.details
+import uk.gov.justice.digital.hmpps.hmppstier.service.TierV2Reader.Companion.dto
 import java.time.LocalDateTime
 import java.util.*
 
@@ -43,20 +46,13 @@ internal class TierDtoTest {
         val version = "99"
 
         val data = TierCalculationResultEntity(
+            tier = Tier.A,
             protect = TierLevel(protectLevel, 4, mapOf(CalculationRule.ROSH to 4)),
             change = TierLevel(changeLevel, 12, mapOf(CalculationRule.COMPLEXITY to 12)),
             calculationVersion = version,
         )
 
-        val tierDto = TierDto.from(
-            TierCalculationEntity(
-                0,
-                calculationId,
-                "Any Crn",
-                calculationDate,
-                data,
-            )
-        )
+        val tierDto = TierCalculationEntity(0, calculationId, "Any Crn", calculationDate, data).dto()
 
         assertThat(tierDto.tierScore).isEqualTo(protectLevel.value.plus(changeLevel.value))
         assertThat(tierDto.calculationId).isEqualTo(calculationId)
@@ -66,13 +62,13 @@ internal class TierDtoTest {
     @Test
     fun `Should construct TierDetailsDTO from`() {
         val data = TierCalculationResultEntity(
+            tier = Tier.A,
             protect = TierLevel(ProtectLevel.A, 4, mapOf(CalculationRule.ROSH to 4)),
             change = TierLevel(ChangeLevel.TWO, 12, mapOf(CalculationRule.COMPLEXITY to 12)),
             calculationVersion = "99",
         )
 
-        val tierDto =
-            TierDetailsDto.from(TierCalculationEntity(0, UUID.randomUUID(), "Any Crn", LocalDateTime.now(), data))
+        val tierDto = TierCalculationEntity(0, UUID.randomUUID(), "Any Crn", LocalDateTime.now(), data).details()
 
         assertThat(tierDto.data).isEqualTo(data)
     }

@@ -1,29 +1,39 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service.calculation
 
-import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.AssessmentForTier
+import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusInputs
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.*
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.MappaLevel
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.MappaLevel.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.RsrThresholds.*
+import uk.gov.justice.digital.hmpps.hmppstier.service.calculation.AdditionalFactorsForWomen.additionalFactorsForWomen
 import java.math.BigDecimal
 
+@Deprecated("Single tier value provided by TierCalculator", ReplaceWith("TierCalculator"))
 object ProtectLevelCalculator {
 
     fun calculate(
-        rsr: BigDecimal,
-        additionalFactorsPoints: Int,
-        registrations: Registrations,
+        deliusInputs: DeliusInputs,
+        assessment: AssessmentForTier?,
     ): TierLevel<ProtectLevel> {
+        val rsr = deliusInputs.rsrScore
+        val registrations = deliusInputs.registrations
+        val additionalFactorsPoints = AdditionalFactorsForWomen.calculate(
+            assessment?.additionalFactorsForWomen(),
+            deliusInputs.isFemale,
+            deliusInputs.previousEnforcementActivity,
+        )
+
         val points = mapOf(
             RSR to getRsrPoints(rsr),
             ROSH to getRoshPoints(registrations.rosh),
-            MAPPA to getMappaPoints(registrations.mappa),
+            MAPPA to getMappaPoints(registrations.mappaLevel),
             COMPLEXITY to getComplexityPoints(registrations.complexityFactors),
             ADDITIONAL_FACTORS_FOR_WOMEN to additionalFactorsPoints,
         )
@@ -54,8 +64,8 @@ object ProtectLevelCalculator {
             else -> 0
         }
 
-    private fun getMappaPoints(mappa: Mappa?): Int =
-        when (mappa) {
+    private fun getMappaPoints(mappaLevel: MappaLevel?): Int =
+        when (mappaLevel) {
             M3, M2 -> LEVEL_A_LOWER_THRESHOLD
             M1 -> 5
             else -> 0

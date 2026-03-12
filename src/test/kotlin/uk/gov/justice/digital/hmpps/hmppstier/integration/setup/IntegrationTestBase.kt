@@ -24,7 +24,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.Arn
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.hmppsAuth.HmppsAuthApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.repository.TierCalculationRepository
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.publisher.TierCalculationDomainEvent
@@ -34,6 +34,14 @@ import uk.gov.justice.hmpps.sqs.MissingQueueException
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
 import java.util.*
+
+enum class TierApiVersion(private val prefix: String) {
+    LEGACY(""),
+    V2("/v2"),
+    V3("/v3");
+
+    fun path(path: String) = "$prefix$path"
+}
 
 @ExtendWith(
     ArnsApiExtension::class,
@@ -77,7 +85,7 @@ abstract class IntegrationTestBase {
     internal lateinit var jwtHelper: JwtAuthHelper
 
     @Autowired
-    private lateinit var tierCalculationRepository: TierCalculationRepository
+    protected lateinit var tierCalculationRepository: TierCalculationRepository
 
     @BeforeEach
     fun `purge Queues`() {
@@ -110,7 +118,7 @@ abstract class IntegrationTestBase {
         crn,
     )
 
-    fun expectTierChangedById(tierScore: String) {
+    fun expectTierChangedById(tierScore: String, version: TierApiVersion = TierApiVersion.V2) {
         oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteQueue.queueUrl)
         val changeEvent = tierChangeEvent()
         val crn = changeEvent.crn()
@@ -119,35 +127,38 @@ abstract class IntegrationTestBase {
         assertThat(changeEvent.detailUrl).isEqualTo(detailUrl)
         assertThat(changeEvent.eventType).isEqualTo("tier.calculation.complete")
         assertThat(ZonedDateTime.parse(changeEvent.occurredAt, ISO_OFFSET_DATE_TIME)).isNotNull
-        tierCalculationResult(crn, calculationId.toString())
+        tierCalculationResult(crn, calculationId.toString(), version)
             .andExpect(status().isOk)
             .andExpect(jsonPath("tierScore", equalTo(tierScore)))
     }
 
-    fun expectTierCalculationNotFound(crn: String, calculationId: String) =
-        tierCalculationResult(crn, calculationId).andExpect(status().isNotFound)
+    fun expectTierCalculationNotFound(crn: String, id: String, version: TierApiVersion = TierApiVersion.V2) =
+        tierCalculationResult(crn, id, version).andExpect(status().isNotFound)
 
-    fun expectTierCalculationBadRequest(crn: String, calculationId: String) =
-        tierCalculationResult(crn, calculationId).andExpect(status().isBadRequest)
+    fun expectTierCalculationBadRequest(crn: String, id: String, version: TierApiVersion = TierApiVersion.V2) =
+        tierCalculationResult(crn, id, version).andExpect(status().isBadRequest)
 
-    internal fun tierCalculationResult(crn: String, calculationId: String) = request("/crn/$crn/tier/$calculationId")
+    internal fun tierCalculationResult(crn: String, id: String, version: TierApiVersion = TierApiVersion.V2) =
+        request(version.path("/crn/$crn/tier/$id"))
+
+    internal fun latestTierCalculationResult(crn: String, version: TierApiVersion = TierApiVersion.V2) =
+        request(version.path("/crn/$crn/tier"))
+
+    internal fun tierHistory(crn: String, version: TierApiVersion = TierApiVersion.V2) =
+        request(version.path("/crn/$crn/tier/history"))
 
     private fun request(uri: String) = mockMvc.perform(get(uri).headers(authHeaders()).contentType("application/json"))
 
-    internal fun latestTierCalculationResult(crn: String) = request("/crn/$crn/tier")
-
-    internal fun tierHistory(crn: String) = request("/crn/$crn/tier/history")
-
-    fun expectLatestTierCalculation(tierScore: String) {
+    fun expectLatestTierCalculation(tierScore: String, version: TierApiVersion = TierApiVersion.V2) {
         oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteQueue.queueUrl)
         val crn: String = tierChangeEvent().crn()
-        latestTierCalculationResult(crn)
+        latestTierCalculationResult(crn, version)
             .andExpect(status().isOk)
             .andExpect(jsonPath("tierScore", equalTo(tierScore)))
     }
 
-    fun expectLatestTierCalculationNotFound(crn: String) =
-        latestTierCalculationResult(crn).andExpect(status().isNotFound)
+    fun expectLatestTierCalculationNotFound(crn: String, version: TierApiVersion = TierApiVersion.V2) =
+        latestTierCalculationResult(crn, version).andExpect(status().isNotFound)
 
     private fun tierChangeEvent(): TierCalculationDomainEvent {
         val message = calculationCompleteClient.receiveMessage(

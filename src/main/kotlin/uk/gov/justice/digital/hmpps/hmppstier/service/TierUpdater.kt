@@ -4,10 +4,10 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierSummaryEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.repository.TierCalculationRepository
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.repository.TierSummaryRepository
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierSummaryEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierSummaryRepository
 
 @Service
 class TierUpdater(
@@ -28,27 +28,35 @@ class TierUpdater(
     ): Boolean {
         val isUpdated = isUpdated(tierCalculation, crn)
         tierCalculationRepository.save(tierCalculation)
-        val summary = tierSummaryRepository.findByIdOrNull(tierCalculation.crn)?.apply {
+        tierSummaryRepository.findByIdOrNull(tierCalculation.crn)?.apply {
+            tier = tierCalculation.data.tier?.name
             protectLevel = tierCalculation.protectLevel()
             changeLevel = tierCalculation.changeLevel()
             unsupervised = tierCalculation.data.deliusInputs?.registrations?.unsupervised == true
-        } ?: TierSummaryEntity(
-            crn,
-            tierCalculation.uuid,
-            tierCalculation.protectLevel(),
-            tierCalculation.changeLevel(),
-            tierCalculation.data.deliusInputs?.registrations?.unsupervised == true
-        )
-        tierSummaryRepository.save(summary)
+            tierSummaryRepository.save(this)
+        } ?: createSummary(tierCalculation)
         return isUpdated
     }
+
+    fun createSummary(tierCalculation: TierCalculationEntity) = tierSummaryRepository.save(
+        TierSummaryEntity(
+            crn = tierCalculation.crn,
+            uuid = tierCalculation.uuid,
+            tier = tierCalculation.data.tier?.name,
+            protectLevel = tierCalculation.protectLevel(),
+            changeLevel = tierCalculation.changeLevel(),
+            unsupervised = tierCalculation.data.deliusInputs?.registrations?.unsupervised == true,
+            lastModified = tierCalculation.created,
+        )
+    )
 
     private fun isUpdated(
         newTierCal: TierCalculationEntity,
         crn: String,
     ): Boolean {
         val oldTierCal = tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
-        return newTierCal.data.protect.tier != oldTierCal?.data?.protect?.tier ||
+        return newTierCal.data.tier != oldTierCal?.data?.tier ||
+            newTierCal.data.protect.tier != oldTierCal?.data?.protect?.tier ||
             newTierCal.data.change.tier != oldTierCal.data.change.tier ||
             newTierCal.data.deliusInputs?.registrations?.unsupervised != oldTierCal.data.deliusInputs?.registrations?.unsupervised
     }

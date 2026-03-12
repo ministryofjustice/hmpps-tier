@@ -1,5 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer
 
+import java.util.*
+
 data class DomainEvent(
     val eventType: String,
     val description: String,
@@ -43,4 +45,5 @@ data class DomainEvent(
 
     data class PersonReference(val identifiers: List<Identifier>)
     data class Identifier(val type: String, val value: String)
+    data class AdditionalInformation(val calculationId: UUID)
 }
