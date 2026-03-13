@@ -7,7 +7,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.RecalculationSource
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TelemetryEventType
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TelemetryEventType.TIER_CHANGED
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TelemetryEventType.TIER_UNCHANGED
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 
 @Component
 class TelemetryService(@Autowired private val telemetryClient: TelemetryClient) {
@@ -41,5 +41,9 @@ class TelemetryService(@Autowired private val telemetryClient: TelemetryClient) 
 
     fun trackEvent(eventType: TelemetryEventType, customDimensions: Map<String, String?>) {
         telemetryClient.trackEvent(eventType.eventName, customDimensions, null)
+    }
+
+    fun trackException(exception: Exception, customDimensions: Map<String, String?> = mapOf()) {
+        telemetryClient.trackException(exception, customDimensions, null)
     }
 }

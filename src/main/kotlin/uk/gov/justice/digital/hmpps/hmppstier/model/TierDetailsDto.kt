@@ -3,9 +3,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.model
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationResultEntity
-import uk.gov.justice.digital.hmpps.hmppstier.model.TierDto.Companion.getSuffix
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import java.time.LocalDateTime
 import java.util.*
 
@@ -26,16 +24,4 @@ data class TierDetailsDto @JsonCreator constructor(
     @Schema(description = "Calculation input data")
     @JsonProperty("data")
     val data: TierCalculationResultEntity,
-) {
-
-    companion object {
-        fun from(calculation: TierCalculationEntity) = TierDetailsDto(
-            tierScore = calculation.data.protect.tier.value
-                + calculation.data.change.tier.value
-                + getSuffix(calculation.data.deliusInputs?.registrations?.unsupervised),
-            calculationId = calculation.uuid,
-            calculationDate = calculation.created,
-            data = calculation.data,
-        )
-    }
-}
+)

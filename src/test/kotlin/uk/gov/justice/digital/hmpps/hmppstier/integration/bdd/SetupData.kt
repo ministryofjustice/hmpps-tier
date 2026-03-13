@@ -1,16 +1,17 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.bdd
 
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.SectionAnswer
+import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusConviction
+import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusRegistration
+import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusRequirement
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Requirement
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.ResponseGenerator.deliusConviction
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.ResponseGenerator.deliusResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.deliusApi
 import java.time.LocalDateTime
 
 class SetupData(
@@ -20,12 +21,11 @@ class SetupData(
     var crn: String = ids["crn"]!!
     var assessmentId: Long = ids["assessmentId"]!!.toLong()
     private var hasValidAssessment: Boolean = false
-    private var currentTier: String = "UD0"
     private var gender: String = "Male"
     private var needs: MutableList<Pair<Need, NeedSeverity>> = mutableListOf()
     private var ogrs: String = "0"
-    private var registrations: MutableList<Registration> = mutableListOf()
-    private var convictions: MutableList<Conviction> = mutableListOf()
+    private var registrations: MutableList<DeliusRegistration> = mutableListOf()
+    private var convictions: MutableList<DeliusConviction> = mutableListOf()
     private var rsr: String = "0"
     private var previousEnforcementActivity: Boolean = false
     private var assessmentAnswers: MutableMap<AdditionalFactorForWomen, SectionAnswer> = mutableMapOf(
@@ -42,15 +42,16 @@ class SetupData(
         this.previousEnforcementActivity = previousEnforcementActivity
     }
 
-    fun addRegistration(registration: Registration) {
+    fun addRegistration(registration: DeliusRegistration) {
         this.registrations.add(registration)
     }
 
-    fun addRequirement(requirement: Requirement) {
-        this.convictions[0].requirements.add(requirement)
+    fun addRequirement(requirement: DeliusRequirement) {
+        val conviction = convictions.first()
+        convictions[0] = conviction.copy(requirements = conviction.requirements + requirement)
     }
 
-    fun addConviction(conviction: Conviction) {
+    fun addConviction(conviction: DeliusConviction) {
         this.convictions.add(conviction)
     }
 
@@ -62,10 +63,6 @@ class SetupData(
     fun setNeeds(vararg needs: Pair<Need, NeedSeverity>) {
         setValidAssessment() // There needs to be a valid assessment to access needs code path
         this.needs.addAll(needs.toList())
-    }
-
-    fun setCurrentTier(currentTier: String) {
-        this.currentTier = currentTier
     }
 
     fun setGender(gender: String) {
@@ -97,11 +94,11 @@ class SetupData(
 
     fun prepareResponses() {
         if (convictions.isEmpty()) {
-            addConviction(Conviction())
+            addConviction(deliusConviction())
         }
-        tierToDeliusApi.getFullDetails(
+        deliusApi.getFullDetails(
             crn,
-            TierDetails(gender, currentTier, ogrs, rsr, convictions, registrations, previousEnforcementActivity)
+            deliusResponse(gender, ogrs, rsr, registrations, convictions, previousEnforcementActivity),
         )
         assessmentsApi()
     }

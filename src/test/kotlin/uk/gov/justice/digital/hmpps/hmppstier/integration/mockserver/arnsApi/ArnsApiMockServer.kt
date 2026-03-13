@@ -5,16 +5,17 @@ import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.mockserver.integration.ClientAndServer
-import org.mockserver.matchers.Times
-import org.mockserver.model.HttpRequest
+import org.mockserver.matchers.Times.exactly
+import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse
+import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType
-import uk.gov.justice.digital.hmpps.hmppstier.client.arns.AssessmentForTier
-import uk.gov.justice.digital.hmpps.hmppstier.client.arns.AssessmentSummary
-import uk.gov.justice.digital.hmpps.hmppstier.client.arns.NeedSection
-import uk.gov.justice.digital.hmpps.hmppstier.client.arns.SectionAnswer
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.*
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.SectionAnswer.Problem
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.SectionAnswer.YesNo
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.AllPredictorDto
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.StaticOrDynamicPredictorDto
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.VersionedStaticOrDynamicPredictorDto
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need.*
@@ -59,7 +60,7 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
         additionalFactors: Map<AdditionalFactorForWomen, SectionAnswer> = mapOf(),
         sanIndicator: Boolean = false,
     ) {
-        val request = HttpRequest.request().withPath("/tier-assessment/sections/$crn")
+        val request = request().withPath("/tier-assessment/sections/$crn")
         val need = needs.toMap()
         val response = AssessmentForTier(
             assessment = AssessmentSummary(
@@ -87,21 +88,49 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
             attitudes = need[ATTITUDES]?.let { attitudes(it) }
         )
         val json = objectMapper().writeValueAsString(response)
-        arnsApi.`when`(request, Times.exactly(1)).respond(
-            HttpResponse.response().withContentType(MediaType.APPLICATION_JSON).withBody(json)
+        arnsApi.`when`(request, exactly(1)).respond(
+            response().withContentType(MediaType.APPLICATION_JSON).withBody(json)
+        )
+    }
+
+    fun getNotFoundAssessment(crn: String) {
+        arnsApi.`when`(request().withPath("/tier-assessment/sections/$crn"), exactly(1))
+            .respond(HttpResponse.notFoundResponse().withContentType(MediaType.APPLICATION_JSON))
+    }
+
+    fun getRiskPredictors(
+        crn: String,
+        csrp: Double? = null,
+        arp: Double? = null,
+        dcSrp: Double? = null,
+        iicSrp: Double? = null,
+        completedDate: LocalDateTime = LocalDateTime.now().minusWeeks(1),
+    ) {
+        arnsApi.`when`(request().withPath("/risks/predictors/unsafe/all/CRN/$crn"), exactly(1)).respond(
+            response().withContentType(MediaType.APPLICATION_JSON).withBody(
+                objectMapper().writeValueAsString(
+                    listOf(
+                        OGRS4Predictors(
+                            assessmentType = AssessmentType.LAYER3,
+                            completedDate = completedDate,
+                            outputVersion = "2",
+                            output = AllPredictorDto(
+                                allReoffendingPredictor = StaticOrDynamicPredictorDto(score = arp?.toBigDecimal()),
+                                combinedSeriousReoffendingPredictor = VersionedStaticOrDynamicPredictorDto(score = csrp?.toBigDecimal()),
+                                directContactSexualReoffendingPredictor = StaticOrDynamicPredictorDto(score = dcSrp?.toBigDecimal()),
+                                indirectImageContactSexualReoffendingPredictor = StaticOrDynamicPredictorDto(score = iicSrp?.toBigDecimal())
+                            ),
+                        )
+                    )
+                )
+            )
         )
     }
 
     private fun Map<AdditionalFactorForWomen, SectionAnswer>.problem(additionFactor: AdditionalFactorForWomen) =
         this[additionFactor] as Problem? ?: Problem.None
 
-    fun getNotFoundAssessment(crn: String) {
-        val request = HttpRequest.request().withPath("/tier-assessment/sections/$crn")
-        arnsApi.`when`(request, Times.exactly(1))
-            .respond(HttpResponse.notFoundResponse().withContentType(MediaType.APPLICATION_JSON))
-    }
-
-    private fun accommodation(severity: NeedSeverity, sanIndicator: Boolean): NeedSection.Accommodation? {
+    private fun accommodation(severity: NeedSeverity, sanIndicator: Boolean): NeedSection.Accommodation {
         val questions = listOf("suitabilityOfAccommodation", "permanenceOfAccommodation", "locationOfAccommodation")
         val noFixedAbode = if (severity == NeedSeverity.NO_NEED || sanIndicator) YesNo.No else YesNo.Yes
         val questionAnswers = when (severity) {
@@ -112,7 +141,7 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
         return NeedSection.Accommodation(YesNo.No, YesNo.No, HashMap(questionAnswers))
     }
 
-    private fun ete(severity: NeedSeverity): NeedSection.EducationTrainingEmployability? {
+    private fun ete(severity: NeedSeverity): NeedSection.EducationTrainingEmployability {
         val questions = listOf("unemployed", "employmentHistory", "workRelatedSkills", "attitudeToEmployment")
         val questionAnswers = when (severity) {
             NeedSeverity.NO_NEED -> questions.map { it to Problem.None }
@@ -122,7 +151,7 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
         return NeedSection.EducationTrainingEmployability(YesNo.No, YesNo.No, HashMap(questionAnswers))
     }
 
-    private fun relationships(severity: NeedSeverity, parentalResponsibilities: YesNo): NeedSection.Relationships? {
+    private fun relationships(severity: NeedSeverity, parentalResponsibilities: YesNo): NeedSection.Relationships {
         val questions = listOf("relCloseFamily", "experienceOfChildhood", "prevCloseRelationships")
         val questionAnswers = when (severity) {
             NeedSeverity.NO_NEED -> questions.map { it to Problem.None }
@@ -132,7 +161,7 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
         return NeedSection.Relationships(YesNo.No, YesNo.No, HashMap(questionAnswers), parentalResponsibilities)
     }
 
-    private fun lifestyle(severity: NeedSeverity): NeedSection.LifestyleAndAssociates? {
+    private fun lifestyle(severity: NeedSeverity): NeedSection.LifestyleAndAssociates {
         val questions = listOf("regActivitiesEncourageOffending", "easilyInfluenced", "recklessness")
         val questionAnswers = when (severity) {
             NeedSeverity.NO_NEED -> questions.map { it to Problem.None }
@@ -142,7 +171,7 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
         return NeedSection.LifestyleAndAssociates(YesNo.No, YesNo.No, HashMap(questionAnswers))
     }
 
-    private fun drugMisuse(severity: NeedSeverity, sanIndicator: Boolean): NeedSection.DrugMisuse? {
+    private fun drugMisuse(severity: NeedSeverity, sanIndicator: Boolean): NeedSection.DrugMisuse {
         val questions = listOf("currentDrugNoted", "motivationToTackleDrugMisuse", "drugsMajorActivity")
         val injected: YesNo = if (severity == NeedSeverity.NO_NEED || sanIndicator) YesNo.No else YesNo.Yes
         val questionAnswers = when (severity) {
@@ -153,7 +182,7 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
         return NeedSection.DrugMisuse(YesNo.No, YesNo.No, HashMap(questionAnswers))
     }
 
-    private fun alcoholMisuse(severity: NeedSeverity, sanIndicator: Boolean): NeedSection.AlcoholMisuse? {
+    private fun alcoholMisuse(severity: NeedSeverity, sanIndicator: Boolean): NeedSection.AlcoholMisuse {
         val questions = listOf("currentUse", "bingeDrinking", "frequencyAndLevel", "alcoholTackleMotivation")
         val questionAnswers = when (severity) {
             NeedSeverity.NO_NEED -> questions.map { it to Problem.None }
@@ -168,7 +197,7 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
         impulsivity: Problem,
         temperControl: Problem,
         sanIndicator: Boolean
-    ): NeedSection.ThinkingAndBehaviour? {
+    ): NeedSection.ThinkingAndBehaviour {
         val questions =
             listOf("recogniseProblems", "problemSolvingSkills", "awarenessOfConsequences", "understandsViewsOfOthers")
         val questionAnswers = when (severity) {
@@ -185,7 +214,7 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
         )
     }
 
-    private fun attitudes(severity: NeedSeverity): NeedSection.Attitudes? {
+    private fun attitudes(severity: NeedSeverity): NeedSection.Attitudes {
         val questions = listOf(
             "proCriminalAttitudes",
             "attitudesTowardsSupervision",

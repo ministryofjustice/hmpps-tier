@@ -9,10 +9,10 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.timeout
 import org.mockito.kotlin.verify
 import uk.gov.justice.digital.hmpps.hmppstier.domain.RecalculationSource
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.tierToDeliusApi
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.ResponseGenerator.deliusConviction
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.ResponseGenerator.deliusRegistration
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.ResponseGenerator.deliusResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.deliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent
 import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
@@ -21,13 +21,11 @@ class DomainEventListenerTest : IntegrationTestBase() {
     @Test
     fun `can calculate tier on domain event`() {
         val crn = TestData.crn()
-        tierToDeliusApi.getFullDetails(
+        deliusApi.getFullDetails(
             crn,
-            TierDetails(
-                convictions = listOf(Conviction(sentenceCode = "SC")),
-                registrations = listOf(
-                    Registration("M2"),
-                ),
+            deliusResponse(
+                convictions = listOf(deliusConviction(sentenceCode = "SC")),
+                registrations = listOf(deliusRegistration(level = "M2")),
             ),
         )
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234568890)
@@ -39,14 +37,11 @@ class DomainEventListenerTest : IntegrationTestBase() {
     @Test
     fun `can calculate tier on recall domain event`() {
         val crn = TestData.crn()
-        tierToDeliusApi.getFullDetails(
+        deliusApi.getFullDetails(
             crn,
-            TierDetails(
-                currentTier = "UD2",
-                convictions = listOf(Conviction(sentenceCode = "SC")),
-                registrations = listOf(
-                    Registration("M2"),
-                ),
+            deliusResponse(
+                convictions = listOf(deliusConviction(sentenceCode = "SC")),
+                registrations = listOf(deliusRegistration(level = "M2")),
             ),
         )
         restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234568890)

@@ -5,22 +5,19 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.AssessmentForTier
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.AssessmentSummary
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.NeedSection
-import uk.gov.justice.digital.hmpps.hmppstier.client.arns.SectionAnswer
 import uk.gov.justice.digital.hmpps.hmppstier.domain.RecalculationSource
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TelemetryEventType.*
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import uk.gov.justice.digital.hmpps.hmppstier.exception.CrnNotFoundException
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationResultEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.publisher.DomainEventPublisher
 import uk.gov.justice.digital.hmpps.hmppstier.service.api.AssessmentApiService
 import uk.gov.justice.digital.hmpps.hmppstier.service.api.DeliusApiService
-import uk.gov.justice.digital.hmpps.hmppstier.service.calculation.AdditionalFactorsForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.service.calculation.ChangeLevelCalculator
 import uk.gov.justice.digital.hmpps.hmppstier.service.calculation.ProtectLevelCalculator
+import uk.gov.justice.digital.hmpps.hmppstier.service.calculation.TierCalculator
 import java.time.Clock
 import java.time.LocalDateTime
 
@@ -40,7 +37,7 @@ class TierCalculationService(
         try {
             val tierCalculation = calculateTier(crn, recalculationSource)
             val isUpdated = tierUpdater.updateTier(tierCalculation, crn)
-            domainEventPublisher.update(crn, tierCalculation.uuid)
+            domainEventPublisher.update(crn, isUpdated, tierCalculation.uuid)
             telemetryService.trackTierCalculated(tierCalculation, isUpdated, recalculationSource)
             return tierCalculation
         } catch (e: Exception) {
@@ -84,15 +81,11 @@ class TierCalculationService(
     private fun calculateTier(crn: String, recalculationSource: RecalculationSource): TierCalculationEntity {
         val deliusInputs = deliusApiService.getTierToDelius(crn)
         val assessment = assessmentApiService.getTierAssessmentInformation(crn)
+        val predictors = assessmentApiService.getRiskPredictors(crn)
 
-        val additionalFactorsPoints = AdditionalFactorsForWomen.calculate(
-            assessment?.additionalFactorsForWomen(),
-            deliusInputs.isFemale,
-            deliusInputs.previousEnforcementActivity,
-        )
-
+        // Old tier - protect axis (A-D) + change axis (0-3) - used primarily for allocation
         val protectLevel = ProtectLevelCalculator.calculate(
-            deliusInputs.rsrScore, additionalFactorsPoints, deliusInputs.registrations,
+            deliusInputs, assessment
         )
         val changeLevel = ChangeLevelCalculator.calculate(
             deliusInputs,
@@ -100,15 +93,20 @@ class TierCalculationService(
             assessment?.assessment == null,
         )
 
+        // New tier - single axis (A-G) - used for allocation and supervision packages
+        val tier = TierCalculator.calculate(deliusInputs, predictors?.output)
+
         return TierCalculationEntity(
             crn = crn,
             created = LocalDateTime.now(clock),
             data = TierCalculationResultEntity(
+                tier = tier,
                 change = changeLevel,
                 protect = protectLevel,
-                calculationVersion = "2",
+                calculationVersion = "3",
                 deliusInputs = deliusInputs,
-                assessmentSummary = assessment
+                assessmentSummary = assessment,
+                riskPredictors = predictors
             ),
             changeReason = recalculationSource.changeReason
         )
@@ -127,13 +125,6 @@ class TierCalculationService(
             attitudes?.mapSeverity(san),
         ).toMap()
     }
-
-    private fun AssessmentForTier.additionalFactorsForWomen(): Map<AdditionalFactorForWomen, SectionAnswer> =
-        listOfNotNull(
-            relationships?.parentalResponsibilities?.let { PARENTING_RESPONSIBILITIES to it },
-            thinkingAndBehaviour?.impulsivity?.let { IMPULSIVITY to it },
-            thinkingAndBehaviour?.temperControl?.let { TEMPER_CONTROL to it }
-        ).toMap()
 
     private fun NeedSection.mapSeverity(sanIndicator: Boolean): Pair<Need, NeedSeverity>? =
         getSeverity(sanIndicator)?.let { section to it }

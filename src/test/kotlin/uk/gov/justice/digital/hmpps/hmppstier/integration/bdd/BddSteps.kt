@@ -7,13 +7,13 @@ import org.springframework.beans.factory.annotation.Qualifier
 import software.amazon.awssdk.services.sqs.SqsAsyncClient
 import software.amazon.awssdk.services.sqs.model.PurgeQueueRequest
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.*
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M1
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa.M3
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.MappaLevel.M1
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.MappaLevel.M3
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.HIGH
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.MEDIUM
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Conviction
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Registration
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.Requirement
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.ResponseGenerator.deliusConviction
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.ResponseGenerator.deliusRegistration
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.ResponseGenerator.deliusRequirement
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.putMessageOnDomainQueue
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
@@ -88,18 +88,18 @@ class BddSteps : En {
                 } else {
                     "NO_ROSH"
                 }
-            setupData.addRegistration(Registration(typeCode = roshCode))
+            setupData.addRegistration(deliusRegistration(typeCode = roshCode))
         }
         Given("an active MAPPA registration of M Level {string}") { mappa: String ->
-            val mappaCode = Mappa.from("M$mappa", "MAPP")?.registerCode
-            setupData.addRegistration(Registration(registerLevel = mappaCode!!))
+            val mappaLevelCode = MappaLevel.from("M$mappa", "MAPP")?.registerCode
+            setupData.addRegistration(deliusRegistration(level = mappaLevelCode!!))
         }
         Given("no active MAPPA Registration") {
             // Do nothing
         }
         Given("the following active registrations: {string} {string}") { _: String, additionalFactor: String ->
             additionalFactor.split(",").forEach { typeCode ->
-                setupData.addRegistration(Registration(typeCode = typeCode))
+                setupData.addRegistration(deliusRegistration(typeCode = typeCode))
             }
             setupData.setValidAssessment()
         }
@@ -166,87 +166,87 @@ class BddSteps : En {
             ) // 9 points
         }
         Given("an offender scores 31 protect points") {
-            setupData.addRegistration(Registration(registerLevel = M1.registerCode))
-            setupData.addRegistration(Registration(typeCode = HIGH.registerCode))
-            setupData.addRegistration(Registration(typeCode = "RCCO"))
-            setupData.addRegistration(Registration(typeCode = "RCPR"))
-            setupData.addRegistration(Registration(typeCode = "RCHD"))
+            setupData.addRegistration(deliusRegistration(level = M1.registerCode))
+            setupData.addRegistration(deliusRegistration(typeCode = HIGH.registerCode))
+            setupData.addRegistration(deliusRegistration(typeCode = "RCCO"))
+            setupData.addRegistration(deliusRegistration(typeCode = "RCPR"))
+            setupData.addRegistration(deliusRegistration(typeCode = "RCHD"))
         }
         Given("an offender scores 152 protect points") {
-            setupData.addRegistration(Registration(registerLevel = M3.registerCode)) // 150
-            setupData.addRegistration(Registration(typeCode = "RCCO")) // 2
+            setupData.addRegistration(deliusRegistration(level = M3.registerCode)) // 150
+            setupData.addRegistration(deliusRegistration(typeCode = "RCCO")) // 2
         }
         Given("an offender scores 150 protect points") {
-            setupData.addRegistration(Registration(registerLevel = M3.registerCode)) // 150
+            setupData.addRegistration(deliusRegistration(level = M3.registerCode)) // 150
         }
         Given("an offender scores 51 protect points") {
             setupData.setGender("Female")
             setupData.setAssessmentAnswer(AdditionalFactorForWomen.IMPULSIVITY.name, "1") // 2
             setupData.setAssessmentAnswer(AdditionalFactorForWomen.PARENTING_RESPONSIBILITIES.name, "YES") // 2
-            setupData.addRegistration(Registration(registerLevel = M1.registerCode)) // 5
-            setupData.addRegistration(Registration(typeCode = HIGH.registerCode))
-            setupData.addConviction(Conviction())
+            setupData.addRegistration(deliusRegistration(level = M1.registerCode)) // 5
+            setupData.addRegistration(deliusRegistration(typeCode = HIGH.registerCode))
+            setupData.addConviction(deliusConviction())
             setupData.setPreviousEnforcementActivity(true)
-            setupData.addRegistration(Registration(typeCode = "RMDO"))
-            setupData.addRegistration(Registration(typeCode = "ALSH"))
-            setupData.addRegistration(Registration(typeCode = "RVLN"))
-            setupData.addRegistration(Registration(typeCode = "RCCO"))
-            setupData.addRegistration(Registration(typeCode = "RCPR"))
-            setupData.addRegistration(Registration(typeCode = "RCHD"))
-            setupData.addRegistration(Registration(typeCode = "RPIR"))
-            setupData.addRegistration(Registration(typeCode = "RVAD"))
-            setupData.addRegistration(Registration(typeCode = "STRG"))
-            setupData.addRegistration(Registration(typeCode = "RTAO")) // 20
+            setupData.addRegistration(deliusRegistration(typeCode = "RMDO"))
+            setupData.addRegistration(deliusRegistration(typeCode = "ALSH"))
+            setupData.addRegistration(deliusRegistration(typeCode = "RVLN"))
+            setupData.addRegistration(deliusRegistration(typeCode = "RCCO"))
+            setupData.addRegistration(deliusRegistration(typeCode = "RCPR"))
+            setupData.addRegistration(deliusRegistration(typeCode = "RCHD"))
+            setupData.addRegistration(deliusRegistration(typeCode = "RPIR"))
+            setupData.addRegistration(deliusRegistration(typeCode = "RVAD"))
+            setupData.addRegistration(deliusRegistration(typeCode = "STRG"))
+            setupData.addRegistration(deliusRegistration(typeCode = "RTAO")) // 20
         }
         Given("an offender scores 21 protect points") {
-            setupData.addRegistration(Registration(registerLevel = M1.registerCode)) // 5
-            setupData.addRegistration(Registration(typeCode = MEDIUM.registerCode))
-            setupData.addRegistration(Registration(typeCode = "RVAD"))
-            setupData.addRegistration(Registration(typeCode = "STRG"))
-            setupData.addRegistration(Registration(typeCode = "RMDO")) // 6
+            setupData.addRegistration(deliusRegistration(level = M1.registerCode)) // 5
+            setupData.addRegistration(deliusRegistration(typeCode = MEDIUM.registerCode))
+            setupData.addRegistration(deliusRegistration(typeCode = "RVAD"))
+            setupData.addRegistration(deliusRegistration(typeCode = "STRG"))
+            setupData.addRegistration(deliusRegistration(typeCode = "RMDO")) // 6
         }
         Given("an offender scores 20 protect points") {
-            setupData.addRegistration(Registration(typeCode = HIGH.registerCode))
+            setupData.addRegistration(deliusRegistration(typeCode = HIGH.registerCode))
         }
         Given("an offender scores 19 protect points") {
-            setupData.addRegistration(Registration(registerLevel = M1.registerCode)) // 5
-            setupData.addRegistration(Registration(typeCode = MEDIUM.registerCode)) // 10
-            setupData.addRegistration(Registration(typeCode = "ALSH"))
-            setupData.addRegistration(Registration(typeCode = "RVLN")) // 4
+            setupData.addRegistration(deliusRegistration(level = M1.registerCode)) // 5
+            setupData.addRegistration(deliusRegistration(typeCode = MEDIUM.registerCode)) // 10
+            setupData.addRegistration(deliusRegistration(typeCode = "ALSH"))
+            setupData.addRegistration(deliusRegistration(typeCode = "RVLN")) // 4
         }
         Given("an offender scores 11 protect points") {
-            setupData.addRegistration(Registration(registerLevel = M1.registerCode)) // 5
-            setupData.addRegistration(Registration(typeCode = "RVAD"))
-            setupData.addRegistration(Registration(typeCode = "ALSH"))
-            setupData.addRegistration(Registration(typeCode = "RVLN"))
+            setupData.addRegistration(deliusRegistration(level = M1.registerCode)) // 5
+            setupData.addRegistration(deliusRegistration(typeCode = "RVAD"))
+            setupData.addRegistration(deliusRegistration(typeCode = "ALSH"))
+            setupData.addRegistration(deliusRegistration(typeCode = "RVLN"))
         }
         Given("an offender scores 10 protect points") {
-            setupData.addRegistration(Registration(typeCode = MEDIUM.registerCode)) // 10
+            setupData.addRegistration(deliusRegistration(typeCode = MEDIUM.registerCode)) // 10
         }
         Given("an offender scores 9 protect points") {
-            setupData.addRegistration(Registration(registerLevel = M1.registerCode)) // 5
-            setupData.addRegistration(Registration(typeCode = "ALSH"))
-            setupData.addRegistration(Registration(typeCode = "RVLN")) // 4
+            setupData.addRegistration(deliusRegistration(level = M1.registerCode)) // 5
+            setupData.addRegistration(deliusRegistration(typeCode = "ALSH"))
+            setupData.addRegistration(deliusRegistration(typeCode = "RVLN")) // 4
         }
         Given("an offender scores 0 protect points") {
             // do nothing
         }
         Given("an offender with a current sentence of type {string}") { sentenceType: String ->
-            setupData.addConviction(Conviction(sentenceCode = sentenceType))
+            setupData.addConviction(deliusConviction(sentenceCode = sentenceType))
         }
         Given("an offender with a current non-custodial sentence") {
-            setupData.addConviction(Conviction(sentenceCode = "SP"))
+            setupData.addConviction(deliusConviction(sentenceCode = "SP"))
         }
 
         And("unpaid work") {
-            setupData.addRequirement(Requirement(mainTypeCode = "W", false))
+            setupData.addRequirement(deliusRequirement(mainTypeCode = "W", restrictive = false))
         }
         And("order extended") {
-            setupData.addRequirement(Requirement(mainTypeCode = "W1", false))
-            setupData.addRequirement(Requirement(mainTypeCode = "W", false))
+            setupData.addRequirement(deliusRequirement(mainTypeCode = "W1", restrictive = false))
+            setupData.addRequirement(deliusRequirement(mainTypeCode = "W", restrictive = false))
         }
         And("a non restrictive requirement") {
-            setupData.addRequirement(Requirement(mainTypeCode = "F", false))
+            setupData.addRequirement(deliusRequirement(mainTypeCode = "F", restrictive = false))
         }
         And("a valid assessment") {
             setupData.setValidAssessment()
@@ -264,17 +264,17 @@ class BddSteps : En {
             setupData.setAssessmentAnswer(question, answer)
         }
         And("has an active conviction with a Previous Enforcement Activity") {
-            setupData.addConviction(Conviction())
+            setupData.addConviction(deliusConviction())
             setupData.setPreviousEnforcementActivity(true)
         }
         And("has two active convictions with a Previous Enforcement Activity") {
-            setupData.addConviction(Conviction())
-            setupData.addConviction(Conviction())
+            setupData.addConviction(deliusConviction())
+            setupData.addConviction(deliusConviction())
             setupData.setPreviousEnforcementActivity(true)
         }
         And("has two breached active convictions with a {string} Previous Enforcement Activity") { outcome1: String ->
-            setupData.addConviction(Conviction(breached = true))
-            setupData.addConviction(Conviction(breached = true))
+            setupData.addConviction(deliusConviction())
+            setupData.addConviction(deliusConviction())
             setupData.setPreviousEnforcementActivity(outcome1 == "true")
         }
         And("no ROSH score") {
@@ -282,9 +282,6 @@ class BddSteps : En {
         }
         And("no RSR score") {
             setupData.setRsr("0")
-        }
-        And("has a tier of {string}") { tier: String ->
-            setupData.setCurrentTier("U$tier")
         }
 
         When("a tier is calculated") {

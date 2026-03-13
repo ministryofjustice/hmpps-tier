@@ -15,8 +15,9 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.TelemetryEventType
 import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationResultEntity
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Tier
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import java.time.LocalDateTime
 import java.util.*
 
@@ -30,22 +31,15 @@ internal class TelemetryServiceTest {
 
     private val crn = "ABC123"
     private val tierCalculation = TierCalculationEntity(
-        0,
-        UUID.randomUUID(),
-        crn,
-        LocalDateTime.now(),
-        TierCalculationResultEntity(
-            TierLevel(
-                ProtectLevel.A,
-                17,
-                mapOf(),
-            ),
-            TierLevel(
-                ChangeLevel.ONE,
-                5,
-                mapOf(),
-            ),
-            "77",
+        id = 0,
+        uuid = UUID.randomUUID(),
+        crn = crn,
+        created = LocalDateTime.now(),
+        data = TierCalculationResultEntity(
+            tier = Tier.A,
+            protect = TierLevel(ProtectLevel.A, 17, mapOf()),
+            change = TierLevel(ChangeLevel.ONE, 5, mapOf()),
+            calculationVersion = "77",
         ),
     )
 

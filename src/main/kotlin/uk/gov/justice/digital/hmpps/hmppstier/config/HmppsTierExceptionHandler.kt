@@ -1,9 +1,9 @@
 package uk.gov.justice.digital.hmpps.hmppstier.config
 
+import io.sentry.Sentry
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus.BAD_REQUEST
-import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.*
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageConversionException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -11,9 +11,10 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import uk.gov.justice.digital.hmpps.hmppstier.exception.EntityNotFoundException
 import uk.gov.justice.digital.hmpps.hmppstier.model.ErrorResponse
+import uk.gov.justice.digital.hmpps.hmppstier.service.TelemetryService
 
 @RestControllerAdvice
-class HmppsTierExceptionHandler {
+class HmppsTierExceptionHandler(private val telemetryService: TelemetryService) {
 
     companion object {
         val log: Logger = LoggerFactory.getLogger(this::class.java)
@@ -54,8 +55,10 @@ class HmppsTierExceptionHandler {
     @ExceptionHandler(Exception::class)
     fun handleException(e: Exception): ResponseEntity<ErrorResponse> {
         log.error("Exception", e)
+        telemetryService.trackException(e)
+        Sentry.captureException(e)
         return ResponseEntity
-            .status(BAD_REQUEST)
+            .status(INTERNAL_SERVER_ERROR)
             .body(
                 ErrorResponse(
                     status = 500,
