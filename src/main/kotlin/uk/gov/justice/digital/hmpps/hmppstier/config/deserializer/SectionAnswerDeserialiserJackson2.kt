@@ -11,7 +11,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.arns.SectionAnswer
 import java.io.IOException
 
 @JacksonComponent
-class SectionAnswerDeserialiser : JsonDeserializer<SectionAnswer>() {
+class SectionAnswerDeserialiserJackson2 : JsonDeserializer<SectionAnswer>() {
     @Throws(IOException::class, JsonProcessingException::class)
     override fun deserialize(parser: JsonParser, context: DeserializationContext?): SectionAnswer? {
         val mapper = parser.codec as ObjectMapper

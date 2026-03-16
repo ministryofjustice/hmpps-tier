@@ -35,7 +35,7 @@ class DeliusApiServiceTest {
 
     @AfterEach
     fun confirmVerified() {
-        coVerify(exactly = 1) { deliusApiClient.getDeliusTier(crn) }
+        coVerify(exactly = 1) { deliusApiClient.getDeliusTierInputs(crn) }
         confirmVerified(deliusApiClient)
     }
 
@@ -187,7 +187,7 @@ class DeliusApiServiceTest {
     }
 
     private fun stubDeliusResponse(response: DeliusResponse) {
-        coEvery { deliusApiClient.getDeliusTier(crn) } returns response
+        coEvery { deliusApiClient.getDeliusTierInputs(crn) } returns response
     }
 
     companion object {

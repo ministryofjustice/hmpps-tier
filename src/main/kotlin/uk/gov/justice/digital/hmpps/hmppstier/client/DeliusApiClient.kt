@@ -1,41 +1,37 @@
 package uk.gov.justice.digital.hmpps.hmppstier.client
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.stereotype.Component
-import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.RestClient
-import org.springframework.web.client.body
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.bodyToMono
+import reactor.util.retry.Retry
 import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusResponse
 import uk.gov.justice.digital.hmpps.hmppstier.exception.CrnNotFoundException
 
 @Component
 class DeliusApiClient(
-    @Qualifier("tierToDeliusRestClient") private val restClient: RestClient,
-    private val objectMapper: ObjectMapper,
+    private val deliusClient: WebClient,
+    private val retryOnServerError: Retry,
 ) {
-    fun getDeliusTier(crn: String): DeliusResponse {
-        return restClient
-            .get()
-            .uri("/tier-details/{crn}", crn)
-            .exchange { req, res ->
-                when (res.statusCode) {
-                    HttpStatus.OK -> objectMapper.readValue<DeliusResponse>(res.body)
-                    HttpStatus.NOT_FOUND -> throw CrnNotFoundException("Not Found from GET ${req.uri}")
+    fun getDeliusTierInputs(crn: String): DeliusResponse = deliusClient
+        .get()
+        .uri("/tier-details/{crn}", crn)
+        .retrieve()
+        .onStatus({ it == HttpStatus.NOT_FOUND }) { response ->
+            response.createException().map { CrnNotFoundException(crn, it) }
+        }
+        .bodyToMono<DeliusResponse>()
+        .retryWhen(retryOnServerError)
+        .block()!!
 
-                    else -> throw HttpClientErrorException(res.statusCode, res.statusText)
-                }
-            }
-    }
-
-    fun getActiveCrns(): List<String> = restClient
+    fun getActiveCrns(): List<String> = deliusClient
         .get()
         .uri("/probation-cases")
         .accept(APPLICATION_JSON)
         .retrieve()
-        .body<List<String>>()!!
+        .bodyToMono<List<String>>()
+        .retryWhen(retryOnServerError)
+        .block()!!
 }
 

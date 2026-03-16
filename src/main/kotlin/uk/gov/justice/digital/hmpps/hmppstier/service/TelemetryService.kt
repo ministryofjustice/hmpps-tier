@@ -25,6 +25,7 @@ class TelemetryService(@Autowired private val telemetryClient: TelemetryClient) 
             },
             listOfNotNull(
                 "crn" to calculation.crn,
+                "tier" to calculation.data.tier.toString(),
                 "protect" to calculation.data.protect.tier.value,
                 "change" to calculation.data.change.tier.value.toString(),
                 "version" to calculation.data.calculationVersion,

@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.setup
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers.equalTo
@@ -10,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
-import org.springframework.http.HttpHeaders
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.test.web.servlet.MockMvc
@@ -20,6 +18,7 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import software.amazon.awssdk.services.sqs.model.PurgeQueueRequest
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest
+import tools.jackson.databind.ObjectMapper
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.hmppsAuth.HmppsAuthApiExtension
@@ -31,6 +30,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.messaging.publisher.TierCalculatio
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
+import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME
 import java.util.*
@@ -82,7 +82,7 @@ abstract class IntegrationTestBase {
     private val calculationCompleteClient by lazy { calculationCompleteQueue.sqsClient }
 
     @Autowired
-    internal lateinit var jwtHelper: JwtAuthHelper
+    internal lateinit var jwtHelper: JwtAuthorisationHelper
 
     @Autowired
     protected lateinit var tierCalculationRepository: TierCalculationRepository
@@ -147,7 +147,8 @@ abstract class IntegrationTestBase {
     internal fun tierHistory(crn: String, version: TierApiVersion = TierApiVersion.V2) =
         request(version.path("/crn/$crn/tier/history"))
 
-    private fun request(uri: String) = mockMvc.perform(get(uri).headers(authHeaders()).contentType("application/json"))
+    private fun request(uri: String) =
+        mockMvc.perform(get(uri).headers(setAuthorisation()).contentType("application/json"))
 
     fun expectLatestTierCalculation(tierScore: String, version: TierApiVersion = TierApiVersion.V2) {
         oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteQueue.queueUrl)
@@ -172,7 +173,8 @@ abstract class IntegrationTestBase {
 
     fun TierCalculationDomainEvent.calculationId(): UUID = this.additionalInformation.calculationId
 
-    internal fun authHeaders(): HttpHeaders = HttpHeaders().apply { setBearerAuth(jwtHelper.createJwt()) }
+    internal fun setAuthorisation() =
+        jwtHelper.setAuthorisationHeader(roles = listOf("HMPPS_TIER", "MANAGEMENT_TIER_UPDATE", "TIER_API_QUEUE_ADMIN"))
 
     fun sendDomainEvent(
         message: DomainEvent,

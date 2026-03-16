@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
@@ -10,8 +9,9 @@ import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.MediaType
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusResponse
-import uk.gov.justice.digital.hmpps.hmppstier.integration.objectMapper
 
 class TierToDeliusApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallback {
 
@@ -48,7 +48,7 @@ class TierToDeliusApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
         val request = HttpRequest.request().withPath("/tier-details/$crn")
         TierToDeliusApiExtension.deliusApi.`when`(request, Times.exactly(1)).respond(
             HttpResponse.response().withContentType(MediaType.APPLICATION_JSON)
-                .withBody(objectMapper().writeValueAsString(response)),
+                .withBody(jacksonObjectMapper().writeValueAsString(response)),
         )
     }
 

@@ -10,6 +10,7 @@ import org.mockserver.model.HttpRequest.request
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.HttpResponse.response
 import org.mockserver.model.MediaType
+import tools.jackson.module.kotlin.jacksonObjectMapper
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.*
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.SectionAnswer.Problem
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.SectionAnswer.YesNo
@@ -21,7 +22,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
-import uk.gov.justice.digital.hmpps.hmppstier.integration.objectMapper
 import java.time.LocalDateTime
 
 class ArnsApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallback {
@@ -87,7 +87,7 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
             ),
             attitudes = need[ATTITUDES]?.let { attitudes(it) }
         )
-        val json = objectMapper().writeValueAsString(response)
+        val json = jacksonObjectMapper().writeValueAsString(response)
         arnsApi.`when`(request, exactly(1)).respond(
             response().withContentType(MediaType.APPLICATION_JSON).withBody(json)
         )
@@ -108,7 +108,7 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
     ) {
         arnsApi.`when`(request().withPath("/risks/predictors/unsafe/all/CRN/$crn"), exactly(1)).respond(
             response().withContentType(MediaType.APPLICATION_JSON).withBody(
-                objectMapper().writeValueAsString(
+                jacksonObjectMapper().writeValueAsString(
                     listOf(
                         OGRS4Predictors(
                             assessmentType = AssessmentType.LAYER3,

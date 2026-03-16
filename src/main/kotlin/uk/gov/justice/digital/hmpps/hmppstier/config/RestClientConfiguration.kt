@@ -3,68 +3,33 @@ package uk.gov.justice.digital.hmpps.hmppstier.config
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.MediaType
-import org.springframework.http.client.JdkClientHttpRequestFactory
-import org.springframework.security.oauth2.client.*
-import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository
-import org.springframework.web.client.RestClient
-import java.net.http.HttpClient
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientManager
+import org.springframework.security.oauth2.client.OAuth2AuthorizedClientProvider
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientResponseException
+import reactor.util.retry.Retry
+import uk.gov.justice.hmpps.kotlin.auth.authorisedWebClient
+import uk.gov.justice.hmpps.kotlin.auth.oAuth2AuthorizedClientProvider
 import java.time.Duration
 
 @Configuration
 class RestClientConfiguration(
     @Value("\${arns.endpoint.url}") private val arnsApiRootUri: String,
     @Value("\${tier-to-delius.endpoint.url}") private val tierToDeliusApiRootUri: String,
+    @Value("\${auth.timeout:2s}") private val authTimeout: Duration,
 ) {
+    @Bean
+    fun authorizedClientProvider(): OAuth2AuthorizedClientProvider = oAuth2AuthorizedClientProvider(authTimeout)
 
     @Bean
-    fun authorizedClientManager(
-        clientRegistration: ClientRegistrationRepository,
-    ): OAuth2AuthorizedClientManager {
-        val service = InMemoryOAuth2AuthorizedClientService(clientRegistration)
-        val authorizedClientManager = AuthorizedClientServiceOAuth2AuthorizedClientManager(clientRegistration, service)
-
-        val authorizedClientProvider = OAuth2AuthorizedClientProviderBuilder
-            .builder()
-            .clientCredentials()
-            .build()
-        authorizedClientManager.setAuthorizedClientProvider(authorizedClientProvider)
-        return authorizedClientManager
-    }
+    fun arnsClient(authorizedClientManager: OAuth2AuthorizedClientManager, builder: WebClient.Builder) =
+        builder.authorisedWebClient(authorizedClientManager, "assessment-api", arnsApiRootUri)
 
     @Bean
-    fun arnsRestClient(
-        authorizedClientManager: OAuth2AuthorizedClientManager,
-        builder: RestClient.Builder,
-    ): RestClient {
-        return getOAuthWebClient(authorizedClientManager, builder, arnsApiRootUri, "assessment-api")
-    }
+    fun deliusClient(authorizedClientManager: OAuth2AuthorizedClientManager, builder: WebClient.Builder) =
+        builder.authorisedWebClient(authorizedClientManager, "tier-to-delius-api", tierToDeliusApiRootUri)
 
     @Bean
-    fun tierToDeliusRestClient(
-        authorizedClientManager: OAuth2AuthorizedClientManager,
-        builder: RestClient.Builder,
-    ): RestClient {
-        return getOAuthWebClient(authorizedClientManager, builder, tierToDeliusApiRootUri, "tier-to-delius-api")
-    }
-
-    private fun getOAuthWebClient(
-        clientManager: OAuth2AuthorizedClientManager,
-        builder: RestClient.Builder,
-        rootUri: String,
-        registrationId: String,
-    ) = builder
-        .requestFactory(withTimeouts(Duration.ofSeconds(1), Duration.ofSeconds(40)))
-        .requestInterceptor(HmppsAuthInterceptor(clientManager, registrationId))
-        .requestInterceptor(RetryInterceptor())
-        .baseUrl(rootUri)
-        .defaultHeaders {
-            it.contentType = MediaType.APPLICATION_JSON
-            it.accept = listOf(MediaType.APPLICATION_JSON)
-        }
-        .build()
-
-    fun withTimeouts(connection: Duration, read: Duration) =
-        JdkClientHttpRequestFactory(HttpClient.newBuilder().connectTimeout(connection).build())
-            .also { it.setReadTimeout(read) }
+    fun retryOnServerError(): Retry = Retry.backoff(3, Duration.ofMillis(100))
+        .filter { error -> error !is WebClientResponseException || error.statusCode.is5xxServerError }
 }

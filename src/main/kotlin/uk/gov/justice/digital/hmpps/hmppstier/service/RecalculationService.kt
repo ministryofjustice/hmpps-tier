@@ -1,10 +1,10 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import software.amazon.awssdk.services.sqs.model.MessageAttributeValue
 import software.amazon.awssdk.services.sqs.model.SendMessageRequest
+import tools.jackson.databind.ObjectMapper
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.domain.RecalculationSource
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent

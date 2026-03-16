@@ -68,6 +68,7 @@ internal class TelemetryServiceTest {
                 TelemetryEventType.TIER_CHANGED.eventName,
                 mapOf(
                     "crn" to crn,
+                    "tier" to tierCalculation.data.tier.toString(),
                     "protect" to tierCalculation.data.protect.tier.value,
                     "change" to tierCalculation.data.change.tier.value.toString(),
                     "version" to tierCalculation.data.calculationVersion,
@@ -93,6 +94,7 @@ internal class TelemetryServiceTest {
                 TelemetryEventType.TIER_UNCHANGED.eventName,
                 mapOf(
                     "crn" to crn,
+                    "tier" to tierCalculation.data.tier.toString(),
                     "protect" to tierCalculation.data.protect.tier.value,
                     "change" to tierCalculation.data.change.tier.value.toString(),
                     "version" to tierCalculation.data.calculationVersion,

@@ -1,7 +1,5 @@
 package uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.awspring.cloud.sqs.annotation.SqsListener
 import io.sentry.Sentry
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -12,9 +10,13 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.CannotCreateTransactionException
 import org.springframework.transaction.UnexpectedRollbackException
 import org.springframework.web.client.RestClientException
-import uk.gov.justice.digital.hmpps.hmppstier.config.retry
+import reactor.util.retry.Retry
+import tools.jackson.databind.ObjectMapper
+import tools.jackson.module.kotlin.readValue
+import uk.gov.justice.digital.hmpps.hmppstier.config.ReactorExtensions.invoke
 import uk.gov.justice.digital.hmpps.hmppstier.domain.RecalculationSource
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
+import java.time.Duration
 
 @Service
 @ConditionalOnProperty("messaging.consumer.enabled", matchIfMissing = true)
@@ -31,7 +33,11 @@ class DomainEventListener(
             return
         }
         try {
-            retry(3, RETRYABLE_EXCEPTIONS) { handleMessage(domainEventMessage) }
+            Retry.backoff(3, Duration.ofMillis(300))
+                .filter { e -> RETRYABLE_EXCEPTIONS.any { it.isInstance(e) } }
+                .invoke {
+                    handleMessage(domainEventMessage)
+                }
         } catch (e: Exception) {
             Sentry.captureException(e)
             throw e
