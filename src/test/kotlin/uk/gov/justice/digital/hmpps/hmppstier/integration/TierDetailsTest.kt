@@ -1,12 +1,12 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import org.assertj.core.api.Assertions.assertThat
 import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Test
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import tools.jackson.module.kotlin.readValue
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.ResponseGenerator.deliusConviction
@@ -55,7 +55,7 @@ class TierDetailsTest : IntegrationTestBase() {
         calculateTierForDomainEvent(crn)
         expectLatestTierCalculation("A1")
 
-        mockMvc.perform(get("/v2/crn/$crn/tier/details").headers(authHeaders()).contentType("application/json"))
+        mockMvc.perform(get("/v2/crn/$crn/tier/details").headers(setAuthorisation()).contentType("application/json"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("tierScore", equalTo("A1")))
             .andExpect(jsonPath("calculationId").exists())
@@ -80,7 +80,7 @@ class TierDetailsTest : IntegrationTestBase() {
         calculateTierForDomainEvent(crn)
         expectLatestTierCalculation("A0")
 
-        mockMvc.perform(get("/v3/crn/$crn/tier/details").headers(authHeaders()).contentType("application/json"))
+        mockMvc.perform(get("/v3/crn/$crn/tier/details").headers(setAuthorisation()).contentType("application/json"))
             .andExpect(status().isOk)
             .andExpect(jsonPath("tierScore", equalTo("A")))
             .andExpect(jsonPath("calculationId").exists())
@@ -90,7 +90,7 @@ class TierDetailsTest : IntegrationTestBase() {
 
     private fun tierCounts(): List<TierCountResponse> {
         val response = mockMvc
-            .perform(get("/tier-counts").headers(authHeaders()).contentType("application/json"))
+            .perform(get("/tier-counts").headers(setAuthorisation()).contentType("application/json"))
             .andExpect(status().isOk)
             .andReturn()
 

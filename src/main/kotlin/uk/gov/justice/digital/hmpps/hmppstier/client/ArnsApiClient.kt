@@ -1,42 +1,37 @@
 package uk.gov.justice.digital.hmpps.hmppstier.client
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
-import org.springframework.web.client.HttpClientErrorException
-import org.springframework.web.client.RestClient
+import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.bodyToMono
+import reactor.core.publisher.Mono
+import reactor.util.retry.Retry
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.AllPredictorVersioned
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.AssessmentForTier
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.OGRS4Predictors
 
 @Component
 class ArnsApiClient(
-    @Qualifier("arnsRestClient") private val restClient: RestClient,
-    private val objectMapper: ObjectMapper
+    private val arnsClient: WebClient,
+    private val retryOnServerError: Retry,
 ) {
-    fun getTierAssessmentInformation(crn: String): AssessmentForTier? = restClient
+    fun getTierAssessmentInformation(crn: String): AssessmentForTier? = arnsClient
         .get()
         .uri("/tier-assessment/sections/{crn}", crn)
-        .exchange { _, res ->
-            when (res.statusCode) {
-                HttpStatus.OK -> objectMapper.readValue(res.body)
-                HttpStatus.NOT_FOUND -> null
-                else -> throw HttpClientErrorException(res.statusCode, res.statusText)
-            }
-        }
+        .retrieve()
+        .onStatus({ it == HttpStatus.NOT_FOUND }, { Mono.empty() })
+        .bodyToMono<AssessmentForTier>()
+        .retryWhen(retryOnServerError)
+        .block()
 
-    fun getRiskPredictors(crn: String): List<OGRS4Predictors>? = restClient
+    fun getRiskPredictors(crn: String): List<OGRS4Predictors>? = arnsClient
         .get()
         .uri("/risks/predictors/unsafe/all/CRN/{crn}", crn)
-        .exchange<List<AllPredictorVersioned<Any>>?> { _, res ->
-            when (res.statusCode) {
-                HttpStatus.OK -> objectMapper.readValue(res.body)
-                HttpStatus.NOT_FOUND -> null
-                else -> throw HttpClientErrorException(res.statusCode, res.statusText)
-            }
-        }
+        .retrieve()
+        .onStatus({ it == HttpStatus.NOT_FOUND }, { Mono.empty() })
+        .bodyToMono<List<AllPredictorVersioned<Any>>>()
+        .retryWhen(retryOnServerError)
+        .block()
         ?.filter { it.outputVersion == "2" && it is OGRS4Predictors }
         ?.map { it as OGRS4Predictors }
 }

@@ -39,13 +39,14 @@ class RecalculationTest : IntegrationTestBase() {
             post("/calculations?dryRun=false")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(listOf(crn)))
-                .headers(authHeaders()),
+                .headers(setAuthorisation()),
         ).andExpect(status().isOk)
 
         verify(telemetryClient, timeout(2000)).trackEvent(
             "TierChanged",
             mapOf(
                 "crn" to crn,
+                "tier" to "G",
                 "protect" to "A",
                 "change" to "1",
                 "version" to "3",
@@ -78,7 +79,7 @@ class RecalculationTest : IntegrationTestBase() {
             post("/calculations?dryRun=false")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
-                .headers(authHeaders()),
+                .headers(setAuthorisation()),
         ).andExpect(status().isOk)
 
         crns.forEach {
@@ -86,6 +87,7 @@ class RecalculationTest : IntegrationTestBase() {
                 "TierChanged",
                 mapOf(
                     "crn" to it,
+                    "tier" to "G",
                     "protect" to "A",
                     "change" to "1",
                     "version" to "3",
@@ -121,13 +123,14 @@ class RecalculationTest : IntegrationTestBase() {
             post("/calculations?dryRun=false")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(listOf(crn)))
-                .headers(authHeaders()),
+                .headers(setAuthorisation()),
         ).andExpect(status().isOk)
 
         verify(telemetryClient, timeout(2000)).trackEvent(
             "TierChanged",
             mapOf(
                 "crn" to crn,
+                "tier" to "G",
                 "protect" to "A",
                 "change" to "2",
                 "version" to "3",
@@ -162,13 +165,14 @@ class RecalculationTest : IntegrationTestBase() {
             post("/calculations?dryRun=false")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(listOf(crn)))
-                .headers(authHeaders()),
+                .headers(setAuthorisation()),
         ).andExpect(status().isOk)
 
         verify(telemetryClient, timeout(2000)).trackEvent(
             "TierChanged",
             mapOf(
                 "crn" to crn,
+                "tier" to "G",
                 "protect" to "A",
                 "change" to "3",
                 "version" to "3",

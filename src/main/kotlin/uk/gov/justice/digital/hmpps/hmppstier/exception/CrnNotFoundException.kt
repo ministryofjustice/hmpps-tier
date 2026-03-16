@@ -1,6 +1,17 @@
 package uk.gov.justice.digital.hmpps.hmppstier.exception
 
-import org.springframework.http.HttpStatus
-import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.reactive.function.client.WebClientResponseException
+import java.nio.charset.StandardCharsets
 
-class CrnNotFoundException(message: String) : HttpClientErrorException(HttpStatus.NOT_FOUND, message)
+class CrnNotFoundException(
+    val crn: String,
+    cause: WebClientResponseException
+) : WebClientResponseException(
+    cause.message,
+    cause.statusCode.value(),
+    cause.statusText,
+    cause.headers,
+    cause.responseBodyAsByteArray,
+    StandardCharsets.UTF_8,
+    cause.request
+)

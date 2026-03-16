@@ -1,12 +1,12 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.bdd
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.cucumber.java8.En
 import org.assertj.core.api.Assertions.assertThat
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import software.amazon.awssdk.services.sqs.SqsAsyncClient
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest
+import tools.jackson.databind.ObjectMapper
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.oneMessageCurrentlyOnQueue
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity

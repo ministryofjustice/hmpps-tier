@@ -12,7 +12,7 @@ import java.math.BigDecimal
 @Service
 class DeliusApiService(private val deliusApiClient: DeliusApiClient) {
     fun getTierToDelius(crn: String): DeliusInputs {
-        val tierToDeliusResponse = deliusApiClient.getDeliusTier(crn)
+        val tierToDeliusResponse = deliusApiClient.getDeliusTierInputs(crn)
 
         return DeliusInputs(
             isFemale = tierToDeliusResponse.gender.equals("female", true),

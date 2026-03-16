@@ -6,12 +6,13 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus.*
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageConversionException
+import org.springframework.security.access.AccessDeniedException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import uk.gov.justice.digital.hmpps.hmppstier.exception.EntityNotFoundException
-import uk.gov.justice.digital.hmpps.hmppstier.model.ErrorResponse
 import uk.gov.justice.digital.hmpps.hmppstier.service.TelemetryService
+import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
 @RestControllerAdvice
 class HmppsTierExceptionHandler(private val telemetryService: TelemetryService) {
@@ -50,6 +51,14 @@ class HmppsTierExceptionHandler(private val telemetryService: TelemetryService) 
         return ResponseEntity
             .status(BAD_REQUEST)
             .body(ErrorResponse(status = 400, developerMessage = e.message))
+    }
+
+    @ExceptionHandler(AccessDeniedException::class)
+    fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ErrorResponse> {
+        log.error("AccessDeniedException: {}", e.message)
+        return ResponseEntity
+            .status(FORBIDDEN)
+            .body(ErrorResponse(status = 403, userMessage = "Access denied"))
     }
 
     @ExceptionHandler(Exception::class)

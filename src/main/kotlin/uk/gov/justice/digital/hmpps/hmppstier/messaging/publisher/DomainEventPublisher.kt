@@ -1,10 +1,10 @@
 package uk.gov.justice.digital.hmpps.hmppstier.messaging.publisher
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import software.amazon.awssdk.services.sns.model.MessageAttributeValue
 import software.amazon.awssdk.services.sns.model.PublishRequest
+import tools.jackson.databind.ObjectMapper
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent.AdditionalInformation
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent.PersonReference
