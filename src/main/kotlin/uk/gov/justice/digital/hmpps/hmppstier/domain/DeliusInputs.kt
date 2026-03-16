@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.domain
 
 import java.io.Serializable
 import java.math.BigDecimal
+import java.time.LocalDate
 
 data class DeliusInputs(
     val isFemale: Boolean,
@@ -10,4 +11,5 @@ data class DeliusInputs(
     val hasNoMandate: Boolean,
     val registrations: Registrations,
     val previousEnforcementActivity: Boolean,
+    val latestReleaseDate: LocalDate?,
 ) : Serializable

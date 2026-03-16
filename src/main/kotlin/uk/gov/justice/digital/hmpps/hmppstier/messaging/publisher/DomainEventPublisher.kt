@@ -6,7 +6,8 @@ import org.springframework.stereotype.Service
 import software.amazon.awssdk.services.sns.model.MessageAttributeValue
 import software.amazon.awssdk.services.sns.model.PublishRequest
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent
-import uk.gov.justice.digital.hmpps.hmppstier.messaging.publisher.TierCalculationDomainEvent.AdditionalInformation
+import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent.AdditionalInformation
+import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent.PersonReference
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingTopicException
 import java.util.*
@@ -21,21 +22,41 @@ class DomainEventPublisher(
     private val calculationCompleteTopic = hmppsQueueService.findByTopicId("hmppscalculationcompletetopic")
         ?: throw MissingTopicException("Could not find topic hmppscalculationcompletetopic")
 
-    fun update(crn: String, calculationId: UUID) {
+    fun update(crn: String, isUpdated: Boolean, calculationId: UUID) {
+        publishCalculation(crn, calculationId)
+        if (isUpdated) publishChange(crn, calculationId)
+    }
+
+    private fun publishCalculation(crn: String, calculationId: UUID) {
         val message = TierCalculationDomainEvent(
             detailUrl = "$hmppsTierEndpointUrl/crn/$crn/tier/$calculationId",
             additionalInformation = AdditionalInformation(calculationId),
-            personReference = DomainEvent.PersonReference(listOf(DomainEvent.Identifier("CRN", crn))),
+            personReference = PersonReference(listOf(DomainEvent.Identifier("CRN", crn))),
         )
         val request = PublishRequest.builder()
             .topicArn(calculationCompleteTopic.arn)
             .message(objectMapper.writeValueAsString(message))
-            .messageAttributes(
-                mapOf(
-                    "eventType" to
-                        MessageAttributeValue.builder().dataType("String").stringValue(message.eventType).build()
-                )
-            ).build()
+            .messageAttributes(attribute(message.eventType)).build()
         calculationCompleteTopic.snsClient.publish(request)
     }
+
+    private fun publishChange(crn: String, calculationId: UUID) {
+        val message = TierChangeDomainEvent(
+            detailUrl = "$hmppsTierEndpointUrl/crn/$crn/tier/$calculationId",
+            additionalInformation = AdditionalInformation(calculationId),
+            personReference = PersonReference(listOf(DomainEvent.Identifier("CRN", crn))),
+        )
+        val request = PublishRequest.builder()
+            .topicArn(calculationCompleteTopic.arn)
+            .message(objectMapper.writeValueAsString(message))
+            .messageAttributes(attribute(message.eventType)).build()
+        calculationCompleteTopic.snsClient.publish(request)
+    }
+
+    private fun attribute(eventType: String) = mapOf(
+        "eventType" to MessageAttributeValue.builder()
+            .dataType("String")
+            .stringValue(eventType)
+            .build()
+    )
 }

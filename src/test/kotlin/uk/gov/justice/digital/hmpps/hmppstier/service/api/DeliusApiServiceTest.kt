@@ -1,19 +1,22 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service.api
 
-import io.mockk.clearMocks
-import io.mockk.coEvery
-import io.mockk.coVerify
+import io.mockk.*
 import io.mockk.junit5.MockKExtension
-import io.mockk.mockk
-import org.junit.jupiter.api.*
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusConviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusRegistration
+import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusRequirement
 import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusResponse
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ComplexityFactor
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Mappa
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.*
 import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
 import java.math.BigDecimal
 import java.time.LocalDate
@@ -23,9 +26,7 @@ import java.time.LocalDate
 class DeliusApiServiceTest {
     private val deliusApiClient: DeliusApiClient = mockk(relaxUnitFun = true)
     private val deliusApiService = DeliusApiService(deliusApiClient)
-
     private val crn = TestData.crn()
-    private val sentenceTypeCode = "irrelevantSentenceType"
 
     @BeforeEach
     fun resetAllMocks() {
@@ -34,364 +35,219 @@ class DeliusApiServiceTest {
 
     @AfterEach
     fun confirmVerified() {
-        coVerify { deliusApiClient.getDeliusTier(crn) }
-        // Check we don't add any more calls without updating the tests
-        io.mockk.confirmVerified(deliusApiClient)
+        coVerify(exactly = 1) { deliusApiClient.getDeliusTier(crn) }
+        confirmVerified(deliusApiClient)
     }
 
     @Test
-    fun `Previous Enforcement Activity Should be true if API response is true`() {
-        val deliusResponse = DeliusResponse(
-            "Male",
-            emptyList(),
-            listOf(DeliusConviction(null, sentenceTypeCode, emptyList())),
-            BigDecimal.TEN,
-            2,
-            true,
+    fun `maps top-level fields from API response`() {
+        val latestReleaseDate = LocalDate.of(2025, 2, 20)
+        stubDeliusResponse(
+            deliusResponse(
+                gender = "fEmAlE",
+                rsrScore = BigDecimal("7.5"),
+                ogrsScore = 42,
+                previousEnforcementActivity = true,
+                latestReleaseDate = latestReleaseDate,
+            ),
         )
 
-        coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
         val result = deliusApiService.getTierToDelius(crn)
-        Assertions.assertTrue(result.previousEnforcementActivity)
+
+        assertThat(result.isFemale).isTrue()
+        assertThat(result.rsrScore).isEqualByComparingTo(BigDecimal("7.5"))
+        assertThat(result.ogrsScore).isEqualTo(42)
+        assertThat(result.previousEnforcementActivity).isTrue()
+        assertThat(result.latestReleaseDate).isEqualTo(latestReleaseDate)
     }
 
     @Test
-    fun `ogrs score and rsr should be zero when null`() {
-        val deliusResponse = DeliusResponse(
-            "Male",
-            emptyList(),
-            listOf(DeliusConviction(null, sentenceTypeCode, emptyList())),
-            null,
-            null,
-            true,
+    fun `defaults null risk scores to zero`() {
+        stubDeliusResponse(deliusResponse(rsrScore = null, ogrsScore = null))
+
+        val result = deliusApiService.getTierToDelius(crn)
+
+        assertThat(result.rsrScore).isEqualByComparingTo(BigDecimal.ZERO)
+        assertThat(result.ogrsScore).isZero()
+    }
+
+    @ParameterizedTest(name = "convictions case {index} maps hasNoMandate={1}")
+    @MethodSource("hasNoMandateCases")
+    fun `maps hasNoMandate from convictions`(convictions: List<DeliusConviction>, expectedHasNoMandate: Boolean) {
+        stubDeliusResponse(deliusResponse(convictions = convictions))
+
+        val result = deliusApiService.getTierToDelius(crn)
+
+        assertThat(result.hasNoMandate).isEqualTo(expectedHasNoMandate)
+    }
+
+    @Test
+    fun `maps registration flags from registration codes`() {
+        stubDeliusResponse(
+            deliusResponse(
+                registrations = listOf(
+                    registration(IomNominal.IOM_NOMINAL.registerCode),
+                    registration(DeliusRegistration.LIFER),
+                    registration(DeliusRegistration.DOMESTIC_ABUSE),
+                    registration(DeliusRegistration.STALKING),
+                    registration(DeliusRegistration.CHILD_PROTECTION),
+                    registration(DeliusRegistration.TWO_THIRDS_CODE),
+                ),
+            ),
         )
 
-        coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
-        val result = deliusApiService.getTierToDelius(crn)
-        Assertions.assertTrue(result.previousEnforcementActivity)
-        Assertions.assertTrue(result.rsrScore == BigDecimal.ZERO)
-        Assertions.assertTrue(result.ogrsScore == 0)
+        val result = deliusApiService.getTierToDelius(crn).registrations
+
+        assertThat(result.hasIomNominal).isTrue()
+        assertThat(result.hasLiferIpp).isTrue()
+        assertThat(result.hasDomesticAbuse).isTrue()
+        assertThat(result.hasStalking).isTrue()
+        assertThat(result.hasChildProtection).isTrue()
+        assertThat(result.unsupervised).isTrue()
     }
 
-    @Nested
-    @DisplayName("Simple ROSH tests")
-    inner class SimpleRoshTests {
-
-        @Test
-        fun `should return null for No Rosh`() {
-            val deliusResponse = DeliusResponse(
-                "Male",
-                emptyList(),
-                emptyList(),
-                BigDecimal.TEN,
-                2,
-                false,
-            )
-
-            coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
-            val result = deliusApiService.getTierToDelius(crn).registrations.rosh
-
-            Assertions.assertNull(result)
-        }
-
-        @Test
-        fun `Should return RoSH level if present`() {
-            val deliusResponse = DeliusResponse(
-                "Male",
-                listOf(DeliusRegistration("RMRH", null, LocalDate.now())),
-                emptyList(),
-                BigDecimal.TEN,
-                2,
-                false,
-            )
-
-            coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
-            val result = deliusApiService.getTierToDelius(crn).registrations.rosh
-
-            Assertions.assertEquals(Rosh.MEDIUM, result)
-        }
-
-        @Test
-        fun `Should return RoSH level Case Insensitive`() {
-            val deliusResponse = DeliusResponse(
-                "Male",
-                listOf(DeliusRegistration("rmrh", null, LocalDate.now())),
-                emptyList(),
-                BigDecimal.TEN,
-                2,
-                false,
-            )
-
-            coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
-            val result = deliusApiService.getTierToDelius(crn).registrations.rosh
-
-            Assertions.assertEquals(Rosh.MEDIUM, result)
-        }
-
-        @Test
-        fun `Should return RoSH level if present as first value in list`() {
-            val deliusResponse = DeliusResponse(
-                "Male",
-                listOf(
-                    DeliusRegistration("RMRH", null, LocalDate.now()),
-                    DeliusRegistration("AV2S", null, LocalDate.now()),
-                    DeliusRegistration("AV2S", null, LocalDate.now()),
+    @Test
+    fun `maps domestic abuse history code to domestic abuse flag`() {
+        stubDeliusResponse(
+            deliusResponse(
+                registrations = listOf(
+                    registration(DeliusRegistration.DOMESTIC_ABUSE_HISTORY),
                 ),
-                emptyList(),
-                BigDecimal.TEN,
-                2,
-                false,
-            )
+            ),
+        )
 
-            coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
-            val result = deliusApiService.getTierToDelius(crn).registrations.rosh
+        val result = deliusApiService.getTierToDelius(crn).registrations
 
-            Assertions.assertEquals(Rosh.MEDIUM, result)
-        }
-
-        @Test
-        fun `Should return RoSH level if present as middle value in list`() {
-            val deliusResponse = DeliusResponse(
-                "Male",
-                listOf(
-                    DeliusRegistration("AV2S", null, LocalDate.now()),
-                    DeliusRegistration("RMRH", null, LocalDate.now()),
-                    DeliusRegistration("AV2S", null, LocalDate.now()),
-                ),
-                emptyList(),
-                BigDecimal.TEN,
-                2,
-                false,
-            )
-
-            coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
-            val result = deliusApiService.getTierToDelius(crn).registrations.rosh
-
-            Assertions.assertEquals(Rosh.MEDIUM, result)
-        }
+        assertThat(result.hasDomesticAbuse).isTrue()
     }
 
-    @Nested
-    @DisplayName("Simple Mappa tests")
-    inner class SimpleMappaTests {
-
-        @Test
-        fun `should return null for No Mappa`() {
-            val deliusResponse = DeliusResponse(
-                "Male",
-                emptyList(),
-                emptyList(),
-                BigDecimal.TEN,
-                2,
-                false,
-            )
-
-            coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
-            val result = deliusApiService.getTierToDelius(crn).registrations.mappa
-
-            Assertions.assertNull(result)
-        }
-
-        @Test
-        fun `Should return Mappa level if present`() {
-            val deliusResponse = DeliusResponse(
-                "Male",
-                listOf(DeliusRegistration("MAPP", "M3", LocalDate.now())),
-                emptyList(),
-                BigDecimal.TEN,
-                2,
-                false,
-            )
-
-            coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
-            val result = deliusApiService.getTierToDelius(crn).registrations.mappa
-
-            Assertions.assertEquals(Mappa.M3, result)
-        }
-
-        @Test
-        fun `Should return Mappa level Case Insensitive`() {
-            val deliusResponse = DeliusResponse(
-                "Male",
-                listOf(DeliusRegistration("MAPP", "m3", LocalDate.now())),
-                emptyList(),
-                BigDecimal.TEN,
-                2,
-                false,
-            )
-
-            coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
-            val result = deliusApiService.getTierToDelius(crn).registrations.mappa
-
-            Assertions.assertEquals(Mappa.M3, result)
-        }
-
-        @Test
-        fun `Should return Mappa level if present as first value in list`() {
-            val deliusResponse = DeliusResponse(
-                "Male",
-                listOf(
-                    DeliusRegistration("MAPP", "M3", LocalDate.now()),
-                    DeliusRegistration("AV2S", "BD", LocalDate.now()),
-                    DeliusRegistration("AV2S", "12", LocalDate.now()),
-
-                    ),
-                emptyList(),
-                BigDecimal.TEN,
-                2,
-                false,
-            )
-
-            coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
-            val result = deliusApiService.getTierToDelius(crn).registrations.mappa
-
-            Assertions.assertEquals(Mappa.M3, result)
-        }
-
-        @Test
-        fun `Should return null for invalid Mappa code`() {
-            val deliusResponse = DeliusResponse(
-                "Male",
-                listOf(
-
-                    DeliusRegistration("AV2S", "Not Used", LocalDate.now()),
-                    DeliusRegistration("AV2S", "Not Used", LocalDate.now()),
-                    DeliusRegistration("Not Used", "INVALID", LocalDate.now()),
+    @Test
+    fun `selects most recent rosh and ignores HREG`() {
+        stubDeliusResponse(
+            deliusResponse(
+                registrations = listOf(
+                    registration("RVHR", date = LocalDate.of(2024, 1, 1)),
+                    registration("RMRH", date = LocalDate.of(2024, 5, 1)),
+                    registration("HREG", date = LocalDate.of(2024, 12, 1)),
                 ),
-                emptyList(),
-                BigDecimal.TEN,
-                2,
-                false,
-            )
+            ),
+        )
 
-            coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
-            val result = deliusApiService.getTierToDelius(crn).registrations.mappa
-            Assertions.assertNull(result)
-        }
+        val result = deliusApiService.getTierToDelius(crn).registrations
+
+        assertThat(result.rosh).isEqualTo(Rosh.MEDIUM)
     }
 
-    @Nested
-    @DisplayName("Simple Complexity tests")
-    inner class SimpleComplexityTests {
-
-        @Test
-        fun `should count complexity factors `() {
-            val deliusResponse = DeliusResponse(
-                "Male",
-                getValidRegistrations(
-                    listOf(
-                        ComplexityFactor.VULNERABILITY_ISSUE,
-                        ComplexityFactor.ADULT_AT_RISK,
+    @Test
+    fun `selects most recent mappa level and category`() {
+        stubDeliusResponse(
+            deliusResponse(
+                registrations = listOf(
+                    registration(
+                        code = DeliusRegistration.MAPPA,
+                        level = "M1",
+                        category = "M1",
+                        date = LocalDate.of(2024, 1, 1),
+                    ),
+                    registration(
+                        code = DeliusRegistration.MAPPA,
+                        level = "M3",
+                        category = "M2",
+                        date = LocalDate.of(2024, 3, 1),
                     ),
                 ),
-                emptyList(),
-                BigDecimal.TEN,
-                2,
-                false,
-            )
+            ),
+        )
 
-            coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
-            val result = deliusApiService.getTierToDelius(crn).registrations.complexityFactors
-            Assertions.assertEquals(2, result.size)
-        }
+        val result = deliusApiService.getTierToDelius(crn).registrations
 
-        @Test
-        fun `should not count complexity factors duplicates`() {
-            val deliusResponse = DeliusResponse(
-                "Male",
-                getValidRegistrations(
-                    listOf(
-                        ComplexityFactor.VULNERABILITY_ISSUE,
-                        ComplexityFactor.VULNERABILITY_ISSUE,
-                    ),
+        assertThat(result.mappaLevel).isEqualTo(MappaLevel.M3)
+        assertThat(result.mappaCategory).isEqualTo(MappaCategory.M2)
+    }
+
+    @Test
+    fun `deduplicates complexity factors and matches codes case-insensitively`() {
+        stubDeliusResponse(
+            deliusResponse(
+                registrations = listOf(
+                    registration("RMDO"),
+                    registration("rmdo"),
+                    registration("RVLN"),
+                    registration("AV2S"),
                 ),
-                emptyList(),
-                BigDecimal.TEN,
-                2,
-                false,
-            )
+            ),
+        )
 
-            coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
-            val result = deliusApiService.getTierToDelius(crn).registrations.complexityFactors
-            Assertions.assertEquals(1, result.size)
-        }
+        val result = deliusApiService.getTierToDelius(crn).registrations
 
-        @Test
-        fun `should not count complexity factors none`() {
-            val deliusResponse = DeliusResponse(
-                "Male",
-                emptyList(),
-                emptyList(),
-                BigDecimal.TEN,
-                2,
-                false,
-            )
+        assertThat(result.complexityFactors).containsExactlyInAnyOrder(
+            ComplexityFactor.MENTAL_HEALTH,
+            ComplexityFactor.VULNERABILITY_ISSUE,
+        )
+    }
 
-            coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
-            val result = deliusApiService.getTierToDelius(crn).registrations.complexityFactors
-            Assertions.assertEquals(0, result.size)
-        }
+    private fun stubDeliusResponse(response: DeliusResponse) {
+        coEvery { deliusApiClient.getDeliusTier(crn) } returns response
+    }
 
-        @Test
-        fun `Should return Complexity Factor Case Insensitive`() {
-            val deliusResponse = DeliusResponse(
-                "Male",
-                listOf(
-                    DeliusRegistration("rmdo", "Not Used", LocalDate.now()),
-                ),
-                emptyList(),
-                BigDecimal.TEN,
-                2,
-                false,
-            )
+    companion object {
+        @JvmStatic
+        fun hasNoMandateCases() = listOf(
+            Arguments.of(listOf(conviction()), true),
+            Arguments.of(listOf(conviction(sentenceTypeCode = "NC")), false),
+            Arguments.of(listOf(conviction(requirements = listOf(requirement(restrictive = false)))), false),
+            Arguments.of(
+                listOf(conviction(terminationDate = LocalDate.of(2024, 1, 1), sentenceTypeCode = "NC")),
+                true
+            ),
+        )
 
-            coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
-            val result = deliusApiService.getTierToDelius(crn).registrations.complexityFactors
-            Assertions.assertEquals(1, result.size)
-        }
+        private fun conviction(
+            terminationDate: LocalDate? = null,
+            sentenceTypeCode: String = "OTHER",
+            requirements: List<DeliusRequirement> = emptyList(),
+        ) = DeliusConviction(
+            terminationDate = terminationDate,
+            sentenceTypeCode = sentenceTypeCode,
+            requirements = requirements,
+        )
 
-        @Test
-        fun `Should return Complexity Factor if present as first value in list`() {
-            val deliusResponse = DeliusResponse(
-                "Male",
-                listOf(
-                    DeliusRegistration("RMDO", "Not Used", LocalDate.now()),
-                    DeliusRegistration("AV2S", "BD", LocalDate.now()),
-                    DeliusRegistration("AV2S", "12", LocalDate.now()),
-                ),
-                emptyList(),
-                BigDecimal.TEN,
-                2,
-                false,
-            )
+        private fun requirement(
+            mainCategoryTypeCode: String = "A",
+            restrictive: Boolean = true,
+        ) = DeliusRequirement(
+            mainCategoryTypeCode = mainCategoryTypeCode,
+            restrictive = restrictive,
+        )
 
-            coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
-            val result = deliusApiService.getTierToDelius(crn).registrations.complexityFactors
-            Assertions.assertEquals(1, result.size)
-        }
+        private fun deliusResponse(
+            gender: String = "Male",
+            registrations: List<DeliusRegistration> = emptyList(),
+            convictions: List<DeliusConviction> = listOf(conviction()),
+            rsrScore: BigDecimal? = BigDecimal.TEN,
+            ogrsScore: Int? = 2,
+            previousEnforcementActivity: Boolean = false,
+            latestReleaseDate: LocalDate? = null,
+        ) = DeliusResponse(
+            gender = gender,
+            registrations = registrations,
+            convictions = convictions,
+            rsrscore = rsrScore,
+            ogrsscore = ogrsScore,
+            previousEnforcementActivity = previousEnforcementActivity,
+            latestReleaseDate = latestReleaseDate,
+        )
 
-        @Test
-        fun `Should return empty List if no Complexity Factors present`() {
-            val deliusResponse = DeliusResponse(
-                "Male",
-                listOf(
-                    DeliusRegistration("AV2S", "Not Used", LocalDate.now()),
-                ),
-                emptyList(),
-                BigDecimal.TEN,
-                2,
-                false,
-            )
-
-            coEvery { deliusApiClient.getDeliusTier(crn) } returns deliusResponse
-            val result = deliusApiService.getTierToDelius(crn).registrations.complexityFactors
-            Assertions.assertEquals(0, result.size)
-        }
-
-        private fun getValidRegistrations(factors: List<ComplexityFactor>): List<DeliusRegistration> {
-            return factors.map {
-                DeliusRegistration(it.registerCode, null, LocalDate.now())
-            }
-        }
+        private fun registration(
+            code: String,
+            level: String? = null,
+            category: String? = null,
+            date: LocalDate = LocalDate.of(2025, 1, 1),
+        ) = DeliusRegistration(
+            code = code,
+            level = level,
+            category = category,
+            date = date,
+        )
     }
 }

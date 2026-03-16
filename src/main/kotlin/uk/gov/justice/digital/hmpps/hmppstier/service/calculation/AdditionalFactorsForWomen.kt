@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service.calculation
 
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.AssessmentForTier
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.SectionAnswer
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.AdditionalFactorForWomen.*
@@ -21,6 +22,12 @@ object AdditionalFactorsForWomen {
 
             else -> 0
         }
+
+    fun AssessmentForTier.additionalFactorsForWomen(): Map<AdditionalFactorForWomen, SectionAnswer> = listOfNotNull(
+        relationships?.parentalResponsibilities?.let { PARENTING_RESPONSIBILITIES to it },
+        thinkingAndBehaviour?.impulsivity?.let { IMPULSIVITY to it },
+        thinkingAndBehaviour?.temperControl?.let { TEMPER_CONTROL to it }
+    ).toMap()
 
     private fun getAdditionalFactorsAssessmentComplexityPoints(additionalFactors: Map<AdditionalFactorForWomen, SectionAnswer>): Int =
         additionalFactors.let { answers ->

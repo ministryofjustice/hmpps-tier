@@ -15,14 +15,51 @@ https://app.circleci.com/pipelines/github/ministryofjustice/hmpps-tier
 
 ## What it does
 
-Listens to events from Delius, calculates a new offender tier and writes it back into Delius
+Listens to events from various HMPPS systems, calculates a new tier for a person on probation, and publishes the result.
 
 Integration points:
-- tier calculation events from Delius via SQS
-- Community-api read
-- Assessment-api read
-- writes updated tiers to SNS for https://github.com/ministryofjustice/hmpps-tier-to-delius-update to consume
-  
+
+- triggered by HMPPS Domain Events via SQS
+- read probation case data via Probation Integration API (tier-to-delius)
+- read assessment data via Assess Risks and Needs API (ARNS)
+- publishes tier calculations as HMPPS Domain Events to SNS
+
+### API Versioning
+
+The service currently supports three controller routes:
+
+- legacy un-versioned routes (deprecated): `/crn/{crn}/tier...`
+- V2 routes: `/v2/crn/{crn}/tier...`
+- V3 routes: `/v3/crn/{crn}/tier...`
+
+The legacy un-versioned controller delegates to the same V2 reader as the `/v2` routes.
+
+#### V2 process and response
+
+V2 uses the original two-axis model:
+
+- protect level: `A`-`D`
+- change level: `0`-`3`
+
+The API `tierScore` is composed from these values (for example `A1`), with `S` appended for unsupervised records (for
+example `B2S`).
+
+V2 endpoints can return both historic V2 calculations and newer V3 calculations, because V3 calculations still contain
+`protect` and `change` for backward compatibility.
+
+#### V3 process and response
+
+V3 uses the single-axis model:
+
+- top-level `tier`: `A`-`G`
+
+V3 endpoints only return V3 calculations containing the `A`-`G` tier.
+
+All tier calculations going forward result in both a V2 and V3 tier result:
+
+- `protect` and `change` (backward compatibility with V2 consumers)
+- top-level `tier` (used by V3 consumers)
+
 ### How to run the app locally 
 
 #### OAuth security  

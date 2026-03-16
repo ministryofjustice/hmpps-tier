@@ -8,6 +8,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 
+@Deprecated("Single tier value provided by TierCalculator", ReplaceWith("TierCalculator"))
 object ChangeLevelCalculator {
 
     fun calculate(

@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.client.delius
 
 import com.fasterxml.jackson.annotation.JsonCreator
 import java.math.BigDecimal
+import java.time.LocalDate
 
 /***
  * The response from Tier-To-Delius API
@@ -19,4 +20,5 @@ data class DeliusResponse @JsonCreator constructor(
     val rsrscore: BigDecimal?,
     val ogrsscore: Int?,
     val previousEnforcementActivity: Boolean,
+    val latestReleaseDate: LocalDate?,
 )

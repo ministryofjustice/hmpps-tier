@@ -10,13 +10,13 @@ import org.mockserver.matchers.Times
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpResponse
 import org.mockserver.model.MediaType
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.domain.TierDetails
-import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.response.tierDetailsResponse
+import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.objectMapper
 
 class TierToDeliusApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallback {
 
     companion object {
-        lateinit var tierToDeliusApi: TierToDeliusApiMockServer
+        lateinit var deliusApi: TierToDeliusApiMockServer
     }
 
     override fun beforeAll(context: ExtensionContext) = start()
@@ -26,15 +26,15 @@ class TierToDeliusApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEach
     override fun afterAll(context: ExtensionContext) = stop()
 
     fun start() {
-        tierToDeliusApi = TierToDeliusApiMockServer()
+        deliusApi = TierToDeliusApiMockServer()
     }
 
     fun reset() {
-        tierToDeliusApi.reset()
+        deliusApi.reset()
     }
 
     fun stop() {
-        tierToDeliusApi.stop()
+        deliusApi.stop()
     }
 }
 
@@ -44,24 +44,24 @@ class TierToDeliusApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
         private const val MOCKSERVER_PORT = 8093
     }
 
-    fun getFullDetails(crn: String, tierDetails: TierDetails) {
+    fun getFullDetails(crn: String, response: DeliusResponse) {
         val request = HttpRequest.request().withPath("/tier-details/$crn")
-        TierToDeliusApiExtension.tierToDeliusApi.`when`(request, Times.exactly(1)).respond(
+        TierToDeliusApiExtension.deliusApi.`when`(request, Times.exactly(1)).respond(
             HttpResponse.response().withContentType(MediaType.APPLICATION_JSON)
-                .withBody(tierDetailsResponse(tierDetails)),
+                .withBody(objectMapper().writeValueAsString(response)),
         )
     }
 
     fun getNotFound(crn: String) {
         val request = HttpRequest.request().withPath("/tier-details/$crn")
-        TierToDeliusApiExtension.tierToDeliusApi.`when`(request, Times.exactly(1)).respond(
+        TierToDeliusApiExtension.deliusApi.`when`(request, Times.exactly(1)).respond(
             HttpResponse.notFoundResponse(),
         )
     }
 
     fun getCrns(crns: List<String>) {
         val request = HttpRequest.request().withPath("/probation-cases")
-        TierToDeliusApiExtension.tierToDeliusApi.`when`(request, Times.exactly(1)).respond(
+        TierToDeliusApiExtension.deliusApi.`when`(request, Times.exactly(1)).respond(
             HttpResponse.response().withContentType(MediaType.APPLICATION_JSON)
                 .withBody(ObjectMapper().writeValueAsString(crns)),
         )

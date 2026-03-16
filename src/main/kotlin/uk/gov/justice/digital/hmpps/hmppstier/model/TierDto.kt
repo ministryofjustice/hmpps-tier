@@ -3,8 +3,6 @@ package uk.gov.justice.digital.hmpps.hmppstier.model
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierSummaryEntity
 import java.time.LocalDateTime
 import java.util.*
 
@@ -28,20 +26,6 @@ data class TierDto @JsonCreator constructor(
 ) {
     companion object {
         private const val UNSUPERVISED_SUFFIX = "S"
-        fun from(calculation: TierCalculationEntity) = TierDto(
-            tierScore = calculation.protectLevel() + calculation.changeLevel() + getSuffix(calculation.data.deliusInputs?.registrations?.unsupervised),
-            calculationId = calculation.uuid,
-            calculationDate = calculation.created,
-            changeReason = calculation.changeReason
-        )
-
-        fun from(summary: TierSummaryEntity) = TierDto(
-            tierScore = summary.protectLevel + summary.changeLevel + getSuffix(summary.unsupervised),
-            calculationId = summary.uuid,
-            calculationDate = summary.lastModified,
-            changeReason = null
-        )
-
         fun getSuffix(unsupervised: Boolean?) =
             if (unsupervised == true) UNSUPERVISED_SUFFIX else ""
     }

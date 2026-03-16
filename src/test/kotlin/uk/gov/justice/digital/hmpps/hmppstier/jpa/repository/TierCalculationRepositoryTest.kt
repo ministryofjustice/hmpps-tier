@@ -13,9 +13,9 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.TierLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.CalculationRule
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ChangeLevel
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.ProtectLevel
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.entity.TierCalculationResultEntity
-import uk.gov.justice.digital.hmpps.hmppstier.jpa.v1.repository.TierCalculationRepository
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Tier
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import java.time.LocalDateTime
 import java.util.*
 
@@ -36,7 +36,7 @@ class TierCalculationRepositoryTest(
     inner class GetLatestCalculationTests {
 
         @Test
-        fun `Should return latest calculation when only one`(): Unit {
+        fun `Should return latest calculation when only one`() {
             val created = LocalDateTime.now()
             val firstTierCalculation =
                 TierCalculationEntity(crn = crn, created = created, data = data, uuid = UUID.randomUUID())
@@ -51,13 +51,13 @@ class TierCalculationRepositoryTest(
         }
 
         @Test
-        fun `Should return latest calculation none`(): Unit {
+        fun `Should return latest calculation none`() {
             val calculation = repository.findFirstByCrnOrderByCreatedDesc(crn)
             assertThat(calculation).isNull()
         }
 
         @Test
-        fun `Should return latest calculation when multiple`(): Unit {
+        fun `Should return latest calculation when multiple`() {
             val created = LocalDateTime.now()
             val firstTierCalculation =
                 TierCalculationEntity(crn = crn, created = created, data = data, uuid = UUID.randomUUID())
@@ -107,7 +107,7 @@ class TierCalculationRepositoryTest(
         }
 
         @Test
-        fun `Should return calculation by Id when multiple`(): Unit {
+        fun `Should return calculation by Id when multiple`() {
             val calculationId = UUID.randomUUID()
             val created = LocalDateTime.now()
             val firstTierCalculation =
@@ -133,6 +133,7 @@ class TierCalculationRepositoryTest(
     companion object {
         private const val crn = "Any CRN"
         private val data = TierCalculationResultEntity(
+            tier = Tier.A,
             protect = TierLevel(ProtectLevel.B, 4, mapOf(CalculationRule.ROSH to 4)),
             change = TierLevel(ChangeLevel.TWO, 12, mapOf(CalculationRule.COMPLEXITY to 12)),
             calculationVersion = "99",

@@ -17,7 +17,6 @@ Feature: Additional Factors (Female only) Breach and Recall
     Given an offender scores 9 protect points
     And an offender is "Female"
     And has an active conviction with a Previous Enforcement Activity
-    And has a tier of "D2"
     When a tier is calculated
     Then a protect level of "C" is returned and 2 change points are scored
 

@@ -1,0 +1,238 @@
+package uk.gov.justice.digital.hmpps.hmppstier.integration.v2
+
+import org.hamcrest.Matchers.equalTo
+import org.junit.jupiter.api.Test
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.ResponseGenerator.deliusConviction
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.ResponseGenerator.deliusRegistration
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.ResponseGenerator.deliusResponse
+import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.deliusApi
+import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
+
+class TierCalculationV2Test : IntegrationTestBase() {
+
+    @Test
+    fun `no NSis returned Female Offender`() {
+        val crn = TestData.crn()
+        deliusApi.getFullDetails(
+            crn,
+            deliusResponse(
+                gender = "Female",
+                ogrsScore = null,
+                rsrScore = null,
+                convictions = listOf(deliusConviction()),
+                latestReleaseDate = null,
+            ),
+        )
+        arnsApi.getNotFoundAssessment(crn)
+
+        calculateTierForDomainEvent(crn)
+        expectTierChangedById("D2")
+    }
+
+    @Test
+    fun `Does write back when tier is unchanged`() {
+        val crn = TestData.crn()
+        deliusApi.getFullDetails(
+            crn,
+            deliusResponse(
+                convictions = listOf(deliusConviction(sentenceCode = "SC")),
+                registrations = listOf(deliusRegistration(level = "M2")),
+                latestReleaseDate = null,
+            ),
+        )
+        arnsApi.getNotFoundAssessment(crn)
+
+        calculateTierForDomainEvent(crn)
+        expectTierChangedById("A2")
+
+        deliusApi.getFullDetails(
+            crn,
+            deliusResponse(
+                convictions = listOf(deliusConviction(sentenceCode = "SC")),
+                registrations = listOf(deliusRegistration(level = "M2")),
+                latestReleaseDate = null,
+            ),
+        )
+        arnsApi.getNotFoundAssessment(crn)
+
+        calculateTierForDomainEvent(crn)
+        expectTierChangedById("A2")
+    }
+
+    @Test
+    fun `Does write back when calculation result differs but tier is unchanged`() {
+        val crn = TestData.crn()
+        deliusApi.getFullDetails(
+            crn,
+            deliusResponse(
+                convictions = listOf(deliusConviction(sentenceCode = "SC")),
+                registrations = listOf(deliusRegistration(level = "M2")),
+                latestReleaseDate = null,
+            ),
+        )
+        arnsApi.getNotFoundAssessment(crn)
+
+        calculateTierForDomainEvent(crn)
+        expectTierChangedById("A2")
+
+        deliusApi.getFullDetails(
+            crn,
+            deliusResponse(
+                ogrsScore = "0",
+                convictions = listOf(deliusConviction(sentenceCode = "SC")),
+                registrations = listOf(deliusRegistration(level = "M2")),
+                latestReleaseDate = null,
+            ),
+        )
+        arnsApi.getTierAssessmentDetails(crn, 4234568899, Need.entries.associateWith { NeedSeverity.SEVERE })
+
+        calculateTierForDomainEvent(crn)
+        expectTierChangedById("A3")
+    }
+
+    @Test
+    fun `writes back when change level is changed`() {
+        val crn = TestData.crn()
+        deliusApi.getFullDetails(
+            crn,
+            deliusResponse(
+                convictions = listOf(deliusConviction(sentenceCode = "SC")),
+                registrations = listOf(deliusRegistration(level = "M2")),
+                latestReleaseDate = null,
+            ),
+        )
+        arnsApi.getNotFoundAssessment(crn)
+
+        calculateTierForDomainEvent(crn)
+        expectTierChangedById("A2")
+
+        deliusApi.getFullDetails(
+            crn,
+            deliusResponse(
+                convictions = listOf(deliusConviction(sentenceCode = "SC")),
+                registrations = listOf(deliusRegistration(level = "M2")),
+                latestReleaseDate = null,
+            ),
+        )
+        restOfSetupWithMaleOffenderNoSevereNeeds(crn, 4234568891)
+        calculateTierForDomainEvent(crn)
+        expectTierChangedById("A1")
+    }
+
+    @Test
+    fun `calculation is done based on san threshold for san assessment`() {
+        val crn = TestData.crn()
+        val deliusDetails = deliusResponse(
+            convictions = listOf(deliusConviction(sentenceCode = "SC")),
+            latestReleaseDate = null,
+        )
+        deliusApi.getFullDetails(crn, deliusDetails)
+        arnsApi.getTierAssessmentDetails(crn, 53212345, Need.entries.associateWith { NeedSeverity.NO_NEED })
+        calculateTierForDomainEvent(crn)
+        expectTierChangedById("B1")
+
+        deliusApi.getFullDetails(crn, deliusDetails)
+        arnsApi.getTierAssessmentDetails(crn, 53212345, Need.entries.associateWith { NeedSeverity.STANDARD })
+        calculateTierForDomainEvent(crn)
+        expectTierChangedById("B2")
+
+        deliusApi.getFullDetails(crn, deliusDetails)
+        arnsApi.getTierAssessmentDetails(crn, 53212345, Need.entries.associateWith { NeedSeverity.SEVERE })
+        calculateTierForDomainEvent(crn)
+        expectTierChangedById("B3")
+    }
+
+    @Test
+    fun `writes back when protect level is changed`() {
+        val crn = TestData.crn()
+        deliusApi.getFullDetails(
+            crn,
+            deliusResponse(
+                convictions = listOf(deliusConviction(sentenceCode = "SC")),
+                registrations = listOf(deliusRegistration(level = "M2")),
+                latestReleaseDate = null,
+            ),
+        )
+        restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234568890)
+
+        calculateTierForDomainEvent(crn)
+        expectTierChangedById("A1")
+
+        deliusApi.getFullDetails(
+            crn,
+            deliusResponse(
+                convictions = listOf(deliusConviction(sentenceCode = "SC")),
+                registrations = listOf(deliusRegistration(level = "M1")),
+                latestReleaseDate = null,
+            ),
+        )
+        restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234568890)
+
+        calculateTierForDomainEvent(crn)
+        expectTierChangedById("B1")
+    }
+
+    @Test
+    fun `returns latest tier calculation`() {
+        val crn = TestData.crn()
+        deliusApi.getFullDetails(
+            crn,
+            deliusResponse(
+                convictions = listOf(deliusConviction(sentenceCode = "SC")),
+                registrations = listOf(deliusRegistration(level = "M2")),
+                latestReleaseDate = null,
+            ),
+        )
+        restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234568890)
+
+        calculateTierForDomainEvent(crn)
+        expectLatestTierCalculation("A1")
+
+        deliusApi.getFullDetails(
+            crn,
+            deliusResponse(
+                convictions = listOf(deliusConviction(sentenceCode = "SC")),
+                registrations = listOf(deliusRegistration(level = "M1")),
+                latestReleaseDate = null,
+            ),
+        )
+        restOfSetupWithMaleOffenderNoSevereNeeds(crn, assessmentId = 4234568890)
+
+        calculateTierForRecallDomainEvent(crn)
+        expectLatestTierCalculation("B1")
+
+        tierHistory(crn)
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()", equalTo(2)))
+            .andExpect(
+                jsonPath(
+                    "$.*.changeReason",
+                    equalTo(listOf("A recall to custody process was started", "A breach was concluded"))
+                )
+            )
+    }
+
+    @Test
+    fun `404 from latest tier calculation if there is no calculation`() {
+        val crn = "XNOCALC"
+        expectLatestTierCalculationNotFound(crn)
+    }
+
+    @Test
+    fun `404 from specified tier calculation`() {
+        val crn = "XNOCALC"
+        expectTierCalculationNotFound(crn, "5118f557-211e-4457-b75b-6df1f996d308")
+    }
+
+    @Test
+    fun `400 from named tier calculation if calculationId is not valid`() {
+        val crn = "XNOCALC"
+        expectTierCalculationBadRequest(crn, "made-up-calculation-id")
+    }
+}
