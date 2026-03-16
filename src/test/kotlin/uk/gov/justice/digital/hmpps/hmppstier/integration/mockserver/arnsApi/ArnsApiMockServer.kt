@@ -98,6 +98,11 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
             .respond(HttpResponse.notFoundResponse().withContentType(MediaType.APPLICATION_JSON))
     }
 
+    fun getNotFoundRiskPredictors(crn: String) {
+        arnsApi.`when`(request().withPath("/risks/predictors/unsafe/all/CRN/$crn"), exactly(1))
+            .respond(HttpResponse.notFoundResponse().withContentType(MediaType.APPLICATION_JSON))
+    }
+
     fun getRiskPredictors(
         crn: String,
         csrp: Double? = null,

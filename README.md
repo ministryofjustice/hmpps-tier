@@ -3,16 +3,6 @@
 [![CircleCI](https://circleci.com/gh/ministryofjustice/hmpps-tier/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/hmpps-tier)
 [![API docs](https://img.shields.io/badge/API_docs-view-85EA2D.svg?logo=swagger)](https://hmpps-tier-dev.hmpps.service.justice.gov.uk/swagger-ui.html)
 
-## Continuous Integration  
-https://app.circleci.com/pipelines/github/ministryofjustice/hmpps-tier
-
-### Prerequisites  
-* Java JDK 25
-* An editor/IDE
-* Gradle  
-* Docker  
-* OAuth token
-
 ## What it does
 
 Listens to events from various HMPPS systems, calculates a new tier for a person on probation, and publishes the result.
@@ -61,6 +51,12 @@ All tier calculations going forward result in both a V2 and V3 tier result:
 - top-level `tier` (used by V3 consumers)
 
 ### How to run the app locally 
+
+#### Prerequisites
+
+* Java JDK 25
+* Gradle
+* Docker
 
 #### OAuth security  
 In order to run the service locally you need to add HMPPS auth token to your requests
