@@ -6,7 +6,7 @@ data class DomainEvent(
     val eventType: String,
     val description: String,
     val personReference: PersonReference,
-    val additionalInformation: Map<String, Any>? = mapOf(),
+    val additionalInformation: Map<String, Any?>? = mapOf(),
 ) {
     val crn = personReference.identifiers.firstOrNull { it.type == "CRN" }?.value
     val sourceCrn = additionalInformation?.get("sourceCRN") as String?

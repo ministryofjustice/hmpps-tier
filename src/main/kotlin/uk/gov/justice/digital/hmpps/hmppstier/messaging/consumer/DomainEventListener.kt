@@ -1,6 +1,8 @@
 package uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer
 
 import io.awspring.cloud.sqs.annotation.SqsListener
+import io.awspring.cloud.sqs.listener.AsyncAdapterBlockingExecutionFailedException
+import io.awspring.cloud.sqs.listener.ListenerExecutionFailedException
 import io.sentry.Sentry
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.dao.CannotAcquireLockException
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.CannotCreateTransactionException
 import org.springframework.transaction.UnexpectedRollbackException
 import org.springframework.web.client.RestClientException
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import reactor.util.retry.Retry
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.readValue
@@ -17,6 +20,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.config.ReactorExtensions.invoke
 import uk.gov.justice.digital.hmpps.hmppstier.domain.RecalculationSource
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 import java.time.Duration
+import java.util.concurrent.CompletionException
 
 @Service
 @ConditionalOnProperty("messaging.consumer.enabled", matchIfMissing = true)
@@ -39,7 +43,7 @@ class DomainEventListener(
                     handleMessage(domainEventMessage)
                 }
         } catch (e: Exception) {
-            Sentry.captureException(e)
+            Sentry.captureException(unwrapSqsExceptions(e))
             throw e
         }
     }
@@ -80,11 +84,27 @@ class DomainEventListener(
     companion object {
         val RETRYABLE_EXCEPTIONS = listOf(
             RestClientException::class,
+            WebClientResponseException::class,
             CannotAcquireLockException::class,
             ObjectOptimisticLockingFailureException::class,
             CannotCreateTransactionException::class,
             CannotGetJdbcConnectionException::class,
             UnexpectedRollbackException::class
         )
+
+        fun unwrapSqsExceptions(e: Throwable): Throwable {
+            fun unwrap(e: Throwable) = e.cause ?: e
+            var cause = e
+            if (cause is CompletionException) {
+                cause = unwrap(cause)
+            }
+            if (cause is AsyncAdapterBlockingExecutionFailedException) {
+                cause = unwrap(cause)
+            }
+            if (cause is ListenerExecutionFailedException) {
+                cause = unwrap(cause)
+            }
+            return cause
+        }
     }
 }
