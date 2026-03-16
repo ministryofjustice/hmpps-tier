@@ -1,8 +1,8 @@
 package uk.gov.justice.digital.hmpps.hmppstier.client
 
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClient
+import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 import reactor.util.retry.Retry
@@ -19,8 +19,8 @@ class ArnsApiClient(
         .get()
         .uri("/tier-assessment/sections/{crn}", crn)
         .retrieve()
-        .onStatus({ it == HttpStatus.NOT_FOUND }, { Mono.empty() })
         .bodyToMono<AssessmentForTier>()
+        .onErrorResume(WebClientResponseException.NotFound::class.java) { Mono.empty() }
         .retryWhen(retryOnServerError)
         .block()
 
@@ -28,9 +28,9 @@ class ArnsApiClient(
         .get()
         .uri("/risks/predictors/unsafe/all/CRN/{crn}", crn)
         .retrieve()
-        .onStatus({ it == HttpStatus.NOT_FOUND }, { Mono.empty() })
         .bodyToMono<List<AllPredictorVersioned<Any>>>()
         .retryWhen(retryOnServerError)
+        .onErrorResume(WebClientResponseException.NotFound::class.java) { Mono.empty() }
         .block()
         ?.filter { it.outputVersion == "2" && it is OGRS4Predictors }
         ?.map { it as OGRS4Predictors }
