@@ -26,6 +26,7 @@ class TierCalculationService(
     private val clock: Clock,
     private val assessmentApiService: AssessmentApiService,
     private val deliusApiService: DeliusApiService,
+    private val rescoredAssessmentService: RescoredAssessmentService,
     private val domainEventPublisher: DomainEventPublisher,
     private val telemetryService: TelemetryService,
     private val tierUpdater: TierUpdater,
@@ -81,7 +82,7 @@ class TierCalculationService(
     private fun calculateTier(crn: String, recalculationSource: RecalculationSource): TierCalculationEntity {
         val deliusInputs = deliusApiService.getTierToDelius(crn)
         val assessment = assessmentApiService.getTierAssessmentInformation(crn)
-        val predictors = assessmentApiService.getRiskPredictors(crn)
+        val predictors = assessmentApiService.getRiskPredictors(crn) ?: rescoredAssessmentService.getByCrn(crn)
 
         // Old tier - protect axis (A-D) + change axis (0-3) - used primarily for allocation
         val protectLevel = ProtectLevelCalculator.calculate(

@@ -2,6 +2,8 @@ package uk.gov.justice.digital.hmpps.hmppstier.integration.v3
 
 import org.hamcrest.Matchers.equalTo
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.verify
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusRegistration
@@ -45,6 +47,18 @@ class TierCalculationV3Test : IntegrationTestBase() {
 
         calculateTierForDomainEvent(crn)
         expectTierChangedById("B", TierApiVersion.V3)
+    }
+
+    @Test
+    fun `falls back to rescored assessment predictors when ARNS has no OGRS4 result`() {
+        val crn = "X765432" // Matches CRN in V7_1__add_test_data_rescored_assessments.sql
+        deliusApi.getFullDetails(crn, deliusDetails())
+        arnsApi.getNotFoundRiskPredictors(crn)
+
+        calculateTierForDomainEvent(crn)
+        expectTierChangedById("C", TierApiVersion.V3)
+
+        verify(rescoredAssessmentService).getByCrn(eq(crn))
     }
 
     @Test

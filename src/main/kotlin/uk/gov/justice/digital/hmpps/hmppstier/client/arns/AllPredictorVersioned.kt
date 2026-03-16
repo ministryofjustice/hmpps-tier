@@ -25,7 +25,7 @@ interface AllPredictorVersioned<out T> {
 
 data class OGRS4Predictors(
     override val completedDate: LocalDateTime,
-    override val assessmentType: AssessmentType,
+    override val assessmentType: AssessmentType? = null,
     override val outputVersion: String = "2",
     override val output: AllPredictorDto? = null,
 ) : AllPredictorVersioned<AllPredictorDto>, Serializable

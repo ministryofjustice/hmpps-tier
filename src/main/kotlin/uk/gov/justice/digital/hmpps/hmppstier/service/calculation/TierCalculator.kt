@@ -41,7 +41,7 @@ object TierCalculator {
         val highestSrpScore = listOfNotNull(
             predictors?.directContactSexualReoffendingPredictor?.score,
             predictors?.indirectImageContactSexualReoffendingPredictor?.score
-        ).maxOrNull()
+        ).maxOrNull()?.takeIf { it > 0 }
 
         return when {
             highestSrpScore == null -> noChange()
