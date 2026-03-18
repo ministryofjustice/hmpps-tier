@@ -13,6 +13,7 @@ import org.springframework.transaction.CannotCreateTransactionException
 import org.springframework.transaction.UnexpectedRollbackException
 import org.springframework.web.client.RestClientException
 import org.springframework.web.reactive.function.client.WebClientResponseException
+import reactor.core.Exceptions
 import reactor.util.retry.Retry
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.readValue
@@ -43,7 +44,7 @@ class DomainEventListener(
                     handleMessage(domainEventMessage)
                 }
         } catch (e: Exception) {
-            Sentry.captureException(unwrapSqsExceptions(e))
+            Sentry.captureException(unwrapKnownWrapperTypes(e))
             throw e
         }
     }
@@ -92,7 +93,7 @@ class DomainEventListener(
             UnexpectedRollbackException::class
         )
 
-        fun unwrapSqsExceptions(e: Throwable): Throwable {
+        fun unwrapKnownWrapperTypes(e: Throwable): Throwable {
             fun unwrap(e: Throwable) = e.cause ?: e
             var cause = e
             if (cause is CompletionException) {
@@ -104,6 +105,7 @@ class DomainEventListener(
             if (cause is ListenerExecutionFailedException) {
                 cause = unwrap(cause)
             }
+            if (Exceptions.isRetryExhausted(cause)) cause = unwrap(cause)
             return cause
         }
     }

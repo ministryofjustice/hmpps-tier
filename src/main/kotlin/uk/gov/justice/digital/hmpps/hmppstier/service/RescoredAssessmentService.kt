@@ -9,14 +9,13 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.BasePredictorDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.StaticOrDynamicPredictorDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.VersionedStaticOrDynamicPredictorDto
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.RescoredAssessmentRepository
-import java.time.LocalDate
 
 @Service
 class RescoredAssessmentService(
     private val rescoredAssessmentRepository: RescoredAssessmentRepository,
 ) {
     fun getByCrn(crn: String) =
-        rescoredAssessmentRepository.findByCrnAndCompletedDateAfter(crn, LocalDate.now().minusWeeks(55))?.let {
+        rescoredAssessmentRepository.findFirstByCrnOrderByCompletedDateDesc(crn)?.let {
             OGRS4Predictors(
                 completedDate = it.completedDate.atStartOfDay(),
                 outputVersion = "2",

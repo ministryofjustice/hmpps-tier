@@ -6,7 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
-import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ScoreLevel
@@ -43,7 +42,7 @@ internal class RescoredAssessmentServiceTest {
             iicSrpScore = 0.0,
             iicSrpBand = "NA",
         )
-        whenever(rescoredAssessmentRepository.findByCrnAndCompletedDateAfter(eq(crn), any())).thenReturn(entity)
+        whenever(rescoredAssessmentRepository.findFirstByCrnOrderByCompletedDateDesc(eq(crn))).thenReturn(entity)
 
         val result = rescoredAssessmentService.getByCrn(crn)
 
@@ -65,7 +64,7 @@ internal class RescoredAssessmentServiceTest {
     @Test
     fun `returns null when there is no rescored assessment for the crn`() {
         val crn = TestData.crn()
-        whenever(rescoredAssessmentRepository.findByCrnAndCompletedDateAfter(eq(crn), any())).thenReturn(null)
+        whenever(rescoredAssessmentRepository.findFirstByCrnOrderByCompletedDateDesc(eq(crn))).thenReturn(null)
 
         val result = rescoredAssessmentService.getByCrn(crn)
 
