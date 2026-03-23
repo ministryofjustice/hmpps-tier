@@ -41,6 +41,29 @@ class TierCalculatorTest {
     }
 
     @ParameterizedTest(name = "{0}")
+    @MethodSource("csrpSuppressionCases")
+    fun `uses combined serious reoffending predictor only when sexual predictors do not suppress it`(
+        description: String,
+        directSrp: BasePredictorDto?,
+        indirectSrp: BasePredictorDto?,
+        expectedTier: Tier,
+    ) {
+        val tier = TierCalculator.calculate(
+            deliusInputs(),
+            predictors(
+                arp = 90.0,
+                csrp = 6.9,
+                directSrp = directSrp,
+                indirectSrp = indirectSrp,
+            ),
+        )
+
+        assertThat(tier)
+            .describedAs(description)
+            .isEqualTo(expectedTier)
+    }
+
+    @ParameterizedTest(name = "{0}")
     @MethodSource("ignoredSexualPredictorCases")
     fun `ignores sexual predictors without a usable validated band`(
         description: String,
@@ -111,11 +134,11 @@ class TierCalculatorTest {
     }
 
     @Test
-    fun `throws when a direct-contact predictor has an unexpected score and band combination`() {
+    fun `throws when a direct-contact medium-band predictor is below the supported thresholds`() {
         assertThrows(IllegalStateException::class.java) {
             TierCalculator.calculate(
                 deliusInputs(),
-                predictors(directSrp = sexualPredictor(1.50, HIGH)),
+                predictors(directSrp = sexualPredictor(0.59, MEDIUM)),
             )
         }
     }
@@ -273,6 +296,34 @@ class TierCalculatorTest {
         )
 
         @JvmStatic
+        fun csrpSuppressionCases() = listOf(
+            Arguments.of(
+                "higher valid indirect score suppresses combined CSRP",
+                BasePredictorDto(score = BigDecimal("1.0"), band = LOW),
+                BasePredictorDto(score = BigDecimal("2.0"), band = LOW),
+                D,
+            ),
+            Arguments.of(
+                "lower valid indirect score keeps combined CSRP",
+                BasePredictorDto(score = BigDecimal("2.0"), band = LOW),
+                BasePredictorDto(score = BigDecimal("1.0"), band = LOW),
+                A,
+            ),
+            Arguments.of(
+                "equal valid indirect score keeps combined CSRP",
+                BasePredictorDto(score = BigDecimal("2.0"), band = LOW),
+                BasePredictorDto(score = BigDecimal("2.0"), band = LOW),
+                A,
+            ),
+            Arguments.of(
+                "higher indirect score without a valid band keeps combined CSRP",
+                BasePredictorDto(score = BigDecimal("1.0"), band = LOW),
+                BasePredictorDto(score = BigDecimal("2.0")),
+                A,
+            ),
+        )
+
+        @JvmStatic
         fun ignoredSexualPredictorCases() = listOf(
             Arguments.of(
                 "direct predictor without a band is ignored",
@@ -299,13 +350,15 @@ class TierCalculatorTest {
         @JvmStatic
         fun directSexualReoffendingCases() = listOf(
             Arguments.of(5.31, VERY_HIGH, A),
+            Arguments.of(0.01, VERY_HIGH, A),
             Arguments.of(2.11, HIGH, B),
+            Arguments.of(1.50, HIGH, B),
             Arguments.of(5.31, HIGH, B),
             Arguments.of(1.12, MEDIUM, C),
             Arguments.of(3.36, MEDIUM, C),
-            Arguments.of(2.11, MEDIUM, C),
+            Arguments.of(2.11, MEDIUM, D),
             Arguments.of(0.60, MEDIUM, D),
-            Arguments.of(0.02, LOW, D),
+            Arguments.of(0.02, LOW, E),
         )
 
         @JvmStatic
