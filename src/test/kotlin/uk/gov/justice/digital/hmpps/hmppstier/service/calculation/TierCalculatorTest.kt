@@ -1,10 +1,13 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service.calculation
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ScoreLevel
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ScoreLevel.*
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.AllPredictorDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.BasePredictorDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.StaticOrDynamicPredictorDto
@@ -13,7 +16,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusInputs
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.MappaCategory
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Tier
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Tier.*
 import java.math.BigDecimal
@@ -32,43 +34,113 @@ class TierCalculatorTest {
     }
 
     @ParameterizedTest(name = "ARP {0} and CSRP {1} map to tier {2}")
-    @MethodSource("arpAndCsrpCombinations")
-    fun `maps ARP and CSRP combinations to expected tier`(arp: Double, csrp: Double, expectedTier: Tier) {
+    @MethodSource("arpAndCsrpMatrixCases")
+    fun `maps every ARP and CSRP lookup-table combination`(arp: Double, csrp: Double, expectedTier: Tier) {
         val tier = TierCalculator.calculate(deliusInputs(), predictors(arp = arp, csrp = csrp))
         assertThat(tier).isEqualTo(expectedTier)
     }
 
-    @ParameterizedTest(name = "ARP {0} with CSRP 0 maps to tier {1}")
-    @MethodSource("arpThresholdCases")
-    fun `applies ARP threshold boundaries when CSRP is zero`(arp: Double, expectedTier: Tier) {
-        val tier = TierCalculator.calculate(deliusInputs(), predictors(arp = arp, csrp = 0.0))
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("csrpSuppressionCases")
+    fun `uses combined serious reoffending predictor only when sexual predictors do not suppress it`(
+        description: String,
+        directSrp: BasePredictorDto?,
+        indirectSrp: BasePredictorDto?,
+        expectedTier: Tier,
+    ) {
+        val tier = TierCalculator.calculate(
+            deliusInputs(),
+            predictors(
+                arp = 90.0,
+                csrp = 6.9,
+                directSrp = directSrp,
+                indirectSrp = indirectSrp,
+            ),
+        )
+
+        assertThat(tier)
+            .describedAs(description)
+            .isEqualTo(expectedTier)
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("ignoredSexualPredictorCases")
+    fun `ignores sexual predictors without a usable validated band`(
+        description: String,
+        directSrp: BasePredictorDto?,
+        indirectSrp: BasePredictorDto?,
+    ) {
+        val tier = TierCalculator.calculate(
+            deliusInputs(),
+            predictors(
+                arp = 75.0,
+                csrp = 1.0,
+                directSrp = directSrp,
+                indirectSrp = indirectSrp,
+            ),
+        )
+
+        assertThat(tier)
+            .describedAs(description)
+            .isEqualTo(C)
+    }
+
+    @ParameterizedTest(name = "direct score {0} with band {1} maps to tier {2}")
+    @MethodSource("directSexualReoffendingCases")
+    fun `applies direct-contact sexual reoffending rules`(score: Double, band: ScoreLevel, expectedTier: Tier) {
+        val tier = TierCalculator.calculate(
+            deliusInputs(),
+            predictors(directSrp = sexualPredictor(score, band)),
+        )
+
         assertThat(tier).isEqualTo(expectedTier)
     }
 
-    @ParameterizedTest(name = "ARP 0 with CSRP {0} maps to tier {1}")
-    @MethodSource("csrpThresholdCases")
-    fun `applies CSRP threshold boundaries when ARP is zero`(csrp: Double, expectedTier: Tier) {
-        val tier = TierCalculator.calculate(deliusInputs(), predictors(arp = 0.0, csrp = csrp))
+    @ParameterizedTest(name = "indirect band {0} maps to tier {1}")
+    @MethodSource("indirectSexualReoffendingCases")
+    fun `applies indirect-image sexual reoffending rules`(band: ScoreLevel, expectedTier: Tier) {
+        val tier = TierCalculator.calculate(
+            deliusInputs(),
+            predictors(indirectSrp = sexualPredictor(1.0, band)),
+        )
+
         assertThat(tier).isEqualTo(expectedTier)
     }
 
     @Test
-    fun `uses highest sexual reoffending score across direct and indirect predictors`() {
-        val tier = TierCalculator.calculate(deliusInputs(), predictors(directSrp = 20.0, indirectSrp = 35.0))
+    fun `prefers direct-contact sexual predictor when its score is higher than indirect image predictor`() {
+        val tier = TierCalculator.calculate(
+            deliusInputs(),
+            predictors(
+                directSrp = sexualPredictor(2.11, HIGH),
+                indirectSrp = sexualPredictor(2.10, VERY_HIGH),
+            ),
+        )
+
         assertThat(tier).isEqualTo(B)
     }
 
     @Test
-    fun `leaves existing tier unchanged when sexual reoffending scores are missing`() {
-        val tier = TierCalculator.calculate(deliusInputs(), predictors(arp = 75.0, csrp = 1.0))
-        assertThat(tier).isEqualTo(C)
+    fun `uses direct-contact predictor when the scores tie`() {
+        val tier = TierCalculator.calculate(
+            deliusInputs(),
+            predictors(
+                directSrp = sexualPredictor(2.11, HIGH),
+                indirectSrp = sexualPredictor(2.11, LOW),
+            ),
+        )
+
+        assertThat(tier).isEqualTo(B)
     }
 
-    @ParameterizedTest(name = "sexual reoffending score {0} maps to tier {1}")
-    @MethodSource("sexualReoffendingThresholdCases")
-    fun `applies sexual reoffending thresholds`(srpScore: Double, expectedTier: Tier) {
-        val tier = TierCalculator.calculate(deliusInputs(), predictors(directSrp = srpScore))
-        assertThat(tier).isEqualTo(expectedTier)
+    @Test
+    fun `throws when a direct-contact medium-band predictor is below the supported thresholds`() {
+        assertThrows(IllegalStateException::class.java) {
+            TierCalculator.calculate(
+                deliusInputs(),
+                predictors(directSrp = sexualPredictor(0.59, MEDIUM)),
+            )
+        }
     }
 
     @ParameterizedTest(name = "mappaPresent={0} and rosh={1} map to tier {2}")
@@ -84,7 +156,7 @@ class TierCalculatorTest {
     @Test
     fun `keeps existing tier when ROSH is medium and MAPPA is absent`() {
         val tier = TierCalculator.calculate(
-            deliusInputs(hasMappa = false, rosh = MEDIUM),
+            deliusInputs(hasMappa = false, rosh = Rosh.MEDIUM),
             predictors(arp = 90.0, csrp = 1.0),
         )
         assertThat(tier).isEqualTo(B)
@@ -124,18 +196,18 @@ class TierCalculatorTest {
     }
 
     @Test
-    fun `higher tier from reoffending and sexual risk is not downgraded by later registration logic`() {
+    fun `higher tier from earlier rules is not downgraded by later registration logic`() {
         val tier = TierCalculator.calculate(
             deliusInputs(
                 hasMappa = true,
-                rosh = HIGH,
+                rosh = Rosh.HIGH,
                 hasLiferIpp = true,
                 latestReleaseDate = LocalDate.now().minusYears(2),
                 hasDomesticAbuse = true,
                 hasStalking = true,
                 hasChildProtection = true,
             ),
-            predictors(arp = 95.0, csrp = 6.9, directSrp = 22.0),
+            predictors(arp = 95.0, csrp = 6.9, directSrp = sexualPredictor(5.31, VERY_HIGH)),
         )
         assertThat(tier).isEqualTo(A)
     }
@@ -174,64 +246,138 @@ class TierCalculatorTest {
     private fun predictors(
         arp: Double? = null,
         csrp: Double? = null,
-        directSrp: Double? = null,
-        indirectSrp: Double? = null,
+        directSrp: BasePredictorDto? = null,
+        indirectSrp: BasePredictorDto? = null,
     ) = AllPredictorDto(
         allReoffendingPredictor = arp?.let { StaticOrDynamicPredictorDto(score = it.toBigDecimal()) },
         combinedSeriousReoffendingPredictor = csrp?.let { VersionedStaticOrDynamicPredictorDto(score = it.toBigDecimal()) },
-        directContactSexualReoffendingPredictor = directSrp?.let { BasePredictorDto(score = it.toBigDecimal()) },
-        indirectImageContactSexualReoffendingPredictor = indirectSrp?.let { BasePredictorDto(score = it.toBigDecimal()) },
+        directContactSexualReoffendingPredictor = directSrp,
+        indirectImageContactSexualReoffendingPredictor = indirectSrp,
+    )
+
+    private fun sexualPredictor(score: Double, band: ScoreLevel? = null) = BasePredictorDto(
+        score = score.toBigDecimal(),
+        band = band,
     )
 
     companion object {
         @JvmStatic
-        fun arpAndCsrpCombinations() = listOf(
+        fun arpAndCsrpMatrixCases() = listOf(
+            Arguments.of(90.0, 6.9, A),
             Arguments.of(75.0, 6.9, A),
+            Arguments.of(50.0, 6.9, B),
+            Arguments.of(25.0, 6.9, B),
+            Arguments.of(15.0, 6.9, B),
+            Arguments.of(0.0, 6.9, B),
+            Arguments.of(90.0, 3.0, A),
             Arguments.of(75.0, 3.0, B),
+            Arguments.of(50.0, 3.0, C),
+            Arguments.of(25.0, 3.0, C),
+            Arguments.of(15.0, 3.0, C),
+            Arguments.of(0.0, 3.0, C),
+            Arguments.of(90.0, 1.0, B),
             Arguments.of(75.0, 1.0, C),
+            Arguments.of(50.0, 1.0, D),
+            Arguments.of(25.0, 1.0, E),
+            Arguments.of(15.0, 1.0, E),
+            Arguments.of(0.0, 1.0, E),
+            Arguments.of(90.0, 0.5, C),
+            Arguments.of(75.0, 0.5, D),
+            Arguments.of(50.0, 0.5, E),
             Arguments.of(25.0, 0.5, E),
+            Arguments.of(15.0, 0.5, F),
+            Arguments.of(0.0, 0.5, F),
+            Arguments.of(90.0, 0.0, D),
+            Arguments.of(75.0, 0.0, D),
+            Arguments.of(50.0, 0.0, E),
             Arguments.of(25.0, 0.0, F),
+            Arguments.of(15.0, 0.0, F),
+            Arguments.of(0.0, 0.0, G),
         )
 
         @JvmStatic
-        fun arpThresholdCases() = listOf(
-            Arguments.of(90.0, D),
-            Arguments.of(75.0, D),
-            Arguments.of(74.99, E),
-            Arguments.of(50.0, E),
-            Arguments.of(49.99, F),
-            Arguments.of(15.0, F),
-            Arguments.of(14.99, G),
-            Arguments.of(0.0, G),
+        fun csrpSuppressionCases() = listOf(
+            Arguments.of(
+                "higher valid indirect score suppresses combined CSRP",
+                BasePredictorDto(score = BigDecimal("1.0"), band = LOW),
+                BasePredictorDto(score = BigDecimal("2.0"), band = LOW),
+                D,
+            ),
+            Arguments.of(
+                "lower valid indirect score keeps combined CSRP",
+                BasePredictorDto(score = BigDecimal("2.0"), band = LOW),
+                BasePredictorDto(score = BigDecimal("1.0"), band = LOW),
+                A,
+            ),
+            Arguments.of(
+                "equal valid indirect score keeps combined CSRP",
+                BasePredictorDto(score = BigDecimal("2.0"), band = LOW),
+                BasePredictorDto(score = BigDecimal("2.0"), band = LOW),
+                A,
+            ),
+            Arguments.of(
+                "higher indirect score without a valid band keeps combined CSRP",
+                BasePredictorDto(score = BigDecimal("1.0"), band = LOW),
+                BasePredictorDto(score = BigDecimal("2.0")),
+                A,
+            ),
         )
 
         @JvmStatic
-        fun csrpThresholdCases() = listOf(
-            Arguments.of(6.9, B),
-            Arguments.of(3.0, C),
-            Arguments.of(1.0, E),
-            Arguments.of(0.5, F),
-            Arguments.of(0.0, G),
+        fun ignoredSexualPredictorCases() = listOf(
+            Arguments.of(
+                "direct predictor without a band is ignored",
+                BasePredictorDto(score = BigDecimal("2.11")),
+                null,
+            ),
+            Arguments.of(
+                "direct predictor with NOT_APPLICABLE band is ignored",
+                BasePredictorDto(score = BigDecimal("2.11"), band = NOT_APPLICABLE),
+                null,
+            ),
+            Arguments.of(
+                "indirect predictor without a band is ignored",
+                null,
+                BasePredictorDto(score = BigDecimal("1.0")),
+            ),
+            Arguments.of(
+                "indirect predictor with NOT_APPLICABLE band is ignored",
+                null,
+                BasePredictorDto(score = BigDecimal("1.0"), band = NOT_APPLICABLE),
+            ),
         )
 
         @JvmStatic
-        fun sexualReoffendingThresholdCases() = listOf(
-            Arguments.of(21.99, E),
-            Arguments.of(22.0, D),
-            Arguments.of(26.0, C),
-            Arguments.of(30.0, B),
-            Arguments.of(36.0, A),
+        fun directSexualReoffendingCases() = listOf(
+            Arguments.of(5.31, VERY_HIGH, A),
+            Arguments.of(0.01, VERY_HIGH, A),
+            Arguments.of(2.11, HIGH, B),
+            Arguments.of(1.50, HIGH, B),
+            Arguments.of(5.31, HIGH, B),
+            Arguments.of(1.12, MEDIUM, C),
+            Arguments.of(3.36, MEDIUM, C),
+            Arguments.of(2.11, MEDIUM, D),
+            Arguments.of(0.60, MEDIUM, D),
+            Arguments.of(0.02, LOW, E),
+        )
+
+        @JvmStatic
+        fun indirectSexualReoffendingCases() = listOf(
+            Arguments.of(VERY_HIGH, C),
+            Arguments.of(HIGH, C),
+            Arguments.of(MEDIUM, D),
+            Arguments.of(LOW, E),
         )
 
         @JvmStatic
         fun mappaAndRoshCases() = listOf(
-            Arguments.of(true, VERY_HIGH, A),
-            Arguments.of(true, HIGH, C),
-            Arguments.of(true, MEDIUM, D),
+            Arguments.of(true, Rosh.VERY_HIGH, A),
+            Arguments.of(true, Rosh.HIGH, C),
+            Arguments.of(true, Rosh.MEDIUM, D),
             Arguments.of(true, null, E),
-            Arguments.of(false, VERY_HIGH, C),
-            Arguments.of(false, HIGH, D),
-            Arguments.of(false, MEDIUM, G),
+            Arguments.of(false, Rosh.VERY_HIGH, C),
+            Arguments.of(false, Rosh.HIGH, D),
+            Arguments.of(false, Rosh.MEDIUM, G),
             Arguments.of(false, null, G),
         )
 
@@ -254,6 +400,9 @@ class TierCalculatorTest {
             Arguments.of(true, false, false, E),
             Arguments.of(false, true, false, F),
             Arguments.of(false, false, true, F),
+            Arguments.of(true, true, false, E),
+            Arguments.of(true, false, true, E),
+            Arguments.of(false, true, true, F),
             Arguments.of(true, true, true, E),
         )
     }

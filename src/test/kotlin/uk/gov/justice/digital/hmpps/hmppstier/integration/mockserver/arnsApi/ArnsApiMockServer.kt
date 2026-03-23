@@ -108,7 +108,9 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
         csrp: Double? = null,
         arp: Double? = null,
         dcSrp: Double? = null,
+        dcSrpBand: ScoreLevel? = null,
         iicSrp: Double? = null,
+        iicSrpBand: ScoreLevel? = null,
         completedDate: LocalDateTime = LocalDateTime.now().minusWeeks(1),
     ) {
         arnsApi.`when`(request().withPath("/risks/predictors/unsafe/all/CRN/$crn"), exactly(1)).respond(
@@ -122,8 +124,14 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
                             output = AllPredictorDto(
                                 allReoffendingPredictor = StaticOrDynamicPredictorDto(score = arp?.toBigDecimal()),
                                 combinedSeriousReoffendingPredictor = VersionedStaticOrDynamicPredictorDto(score = csrp?.toBigDecimal()),
-                                directContactSexualReoffendingPredictor = StaticOrDynamicPredictorDto(score = dcSrp?.toBigDecimal()),
-                                indirectImageContactSexualReoffendingPredictor = StaticOrDynamicPredictorDto(score = iicSrp?.toBigDecimal())
+                                directContactSexualReoffendingPredictor = StaticOrDynamicPredictorDto(
+                                    score = dcSrp?.toBigDecimal(),
+                                    band = dcSrpBand,
+                                ),
+                                indirectImageContactSexualReoffendingPredictor = StaticOrDynamicPredictorDto(
+                                    score = iicSrp?.toBigDecimal(),
+                                    band = iicSrpBand,
+                                )
                             ),
                         )
                     )
