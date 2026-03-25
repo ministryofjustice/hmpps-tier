@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
-import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Tier
 import uk.gov.justice.digital.hmpps.hmppstier.exception.EntityNotFoundException
 import uk.gov.justice.digital.hmpps.hmppstier.model.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierV3Reader
@@ -21,7 +20,7 @@ import java.util.*
 class TierV3Controller(private val tierReader: TierV3Reader) {
     @Operation(summary = "Retrieve number of cases for each tier")
     @GetMapping("tier-counts")
-    fun getTierCounts(): Map<Tier, Int> = tierReader.getTierCounts()
+    fun getTierCounts() = tierReader.getTierCounts()
 
     @Operation(summary = "Retrieve tiering score by crn")
     @GetMapping("crn/{crn}/tier")

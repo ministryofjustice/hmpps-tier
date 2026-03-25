@@ -73,11 +73,11 @@ internal class TierV3ReaderTest {
 
     @Test
     fun `tier counts are returned keyed by tier enum`() {
-        whenever(tierSummaryRepository.getTierV3Counts()).thenReturn(listOf("A" to 12, "C" to 3))
+        whenever(tierSummaryRepository.getTierV3Counts()).thenReturn(listOf("A" to 12L, "C" to 3L))
 
         val result = tierReader.getTierCounts()
 
-        assertThat(result, equalTo(mapOf(Tier.A to 12, Tier.C to 3)))
+        assertThat(result, equalTo(mapOf(Tier.A to 12L, Tier.C to 3L)))
     }
 
     private fun tierCalculation(crn: String, tier: Tier) = TierCalculationEntity(
