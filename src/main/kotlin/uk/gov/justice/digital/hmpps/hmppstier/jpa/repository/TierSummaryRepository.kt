@@ -25,5 +25,5 @@ interface TierSummaryRepository : JpaRepository<TierSummaryEntity, String> {
         order by ts.tier
         """
     )
-    fun getTierV3Counts(): List<Pair<String, Int>>
+    fun getTierV3Counts(): List<Pair<String, Long>>
 }
