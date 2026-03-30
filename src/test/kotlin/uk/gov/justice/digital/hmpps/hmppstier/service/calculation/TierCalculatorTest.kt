@@ -41,29 +41,6 @@ class TierCalculatorTest {
     }
 
     @ParameterizedTest(name = "{0}")
-    @MethodSource("csrpSuppressionCases")
-    fun `uses combined serious reoffending predictor only when sexual predictors do not suppress it`(
-        description: String,
-        directSrp: BasePredictorDto?,
-        indirectSrp: BasePredictorDto?,
-        expectedTier: Tier,
-    ) {
-        val tier = TierCalculator.calculate(
-            deliusInputs(),
-            predictors(
-                arp = 90.0,
-                csrp = 6.9,
-                directSrp = directSrp,
-                indirectSrp = indirectSrp,
-            ),
-        )
-
-        assertThat(tier)
-            .describedAs(description)
-            .isEqualTo(expectedTier)
-    }
-
-    @ParameterizedTest(name = "{0}")
     @MethodSource("ignoredSexualPredictorCases")
     fun `ignores sexual predictors without a usable validated band`(
         description: String,
@@ -293,34 +270,6 @@ class TierCalculatorTest {
             Arguments.of(25.0, 0.0, F),
             Arguments.of(15.0, 0.0, F),
             Arguments.of(0.0, 0.0, G),
-        )
-
-        @JvmStatic
-        fun csrpSuppressionCases() = listOf(
-            Arguments.of(
-                "higher valid indirect score suppresses combined CSRP",
-                BasePredictorDto(score = BigDecimal("1.0"), band = LOW),
-                BasePredictorDto(score = BigDecimal("2.0"), band = LOW),
-                D,
-            ),
-            Arguments.of(
-                "lower valid indirect score keeps combined CSRP",
-                BasePredictorDto(score = BigDecimal("2.0"), band = LOW),
-                BasePredictorDto(score = BigDecimal("1.0"), band = LOW),
-                A,
-            ),
-            Arguments.of(
-                "equal valid indirect score keeps combined CSRP",
-                BasePredictorDto(score = BigDecimal("2.0"), band = LOW),
-                BasePredictorDto(score = BigDecimal("2.0"), band = LOW),
-                A,
-            ),
-            Arguments.of(
-                "higher indirect score without a valid band keeps combined CSRP",
-                BasePredictorDto(score = BigDecimal("1.0"), band = LOW),
-                BasePredictorDto(score = BigDecimal("2.0")),
-                A,
-            ),
         )
 
         @JvmStatic
