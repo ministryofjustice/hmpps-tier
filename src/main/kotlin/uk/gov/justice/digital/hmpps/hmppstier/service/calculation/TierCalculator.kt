@@ -23,13 +23,7 @@ object TierCalculator {
 
     fun nonSexualReoffending(riskPredictors: AllPredictorDto?) = riskPredictors?.run {
         val arp = allReoffendingPredictor?.score ?: ZERO
-        val dcSrp = directContactSexualReoffendingPredictor?.validate()?.score
-        val iicSrp = indirectImageContactSexualReoffendingPredictor?.validate()?.score
-        // The Combined Serious Reoffending Predictor (CSRP) is a combination of multiple scores, including the
-        // sexual reoffending predictors (DC-SRP and IIC-SRP), so should not be used if DC-SRP and IIC-SRP are both
-        // valid and IIC-SRP is greater than DC-SRP. Otherwise, we would double-count sexual reoffending in step 2.
-        val suppressCsrp = iicSrp != null && dcSrp != null && iicSrp > dcSrp
-        val csrp = combinedSeriousReoffendingPredictor?.score?.takeUnless { suppressCsrp } ?: ZERO
+        val csrp = combinedSeriousReoffendingPredictor?.score ?: ZERO
         val row = arrayOf(6.9, 3.0, 1.0, 0.5, 0.0).indexOfFirst { csrp >= it }
         val col = arrayOf(90, 75, 50, 25, 15, 0).indexOfFirst { arp >= it }
         arrayOf(
