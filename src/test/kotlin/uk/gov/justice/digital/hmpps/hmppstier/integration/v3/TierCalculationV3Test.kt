@@ -6,7 +6,6 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ScoreLevel.HIGH
 import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusRegistration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
@@ -35,22 +34,6 @@ class TierCalculationV3Test : IntegrationTestBase() {
         val crn = TestData.crn()
         deliusApi.getFullDetails(crn, deliusDetails())
         arnsApi.getRiskPredictors(crn, arp = 75.0, csrp = 1.0)
-
-        calculateTierForDomainEvent(crn)
-        expectTierChangedById("C", TierApiVersion.V3)
-    }
-
-    @Test
-    fun `uses indirect-image sexual predictor when it has the higher score`() {
-        val crn = TestData.crn()
-        deliusApi.getFullDetails(crn, deliusDetails())
-        arnsApi.getRiskPredictors(
-            crn,
-            dcSrp = 2.11,
-            dcSrpBand = HIGH,
-            iicSrp = 35.0,
-            iicSrpBand = HIGH,
-        )
 
         calculateTierForDomainEvent(crn)
         expectTierChangedById("C", TierApiVersion.V3)

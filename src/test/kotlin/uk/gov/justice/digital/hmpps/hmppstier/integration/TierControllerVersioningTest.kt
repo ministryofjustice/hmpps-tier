@@ -40,7 +40,7 @@ class TierControllerVersioningTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `v3 endpoints only return calculations with top level tier`() {
+    fun `v3 endpoints only return v3 calculations`() {
         val crn = TestData.crn()
         val historicCalculation = saveHistoricV2Calculation(crn)
         val uuid = historicCalculation.uuid.toString()
@@ -52,9 +52,11 @@ class TierControllerVersioningTest : IntegrationTestBase() {
         tierCalculationResult(crn, uuid, TierApiVersion.V3)
             .andExpect(status().isNotFound)
 
+        // history includes both V2 and V3
         tierHistory(crn, TierApiVersion.V3)
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.length()", equalTo(0)))
+            .andExpect(jsonPath("$.length()", equalTo(1)))
+            .andExpect(jsonPath("$[0].tierScore", equalTo("B2")))
 
         deliusApi.getFullDetails(
             crn,
@@ -82,8 +84,8 @@ class TierControllerVersioningTest : IntegrationTestBase() {
 
         tierHistory(crn, TierApiVersion.V3)
             .andExpect(status().isOk)
-            .andExpect(jsonPath("$.length()", equalTo(1)))
-            .andExpect(jsonPath("$.*.tierScore", equalTo(listOf("G"))))
+            .andExpect(jsonPath("$.length()", equalTo(2)))
+            .andExpect(jsonPath("$.*.tierScore", equalTo(listOf("G", "B2"))))
 
         tierCalculationResult(crn, uuid, TierApiVersion.V3)
             .andExpect(status().isNotFound)
