@@ -45,7 +45,6 @@ class TierCalculatorTest {
     fun `ignores sexual predictors without a usable validated band`(
         description: String,
         directSrp: BasePredictorDto?,
-        indirectSrp: BasePredictorDto?,
     ) {
         val tier = TierCalculator.calculate(
             deliusInputs(),
@@ -53,7 +52,6 @@ class TierCalculatorTest {
                 arp = 75.0,
                 csrp = 1.0,
                 directSrp = directSrp,
-                indirectSrp = indirectSrp,
             ),
         )
 
@@ -71,43 +69,6 @@ class TierCalculatorTest {
         )
 
         assertThat(tier).isEqualTo(expectedTier)
-    }
-
-    @ParameterizedTest(name = "indirect band {0} maps to tier {1}")
-    @MethodSource("indirectSexualReoffendingCases")
-    fun `applies indirect-image sexual reoffending rules`(band: ScoreLevel, expectedTier: Tier) {
-        val tier = TierCalculator.calculate(
-            deliusInputs(),
-            predictors(indirectSrp = sexualPredictor(1.0, band)),
-        )
-
-        assertThat(tier).isEqualTo(expectedTier)
-    }
-
-    @Test
-    fun `prefers direct-contact sexual predictor when its score is higher than indirect image predictor`() {
-        val tier = TierCalculator.calculate(
-            deliusInputs(),
-            predictors(
-                directSrp = sexualPredictor(2.11, HIGH),
-                indirectSrp = sexualPredictor(2.10, VERY_HIGH),
-            ),
-        )
-
-        assertThat(tier).isEqualTo(B)
-    }
-
-    @Test
-    fun `uses direct-contact predictor when the scores tie`() {
-        val tier = TierCalculator.calculate(
-            deliusInputs(),
-            predictors(
-                directSrp = sexualPredictor(2.11, HIGH),
-                indirectSrp = sexualPredictor(2.11, LOW),
-            ),
-        )
-
-        assertThat(tier).isEqualTo(B)
     }
 
     @Test
@@ -224,12 +185,10 @@ class TierCalculatorTest {
         arp: Double? = null,
         csrp: Double? = null,
         directSrp: BasePredictorDto? = null,
-        indirectSrp: BasePredictorDto? = null,
     ) = AllPredictorDto(
         allReoffendingPredictor = arp?.let { StaticOrDynamicPredictorDto(score = it.toBigDecimal()) },
         combinedSeriousReoffendingPredictor = csrp?.let { VersionedStaticOrDynamicPredictorDto(score = it.toBigDecimal()) },
         directContactSexualReoffendingPredictor = directSrp,
-        indirectImageContactSexualReoffendingPredictor = indirectSrp,
     )
 
     private fun sexualPredictor(score: Double, band: ScoreLevel? = null) = BasePredictorDto(
@@ -277,22 +236,10 @@ class TierCalculatorTest {
             Arguments.of(
                 "direct predictor without a band is ignored",
                 BasePredictorDto(score = BigDecimal("2.11")),
-                null,
             ),
             Arguments.of(
                 "direct predictor with NOT_APPLICABLE band is ignored",
                 BasePredictorDto(score = BigDecimal("2.11"), band = NOT_APPLICABLE),
-                null,
-            ),
-            Arguments.of(
-                "indirect predictor without a band is ignored",
-                null,
-                BasePredictorDto(score = BigDecimal("1.0")),
-            ),
-            Arguments.of(
-                "indirect predictor with NOT_APPLICABLE band is ignored",
-                null,
-                BasePredictorDto(score = BigDecimal("1.0"), band = NOT_APPLICABLE),
             ),
         )
 
@@ -308,14 +255,6 @@ class TierCalculatorTest {
             Arguments.of(2.11, MEDIUM, D),
             Arguments.of(0.60, MEDIUM, D),
             Arguments.of(0.02, LOW, E),
-        )
-
-        @JvmStatic
-        fun indirectSexualReoffendingCases() = listOf(
-            Arguments.of(VERY_HIGH, C),
-            Arguments.of(HIGH, C),
-            Arguments.of(MEDIUM, D),
-            Arguments.of(LOW, E),
         )
 
         @JvmStatic
