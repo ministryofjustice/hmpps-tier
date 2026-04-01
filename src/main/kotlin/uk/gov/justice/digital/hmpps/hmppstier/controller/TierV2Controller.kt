@@ -16,8 +16,8 @@ import java.util.*
 
 @RestController
 @Tag(name = "V2")
-@PreAuthorize("hasRole('HMPPS_TIER')")
 @RequestMapping("v2", produces = [APPLICATION_JSON_VALUE])
+@PreAuthorize("hasAnyRole('HMPPS_TIER', 'PROBATION_INTEGRATION_ADMIN')")
 class TierV2Controller(private val tierReader: TierV2Reader) {
 
     @Operation(summary = "Retrieve number of cases for each tier")
