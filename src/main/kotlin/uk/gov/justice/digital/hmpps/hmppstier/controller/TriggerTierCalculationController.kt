@@ -12,7 +12,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.RecalculationService
 @RequestMapping(produces = [MediaType.APPLICATION_JSON_VALUE])
 class TriggerTierCalculationController(private val recalculationService: RecalculationService) {
 
-    @PreAuthorize("hasRole('ROLE_MANAGEMENT_TIER_UPDATE')")
+    @PreAuthorize("hasAnyRole('ROLE_MANAGEMENT_TIER_UPDATE', 'PROBATION_INTEGRATION_ADMIN')")
     @PostMapping("/calculations")
     fun recalculateTiers(@RequestBody(required = false) crns: Set<String>?) {
         Thread.ofVirtual().start {
