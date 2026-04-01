@@ -38,8 +38,7 @@ object TierCalculator {
 
     fun sexualReoffending(riskPredictors: AllPredictorDto?) = riskPredictors?.run {
         val dc = directContactSexualReoffendingPredictor.validate()
-        val iic = indirectImageContactSexualReoffendingPredictor.validate()
-        if (dc != null && (iic == null || dc.score >= iic.score)) when {
+        if (dc != null) when {
             dc.band >= VERY_HIGH -> A
             dc.band >= HIGH -> B
             dc.band >= MEDIUM -> when {
@@ -52,10 +51,6 @@ object TierCalculator {
                 else -> error("Unexpected combination of DC-SRP score and band")
             }
 
-            else -> E
-        } else if (iic != null) when {
-            iic.band >= HIGH -> C
-            iic.band >= MEDIUM -> D
             else -> E
         } else null
     }

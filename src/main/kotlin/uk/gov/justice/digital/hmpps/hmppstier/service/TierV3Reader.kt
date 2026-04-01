@@ -11,6 +11,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierSummaryReposito
 import uk.gov.justice.digital.hmpps.hmppstier.model.TierDetailsDto
 import uk.gov.justice.digital.hmpps.hmppstier.model.TierDto
 import java.util.*
+import uk.gov.justice.digital.hmpps.hmppstier.service.TierV2Reader.Companion.dto as dtoV2
 
 @Service
 class TierV3Reader(
@@ -32,7 +33,7 @@ class TierV3Reader(
         tierCalculationRepository.findByCrnAndUuid(crn, calculationId)?.dto()
 
     fun getTierHistory(crn: String): List<TierDto> =
-        tierCalculationRepository.findByCrnOrderByCreatedDesc(crn).mapNotNull { it.dto() }
+        tierCalculationRepository.findByCrnOrderByCreatedDesc(crn).map { it.dto() ?: it.dtoV2() }
 
     private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
         tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
