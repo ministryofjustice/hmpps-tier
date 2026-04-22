@@ -24,6 +24,11 @@ import java.time.LocalDate
 class TierCalculatorTest {
 
     @Test
+    fun `unsupervised cases have a tier of NA`() {
+        assertThat(TierCalculator.calculate(deliusInputs(hasActiveEvent = false), predictors())).isEqualTo(NA)
+    }
+
+    @Test
     fun `defaults missing CSRP score to zero for ARP to tier mapping`() {
         assertThat(TierCalculator.calculate(deliusInputs(), predictors(arp = 90.0))).isEqualTo(D)
     }
@@ -158,6 +163,7 @@ class TierCalculatorTest {
         hasDomesticAbuse: Boolean = false,
         hasStalking: Boolean = false,
         hasChildProtection: Boolean = false,
+        hasActiveEvent: Boolean = true,
     ): DeliusInputs {
         return DeliusInputs(
             isFemale = false,
@@ -178,6 +184,7 @@ class TierCalculatorTest {
             ),
             previousEnforcementActivity = false,
             latestReleaseDate = latestReleaseDate,
+            hasActiveEvent = hasActiveEvent,
         )
     }
 

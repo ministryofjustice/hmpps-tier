@@ -1,0 +1,1 @@
+alter table if exists tier_summary alter column tier type varchar (2);

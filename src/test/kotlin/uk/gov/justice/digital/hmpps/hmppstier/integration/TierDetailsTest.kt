@@ -50,6 +50,7 @@ class TierDetailsTest : IntegrationTestBase() {
         deliusApi.getFullDetails(
             crn,
             deliusResponse(
+                convictions = listOf(deliusConviction()),
                 registrations = listOf(
                     deliusRegistration(category = "M2", level = "M2"),
                     deliusRegistration(typeCode = Rosh.VERY_HIGH.registerCode)

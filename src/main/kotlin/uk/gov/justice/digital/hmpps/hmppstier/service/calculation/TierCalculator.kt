@@ -11,15 +11,18 @@ import java.math.BigDecimal
 import java.math.BigDecimal.ZERO
 
 object TierCalculator {
-    fun calculate(deliusInputs: DeliusInputs, riskPredictors: AllPredictorDto?) = maxOfNotNull(
-        nonSexualReoffending(riskPredictors),
-        sexualReoffending(riskPredictors),
-        mappaAndRiskOfSeriousHarm(deliusInputs),
-        liferAndImprisonmentForPublicProtection(deliusInputs),
-        domesticAbuse(deliusInputs),
-        stalking(deliusInputs),
-        childProtection(deliusInputs),
-    ) ?: G
+    fun calculate(deliusInputs: DeliusInputs, riskPredictors: AllPredictorDto?): Tier {
+        if (!deliusInputs.hasActiveEvent) return NA
+        return maxOfNotNull(
+            nonSexualReoffending(riskPredictors),
+            sexualReoffending(riskPredictors),
+            mappaAndRiskOfSeriousHarm(deliusInputs),
+            liferAndImprisonmentForPublicProtection(deliusInputs),
+            domesticAbuse(deliusInputs),
+            stalking(deliusInputs),
+            childProtection(deliusInputs),
+        ) ?: G
+    }
 
     fun nonSexualReoffending(riskPredictors: AllPredictorDto?) = riskPredictors?.run {
         val arp = allReoffendingPredictor?.score ?: ZERO
@@ -37,22 +40,23 @@ object TierCalculator {
     }
 
     fun sexualReoffending(riskPredictors: AllPredictorDto?) = riskPredictors?.run {
-        val dc = directContactSexualReoffendingPredictor.validate()
-        if (dc != null) when {
-            dc.band >= VERY_HIGH -> A
-            dc.band >= HIGH -> B
-            dc.band >= MEDIUM -> when {
-                // without risk reduction
-                dc.score >= 3.36 -> C
-                dc.score >= 2.11 -> D
-                // with risk reduction
-                dc.score >= 1.12 -> C
-                dc.score >= 0.60 -> D
-                else -> error("Unexpected combination of DC-SRP score and band")
-            }
+        directContactSexualReoffendingPredictor.validate()?.let { dc ->
+            when {
+                dc.band >= VERY_HIGH -> A
+                dc.band >= HIGH -> B
+                dc.band >= MEDIUM -> when {
+                    // without risk reduction
+                    dc.score >= 3.36 -> C
+                    dc.score >= 2.11 -> D
+                    // with risk reduction
+                    dc.score >= 1.12 -> C
+                    dc.score >= 0.60 -> D
+                    else -> error("Unexpected combination of DC-SRP score and band")
+                }
 
-            else -> E
-        } else null
+                else -> E
+            }
+        }
     }
 
     fun mappaAndRiskOfSeriousHarm(deliusInputs: DeliusInputs) = with(deliusInputs.registrations) {
