@@ -21,4 +21,5 @@ data class DeliusResponse @JsonCreator constructor(
     val ogrsscore: Int?,
     val previousEnforcementActivity: Boolean,
     val latestReleaseDate: LocalDate?,
+    val hasActiveEvent: Boolean,
 )
