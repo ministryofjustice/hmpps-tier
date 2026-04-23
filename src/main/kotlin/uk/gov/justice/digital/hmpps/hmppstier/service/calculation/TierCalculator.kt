@@ -12,7 +12,7 @@ import java.math.BigDecimal.ZERO
 
 object TierCalculator {
     fun calculate(deliusInputs: DeliusInputs, riskPredictors: AllPredictorDto?): Tier {
-        if (!deliusInputs.hasActiveEvent) return NA
+        if (deliusInputs.hasActiveEvent == false) return NA
         return maxOfNotNull(
             nonSexualReoffending(riskPredictors),
             sexualReoffending(riskPredictors),

@@ -15,6 +15,7 @@ object ResponseGenerator {
         convictions: List<DeliusConviction> = listOf(),
         previousEnforcementActivity: Boolean = false,
         latestReleaseDate: LocalDate? = LocalDate.of(2022, 1, 1),
+        hasActiveEvent: Boolean = true,
     ) = DeliusResponse(
         gender = gender,
         registrations = registrations,
@@ -22,7 +23,8 @@ object ResponseGenerator {
         rsrscore = rsrScore?.toBigDecimal(),
         ogrsscore = ogrsScore?.toInt(),
         previousEnforcementActivity = previousEnforcementActivity,
-        latestReleaseDate = latestReleaseDate
+        latestReleaseDate = latestReleaseDate,
+        hasActiveEvent = hasActiveEvent,
     )
 
     fun deliusRegistration(
