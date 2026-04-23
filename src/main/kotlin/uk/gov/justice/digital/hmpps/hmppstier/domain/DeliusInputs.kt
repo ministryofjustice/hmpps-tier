@@ -12,6 +12,7 @@ data class DeliusInputs(
     val registrations: Registrations,
     val previousEnforcementActivity: Boolean,
     val latestReleaseDate: LocalDate?,
+    val hasActiveEvent: Boolean,
 ) : Serializable {
     fun inFirstYearOfRelease() = latestReleaseDate != null && latestReleaseDate > LocalDate.now().minusYears(1)
 }

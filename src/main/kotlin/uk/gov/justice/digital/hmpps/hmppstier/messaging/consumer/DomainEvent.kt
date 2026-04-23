@@ -32,6 +32,13 @@ data class DomainEvent(
             "probation-case.requirement.deleted" -> "${requirementOfType()} was removed"
             "probation-case.requirement.terminated" -> "${requirementOfType()} was terminated"
             "probation-case.requirement.unterminated" -> "${requirementOfType()} was un-terminated"
+            "probation-case.sentence.created" -> "A sentence was added"
+            "probation-case.sentence.amended" -> "A sentence was amended"
+            "probation-case.sentence.terminated" -> "A sentence was terminated"
+            "probation-case.sentence.unterminated" -> "A sentence was un-terminated"
+            "probation-case.sentence.deleted" -> "A sentence was removed"
+            "probation-case.sentence.moved" -> "A sentence was moved"
+            "conviction.changed" -> "The supervision status changed"
             "risk-assessment.scores.determined" -> "An OASys assessment was produced"
 
             else -> description

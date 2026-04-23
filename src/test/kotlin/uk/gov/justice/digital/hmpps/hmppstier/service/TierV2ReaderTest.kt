@@ -76,6 +76,7 @@ internal class TierV2ReaderTest {
                     ),
                     previousEnforcementActivity = false,
                     latestReleaseDate = null,
+                    hasActiveEvent = false,
                 )
             )
         )

@@ -19,6 +19,8 @@ import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.readValue
 import uk.gov.justice.digital.hmpps.hmppstier.config.ReactorExtensions.invoke
 import uk.gov.justice.digital.hmpps.hmppstier.domain.RecalculationSource
+import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent.Identifier
+import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent.PersonReference
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 import java.time.Duration
 import java.util.concurrent.CompletionException
@@ -33,7 +35,12 @@ class DomainEventListener(
     @SqsListener("hmppsdomaineventsqueue", factory = "hmppsQueueContainerFactoryProxy")
     fun listen(msg: String) {
         val (message, attributes) = objectMapper.readValue<SQSMessage>(msg)
-        val domainEventMessage = objectMapper.readValue<DomainEvent>(message)
+
+        val domainEventMessage = if (attributes.eventType == "CONVICTION_CHANGED") {
+            objectMapper.readValue<OffenderEvent>(message).asDomainEvent()
+        } else {
+            objectMapper.readValue<DomainEvent>(message)
+        }
         if (attributes.eventType == "risk-assessment.scores.determined" && domainEventMessage.eventType != "assessment.summary.produced") {
             return
         }
@@ -82,6 +89,12 @@ class DomainEventListener(
         calculator.calculateTierForCrn(crn, source)
     }
 
+    private fun OffenderEvent.asDomainEvent() = DomainEvent(
+        eventType = "conviction.changed",
+        description = "The supervision status changed",
+        personReference = PersonReference(identifiers = listOf(Identifier("CRN", crn)))
+    )
+
     companion object {
         val RETRYABLE_EXCEPTIONS = listOf(
             RestClientException::class,
@@ -110,3 +123,4 @@ class DomainEventListener(
         }
     }
 }
+

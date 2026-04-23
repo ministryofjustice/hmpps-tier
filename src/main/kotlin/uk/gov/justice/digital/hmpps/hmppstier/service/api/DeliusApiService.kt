@@ -8,6 +8,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.*
 import uk.gov.justice.digital.hmpps.hmppstier.service.calculation.MandateForChange.hasNoMandate
 import java.math.BigDecimal
+import java.time.LocalDate
 
 @Service
 class DeliusApiService(private val deliusApiClient: DeliusApiClient) {
@@ -22,6 +23,7 @@ class DeliusApiService(private val deliusApiClient: DeliusApiClient) {
             registrations = getRegistrations(tierToDeliusResponse.registrations),
             previousEnforcementActivity = tierToDeliusResponse.previousEnforcementActivity,
             latestReleaseDate = tierToDeliusResponse.latestReleaseDate,
+            hasActiveEvent = tierToDeliusResponse.convictions.any { it.terminationDate == null || it.terminationDate > LocalDate.now() },
         )
     }
 

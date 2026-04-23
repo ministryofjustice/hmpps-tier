@@ -11,6 +11,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.jacksonObjectMapper
+import uk.gov.justice.digital.hmpps.hmppstier.domain.RecalculationSource.EventSource.DomainEventRecalculation
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
 
@@ -54,29 +55,43 @@ class DomainEventListenerTest {
         verify(calculator).calculateTierForCrn(eq(crn), any())
     }
 
+    @Test
+    fun `CONVICTION_CHANGED offender events are converted and processed as domain events`() {
+        val crn = TestData.crn()
+        val message = sqsMessage(
+            sqsEventType = "CONVICTION_CHANGED",
+            crn = crn,
+            message = OffenderEvent(crn)
+        )
+
+        listener.listen(message)
+
+        verify(calculator).calculateTierForCrn(
+            eq(crn),
+            eq(DomainEventRecalculation("conviction.changed", "The supervision status changed"))
+        )
+    }
+
     private fun sqsMessage(
         sqsEventType: String,
-        domainEventType: String,
+        domainEventType: String = sqsEventType,
         crn: String = TestData.crn(),
-    ): String {
-        val domainEvent = DomainEvent(
+        message: Any = DomainEvent(
             eventType = domainEventType,
             description = "description",
             personReference = DomainEvent.PersonReference(listOf(DomainEvent.Identifier("CRN", crn))),
         )
-
-        return objectMapper.writeValueAsString(
-            mapOf(
-                "Message" to objectMapper.writeValueAsString(domainEvent),
-                "MessageAttributes" to mapOf(
-                    "attributes" to mapOf(
-                        "eventType" to mapOf(
-                            "Type" to "String",
-                            "Value" to sqsEventType,
-                        ),
+    ) = objectMapper.writeValueAsString(
+        mapOf(
+            "Message" to objectMapper.writeValueAsString(message),
+            "MessageAttributes" to mapOf(
+                "attributes" to mapOf(
+                    "eventType" to mapOf(
+                        "Type" to "String",
+                        "Value" to sqsEventType,
                     ),
                 ),
             ),
-        )
-    }
+        ),
+    )
 }

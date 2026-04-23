@@ -125,5 +125,6 @@ internal class TierCalculationServiceTest {
         ),
         previousEnforcementActivity = false,
         latestReleaseDate = null,
+        hasActiveEvent = true,
     )
 }

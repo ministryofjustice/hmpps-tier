@@ -16,7 +16,7 @@ class TierSummaryEntity(
     @Column
     var uuid: UUID,
 
-    @Column(columnDefinition = "char(1)")
+    @Column(columnDefinition = "varchar(2)")
     var tier: String?, // can make this non-nullable once all cases have been recalculated
 
     @Column

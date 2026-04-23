@@ -122,6 +122,32 @@ class DeliusApiServiceTest {
     }
 
     @Test
+    fun `maps convictions to hasActiveEvent flag`() {
+        stubDeliusResponse(deliusResponse(convictions = listOf(conviction())))
+
+        val result = deliusApiService.getTierToDelius(crn)
+
+        assertThat(result.hasActiveEvent).isTrue()
+    }
+
+    @Test
+    fun `maps convictions to hasActiveEvent flag ignoring terminated sentences`() {
+        stubDeliusResponse(
+            deliusResponse(
+                convictions = listOf(
+                    conviction(
+                        terminationDate = LocalDate.now().minusDays(1)
+                    )
+                )
+            )
+        )
+
+        val result = deliusApiService.getTierToDelius(crn)
+
+        assertThat(result.hasActiveEvent).isFalse()
+    }
+
+    @Test
     fun `selects most recent rosh and ignores HREG`() {
         stubDeliusResponse(
             deliusResponse(
