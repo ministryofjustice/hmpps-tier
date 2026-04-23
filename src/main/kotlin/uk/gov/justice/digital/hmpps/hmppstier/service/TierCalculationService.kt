@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.AssessmentForTier
@@ -30,6 +31,7 @@ class TierCalculationService(
     private val domainEventPublisher: DomainEventPublisher,
     private val telemetryService: TelemetryService,
     private val tierUpdater: TierUpdater,
+    @Value("\${feature.v3.enabled}") private val v3Enabled: Boolean,
 ) {
     fun calculateTierForCrn(
         crn: String,
@@ -101,10 +103,10 @@ class TierCalculationService(
             crn = crn,
             created = LocalDateTime.now(clock),
             data = TierCalculationResultEntity(
-                tier = tier,
+                tier = tier.takeIf { v3Enabled },
                 change = changeLevel,
                 protect = protectLevel,
-                calculationVersion = "3",
+                calculationVersion = if (v3Enabled) "3" else "2",
                 deliusInputs = deliusInputs,
                 assessmentSummary = assessment,
                 riskPredictors = predictors

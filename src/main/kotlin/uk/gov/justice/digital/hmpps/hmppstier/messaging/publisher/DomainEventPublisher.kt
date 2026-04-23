@@ -17,6 +17,7 @@ class DomainEventPublisher(
     hmppsQueueService: HmppsQueueService,
     private val objectMapper: ObjectMapper,
     @Value("\${hmpps.tier.endpoint.url}") private val hmppsTierEndpointUrl: String,
+    @Value("\${feature.v3.enabled}") private val v3Enabled: Boolean,
 ) {
 
     private val calculationCompleteTopic = hmppsQueueService.findByTopicId("hmppscalculationcompletetopic")
@@ -29,6 +30,7 @@ class DomainEventPublisher(
 
     private fun publishCalculation(crn: String, calculationId: UUID) {
         val message = TierCalculationDomainEvent(
+            version = if (v3Enabled) 3 else 2,
             detailUrl = "$hmppsTierEndpointUrl/crn/$crn/tier/$calculationId",
             additionalInformation = AdditionalInformation(calculationId),
             personReference = PersonReference(listOf(DomainEvent.Identifier("CRN", crn))),

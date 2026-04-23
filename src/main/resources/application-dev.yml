@@ -22,6 +22,25 @@ hmpps.sqs:
     hmppsdomaineventstopic:
       arn: arn:aws:sns:eu-west-2:000000000000:${random.uuid}
 
+arns:
+  endpoint:
+    url: http://localhost:8094
+
+hmpps.tier:
+  endpoint:
+    url: http://localhost:8080
+
+tier-to-delius:
+  endpoint:
+    url: http://localhost:8093
+
+oauth:
+  endpoint:
+    url: http://localhost:9090/auth
+  client:
+    id: client-id
+    secret: client-secret
+
 logging:
   level:
     uk.gov: DEBUG

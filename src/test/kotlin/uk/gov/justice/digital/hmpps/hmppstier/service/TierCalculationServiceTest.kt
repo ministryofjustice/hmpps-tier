@@ -1,10 +1,10 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
-import org.mockito.InjectMocks
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
@@ -54,8 +54,21 @@ internal class TierCalculationServiceTest {
     @Mock
     internal lateinit var rescoredAssessmentService: RescoredAssessmentService
 
-    @InjectMocks
     internal lateinit var tierCalculationService: TierCalculationService
+
+    @BeforeEach
+    fun beforeEach() {
+        tierCalculationService = TierCalculationService(
+            clock = clock,
+            assessmentApiService = assessmentApiService,
+            deliusApiService = deliusApiService,
+            rescoredAssessmentService = rescoredAssessmentService,
+            domainEventPublisher = domainEventPublisher,
+            telemetryService = telemetryService,
+            tierUpdater = tierUpdater,
+            v3Enabled = true
+        )
+    }
 
     @Test
     fun `failure to remove tier logs to app insights`() {

@@ -10,6 +10,7 @@ generic-service:
     HMPPS_TIER_ENDPOINT_URL: https://hmpps-tier-dev.hmpps.service.justice.gov.uk
     TIER_TO_DELIUS_ENDPOINT_URL: https://tier-to-delius-dev.hmpps.service.justice.gov.uk
     SENTRY_ENVIRONMENT: dev
+    FEATURE_V3_ENABLED: true
 
   allowlist:
     dxw-vpn: 54.76.254.148/32
