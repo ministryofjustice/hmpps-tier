@@ -9,6 +9,7 @@ generic-service:
     ARNS_ENDPOINT_URL: https://assess-risks-and-needs-preprod.hmpps.service.justice.gov.uk
     HMPPS_TIER_ENDPOINT_URL: https://hmpps-tier-preprod.hmpps.service.justice.gov.uk
     TIER_TO_DELIUS_ENDPOINT_URL: https://tier-to-delius-preprod.hmpps.service.justice.gov.uk
+    FLIPT_URL: https://feature-toggles-preprod.hmpps.service.justice.gov.uk
     SENTRY_ENVIRONMENT: preprod
 
   allowlist:
