@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import software.amazon.awssdk.services.sns.model.MessageAttributeValue
 import software.amazon.awssdk.services.sns.model.PublishRequest
 import tools.jackson.databind.ObjectMapper
+import uk.gov.justice.digital.hmpps.hmppstier.flags.FeatureFlags
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent.AdditionalInformation
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent.PersonReference
@@ -16,6 +17,7 @@ import java.util.*
 class DomainEventPublisher(
     hmppsQueueService: HmppsQueueService,
     private val objectMapper: ObjectMapper,
+    private val featureFlags: FeatureFlags,
     @Value("\${hmpps.tier.endpoint.url}") private val hmppsTierEndpointUrl: String,
 ) {
 
@@ -29,6 +31,7 @@ class DomainEventPublisher(
 
     private fun publishCalculation(crn: String, calculationId: UUID) {
         val message = TierCalculationDomainEvent(
+            version = if (featureFlags.v3Enabled) 3 else 2,
             detailUrl = "$hmppsTierEndpointUrl/crn/$crn/tier/$calculationId",
             additionalInformation = AdditionalInformation(calculationId),
             personReference = PersonReference(listOf(DomainEvent.Identifier("CRN", crn))),

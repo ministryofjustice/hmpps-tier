@@ -16,7 +16,7 @@ class DomainEventPublisherTest {
         every { hmppsQueueService.findByTopicId("hmppscalculationcompletetopic") } returns null
 
         Assertions.assertThrows(MissingTopicException::class.java) {
-            DomainEventPublisher(hmppsQueueService, mockk(), "")
+            DomainEventPublisher(hmppsQueueService, mockk(), mockk(), "")
         }
     }
 }

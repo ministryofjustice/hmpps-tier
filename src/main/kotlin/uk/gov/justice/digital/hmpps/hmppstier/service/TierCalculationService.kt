@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.TelemetryEventType.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import uk.gov.justice.digital.hmpps.hmppstier.exception.CrnNotFoundException
+import uk.gov.justice.digital.hmpps.hmppstier.flags.FeatureFlags
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.publisher.DomainEventPublisher
@@ -30,6 +31,7 @@ class TierCalculationService(
     private val domainEventPublisher: DomainEventPublisher,
     private val telemetryService: TelemetryService,
     private val tierUpdater: TierUpdater,
+    private val featureFlags: FeatureFlags,
 ) {
     fun calculateTierForCrn(
         crn: String,
@@ -101,10 +103,10 @@ class TierCalculationService(
             crn = crn,
             created = LocalDateTime.now(clock),
             data = TierCalculationResultEntity(
-                tier = tier,
+                tier = tier.takeIf { featureFlags.v3Enabled },
                 change = changeLevel,
                 protect = protectLevel,
-                calculationVersion = "3",
+                calculationVersion = if (featureFlags.v3Enabled) "3" else "2",
                 deliusInputs = deliusInputs,
                 assessmentSummary = assessment,
                 riskPredictors = predictors

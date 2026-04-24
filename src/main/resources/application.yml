@@ -81,5 +81,3 @@ management:
     info:
       cache:
         time-to-live: 2000ms
-
-springdoc.swagger-ui.version: 5.32.1
