@@ -81,5 +81,3 @@ management:
     info:
       cache:
         time-to-live: 2000ms
-
-feature.v3.enabled: true

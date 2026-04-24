@@ -23,6 +23,7 @@ dependencies {
     implementation(platform("io.sentry:sentry-bom:8.39.0"))
     implementation("io.sentry:sentry-spring-boot-4")
     implementation("io.sentry:sentry-logback")
+    implementation("io.flipt:flipt-client-java:1.3.1")
 
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
