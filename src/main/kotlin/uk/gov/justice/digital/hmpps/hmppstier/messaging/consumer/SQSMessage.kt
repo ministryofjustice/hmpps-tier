@@ -13,7 +13,7 @@ data class SQSMessage(
         private val attributes: MutableMap<String, MessageAttribute> = mutableMapOf(),
     ) : MutableMap<String, MessageAttribute> by attributes {
 
-        val eventType = attributes[EVENT_TYPE_KEY]?.value
+        val eventType get() = attributes[EVENT_TYPE_KEY]?.value
 
         companion object {
             private const val EVENT_TYPE_KEY = "eventType"
