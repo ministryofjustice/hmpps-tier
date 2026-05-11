@@ -31,7 +31,7 @@ jobs:
       matrix:
         environments: ['dev', 'preprod', 'prod']
     name: helm lint
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@255709aa1349e6ec1d77b3fec0ed6cbe9f962973 # v2.14.1
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@c2a23fcb9a0ce8f98145230d4fe930bd9008d12b # v2.14.5
     secrets: inherit
     with:
       environment: ${{ matrix.environments }}
@@ -42,10 +42,10 @@ jobs:
     steps:
       - id: app_version
         name: Application version creators
-        uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/build-test-and-deploy/create_app_version@5a2c3da0779ed4d281f3e63c045fb7e5d295b6b1 #v1.0.9
+        uses: ministryofjustice/hmpps-github-shared-actions/.github/actions/build-test-and-deploy/create_app_version@cd5eb88ee6b73a22548a64b8c7358a3bedc9516f #v1.0.13
   gradle_verify:
     name: Validate the kotlin
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/gradle_verify.yml@255709aa1349e6ec1d77b3fec0ed6cbe9f962973 # v2.14.1
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/gradle_verify.yml@c2a23fcb9a0ce8f98145230d4fe930bd9008d12b # v2.14.5
     secrets: inherit
     with:
       upload-build-artifacts: ${{ github.ref == 'refs/heads/main' }}
@@ -57,7 +57,7 @@ jobs:
   build:
     name: Build docker image from hmpps-github-actions
     if: github.ref == 'refs/heads/main'
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@255709aa1349e6ec1d77b3fec0ed6cbe9f962973 # v2.14.1
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@c2a23fcb9a0ce8f98145230d4fe930bd9008d12b # v2.14.5
     needs:
       - gradle_verify
     with:
@@ -72,7 +72,7 @@ jobs:
     needs:
       - build
       - helm_lint
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@255709aa1349e6ec1d77b3fec0ed6cbe9f962973 # v2.14.1
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@c2a23fcb9a0ce8f98145230d4fe930bd9008d12b # v2.14.5
     secrets: inherit
     with:
       environment: 'dev'
@@ -83,7 +83,7 @@ jobs:
     needs:
       - build
       - deploy_dev
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@255709aa1349e6ec1d77b3fec0ed6cbe9f962973 # v2.14.1
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@c2a23fcb9a0ce8f98145230d4fe930bd9008d12b # v2.14.5
     secrets: inherit
     with:
       environment: 'preprod'
@@ -94,7 +94,7 @@ jobs:
     needs:
       - build
       - deploy_preprod
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@255709aa1349e6ec1d77b3fec0ed6cbe9f962973 # v2.14.1
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@c2a23fcb9a0ce8f98145230d4fe930bd9008d12b # v2.14.5
     secrets: inherit
     with:
       environment: 'prod'
