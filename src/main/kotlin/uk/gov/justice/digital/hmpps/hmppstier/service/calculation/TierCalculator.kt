@@ -1,88 +1,89 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service.calculation
 
-import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ScoreLevel.*
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.AllPredictorDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.ValidPredictor.Companion.validate
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.ValidPredictor.ValidScoreLevel.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusInputs
+import uk.gov.justice.digital.hmpps.hmppstier.domain.OASysInputs
+import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Tier
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Tier.*
-import java.math.BigDecimal
+import uk.gov.justice.digital.hmpps.hmppstier.service.calculation.CalculationStep.*
+import uk.gov.justice.digital.hmpps.hmppstier.service.calculation.ProvisionalStatusCalculator.isProvisional
+import uk.gov.justice.digital.hmpps.hmppstier.service.calculation.ReoffendingPredictorTable.compareTo
 import java.math.BigDecimal.ZERO
+import java.time.LocalDate
 
 object TierCalculator {
-    fun calculate(deliusInputs: DeliusInputs, riskPredictors: AllPredictorDto?): Tier {
-        if (deliusInputs.hasActiveEvent == false) return NA
-        return maxOfNotNull(
-            nonSexualReoffending(riskPredictors),
-            sexualReoffending(riskPredictors),
-            mappaAndRiskOfSeriousHarm(deliusInputs),
-            liferAndImprisonmentForPublicProtection(deliusInputs),
-            domesticAbuse(deliusInputs),
-            stalking(deliusInputs),
-            childProtection(deliusInputs),
-        ) ?: G
+    fun calculate(deliusInputs: DeliusInputs, oasysInputs: OASysInputs?): CalculationResult {
+        if (!deliusInputs.hasActiveEvent) return CalculationResult(NOT_SUPERVISED)
+        if (oasysInputs == null || !oasysInputs.hasArpAndCsrp) return CalculationResult(MISSING)
+
+        val stepResults = mapOf(
+            REOFFENDING to oasysInputs.predictors.nonSexualReoffending(),
+            SEXUAL_REOFFENDING to oasysInputs.predictors.sexualReoffending(),
+            MAPPA_ROSH to deliusInputs.registrations.mappaAndRiskOfSeriousHarm(),
+            LIFER_IPP to deliusInputs.liferAndImprisonmentForPublicProtection(),
+            DOMESTIC_ABUSE to deliusInputs.registrations.domesticAbuse(),
+            STALKING to deliusInputs.registrations.stalking(),
+            CHILD_PROTECTION to deliusInputs.registrations.childProtection(),
+            SEXUAL_OFFENCES to oasysInputs.sexualOffences(),
+        )
+        return CalculationResult(
+            tier = stepResults.maxOf { it.value ?: G },
+            provisional = isProvisional(deliusInputs, oasysInputs.predictors, stepResults)
+        )
     }
 
-    fun nonSexualReoffending(riskPredictors: AllPredictorDto?) = riskPredictors?.run {
-        val arp = allReoffendingPredictor?.score ?: ZERO
-        val csrp = combinedSeriousReoffendingPredictor?.score ?: ZERO
-        val row = arrayOf(6.9, 3.0, 1.0, 0.5, 0.0).indexOfFirst { csrp >= it }
-        val col = arrayOf(90, 75, 50, 25, 15, 0).indexOfFirst { arp >= it }
-        arrayOf(
-            // CSRP  /  ARP = (90,75,50,25,15,0)
-            /* 6.9+ */ arrayOf(A, A, B, B, B, B),
-            /* 3.0+ */ arrayOf(A, B, C, C, C, C),
-            /* 1.0+ */ arrayOf(B, C, D, E, E, E),
-            /* 0.5+ */ arrayOf(C, D, E, E, F, F),
-            /* 0.0+ */ arrayOf(D, D, E, F, F, G),
-        )[row][col]
-    }
+    fun AllPredictorDto.nonSexualReoffending() = ReoffendingPredictorTable.calculate(
+        arp = allReoffendingPredictor?.score ?: ZERO,
+        csrp = combinedSeriousReoffendingPredictor?.score ?: ZERO
+    )
 
-    fun sexualReoffending(riskPredictors: AllPredictorDto?) = riskPredictors?.run {
-        directContactSexualReoffendingPredictor.validate()?.let { dc ->
-            when {
-                dc.band >= VERY_HIGH -> A
-                dc.band >= HIGH -> B
-                dc.band >= MEDIUM -> when {
+    fun AllPredictorDto.sexualReoffending(): Tier? =
+        with(directContactSexualReoffendingPredictor.validate() ?: return null) {
+            when (band) {
+                VERY_HIGH -> A
+                HIGH -> B
+                MEDIUM -> when {
                     // without risk reduction
-                    dc.score >= 3.36 -> C
-                    dc.score >= 2.11 -> D
+                    score >= 3.36 -> C
+                    score >= 2.11 -> D
                     // with risk reduction
-                    dc.score >= 1.12 -> C
-                    dc.score >= 0.60 -> D
+                    score >= 1.12 -> C
+                    score >= 0.60 -> D
                     else -> error("Unexpected combination of DC-SRP score and band")
                 }
 
-                else -> E
+                LOW -> E
             }
         }
-    }
 
-    fun mappaAndRiskOfSeriousHarm(deliusInputs: DeliusInputs) = with(deliusInputs.registrations) {
-        if (mappaCategory != null) when (rosh) {
-            Rosh.VERY_HIGH -> A
-            Rosh.HIGH -> C
-            Rosh.MEDIUM -> D
-            else -> E
-        } else when (rosh) {
-            Rosh.VERY_HIGH -> C
-            Rosh.HIGH -> D
-            else -> null
-        }
-    }
-
-    fun liferAndImprisonmentForPublicProtection(deliusInputs: DeliusInputs) = when {
-        deliusInputs.registrations.hasLiferIpp && deliusInputs.inFirstYearOfRelease() -> B
-        deliusInputs.registrations.hasLiferIpp -> F
+    fun Registrations.mappaAndRiskOfSeriousHarm() = if (mappaCategory != null) when (rosh) {
+        Rosh.VERY_HIGH -> A
+        Rosh.HIGH -> C
+        Rosh.MEDIUM -> D
+        Rosh.LOW -> E
+        else -> null
+    } else when (rosh) {
+        Rosh.VERY_HIGH -> C
+        Rosh.HIGH -> D
         else -> null
     }
 
-    fun domesticAbuse(deliusInputs: DeliusInputs) = E.takeIf { deliusInputs.registrations.hasDomesticAbuse }
-    fun stalking(deliusInputs: DeliusInputs) = F.takeIf { deliusInputs.registrations.hasStalking }
-    fun childProtection(deliusInputs: DeliusInputs) = F.takeIf { deliusInputs.registrations.hasChildProtection }
+    fun DeliusInputs.liferAndImprisonmentForPublicProtection(): Tier? {
+        val today = LocalDate.now()
+        return when {
+            latestReleaseDate == null || !registrations.hasLiferIpp -> null
+            latestReleaseDate >= today.minusYears(1) -> B
+            latestReleaseDate >= today.minusYears(5) -> D
+            else -> E
+        }
+    }
 
-    private fun maxOfNotNull(vararg values: Tier?) = values.filterNotNull().maxOrNull()
-    private operator fun BigDecimal.compareTo(value: Int) = compareTo(value.toBigDecimal())
-    private operator fun BigDecimal.compareTo(value: Double) = compareTo(value.toBigDecimal())
+    fun Registrations.domesticAbuse() = E.takeIf { hasDomesticAbuse }
+    fun Registrations.stalking() = F.takeIf { hasStalking }
+    fun Registrations.childProtection() = F.takeIf { hasChildProtection }
+    fun OASysInputs.sexualOffences() = E.takeIf { everCommittedSexualOffence }
 }

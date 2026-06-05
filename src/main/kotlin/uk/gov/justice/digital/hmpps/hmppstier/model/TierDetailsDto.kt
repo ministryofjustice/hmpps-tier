@@ -24,4 +24,8 @@ data class TierDetailsDto @JsonCreator constructor(
     @Schema(description = "Calculation input data")
     @JsonProperty("data")
     val data: TierCalculationResultEntity,
+
+    @Schema(description = "Whether the tier score is provisional", example = "false")
+    @JsonProperty("provisional")
+    val provisional: Boolean? = null,
 )

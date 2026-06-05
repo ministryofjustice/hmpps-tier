@@ -20,7 +20,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
 class TierCalculationV3Test : IntegrationTestBase() {
 
     @Test
-    fun `returns G when ARP score is missing from risk predictors`() {
+    fun `returns G when ARP and CSRP scores are zero`() {
         val crn = TestData.crn()
         deliusApi.getFullDetails(crn, deliusDetails())
         arnsApi.getRiskPredictors(crn)

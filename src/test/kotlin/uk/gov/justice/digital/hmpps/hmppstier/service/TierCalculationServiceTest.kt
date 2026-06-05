@@ -11,15 +11,11 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.digital.hmpps.hmppstier.client.arns.OGRS4Predictors
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ScoreType
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.AllPredictorDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.StaticOrDynamicPredictorDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.VersionedStaticOrDynamicPredictorDto
-import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusInputs
-import uk.gov.justice.digital.hmpps.hmppstier.domain.RecalculationSource
-import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
-import uk.gov.justice.digital.hmpps.hmppstier.domain.TelemetryEventType
+import uk.gov.justice.digital.hmpps.hmppstier.domain.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Tier
 import uk.gov.justice.digital.hmpps.hmppstier.flags.FeatureFlags
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.publisher.DomainEventPublisher
@@ -29,7 +25,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
 import java.math.BigDecimal
 import java.time.Clock
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneOffset
 
 @ExtendWith(MockitoExtension::class)
@@ -53,9 +48,6 @@ internal class TierCalculationServiceTest {
     internal lateinit var tierUpdater: TierUpdater
 
     @Mock
-    internal lateinit var rescoredAssessmentService: RescoredAssessmentService
-
-    @Mock
     internal lateinit var featureFlags: FeatureFlags
 
     @InjectMocks
@@ -75,26 +67,25 @@ internal class TierCalculationServiceTest {
     }
 
     @Test
-    fun `uses rescored predictors when ARNS predictors are unavailable`() {
+    fun `uses OASys tier inputs from assessment service`() {
         whenever(featureFlags.v3Enabled).thenReturn(true)
 
         val crn = TestData.crn()
-        val rescoredAssessment = riskPredictors()
+        val oasysInputs = oasysInputs()
 
         whenever(clock.instant()).thenReturn(Instant.parse("2025-03-16T09:30:00Z"))
         whenever(clock.zone).thenReturn(ZoneOffset.UTC)
         whenever(deliusApiService.getTierToDelius(crn)).thenReturn(deliusInputs())
         whenever(assessmentApiService.getTierAssessmentInformation(crn)).thenReturn(null)
-        whenever(assessmentApiService.getRiskPredictors(crn)).thenReturn(null)
-        whenever(rescoredAssessmentService.getByCrn(crn)).thenReturn(rescoredAssessment)
+        whenever(assessmentApiService.getOASysTierInputs(crn)).thenReturn(oasysInputs)
         whenever(tierUpdater.updateTier(any(), eq(crn))).thenReturn(true)
 
         val result = tierCalculationService.calculateTierForCrn(crn, RecalculationSource.FullRecalculation)
 
         assertThat(result).isNotNull
         assertThat(result!!.data.tier).isEqualTo(Tier.C)
-        assertThat(result.data.riskPredictors).isSameAs(rescoredAssessment)
-        verify(rescoredAssessmentService).getByCrn(crn)
+        assertThat(result.data.provisional).isTrue()
+        assertThat(result.data.oasysInputs).isSameAs(oasysInputs)
         verify(tierUpdater).updateTier(result, crn)
         verify(domainEventPublisher).update(crn, true, result.uuid)
         verify(telemetryService).trackTierCalculated(result, true, RecalculationSource.FullRecalculation)
@@ -110,13 +101,13 @@ internal class TierCalculationServiceTest {
         whenever(clock.zone).thenReturn(ZoneOffset.UTC)
         whenever(deliusApiService.getTierToDelius(crn)).thenReturn(deliusInputs())
         whenever(assessmentApiService.getTierAssessmentInformation(crn)).thenReturn(null)
-        whenever(assessmentApiService.getRiskPredictors(crn)).thenReturn(riskPredictors())
         whenever(tierUpdater.updateTier(any(), eq(crn))).thenReturn(true)
 
         val result = tierCalculationService.calculateTierForCrn(crn, RecalculationSource.FullRecalculation)
 
         assertThat(result).isNotNull
         assertThat(result!!.data.tier).isNull()
+        assertThat(result.data.provisional).isNull()
         assertThat(result.data.protect).isNotNull()
         assertThat(result.data.change).isNotNull()
     }
@@ -143,9 +134,8 @@ internal class TierCalculationServiceTest {
         hasActiveEvent = true,
     )
 
-    private fun riskPredictors() = OGRS4Predictors(
-        completedDate = LocalDate.of(2025, 3, 1).atStartOfDay(),
-        output = AllPredictorDto(
+    private fun oasysInputs() = OASysInputs(
+        predictors = AllPredictorDto(
             allReoffendingPredictor = StaticOrDynamicPredictorDto(
                 staticOrDynamic = ScoreType.DYNAMIC,
                 score = BigDecimal("75.0"),
@@ -155,5 +145,6 @@ internal class TierCalculationServiceTest {
                 score = BigDecimal("1.0"),
             ),
         ),
+        everCommittedSexualOffence = false,
     )
 }

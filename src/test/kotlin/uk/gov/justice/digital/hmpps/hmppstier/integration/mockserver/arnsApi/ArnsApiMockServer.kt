@@ -105,8 +105,12 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
 
     fun getRiskPredictors(
         crn: String,
-        csrp: Double? = null,
-        arp: Double? = null,
+        csrp: Double? = 0.0,
+        arp: Double? = 0.0,
+        csrpType: ScoreType? = ScoreType.DYNAMIC,
+        arpType: ScoreType? = ScoreType.DYNAMIC,
+        csrpBand: ScoreLevel? = ScoreLevel.LOW,
+        arpBand: ScoreLevel? = ScoreLevel.LOW,
         dcSrp: Double? = null,
         dcSrpBand: ScoreLevel? = null,
         iicSrp: Double? = null,
@@ -122,8 +126,20 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
                             completedDate = completedDate,
                             outputVersion = "2",
                             output = AllPredictorDto(
-                                allReoffendingPredictor = StaticOrDynamicPredictorDto(score = arp?.toBigDecimal()),
-                                combinedSeriousReoffendingPredictor = VersionedStaticOrDynamicPredictorDto(score = csrp?.toBigDecimal()),
+                                allReoffendingPredictor = arp?.let {
+                                    StaticOrDynamicPredictorDto(
+                                        staticOrDynamic = arpType,
+                                        score = it.toBigDecimal(),
+                                        band = arpBand,
+                                    )
+                                },
+                                combinedSeriousReoffendingPredictor = csrp?.let {
+                                    VersionedStaticOrDynamicPredictorDto(
+                                        staticOrDynamic = csrpType,
+                                        score = it.toBigDecimal(),
+                                        band = csrpBand,
+                                    )
+                                },
                                 directContactSexualReoffendingPredictor = StaticOrDynamicPredictorDto(
                                     score = dcSrp?.toBigDecimal(),
                                     band = dcSrpBand,

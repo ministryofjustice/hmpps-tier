@@ -27,6 +27,11 @@ class RoshTest {
         }
 
         @Test
+        fun `It should match Low`() {
+            assertThat(Rosh.from("RLRH")).isEqualTo(Rosh.LOW)
+        }
+
+        @Test
         fun `null in null out`() {
             assertThat(Rosh.from(null)).isEqualTo(null)
         }

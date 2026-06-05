@@ -13,6 +13,19 @@ import time
 from datetime import datetime, timezone
 
 
+def parse_args() -> argparse.Namespace:
+    parser = argparse.ArgumentParser(
+        description="One-off updater for tier_calculation calculationVersion 3 -> 2 in batches and tier_summary tier -> null."
+    )
+    parser.add_argument("--dsn", required=True, help="Postgres DSN")
+    parser.add_argument("--batch-size", type=int, default=10_000)
+    parser.add_argument("--search-window-size", type=int, default=100_000)
+    parser.add_argument("--sleep-millis", type=int, default=50)
+    parser.add_argument("--dry-run", action="store_true")
+    parser.add_argument("--vacuum-analyze", action="store_true")
+    return parser.parse_args()
+
+
 def log(message: str) -> None:
     now = datetime.now(timezone.utc).isoformat()
     print(f"[{now}] {message}", flush=True)
@@ -202,19 +215,6 @@ def process_tier_summary(conn: psycopg.Connection, dry_run: bool) -> int:
     except Exception:
         conn.rollback()
         raise
-
-
-def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(
-        description="One-off updater for tier_calculation calculationVersion 3 -> 2 in batches and tier_summary tier -> null."
-    )
-    parser.add_argument("--dsn", required=True, help="Postgres DSN")
-    parser.add_argument("--batch-size", type=int, default=10_000)
-    parser.add_argument("--search-window-size", type=int, default=100_000)
-    parser.add_argument("--sleep-millis", type=int, default=50)
-    parser.add_argument("--dry-run", action="store_true")
-    parser.add_argument("--vacuum-analyze", action="store_true")
-    return parser.parse_args()
 
 
 def main() -> int:

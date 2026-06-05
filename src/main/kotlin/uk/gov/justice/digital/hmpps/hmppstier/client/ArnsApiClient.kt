@@ -9,6 +9,7 @@ import reactor.util.retry.Retry
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.AllPredictorVersioned
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.AssessmentForTier
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.OGRS4Predictors
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.SexualOffenceDto
 
 @Component
 class ArnsApiClient(
@@ -34,4 +35,13 @@ class ArnsApiClient(
         .block()
         ?.filter { it.outputVersion == "2" && it is OGRS4Predictors }
         ?.map { it as OGRS4Predictors }
+
+    fun getSexuallyMotivatedOffence(crn: String): SexualOffenceDto? = arnsClient
+        .get()
+        .uri("/assessments/crn/{crn}/sexually-motivated-offence", crn)
+        .retrieve()
+        .bodyToMono<SexualOffenceDto>()
+        .onErrorResume(WebClientResponseException.NotFound::class.java) { Mono.empty() }
+        .retryWhen(retryOnServerError)
+        .block()
 }

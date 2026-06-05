@@ -27,7 +27,6 @@ class TierCalculationService(
     private val clock: Clock,
     private val assessmentApiService: AssessmentApiService,
     private val deliusApiService: DeliusApiService,
-    private val rescoredAssessmentService: RescoredAssessmentService,
     private val domainEventPublisher: DomainEventPublisher,
     private val telemetryService: TelemetryService,
     private val tierUpdater: TierUpdater,
@@ -84,7 +83,7 @@ class TierCalculationService(
     private fun calculateTier(crn: String, recalculationSource: RecalculationSource): TierCalculationEntity {
         val deliusInputs = deliusApiService.getTierToDelius(crn)
         val assessment = assessmentApiService.getTierAssessmentInformation(crn)
-        val predictors = assessmentApiService.getRiskPredictors(crn) ?: rescoredAssessmentService.getByCrn(crn)
+        val oasysInputs = assessmentApiService.getOASysTierInputs(crn)
 
         // Old tier - protect axis (A-D) + change axis (0-3) - used primarily for allocation
         val protectLevel = ProtectLevelCalculator.calculate(
@@ -97,19 +96,20 @@ class TierCalculationService(
         )
 
         // New tier - single axis (A-G) - used for allocation and supervision packages
-        val tier = TierCalculator.calculate(deliusInputs, predictors?.output)
+        val result = TierCalculator.calculate(deliusInputs, oasysInputs)
 
         return TierCalculationEntity(
             crn = crn,
             created = LocalDateTime.now(clock),
             data = TierCalculationResultEntity(
-                tier = tier.takeIf { featureFlags.v3Enabled },
+                tier = result.tier.takeIf { featureFlags.v3Enabled },
+                provisional = result.provisional.takeIf { featureFlags.v3Enabled },
                 change = changeLevel,
                 protect = protectLevel,
                 calculationVersion = if (featureFlags.v3Enabled) "3" else "2",
                 deliusInputs = deliusInputs,
+                oasysInputs = oasysInputs,
                 assessmentSummary = assessment,
-                riskPredictors = predictors
             ),
             changeReason = recalculationSource.changeReason
         )

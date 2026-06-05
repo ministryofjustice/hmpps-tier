@@ -8,11 +8,13 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ScoreLevel
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ScoreLevel.*
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ScoreType
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.AllPredictorDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.BasePredictorDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.StaticOrDynamicPredictorDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.VersionedStaticOrDynamicPredictorDto
 import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusInputs
+import uk.gov.justice.digital.hmpps.hmppstier.domain.OASysInputs
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.MappaCategory
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
@@ -24,25 +26,26 @@ import java.time.LocalDate
 class TierCalculatorTest {
 
     @Test
-    fun `unsupervised cases have a tier of NA`() {
-        assertThat(TierCalculator.calculate(deliusInputs(hasActiveEvent = false), predictors())).isEqualTo(NA)
+    fun `cases without an active event have a tier of NOT_SUPERVISED`() {
+        assertThat(TierCalculator.calculate(deliusInputs(hasActiveEvent = false), oasysInputs()).tier)
+            .isEqualTo(NOT_SUPERVISED)
     }
 
     @Test
     fun `defaults missing CSRP score to zero for ARP to tier mapping`() {
-        assertThat(TierCalculator.calculate(deliusInputs(), predictors(arp = 90.0))).isEqualTo(D)
+        assertThat(TierCalculator.calculate(deliusInputs(), oasysInputs(arp = 90.0)).tier).isEqualTo(D)
     }
 
     @Test
     fun `defaults missing ARP score to zero for CSRP to tier mapping`() {
-        assertThat(TierCalculator.calculate(deliusInputs(), predictors(csrp = 3.2))).isEqualTo(C)
+        assertThat(TierCalculator.calculate(deliusInputs(), oasysInputs(csrp = 3.2)).tier).isEqualTo(C)
     }
 
     @ParameterizedTest(name = "ARP {0} and CSRP {1} map to tier {2}")
     @MethodSource("arpAndCsrpMatrixCases")
     fun `maps every ARP and CSRP lookup-table combination`(arp: Double, csrp: Double, expectedTier: Tier) {
-        val tier = TierCalculator.calculate(deliusInputs(), predictors(arp = arp, csrp = csrp))
-        assertThat(tier).isEqualTo(expectedTier)
+        assertThat(TierCalculator.calculate(deliusInputs(), oasysInputs(arp = arp, csrp = csrp)).tier)
+            .isEqualTo(expectedTier)
     }
 
     @ParameterizedTest(name = "{0}")
@@ -53,12 +56,12 @@ class TierCalculatorTest {
     ) {
         val tier = TierCalculator.calculate(
             deliusInputs(),
-            predictors(
+            oasysInputs(
                 arp = 75.0,
                 csrp = 1.0,
                 directSrp = directSrp,
             ),
-        )
+        ).tier
 
         assertThat(tier)
             .describedAs(description)
@@ -70,8 +73,8 @@ class TierCalculatorTest {
     fun `applies direct-contact sexual reoffending rules`(score: Double, band: ScoreLevel, expectedTier: Tier) {
         val tier = TierCalculator.calculate(
             deliusInputs(),
-            predictors(directSrp = sexualPredictor(score, band)),
-        )
+            oasysInputs(directSrp = sexualPredictor(score, band)),
+        ).tier
 
         assertThat(tier).isEqualTo(expectedTier)
     }
@@ -81,7 +84,7 @@ class TierCalculatorTest {
         assertThrows(IllegalStateException::class.java) {
             TierCalculator.calculate(
                 deliusInputs(),
-                predictors(directSrp = sexualPredictor(0.59, MEDIUM)),
+                oasysInputs(directSrp = sexualPredictor(0.59, MEDIUM)),
             )
         }
     }
@@ -91,8 +94,8 @@ class TierCalculatorTest {
     fun `applies MAPPA and ROSH rules`(hasMappa: Boolean, rosh: Rosh?, expectedTier: Tier) {
         val tier = TierCalculator.calculate(
             deliusInputs(hasMappa = hasMappa, rosh = rosh),
-            predictors(),
-        )
+            oasysInputs(),
+        ).tier
         assertThat(tier).isEqualTo(expectedTier)
     }
 
@@ -100,8 +103,8 @@ class TierCalculatorTest {
     fun `keeps existing tier when ROSH is medium and MAPPA is absent`() {
         val tier = TierCalculator.calculate(
             deliusInputs(hasMappa = false, rosh = Rosh.MEDIUM),
-            predictors(arp = 90.0, csrp = 1.0),
-        )
+            oasysInputs(arp = 90.0, csrp = 1.0),
+        ).tier
         assertThat(tier).isEqualTo(B)
     }
 
@@ -114,8 +117,8 @@ class TierCalculatorTest {
     ) {
         val tier = TierCalculator.calculate(
             deliusInputs(hasLiferIpp = hasLiferIpp, latestReleaseDate = latestReleaseDate),
-            predictors(),
-        )
+            oasysInputs(),
+        ).tier
         assertThat(tier).isEqualTo(expectedTier)
     }
 
@@ -133,9 +136,19 @@ class TierCalculatorTest {
                 hasStalking = hasStalking,
                 hasChildProtection = hasChildProtection,
             ),
-            predictors(),
-        )
+            oasysInputs(),
+        ).tier
         assertThat(tier).isEqualTo(expectedTier)
+    }
+
+    @Test
+    fun `applies people convicted of sexual offences rule`() {
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(rosh = Rosh.MEDIUM),
+                oasysInputs(everCommittedSexualOffence = true),
+            )
+        ).isEqualTo(CalculationResult(E))
     }
 
     @Test
@@ -150,9 +163,98 @@ class TierCalculatorTest {
                 hasStalking = true,
                 hasChildProtection = true,
             ),
-            predictors(arp = 95.0, csrp = 6.9, directSrp = sexualPredictor(5.31, VERY_HIGH)),
-        )
+            oasysInputs(arp = 95.0, csrp = 6.9, directSrp = sexualPredictor(5.31, VERY_HIGH)),
+        ).tier
         assertThat(tier).isEqualTo(A)
+    }
+
+    @Test
+    fun `both static ARP and CSRP are provisional unless DC-SRP or MAPPA and ROSH generates tier A`() {
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(rosh = Rosh.HIGH),
+                oasysInputs(arp = 90.0, csrp = 6.9, arpType = ScoreType.STATIC, csrpType = ScoreType.STATIC),
+            )
+        ).isEqualTo(CalculationResult(A, provisional = true))
+
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(rosh = Rosh.HIGH),
+                oasysInputs(
+                    arp = 90.0,
+                    csrp = 6.9,
+                    arpType = ScoreType.STATIC,
+                    csrpType = ScoreType.STATIC,
+                    directSrp = sexualPredictor(0.01, VERY_HIGH),
+                ),
+            )
+        ).isEqualTo(CalculationResult(A, provisional = false))
+
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(hasMappa = true, rosh = Rosh.VERY_HIGH),
+                oasysInputs(arp = 90.0, csrp = 6.9, arpType = ScoreType.STATIC, csrpType = ScoreType.STATIC),
+            )
+        ).isEqualTo(CalculationResult(A, provisional = false))
+    }
+
+    @Test
+    fun `static ARP with dynamic CSRP is provisional unless another factor reaches the maximum ARP CSRP tier`() {
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(rosh = Rosh.MEDIUM),
+                oasysInputs(arp = 0.0, csrp = 0.5, arpType = ScoreType.STATIC, csrpType = ScoreType.DYNAMIC),
+            )
+        ).isEqualTo(CalculationResult(F, provisional = true))
+
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(hasMappa = true, rosh = Rosh.HIGH),
+                oasysInputs(arp = 0.0, csrp = 0.5, arpType = ScoreType.STATIC, csrpType = ScoreType.DYNAMIC),
+            )
+        ).isEqualTo(CalculationResult(C, provisional = false))
+    }
+
+    @Test
+    fun `dynamic ARP with static CSRP is provisional unless another factor reaches the maximum ARP CSRP tier`() {
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(rosh = Rosh.MEDIUM),
+                oasysInputs(arp = 25.0, csrp = 0.0, arpType = ScoreType.DYNAMIC, csrpType = ScoreType.STATIC),
+            )
+        ).isEqualTo(CalculationResult(F, provisional = true))
+
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(rosh = Rosh.MEDIUM),
+                oasysInputs(
+                    arp = 25.0,
+                    csrp = 0.0,
+                    arpType = ScoreType.DYNAMIC,
+                    csrpType = ScoreType.STATIC,
+                    directSrp = sexualPredictor(2.11, HIGH),
+                ),
+            )
+        ).isEqualTo(CalculationResult(B, provisional = false))
+    }
+
+    @Test
+    fun `missing ROSH is provisional unless dynamic ARP CSRP or DC-SRP generates tier A`() {
+        assertThat(TierCalculator.calculate(deliusInputs(rosh = null), oasysInputs(arp = 50.0, csrp = 6.9)))
+            .isEqualTo(CalculationResult(B, provisional = true))
+
+        assertThat(TierCalculator.calculate(deliusInputs(rosh = null), oasysInputs(arp = 90.0, csrp = 6.9)))
+            .isEqualTo(CalculationResult(A, provisional = false))
+
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(rosh = null),
+                oasysInputs(arp = 0.0, csrp = 0.0, directSrp = sexualPredictor(0.01, VERY_HIGH)),
+            )
+        ).isEqualTo(CalculationResult(A, provisional = false))
+
+        assertThat(TierCalculator.calculate(deliusInputs(rosh = null), oasysInputs(everCommittedSexualOffence = true)))
+            .isEqualTo(CalculationResult(E, provisional = true))
     }
 
     private fun deliusInputs(
@@ -164,38 +266,56 @@ class TierCalculatorTest {
         hasStalking: Boolean = false,
         hasChildProtection: Boolean = false,
         hasActiveEvent: Boolean = true,
-    ): DeliusInputs {
-        return DeliusInputs(
-            isFemale = false,
-            rsrScore = BigDecimal.ZERO,
-            ogrsScore = 0,
-            hasNoMandate = false,
-            registrations = Registrations(
-                hasIomNominal = false,
-                hasLiferIpp = hasLiferIpp,
-                hasDomesticAbuse = hasDomesticAbuse,
-                hasStalking = hasStalking,
-                hasChildProtection = hasChildProtection,
-                complexityFactors = emptyList(),
-                rosh = rosh,
-                mappaLevel = null,
-                mappaCategory = if (hasMappa) MappaCategory.M1 else null,
-                unsupervised = null,
-            ),
-            previousEnforcementActivity = false,
-            latestReleaseDate = latestReleaseDate,
-            hasActiveEvent = hasActiveEvent,
-        )
-    }
+    ) = DeliusInputs(
+        isFemale = false,
+        rsrScore = BigDecimal.ZERO,
+        ogrsScore = 0,
+        hasNoMandate = false,
+        registrations = Registrations(
+            hasIomNominal = false,
+            hasLiferIpp = hasLiferIpp,
+            hasDomesticAbuse = hasDomesticAbuse,
+            hasStalking = hasStalking,
+            hasChildProtection = hasChildProtection,
+            complexityFactors = emptyList(),
+            rosh = rosh,
+            mappaLevel = null,
+            mappaCategory = if (hasMappa) MappaCategory.M1 else null,
+            unsupervised = null,
+        ),
+        previousEnforcementActivity = false,
+        latestReleaseDate = latestReleaseDate,
+        hasActiveEvent = hasActiveEvent,
+    )
 
-    private fun predictors(
-        arp: Double? = null,
-        csrp: Double? = null,
+    private fun oasysInputs(
+        arp: Double? = 0.0,
+        csrp: Double? = 0.0,
+        arpType: ScoreType? = ScoreType.DYNAMIC,
+        csrpType: ScoreType? = ScoreType.DYNAMIC,
+        arpBand: ScoreLevel? = LOW,
+        csrpBand: ScoreLevel? = LOW,
         directSrp: BasePredictorDto? = null,
-    ) = AllPredictorDto(
-        allReoffendingPredictor = arp?.let { StaticOrDynamicPredictorDto(score = it.toBigDecimal()) },
-        combinedSeriousReoffendingPredictor = csrp?.let { VersionedStaticOrDynamicPredictorDto(score = it.toBigDecimal()) },
-        directContactSexualReoffendingPredictor = directSrp,
+        everCommittedSexualOffence: Boolean = false,
+    ) = OASysInputs(
+        predictors = AllPredictorDto(
+            allReoffendingPredictor = arp?.let {
+                StaticOrDynamicPredictorDto(
+                    staticOrDynamic = arpType,
+                    score = it.toBigDecimal(),
+                    band = arpBand,
+                )
+            },
+            combinedSeriousReoffendingPredictor = csrp?.let {
+                VersionedStaticOrDynamicPredictorDto(
+                    staticOrDynamic = csrpType,
+                    score = it.toBigDecimal(),
+                    band = csrpBand,
+                )
+            },
+            directContactSexualReoffendingPredictor = directSrp,
+        ),
+        everCommittedSexualOffence = everCommittedSexualOffence,
     )
 
     private fun sexualPredictor(score: Double, band: ScoreLevel? = null) = BasePredictorDto(
@@ -269,10 +389,12 @@ class TierCalculatorTest {
             Arguments.of(true, Rosh.VERY_HIGH, A),
             Arguments.of(true, Rosh.HIGH, C),
             Arguments.of(true, Rosh.MEDIUM, D),
-            Arguments.of(true, null, E),
+            Arguments.of(true, Rosh.LOW, E),
+            Arguments.of(true, null, G),
             Arguments.of(false, Rosh.VERY_HIGH, C),
             Arguments.of(false, Rosh.HIGH, D),
             Arguments.of(false, Rosh.MEDIUM, G),
+            Arguments.of(false, Rosh.LOW, G),
             Arguments.of(false, null, G),
         )
 
@@ -281,8 +403,15 @@ class TierCalculatorTest {
             val today = LocalDate.now()
             return listOf(
                 Arguments.of(true, today.minusDays(1), B),
-                Arguments.of(true, today.minusYears(1), F),
-                Arguments.of(true, null, F),
+                Arguments.of(true, today.minusYears(1).plusDays(1), B),
+                Arguments.of(true, today.minusYears(1), B),
+                Arguments.of(true, today.minusYears(1).minusDays(1), D),
+                Arguments.of(true, today.minusYears(2), D),
+                Arguments.of(true, today.minusYears(5).plusDays(1), D),
+                Arguments.of(true, today.minusYears(5), D),
+                Arguments.of(true, today.minusYears(5).minusDays(1), E),
+                Arguments.of(true, today.minusYears(6), E),
+                Arguments.of(true, null, G),
                 Arguments.of(false, null, G),
                 Arguments.of(false, today.minusDays(1), G),
             )

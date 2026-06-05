@@ -53,6 +53,7 @@ internal class TierV3ReaderTest {
         val result = tierReader.getLatestTierByCrn(tierCalculation.crn)
 
         assertThat(result?.tierScore, equalTo("C"))
+        assertThat(result?.provisional, equalTo(false))
         verify(tierUpdater).createSummary(tierCalculation)
     }
 
@@ -68,6 +69,7 @@ internal class TierV3ReaderTest {
 
         assertThat(result?.calculationId, equalTo(tierCalculation.uuid))
         assertThat(result?.tierScore, equalTo("B"))
+        assertThat(result?.provisional, equalTo(false))
         verifyNoInteractions(tierUpdater)
     }
 
@@ -87,6 +89,7 @@ internal class TierV3ReaderTest {
         created = LocalDateTime.of(2026, 1, 1, 12, 0),
         data = TierCalculationResultEntity(
             tier = tier,
+            provisional = false,
             protect = TierLevel(ProtectLevel.C, 0, mapOf()),
             change = TierLevel(ChangeLevel.THREE, 0, mapOf()),
             calculationVersion = "3"

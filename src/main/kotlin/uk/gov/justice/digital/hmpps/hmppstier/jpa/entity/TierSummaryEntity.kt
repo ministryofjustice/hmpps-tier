@@ -20,6 +20,9 @@ class TierSummaryEntity(
     var tier: String?, // can make this non-nullable once all cases have been recalculated
 
     @Column
+    var provisional: Boolean? = null,
+
+    @Column
     var protectLevel: String,
 
     @Column
