@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.model
 
 import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
@@ -24,4 +25,9 @@ data class TierDetailsDto @JsonCreator constructor(
     @Schema(description = "Calculation input data")
     @JsonProperty("data")
     val data: TierCalculationResultEntity,
+
+    @Schema(description = "Whether the tier score is provisional", example = "false")
+    @JsonProperty("provisional")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    val provisional: Boolean? = null,
 )

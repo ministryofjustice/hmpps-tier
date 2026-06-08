@@ -46,7 +46,7 @@ class RecalculationTest : IntegrationTestBase() {
             "TierChanged",
             mapOf(
                 "crn" to crn,
-                "tier" to "G",
+                "tier" to "MISSING",
                 "protect" to "A",
                 "change" to "1",
                 "version" to "3",
@@ -87,7 +87,7 @@ class RecalculationTest : IntegrationTestBase() {
                 "TierChanged",
                 mapOf(
                     "crn" to it,
-                    "tier" to "G",
+                    "tier" to "MISSING",
                     "protect" to "A",
                     "change" to "1",
                     "version" to "3",
@@ -130,7 +130,7 @@ class RecalculationTest : IntegrationTestBase() {
             "TierChanged",
             mapOf(
                 "crn" to crn,
-                "tier" to "G",
+                "tier" to "MISSING",
                 "protect" to "A",
                 "change" to "2",
                 "version" to "3",
@@ -172,7 +172,7 @@ class RecalculationTest : IntegrationTestBase() {
             "TierChanged",
             mapOf(
                 "crn" to crn,
-                "tier" to "G",
+                "tier" to "MISSING",
                 "protect" to "A",
                 "change" to "3",
                 "version" to "3",

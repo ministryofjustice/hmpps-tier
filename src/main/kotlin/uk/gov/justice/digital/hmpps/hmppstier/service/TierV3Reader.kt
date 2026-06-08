@@ -45,6 +45,7 @@ class TierV3Reader(
                 calculationId = uuid,
                 calculationDate = created,
                 data = data,
+                provisional = data.provisional,
             )
         }
 
@@ -53,7 +54,8 @@ class TierV3Reader(
                 tierScore = tier,
                 calculationId = uuid,
                 calculationDate = created,
-                changeReason = changeReason
+                changeReason = changeReason,
+                provisional = data.provisional,
             )
         }
 
@@ -62,7 +64,8 @@ class TierV3Reader(
                 tierScore = tier,
                 calculationId = uuid,
                 calculationDate = lastModified,
-                changeReason = null
+                changeReason = null,
+                provisional = provisional,
             )
         }
     }

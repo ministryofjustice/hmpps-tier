@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.model
 
 import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
@@ -23,6 +24,11 @@ data class TierDto @JsonCreator constructor(
     @Schema(description = "Calculation Change Reason", example = "A registration was added")
     @JsonProperty("changeReason")
     val changeReason: String?,
+
+    @Schema(description = "Whether the tier score is provisional", example = "false")
+    @JsonProperty("provisional")
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    val provisional: Boolean? = null,
 ) {
     companion object {
         private const val UNSUPERVISED_SUFFIX = "S"

@@ -74,7 +74,7 @@ class TierControllerVersioningTest : IntegrationTestBase() {
         val v3Latest = getTierDto(latestTierCalculationResult(crn, TierApiVersion.V3))
 
         assertThat(v2Latest.tierScore).isEqualTo("A1")
-        assertThat(v3Latest.tierScore).isEqualTo("G")
+        assertThat(v3Latest.tierScore).isEqualTo("MISSING")
         assertThat(v2Latest.calculationId).isEqualTo(v3Latest.calculationId)
 
         tierHistory(crn, TierApiVersion.V2)
@@ -85,7 +85,7 @@ class TierControllerVersioningTest : IntegrationTestBase() {
         tierHistory(crn, TierApiVersion.V3)
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.length()", equalTo(2)))
-            .andExpect(jsonPath("$.*.tierScore", equalTo(listOf("G", "B2"))))
+            .andExpect(jsonPath("$.*.tierScore", equalTo(listOf("MISSING", "B2"))))
 
         tierCalculationResult(crn, uuid, TierApiVersion.V3)
             .andExpect(status().isNotFound)

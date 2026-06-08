@@ -4,6 +4,7 @@ enum class Rosh(val registerCode: String) {
     VERY_HIGH("RVHR"),
     HIGH("RHRH"),
     MEDIUM("RMRH"),
+    LOW("RLRH"),
     ;
 
     companion object {
