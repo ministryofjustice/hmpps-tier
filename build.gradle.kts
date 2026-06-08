@@ -85,10 +85,14 @@ tasks.register<JavaExec>("cucumber") {
 }
 
 tasks {
-
     getByName("check") {
         finalizedBy("cucumber")
     }
+    val jacocoExclusions = listOf(
+        "**/config/**",
+        "**/cronjob/**",
+        "**/domain/**"
+    )
     getByName<JacocoReport>("jacocoTestReport") {
         executionData(
             files(
@@ -105,9 +109,7 @@ tasks {
             classDirectories.setFrom(
                 files(
                     classDirectories.files.map {
-                        fileTree(it) {
-                            exclude("**/config/**")
-                        }
+                        fileTree(it) { exclude(jacocoExclusions) }
                     }
                 )
             )
@@ -135,13 +137,7 @@ tasks {
             classDirectories.setFrom(
                 files(
                     classDirectories.files.map {
-                        fileTree(it) {
-                            exclude(
-                                "**/config/**",
-                                "**/cronjob/**",
-                                "**/domain/**"
-                            )
-                        }
+                        fileTree(it) { exclude(jacocoExclusions) }
                     }
                 )
             )

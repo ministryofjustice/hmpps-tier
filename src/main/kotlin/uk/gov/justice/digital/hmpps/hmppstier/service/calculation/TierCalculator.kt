@@ -12,16 +12,14 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Tier.*
 import uk.gov.justice.digital.hmpps.hmppstier.service.calculation.CalculationStep.*
 import uk.gov.justice.digital.hmpps.hmppstier.service.calculation.ProvisionalStatusCalculator.isProvisional
 import uk.gov.justice.digital.hmpps.hmppstier.service.calculation.ReoffendingPredictorTable.compareTo
-import java.math.BigDecimal.ZERO
 import java.time.LocalDate
 
 object TierCalculator {
     fun calculate(deliusInputs: DeliusInputs, oasysInputs: OASysInputs?): CalculationResult {
         if (!deliusInputs.hasActiveEvent) return CalculationResult(NOT_SUPERVISED)
-        if (oasysInputs == null || !oasysInputs.hasArpAndCsrp) return CalculationResult(MISSING)
 
         val stepResults = mapOf(
-            REOFFENDING to oasysInputs.predictors.nonSexualReoffending(),
+            REOFFENDING to (oasysInputs?.predictors?.reoffending() ?: return CalculationResult(MISSING)),
             SEXUAL_REOFFENDING to oasysInputs.predictors.sexualReoffending(),
             MAPPA_ROSH to deliusInputs.registrations.mappaAndRiskOfSeriousHarm(),
             LIFER_IPP to deliusInputs.liferAndImprisonmentForPublicProtection(),
@@ -36,9 +34,9 @@ object TierCalculator {
         )
     }
 
-    fun AllPredictorDto.nonSexualReoffending() = ReoffendingPredictorTable.calculate(
-        arp = allReoffendingPredictor?.score ?: ZERO,
-        csrp = combinedSeriousReoffendingPredictor?.score ?: ZERO
+    fun AllPredictorDto.reoffending(): Tier? = ReoffendingPredictorTable.calculate(
+        arp = allReoffendingPredictor?.score ?: return null,
+        csrp = combinedSeriousReoffendingPredictor?.score ?: return null,
     )
 
     fun AllPredictorDto.sexualReoffending(): Tier? =

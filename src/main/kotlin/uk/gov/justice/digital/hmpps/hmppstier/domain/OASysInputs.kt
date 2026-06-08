@@ -6,7 +6,4 @@ import java.io.Serializable
 data class OASysInputs(
     val predictors: AllPredictorDto,
     val everCommittedSexualOffence: Boolean,
-) : Serializable {
-    val hasArpAndCsrp =
-        predictors.allReoffendingPredictor?.score != null && predictors.combinedSeriousReoffendingPredictor?.score != null
-}
+) : Serializable

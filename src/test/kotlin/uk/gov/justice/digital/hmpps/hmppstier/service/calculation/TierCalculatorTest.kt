@@ -32,13 +32,15 @@ class TierCalculatorTest {
     }
 
     @Test
-    fun `defaults missing CSRP score to zero for ARP to tier mapping`() {
-        assertThat(TierCalculator.calculate(deliusInputs(), oasysInputs(arp = 90.0)).tier).isEqualTo(D)
+    fun `missing CSRP score has a tier of MISSING`() {
+        assertThat(TierCalculator.calculate(deliusInputs(), oasysInputs(arp = 90.0, csrp = null)).tier)
+            .isEqualTo(MISSING)
     }
 
     @Test
-    fun `defaults missing ARP score to zero for CSRP to tier mapping`() {
-        assertThat(TierCalculator.calculate(deliusInputs(), oasysInputs(csrp = 3.2)).tier).isEqualTo(C)
+    fun `missing ARP score has a tier of MISSING`() {
+        assertThat(TierCalculator.calculate(deliusInputs(), oasysInputs(arp = null, csrp = 3.2)).tier)
+            .isEqualTo(MISSING)
     }
 
     @ParameterizedTest(name = "ARP {0} and CSRP {1} map to tier {2}")
