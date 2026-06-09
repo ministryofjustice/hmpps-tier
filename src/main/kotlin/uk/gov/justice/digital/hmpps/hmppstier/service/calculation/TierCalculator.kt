@@ -19,8 +19,8 @@ object TierCalculator {
         if (!deliusInputs.hasActiveEvent) return CalculationResult(NOT_SUPERVISED)
 
         val stepResults = mapOf(
-            REOFFENDING to (oasysInputs?.predictors?.reoffending() ?: return CalculationResult(MISSING)),
-            SEXUAL_REOFFENDING to oasysInputs.predictors.sexualReoffending(),
+            REOFFENDING to (oasysInputs?.predictors?.output?.reoffending() ?: return CalculationResult(MISSING)),
+            SEXUAL_REOFFENDING to oasysInputs.predictors.output.sexualReoffending(),
             MAPPA_ROSH to deliusInputs.registrations.mappaAndRiskOfSeriousHarm(),
             LIFER_IPP to deliusInputs.liferAndImprisonmentForPublicProtection(),
             DOMESTIC_ABUSE to deliusInputs.registrations.domesticAbuse(),
@@ -30,7 +30,7 @@ object TierCalculator {
         )
         return CalculationResult(
             tier = stepResults.maxOf { it.value ?: G },
-            provisional = isProvisional(deliusInputs, oasysInputs.predictors, stepResults)
+            provisional = isProvisional(deliusInputs, oasysInputs.predictors.output, stepResults)
         )
     }
 

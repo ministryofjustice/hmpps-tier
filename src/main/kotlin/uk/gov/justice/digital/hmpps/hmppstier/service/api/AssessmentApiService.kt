@@ -19,11 +19,13 @@ class AssessmentApiService(
     fun getSexuallyMotivatedOffence(crn: String) = arnsApiClient.getSexuallyMotivatedOffence(crn)
         ?.everCommittedSexualOffence == true
 
-    fun getOASysTierInputs(crn: String) =
-        (getRiskPredictors(crn) ?: rescoredAssessmentService.getByCrn(crn))?.output?.let { predictors ->
+    fun getOASysTierInputs(crn: String): OASysInputs? {
+        val predictors = (getRiskPredictors(crn) ?: rescoredAssessmentService.getByCrn(crn))
+        return predictors?.output?.let {
             OASysInputs(
                 predictors = predictors,
                 everCommittedSexualOffence = getSexuallyMotivatedOffence(crn)
             )
         }
+    }
 }

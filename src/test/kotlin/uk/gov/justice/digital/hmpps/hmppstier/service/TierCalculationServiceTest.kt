@@ -11,6 +11,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.OGRS4Predictors
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ScoreType
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.AllPredictorDto
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.StaticOrDynamicPredictorDto
@@ -25,6 +26,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
 import java.math.BigDecimal
 import java.time.Clock
 import java.time.Instant
+import java.time.LocalDateTime
 import java.time.ZoneOffset
 
 @ExtendWith(MockitoExtension::class)
@@ -135,15 +137,18 @@ internal class TierCalculationServiceTest {
     )
 
     private fun oasysInputs() = OASysInputs(
-        predictors = AllPredictorDto(
-            allReoffendingPredictor = StaticOrDynamicPredictorDto(
-                staticOrDynamic = ScoreType.DYNAMIC,
-                score = BigDecimal("75.0"),
-            ),
-            combinedSeriousReoffendingPredictor = VersionedStaticOrDynamicPredictorDto(
-                staticOrDynamic = ScoreType.STATIC,
-                score = BigDecimal("1.0"),
-            ),
+        predictors = OGRS4Predictors(
+            completedDate = LocalDateTime.of(2026, 6, 9, 12, 0, 0),
+            output = AllPredictorDto(
+                allReoffendingPredictor = StaticOrDynamicPredictorDto(
+                    staticOrDynamic = ScoreType.DYNAMIC,
+                    score = BigDecimal("75.0"),
+                ),
+                combinedSeriousReoffendingPredictor = VersionedStaticOrDynamicPredictorDto(
+                    staticOrDynamic = ScoreType.STATIC,
+                    score = BigDecimal("1.0"),
+                ),
+            )
         ),
         everCommittedSexualOffence = false,
     )
