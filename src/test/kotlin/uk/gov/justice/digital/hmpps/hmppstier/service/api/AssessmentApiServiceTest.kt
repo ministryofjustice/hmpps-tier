@@ -42,7 +42,7 @@ internal class AssessmentApiServiceTest {
 
         val result = assessmentApiService.getOASysTierInputs(crn)
 
-        assertThat(result!!.predictors).isSameAs(latestPredictors.output)
+        assertThat(result!!.predictors).isSameAs(latestPredictors)
         assertThat(result.everCommittedSexualOffence).isTrue()
         verify(rescoredAssessmentService, never()).getByCrn(crn)
     }
@@ -58,7 +58,7 @@ internal class AssessmentApiServiceTest {
 
         val result = assessmentApiService.getOASysTierInputs(crn)
 
-        assertThat(result!!.predictors).isSameAs(rescoredPredictors.output)
+        assertThat(result!!.predictors).isSameAs(rescoredPredictors)
         assertThat(result.everCommittedSexualOffence).isFalse()
     }
 

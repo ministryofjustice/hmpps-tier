@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
+import uk.gov.justice.digital.hmpps.hmppstier.client.arns.OGRS4Predictors
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ScoreLevel
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ScoreLevel.*
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ScoreType
@@ -22,6 +23,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Tier
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Tier.*
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class TierCalculatorTest {
 
@@ -300,22 +302,25 @@ class TierCalculatorTest {
         directSrp: BasePredictorDto? = null,
         everCommittedSexualOffence: Boolean = false,
     ) = OASysInputs(
-        predictors = AllPredictorDto(
-            allReoffendingPredictor = arp?.let {
-                StaticOrDynamicPredictorDto(
-                    staticOrDynamic = arpType,
-                    score = it.toBigDecimal(),
-                    band = arpBand,
-                )
-            },
-            combinedSeriousReoffendingPredictor = csrp?.let {
-                VersionedStaticOrDynamicPredictorDto(
-                    staticOrDynamic = csrpType,
-                    score = it.toBigDecimal(),
-                    band = csrpBand,
-                )
-            },
-            directContactSexualReoffendingPredictor = directSrp,
+        predictors = OGRS4Predictors(
+            completedDate = LocalDateTime.of(2026, 6, 9, 12, 0, 0),
+            output = AllPredictorDto(
+                allReoffendingPredictor = arp?.let {
+                    StaticOrDynamicPredictorDto(
+                        staticOrDynamic = arpType,
+                        score = it.toBigDecimal(),
+                        band = arpBand,
+                    )
+                },
+                combinedSeriousReoffendingPredictor = csrp?.let {
+                    VersionedStaticOrDynamicPredictorDto(
+                        staticOrDynamic = csrpType,
+                        score = it.toBigDecimal(),
+                        band = csrpBand,
+                    )
+                },
+                directContactSexualReoffendingPredictor = directSrp,
+            )
         ),
         everCommittedSexualOffence = everCommittedSexualOffence,
     )
