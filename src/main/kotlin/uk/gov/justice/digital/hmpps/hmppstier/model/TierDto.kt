@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDateTime
 import java.util.*
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class TierDto @JsonCreator constructor(
 
     @Schema(description = "Tier Score", example = "D2")
@@ -27,7 +28,6 @@ data class TierDto @JsonCreator constructor(
 
     @Schema(description = "Whether the tier score is provisional", example = "false")
     @JsonProperty("provisional")
-    @JsonInclude(JsonInclude.Include.NON_NULL)
     val provisional: Boolean? = null,
 ) {
     companion object {
