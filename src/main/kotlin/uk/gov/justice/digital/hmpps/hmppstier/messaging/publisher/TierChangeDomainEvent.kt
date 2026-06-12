@@ -6,7 +6,7 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 data class TierChangeDomainEvent(
-    val version: Int = 1,
+    val version: Int = 3,
     val eventType: String = "tier.calculation.changed",
     val description: String = "Tier calculation resulted in an updated tier value",
     val occurredAt: String = ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME),

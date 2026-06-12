@@ -70,7 +70,7 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `uses OASys tier inputs from assessment service`() {
-        whenever(featureFlags.v3Enabled).thenReturn(true)
+        whenever(featureFlags.v3CalculationEnabled).thenReturn(true)
 
         val crn = TestData.crn()
         val oasysInputs = oasysInputs()
@@ -95,7 +95,7 @@ internal class TierCalculationServiceTest {
 
     @Test
     fun `flag disabled results in no v3 calculation`() {
-        whenever(featureFlags.v3Enabled).thenReturn(false)
+        whenever(featureFlags.v3CalculationEnabled).thenReturn(false)
 
         val crn = TestData.crn()
 
