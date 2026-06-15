@@ -124,13 +124,13 @@ abstract class IntegrationTestBase {
 
     fun expectTierChangedById(tierScore: String, version: TierApiVersion = TierApiVersion.V2) {
         oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteQueue.queueUrl)
-        val changeEvent = tierChangeEvent()
-        val crn = changeEvent.crn()
-        val calculationId = changeEvent.calculationId()
-        val detailUrl = "http://localhost:8080/crn/$crn/tier/$calculationId"
-        assertThat(changeEvent.detailUrl).isEqualTo(detailUrl)
-        assertThat(changeEvent.eventType).isEqualTo("tier.calculation.complete")
-        assertThat(ZonedDateTime.parse(changeEvent.occurredAt, ISO_OFFSET_DATE_TIME)).isNotNull
+        val calculationEvent = tierCalculationEvent()
+        val crn = calculationEvent.crn()
+        val calculationId = calculationEvent.calculationId()
+        val detailUrl = "http://localhost:8080/v${calculationEvent.version}/crn/$crn/tier/$calculationId"
+        assertThat(calculationEvent.detailUrl).isEqualTo(detailUrl)
+        assertThat(calculationEvent.eventType).isEqualTo("tier.calculation.complete")
+        assertThat(ZonedDateTime.parse(calculationEvent.occurredAt, ISO_OFFSET_DATE_TIME)).isNotNull
         tierCalculationResult(crn, calculationId.toString(), version)
             .andExpect(status().isOk)
             .andExpect(jsonPath("tierScore", equalTo(tierScore)))
@@ -156,7 +156,7 @@ abstract class IntegrationTestBase {
 
     fun expectLatestTierCalculation(tierScore: String, version: TierApiVersion = TierApiVersion.V2) {
         oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteQueue.queueUrl)
-        val crn: String = tierChangeEvent().crn()
+        val crn: String = tierCalculationEvent().crn()
         latestTierCalculationResult(crn, version)
             .andExpect(status().isOk)
             .andExpect(jsonPath("tierScore", equalTo(tierScore)))
@@ -165,7 +165,7 @@ abstract class IntegrationTestBase {
     fun expectLatestTierCalculationNotFound(crn: String, version: TierApiVersion = TierApiVersion.V2) =
         latestTierCalculationResult(crn, version).andExpect(status().isNotFound)
 
-    private fun tierChangeEvent(): TierCalculationDomainEvent {
+    private fun tierCalculationEvent(): TierCalculationDomainEvent {
         val message = calculationCompleteClient.receiveMessage(
             ReceiveMessageRequest.builder().queueUrl(calculationCompleteQueue.queueUrl).build(),
         ).get()

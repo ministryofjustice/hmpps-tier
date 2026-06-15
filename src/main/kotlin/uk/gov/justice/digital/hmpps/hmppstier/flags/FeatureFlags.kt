@@ -11,7 +11,8 @@ class FeatureFlags(private val client: FliptClient?) {
         private val log: Logger = LoggerFactory.getLogger(this::class.java)
     }
 
-    val v3Enabled get() = enabled("tier-v3-calculation")
+    val v3CalculationEnabled get() = enabled("tier-v3-calculation")
+    val v3EventsEnabled get() = enabled("tier-v3-events")
 
     fun enabled(key: String) = try {
         if (client == null) {
