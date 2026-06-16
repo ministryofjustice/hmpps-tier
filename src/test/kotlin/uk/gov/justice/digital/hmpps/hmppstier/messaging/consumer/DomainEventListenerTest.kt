@@ -1,19 +1,19 @@
 package uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer
 
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mock
 import org.mockito.junit.jupiter.MockitoExtension
-import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.verify
-import org.mockito.kotlin.verifyNoInteractions
+import org.mockito.kotlin.*
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import uk.gov.justice.digital.hmpps.hmppstier.domain.RecalculationSource.EventSource.DomainEventRecalculation
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
+import java.util.concurrent.CompletionException
 
 @ExtendWith(MockitoExtension::class)
 class DomainEventListenerTest {
@@ -70,6 +70,40 @@ class DomainEventListenerTest {
             eq(crn),
             eq(DomainEventRecalculation("conviction.changed", "The supervision status changed"))
         )
+    }
+
+    @Test
+    fun `domain events without a CRN are ignored`() {
+        val message = sqsMessage(
+            sqsEventType = "probation-case.registration.added",
+            message = DomainEvent(
+                eventType = "probation-case.registration.added",
+                description = "A registration was added",
+                personReference = DomainEvent.PersonReference(emptyList()),
+            ),
+        )
+
+        listener.listen(message)
+
+        verifyNoInteractions(calculator)
+    }
+
+    @Test
+    fun `processing failures are rethrown`() {
+        val crn = TestData.crn()
+        val failure = IllegalStateException("calculation failed")
+        whenever(calculator.calculateTierForCrn(eq(crn), any())).thenThrow(failure)
+
+        assertThatThrownBy {
+            listener.listen(sqsMessage(sqsEventType = "probation-case.registration.added", crn = crn))
+        }.isSameAs(failure)
+    }
+
+    @Test
+    fun `known wrapper exceptions are unwrapped before reporting`() {
+        val cause = IllegalStateException("actual failure")
+
+        assertThat(DomainEventListener.unwrapKnownWrapperTypes(CompletionException(cause))).isSameAs(cause)
     }
 
     private fun sqsMessage(
