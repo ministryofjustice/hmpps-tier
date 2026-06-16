@@ -13,7 +13,8 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ScoreType
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.RescoredAssessmentEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.RescoredAssessmentRepository
 import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
-import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 @ExtendWith(MockitoExtension::class)
 internal class RescoredAssessmentServiceTest {
@@ -30,7 +31,7 @@ internal class RescoredAssessmentServiceTest {
         val entity = RescoredAssessmentEntity(
             id = 1,
             crn = crn,
-            completedDate = LocalDate.of(2025, 3, 1),
+            completedDate = ZonedDateTime.of(2025, 3, 1, 12, 0, 0, 0, ZoneId.of("Europe/London")),
             arpScore = 75.0,
             arpIsDynamic = true,
             arpBand = "High",
@@ -38,16 +39,16 @@ internal class RescoredAssessmentServiceTest {
             csrpIsDynamic = false,
             csrpBand = "Low",
             dcSrpScore = 0.0,
-            dcSrpBand = "NA",
-            iicSrpScore = 0.0,
-            iicSrpBand = "NA",
+            dcSrpBand = "Not Applicable",
+            iicSrpScore = null,
+            iicSrpBand = null,
         )
         whenever(rescoredAssessmentRepository.findFirstByCrnOrderByCompletedDateDesc(eq(crn))).thenReturn(entity)
 
         val result = rescoredAssessmentService.getByCrn(crn)
 
         assertThat(result).isNotNull
-        assertThat(result!!.completedDate).isEqualTo(entity.completedDate.atStartOfDay())
+        assertThat(result!!.completedDate).isEqualTo(entity.completedDate.toLocalDateTime())
         assertThat(result.outputVersion).isEqualTo("2")
         assertThat(result.output?.allReoffendingPredictor?.score).isEqualByComparingTo("75.0")
         assertThat(result.output?.allReoffendingPredictor?.staticOrDynamic).isEqualTo(ScoreType.DYNAMIC)
@@ -57,8 +58,8 @@ internal class RescoredAssessmentServiceTest {
         assertThat(result.output?.combinedSeriousReoffendingPredictor?.band).isEqualTo(ScoreLevel.LOW)
         assertThat(result.output?.directContactSexualReoffendingPredictor?.score).isEqualByComparingTo("0.0")
         assertThat(result.output?.directContactSexualReoffendingPredictor?.band).isEqualTo(ScoreLevel.NOT_APPLICABLE)
-        assertThat(result.output?.indirectImageContactSexualReoffendingPredictor?.score).isEqualByComparingTo("0.0")
-        assertThat(result.output?.indirectImageContactSexualReoffendingPredictor?.band).isEqualTo(ScoreLevel.NOT_APPLICABLE)
+        assertThat(result.output?.indirectImageContactSexualReoffendingPredictor?.score).isNull()
+        assertThat(result.output?.indirectImageContactSexualReoffendingPredictor?.band).isNull()
     }
 
     @Test
