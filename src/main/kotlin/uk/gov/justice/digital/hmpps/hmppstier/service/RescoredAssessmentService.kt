@@ -17,32 +17,31 @@ class RescoredAssessmentService(
     fun getByCrn(crn: String) =
         rescoredAssessmentRepository.findFirstByCrnOrderByCompletedDateDesc(crn)?.let {
             OGRS4Predictors(
-                completedDate = it.completedDate.atStartOfDay(),
+                completedDate = it.completedDate.toLocalDateTime(),
                 outputVersion = "2",
                 output = AllPredictorDto(
                     allReoffendingPredictor = StaticOrDynamicPredictorDto(
-                        staticOrDynamic = it.arpIsDynamic.toScoreType(),
-                        score = it.arpScore.toBigDecimal(),
-                        band = it.arpBand.toScoreLevel(),
+                        staticOrDynamic = it.arpIsDynamic?.toScoreType(),
+                        score = it.arpScore?.toBigDecimal(),
+                        band = it.arpBand?.toScoreLevel(),
                     ),
                     directContactSexualReoffendingPredictor = BasePredictorDto(
-                        score = it.dcSrpScore.toBigDecimal(),
-                        band = it.dcSrpBand.toScoreLevel(),
+                        score = it.dcSrpScore?.toBigDecimal(),
+                        band = it.dcSrpBand?.toScoreLevel(),
                     ),
                     indirectImageContactSexualReoffendingPredictor = BasePredictorDto(
-                        score = it.iicSrpScore.toBigDecimal(),
-                        band = it.iicSrpBand.toScoreLevel(),
+                        score = it.iicSrpScore?.toBigDecimal(),
+                        band = it.iicSrpBand?.toScoreLevel(),
                     ),
                     combinedSeriousReoffendingPredictor = VersionedStaticOrDynamicPredictorDto(
-                        staticOrDynamic = it.csrpIsDynamic.toScoreType(),
-                        score = it.csrpScore.toBigDecimal(),
-                        band = it.csrpBand.toScoreLevel(),
+                        staticOrDynamic = it.csrpIsDynamic?.toScoreType(),
+                        score = it.csrpScore?.toBigDecimal(),
+                        band = it.csrpBand?.toScoreLevel(),
                     )
                 ),
             )
         }
 
     private fun Boolean.toScoreType() = if (this) ScoreType.DYNAMIC else ScoreType.STATIC
-    private fun String.toScoreLevel() =
-        if (this === "NA") ScoreLevel.NOT_APPLICABLE else ScoreLevel.entries.find { it.type == this }
+    private fun String.toScoreLevel() = ScoreLevel.entries.find { it.type.equals(this, ignoreCase = true) }
 }

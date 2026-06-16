@@ -24,6 +24,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.Arn
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.hmppsAuth.HmppsAuthApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
+import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierSummaryRepository
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.publisher.TierCalculationDomainEvent
@@ -91,16 +92,22 @@ abstract class IntegrationTestBase {
     @Autowired
     protected lateinit var tierCalculationRepository: TierCalculationRepository
 
+    @Autowired
+    protected lateinit var tierSummaryRepository: TierSummaryRepository
+
     @BeforeEach
     fun `purge Queues`() {
+        val crns = setOf("F987546", "F987564")
         calculationCompleteClient.purgeQueue(
             PurgeQueueRequest.builder().queueUrl(calculationCompleteQueue.queueUrl).build(),
         ).get()
         domainEventQueueClient.purgeQueue(PurgeQueueRequest.builder().queueUrl(domainEventQueue.queueUrl).build()).get()
         domainEventQueueDlqClient!!.purgeQueue(PurgeQueueRequest.builder().queueUrl(domainEventQueue.dlqUrl).build())
             .get()
-        val toDelete = tierCalculationRepository.findAll().filter { it.crn !in setOf("F987546", "F987564") }
-        tierCalculationRepository.deleteAllById(toDelete.mapNotNull { it.id })
+        val calculationsToDelete = tierCalculationRepository.findAll().filter { it.crn !in crns }
+        tierCalculationRepository.deleteAllById(calculationsToDelete.mapNotNull { it.id })
+        val summariesToDelete = tierSummaryRepository.findAll().filter { it.crn !in crns }
+        tierSummaryRepository.deleteAllById(summariesToDelete.map { it.crn })
     }
 
     fun restOfSetupWithMaleOffenderNoSevereNeeds(
