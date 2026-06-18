@@ -62,8 +62,7 @@ object TierCalculator {
         Rosh.VERY_HIGH -> A
         Rosh.HIGH -> C
         Rosh.MEDIUM -> D
-        Rosh.LOW -> E
-        else -> null
+        Rosh.LOW, null -> E
     } else when (rosh) {
         Rosh.VERY_HIGH -> C
         Rosh.HIGH -> D

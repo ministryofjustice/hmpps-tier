@@ -8,6 +8,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.StaticOrDynamicP
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.VersionedStaticOrDynamicPredictorDto
 import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusInputs
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
+import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.MappaCategory
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Tier
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Tier.*
@@ -99,10 +100,11 @@ class ProvisionalStatusCalculatorTest {
     }
 
     @Test
-    fun `missing RoSH is provisional unless dynamic ARP CSRP or sexual reoffending generates tier A`() {
+    fun `missing RoSH with MAPPA is provisional unless dynamic ARP CSRP or sexual reoffending generates tier A`() {
         assertThat(
             isProvisional(
                 rosh = null,
+                mappa = MappaCategory.M1,
                 predictors = predictors(arp = "50.0", csrp = "6.9"),
                 stepResults = stepResults(REOFFENDING to B),
             )
@@ -111,6 +113,7 @@ class ProvisionalStatusCalculatorTest {
         assertThat(
             isProvisional(
                 rosh = null,
+                mappa = MappaCategory.M1,
                 predictors = predictors(arp = "90.0", csrp = "6.9"),
                 stepResults = stepResults(REOFFENDING to A),
             )
@@ -119,14 +122,89 @@ class ProvisionalStatusCalculatorTest {
         assertThat(
             isProvisional(
                 rosh = null,
+                mappa = MappaCategory.M1,
                 predictors = predictors(),
                 stepResults = stepResults(REOFFENDING to G, SEXUAL_REOFFENDING to A),
+            )
+        ).isFalse()
+
+        assertThat(
+            isProvisional(
+                rosh = null,
+                mappa = MappaCategory.M1,
+                predictors = predictors(arp = "90.0", csrp = "0.5"),
+                stepResults = stepResults(REOFFENDING to C, LIFER_IPP to B, SEXUAL_REOFFENDING to C),
+            )
+        ).isTrue()
+    }
+
+    @Test
+    fun `missing RoSH without MAPPA is provisional unless dynamic ARP CSRP generates tier C or higher`() {
+        assertThat(
+            isProvisional(
+                rosh = null,
+                predictors = predictors(arp = "75.0", csrp = "0.0"),
+                stepResults = stepResults(REOFFENDING to D),
+            )
+        ).isTrue()
+
+        assertThat(
+            isProvisional(
+                rosh = null,
+                predictors = predictors(arp = "90.0", csrp = "0.5"),
+                stepResults = stepResults(REOFFENDING to C),
+            )
+        ).isFalse()
+
+        assertThat(
+            isProvisional(
+                rosh = null,
+                predictors = predictors(arp = "50.0", csrp = "6.9"),
+                stepResults = stepResults(REOFFENDING to B),
             )
         ).isFalse()
     }
 
     @Test
-    fun `missing RoSH remains provisional when tier A comes from static ARP CSRP`() {
+    fun `missing RoSH without MAPPA is provisional unless sexual reoffending generates tier C or higher`() {
+        assertThat(
+            isProvisional(
+                rosh = null,
+                predictors = predictors(),
+                stepResults = stepResults(REOFFENDING to G, SEXUAL_REOFFENDING to D),
+            )
+        ).isTrue()
+
+        assertThat(
+            isProvisional(
+                rosh = null,
+                predictors = predictors(),
+                stepResults = stepResults(REOFFENDING to G, SEXUAL_REOFFENDING to C),
+            )
+        ).isFalse()
+    }
+
+    @Test
+    fun `missing RoSH without MAPPA is provisional unless recent lifer release generates tier B`() {
+        assertThat(
+            isProvisional(
+                rosh = null,
+                predictors = predictors(),
+                stepResults = stepResults(REOFFENDING to G, LIFER_IPP to D),
+            )
+        ).isTrue()
+
+        assertThat(
+            isProvisional(
+                rosh = null,
+                predictors = predictors(),
+                stepResults = stepResults(REOFFENDING to G, LIFER_IPP to B),
+            )
+        ).isFalse()
+    }
+
+    @Test
+    fun `missing RoSH ignores reoffending when either ARP or CSRP is static`() {
         assertThat(
             isProvisional(
                 rosh = null,
@@ -139,10 +217,38 @@ class ProvisionalStatusCalculatorTest {
                 stepResults = stepResults(REOFFENDING to A),
             )
         ).isTrue()
+
+        assertThat(
+            isProvisional(
+                rosh = null,
+                predictors = predictors(arp = "90.0", csrp = "6.9", arpType = ScoreType.STATIC),
+                stepResults = stepResults(REOFFENDING to A),
+            )
+        ).isTrue()
+
+        assertThat(
+            isProvisional(
+                rosh = null,
+                predictors = predictors(csrp = "6.9", csrpType = ScoreType.STATIC),
+                stepResults = stepResults(REOFFENDING to A),
+            )
+        ).isTrue()
     }
 
     @Test
-    fun `missing RoSH remains provisional when other non A factors generate the highest tier`() {
+    fun `missing RoSH ignores the MAPPA RoSH step when determining provisional status`() {
+        assertThat(
+            isProvisional(
+                rosh = null,
+                mappa = MappaCategory.M1,
+                predictors = predictors(),
+                stepResults = stepResults(MAPPA_ROSH to A),
+            )
+        ).isTrue()
+    }
+
+    @Test
+    fun `missing RoSH remains provisional when other lower factors generate the highest tier`() {
         assertThat(
             isProvisional(
                 rosh = null,
@@ -154,11 +260,12 @@ class ProvisionalStatusCalculatorTest {
 
     private fun isProvisional(
         rosh: Rosh?,
+        mappa: MappaCategory? = null,
         predictors: AllPredictorDto,
         stepResults: Map<CalculationStep, Tier?>,
-    ) = ProvisionalStatusCalculator.isProvisional(deliusInputs(rosh), predictors, stepResults)
+    ) = ProvisionalStatusCalculator.isProvisional(deliusInputs(rosh, mappa), predictors, stepResults)
 
-    private fun deliusInputs(rosh: Rosh?) = DeliusInputs(
+    private fun deliusInputs(rosh: Rosh?, mappa: MappaCategory?) = DeliusInputs(
         isFemale = false,
         rsrScore = BigDecimal.ZERO,
         ogrsScore = 0,
@@ -172,7 +279,7 @@ class ProvisionalStatusCalculatorTest {
             complexityFactors = emptyList(),
             rosh = rosh,
             mappaLevel = null,
-            mappaCategory = null,
+            mappaCategory = mappa,
             unsupervised = null,
         ),
         previousEnforcementActivity = false,
