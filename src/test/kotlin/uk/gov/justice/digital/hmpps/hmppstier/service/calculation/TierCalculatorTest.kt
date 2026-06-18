@@ -243,19 +243,69 @@ class TierCalculatorTest {
     }
 
     @Test
-    fun `missing ROSH is provisional unless dynamic ARP CSRP or DC-SRP generates tier A`() {
-        assertThat(TierCalculator.calculate(deliusInputs(rosh = null), oasysInputs(arp = 50.0, csrp = 6.9)))
+    fun `missing ROSH with MAPPA is provisional unless dynamic ARP CSRP or DC-SRP generates tier A`() {
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(hasMappa = true, rosh = null),
+                oasysInputs(arp = 50.0, csrp = 6.9)
+            )
+        )
             .isEqualTo(CalculationResult(B, provisional = true))
 
-        assertThat(TierCalculator.calculate(deliusInputs(rosh = null), oasysInputs(arp = 90.0, csrp = 6.9)))
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(hasMappa = true, rosh = null),
+                oasysInputs(arp = 90.0, csrp = 6.9)
+            )
+        )
             .isEqualTo(CalculationResult(A, provisional = false))
 
         assertThat(
             TierCalculator.calculate(
-                deliusInputs(rosh = null),
+                deliusInputs(hasMappa = true, rosh = null),
                 oasysInputs(arp = 0.0, csrp = 0.0, directSrp = sexualPredictor(0.01, VERY_HIGH)),
             )
         ).isEqualTo(CalculationResult(A, provisional = false))
+
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(hasMappa = true, rosh = null, hasLiferIpp = true, latestReleaseDate = LocalDate.now()),
+                oasysInputs(arp = 90.0, csrp = 0.5, directSrp = sexualPredictor(1.12, MEDIUM)),
+            )
+        ).isEqualTo(CalculationResult(B, provisional = true))
+    }
+
+    @Test
+    fun `missing ROSH without MAPPA is provisional unless dynamic ARP CSRP or DC-SRP reaches tier C or lifer reaches tier B`() {
+        assertThat(TierCalculator.calculate(deliusInputs(rosh = null), oasysInputs(arp = 75.0, csrp = 0.0)))
+            .isEqualTo(CalculationResult(D, provisional = true))
+
+        assertThat(TierCalculator.calculate(deliusInputs(rosh = null), oasysInputs(arp = 90.0, csrp = 0.5)))
+            .isEqualTo(CalculationResult(C, provisional = false))
+
+        assertThat(TierCalculator.calculate(deliusInputs(rosh = null), oasysInputs(arp = 50.0, csrp = 6.9)))
+            .isEqualTo(CalculationResult(B, provisional = false))
+
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(rosh = null),
+                oasysInputs(arp = 0.0, csrp = 0.0, directSrp = sexualPredictor(1.12, MEDIUM)),
+            )
+        ).isEqualTo(CalculationResult(C, provisional = false))
+
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(rosh = null),
+                oasysInputs(arp = 0.0, csrp = 0.0, directSrp = sexualPredictor(0.60, MEDIUM)),
+            )
+        ).isEqualTo(CalculationResult(D, provisional = true))
+
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(rosh = null, hasLiferIpp = true, latestReleaseDate = LocalDate.now()),
+                oasysInputs(),
+            )
+        ).isEqualTo(CalculationResult(B, provisional = false))
 
         assertThat(TierCalculator.calculate(deliusInputs(rosh = null), oasysInputs(everCommittedSexualOffence = true)))
             .isEqualTo(CalculationResult(E, provisional = true))
@@ -397,7 +447,7 @@ class TierCalculatorTest {
             Arguments.of(true, Rosh.HIGH, C),
             Arguments.of(true, Rosh.MEDIUM, D),
             Arguments.of(true, Rosh.LOW, E),
-            Arguments.of(true, null, G),
+            Arguments.of(true, null, E),
             Arguments.of(false, Rosh.VERY_HIGH, C),
             Arguments.of(false, Rosh.HIGH, D),
             Arguments.of(false, Rosh.MEDIUM, G),
