@@ -41,9 +41,9 @@ class DomainEventListener(
         } else {
             objectMapper.readValue<DomainEvent>(message)
         }
-        if (attributes.eventType == "risk-assessment.scores.determined" && domainEventMessage.eventType != "assessment.summary.produced") {
-            return
-        }
+
+        if (attributes.eventType == OASYS_DOMAIN_EVENT && domainEventMessage.eventType !in OASYS_TIER_TRIGGERS) return
+
         try {
             Retry.backoff(3, Duration.ofMillis(300))
                 .filter { e -> RETRYABLE_EXCEPTIONS.any { it.isInstance(e) } }
@@ -96,6 +96,11 @@ class DomainEventListener(
     )
 
     companion object {
+        const val OASYS_DOMAIN_EVENT = "risk-assessment.scores.determined"
+        const val OASYS_ASSESSMENT_SUMMARY_EVENT = "assessment.summary.produced"
+        const val OASYS_STANDALONE_CSRP_EVENT = "risk-assessment.scores.rsr.determined"
+        val OASYS_TIER_TRIGGERS = arrayOf(OASYS_ASSESSMENT_SUMMARY_EVENT, OASYS_STANDALONE_CSRP_EVENT)
+
         val RETRYABLE_EXCEPTIONS = listOf(
             RestClientException::class,
             WebClientResponseException::class,
