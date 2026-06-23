@@ -157,7 +157,7 @@ def find_starting_id(
             lower = max(1, upper - search_window_size + 1)
             cur.execute(sql, (lookback_days, lower, upper))
             row = cur.fetchone()
-            min_id_in_window = int(row[0]) if row else None
+            min_id_in_window = int(row[0]) if row and row[0] else None
 
             log(f"Back-search window [{lower}, {upper}] -> min_id_in_window={min_id_in_window}")
 
