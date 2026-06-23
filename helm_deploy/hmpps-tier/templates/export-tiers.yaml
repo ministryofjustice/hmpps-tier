@@ -1,0 +1,98 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: export-tiers-script
+data:
+  export.py: |
+{{ .Files.Get "scripts/export.py" | indent 4 }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: export-tiers
+spec:
+  schedule: "0 6 * * 1-5"
+  timeZone: "Europe/London"
+  concurrencyPolicy: Forbid
+  failedJobsHistoryLimit: 1
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: hmpps-tier
+          volumes:
+            - name: export-tiers-script
+              configMap:
+                name: export-tiers-script
+          containers:
+            - name: export-tiers
+              image: "ghcr.io/ministryofjustice/hmpps-devops-tools:latest"
+              command:
+                - /bin/sh
+                - -ec
+              args:
+                - |
+                  python3 -m pip install --no-cache-dir --target /tmp/python 'boto3>=1.34,<2' 'psycopg[binary]>=3.2,<4'
+                  PYTHONPATH=/tmp/python python3 /tmp/export.py \
+                    --dsn "user=${DB_USERNAME} password=${DB_PASSWORD} dbname=${DB_NAME} host=${DB_HOST} port=${DB_PORT}" \
+                    --bucket-name "${BUCKET_NAME}" \
+                    --s3-key "tier/export.csv" \
+                    --lookback-days "7"
+              volumeMounts:
+                - name: export-tiers-script
+                  mountPath: /tmp/export.py
+                  subPath: export.py
+              env:
+                - name: AWS_DEFAULT_REGION
+                  value: "eu-west-2"
+                - name: BUCKET_NAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: export-bucket
+                      key: bucket_name
+                      optional: false
+                - name: DB_NAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: rds-instance-output
+                      key: database_name
+                      optional: false
+                - name: DB_USERNAME
+                  valueFrom:
+                    secretKeyRef:
+                      name: rds-instance-output
+                      key: database_username
+                      optional: false
+                - name: DB_PASSWORD
+                  valueFrom:
+                    secretKeyRef:
+                      name: rds-instance-output
+                      key: database_password
+                      optional: false
+                - name: DB_HOST
+                  valueFrom:
+                    secretKeyRef:
+                      name: rds-instance-output
+                      key: rds_instance_address
+                      optional: false
+                - name: DB_PORT
+                  value: "5432"
+              resources:
+                requests:
+                  memory: "256Mi"
+                  cpu: "250m"
+                limits:
+                  memory: "1Gi"
+                  cpu: "1"
+              securityContext:
+                capabilities:
+                  drop:
+                    - ALL
+                runAsUser: 1000
+                runAsGroup: 1000
+                runAsNonRoot: true
+                allowPrivilegeEscalation: false
+                seccompProfile:
+                  type: RuntimeDefault
+          restartPolicy: Never
