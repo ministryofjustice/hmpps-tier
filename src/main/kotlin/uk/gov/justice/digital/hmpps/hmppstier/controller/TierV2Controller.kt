@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.hmppstier.exception.EntityNotFoundException
 import uk.gov.justice.digital.hmpps.hmppstier.model.TierCounts
-import uk.gov.justice.digital.hmpps.hmppstier.model.TierDto
+import uk.gov.justice.digital.hmpps.hmppstier.model.TierV2Dto
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierV2Reader
 import java.util.*
 
@@ -26,12 +26,12 @@ class TierV2Controller(private val tierReader: TierV2Reader) {
 
     @Operation(summary = "Retrieve tiering score by crn")
     @GetMapping("crn/{crn}/tier")
-    fun getLatestTierCalculation(@PathVariable(required = true) crn: String): TierDto =
+    fun getLatestTierCalculation(@PathVariable(required = true) crn: String): TierV2Dto =
         tierReader.getLatestTierByCrn(crn) ?: throw EntityNotFoundException("Tier Result Not Found for $crn")
 
     @Operation(summary = "Retrieve tier history by crn")
     @GetMapping("crn/{crn}/tier/history")
-    fun getTierHistory(@PathVariable(required = true) crn: String): List<TierDto> =
+    fun getTierHistory(@PathVariable(required = true) crn: String): List<TierV2Dto> =
         tierReader.getTierHistory(crn)
 
     @Operation(summary = "Retrieve latest tiering calculation details including inputs and scores")
@@ -44,6 +44,6 @@ class TierV2Controller(private val tierReader: TierV2Reader) {
     fun getTierCalculationById(
         @PathVariable(required = true) crn: String,
         @PathVariable(required = true) calculationId: UUID,
-    ): TierDto = tierReader.getTierByCalculationId(crn, calculationId)
+    ): TierV2Dto = tierReader.getTierByCalculationId(crn, calculationId)
         ?: throw EntityNotFoundException("Tier Result Not Found for $crn, $calculationId")
 }

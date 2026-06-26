@@ -7,9 +7,9 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierSummaryEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierSummaryRepository
-import uk.gov.justice.digital.hmpps.hmppstier.model.TierDetailsDto
-import uk.gov.justice.digital.hmpps.hmppstier.model.TierDto
 import uk.gov.justice.digital.hmpps.hmppstier.model.TierDto.Companion.getSuffix
+import uk.gov.justice.digital.hmpps.hmppstier.model.TierV2DetailsDto
+import uk.gov.justice.digital.hmpps.hmppstier.model.TierV2Dto
 import java.util.*
 
 @Service
@@ -21,24 +21,24 @@ class TierV2Reader(
 ) {
     fun getTierCounts() = tierSummaryRepository.getTierV2Counts()
 
-    fun getLatestTierByCrn(crn: String): TierDto? = tierSummaryRepository.findByIdOrNull(crn)?.dto()
+    fun getLatestTierByCrn(crn: String): TierV2Dto? = tierSummaryRepository.findByIdOrNull(crn)?.dto()
         ?: getLatestTierCalculation(crn)?.also { runCatching { tierUpdater.createSummary(it) } }?.dto()
         ?: tierCalculationService.calculateTierForCrn(crn, OnDemandRecalculation)?.dto()
 
-    fun getLatestTierDetailsByCrn(crn: String): TierDetailsDto? = getLatestTierCalculation(crn)?.details()
+    fun getLatestTierDetailsByCrn(crn: String): TierV2DetailsDto? = getLatestTierCalculation(crn)?.details()
         ?: tierCalculationService.calculateTierForCrn(crn, OnDemandRecalculation)?.details()
 
-    fun getTierByCalculationId(crn: String, calculationId: UUID): TierDto? =
+    fun getTierByCalculationId(crn: String, calculationId: UUID): TierV2Dto? =
         tierCalculationRepository.findByCrnAndUuid(crn, calculationId)?.dto()
 
-    fun getTierHistory(crn: String): List<TierDto> =
+    fun getTierHistory(crn: String): List<TierV2Dto> =
         tierCalculationRepository.findByCrnOrderByCreatedDesc(crn).map { it.dto() }
 
     private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
         tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
 
     companion object {
-        fun TierCalculationEntity.details() = TierDetailsDto(
+        fun TierCalculationEntity.details() = TierV2DetailsDto(
             tierScore = data.protect.tier.value
                 + data.change.tier.value
                 + getSuffix(data.deliusInputs?.registrations?.unsupervised),
@@ -47,14 +47,14 @@ class TierV2Reader(
             data = data,
         )
 
-        fun TierCalculationEntity.dto() = TierDto(
+        fun TierCalculationEntity.dto() = TierV2Dto(
             tierScore = protectLevel() + changeLevel() + getSuffix(data.deliusInputs?.registrations?.unsupervised),
             calculationId = uuid,
             calculationDate = created,
             changeReason = changeReason
         )
 
-        fun TierSummaryEntity.dto() = TierDto(
+        fun TierSummaryEntity.dto() = TierV2Dto(
             tierScore = protectLevel + changeLevel + getSuffix(unsupervised),
             calculationId = uuid,
             calculationDate = lastModified,
