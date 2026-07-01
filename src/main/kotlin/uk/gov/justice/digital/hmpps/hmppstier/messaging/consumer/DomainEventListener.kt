@@ -19,8 +19,10 @@ import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.readValue
 import uk.gov.justice.digital.hmpps.hmppstier.config.ReactorExtensions.invoke
 import uk.gov.justice.digital.hmpps.hmppstier.domain.RecalculationSource
+import uk.gov.justice.digital.hmpps.hmppstier.domain.TelemetryEventType
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent.Identifier
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent.PersonReference
+import uk.gov.justice.digital.hmpps.hmppstier.service.TelemetryService
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 import java.time.Duration
 import java.util.concurrent.CompletionException
@@ -30,10 +32,13 @@ import java.util.concurrent.CompletionException
 class DomainEventListener(
     private val calculator: TierCalculationService,
     private val objectMapper: ObjectMapper,
+    private val telemetryService: TelemetryService,
 ) {
 
     @SqsListener("hmppsdomaineventsqueue", factory = "hmppsQueueContainerFactoryProxy")
     fun listen(msg: String) {
+        telemetryService.trackEvent(TelemetryEventType.NOTIFICATION_RECEIVED, mapOf("message" to msg))
+
         val (message, attributes) = objectMapper.readValue<SQSMessage>(msg)
 
         val domainEventMessage = if (attributes.eventType == "CONVICTION_CHANGED") {
@@ -42,7 +47,17 @@ class DomainEventListener(
             objectMapper.readValue<DomainEvent>(message)
         }
 
-        if (attributes.eventType == OASYS_DOMAIN_EVENT && domainEventMessage.eventType !in OASYS_TIER_TRIGGERS) return
+        if (attributes.eventType == OASYS_DOMAIN_EVENT && domainEventMessage.eventType !in OASYS_TIER_TRIGGERS) {
+            telemetryService.trackEvent(
+                TelemetryEventType.OASYS_EVENT_IGNORED,
+                mapOf(
+                    "messageEventType" to domainEventMessage.eventType,
+                    "attributeEventType" to attributes.eventType,
+                    "crn" to domainEventMessage.crn,
+                )
+            )
+            return
+        }
 
         try {
             Retry.backoff(3, Duration.ofMillis(300))

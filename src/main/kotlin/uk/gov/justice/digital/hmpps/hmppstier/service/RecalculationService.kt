@@ -3,7 +3,8 @@ package uk.gov.justice.digital.hmpps.hmppstier.service
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import software.amazon.awssdk.services.sqs.model.MessageAttributeValue
-import software.amazon.awssdk.services.sqs.model.SendMessageRequest
+import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequest
+import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequestEntry
 import tools.jackson.databind.ObjectMapper
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.domain.RecalculationSource
@@ -27,39 +28,48 @@ class RecalculationService(
     private val sqsClient = hmppsQueueService.findByQueueId("hmppsdomaineventsqueue")!!.sqsClient
 
     fun recalculateAll() {
-        deliusApiClient.getActiveCrns()
-            .forEach { crn ->
-                publishToQueue(crn, RecalculationSource.FullRecalculation)
-            }
+        deliusApiClient.getActiveCrns().chunked(10)
+            .forEach { crns -> publishBatch(crns, RecalculationSource.FullRecalculation) }
     }
 
-    fun recalculate(crns: Collection<String>) = crns.forEach { crn ->
-        publishToQueue(crn, RecalculationSource.LimitedRecalculation)
+    fun recalculate(crns: Collection<String>) {
+        crns.chunked(10).forEach { crns -> publishBatch(crns, RecalculationSource.LimitedRecalculation) }
     }
 
-    private fun publishToQueue(crn: String, recalculationSource: RecalculationSource) {
+    private fun publishBatch(
+        crns: List<String>,
+        recalculationSource: RecalculationSource
+    ) {
         val eventType = "internal.recalculate-tier"
-        val domainEvent = DomainEvent(
-            eventType = eventType,
-            description = "Automated tier re-calculation",
-            personReference = PersonReference(listOf(Identifier("CRN", crn))),
-            additionalInformation = mapOf(
-                "recalculationSource" to recalculationSource::class.java.simpleName
-            )
-        )
-        val messageBody = SQSMessage(objectMapper.writeValueAsString(domainEvent))
-        log.info("publishing event type {} for crn {}", eventType, crn)
-        sqsClient.sendMessage(
-            SendMessageRequest.builder()
+        log.info("publishing event type {} for crns {}", eventType, crns)
+        sqsClient.sendMessageBatch(
+            SendMessageBatchRequest.builder()
                 .queueUrl(queueUrl)
-                .messageBody(objectMapper.writeValueAsString(messageBody))
-                .messageAttributes(
-                    mapOf(
-                        "eventType" to MessageAttributeValue.builder().dataType("String").stringValue(eventType)
-                            .build(),
-                    ),
-                ).build()
-        )
+                .entries(crns.mapIndexed { index, crn ->
+                    val domainEvent = DomainEvent(
+                        eventType = eventType,
+                        description = "Automated tier re-calculation",
+                        personReference = PersonReference(listOf(Identifier("CRN", crn))),
+                        additionalInformation = mapOf(
+                            "recalculationSource" to recalculationSource::class.java.simpleName
+                        )
+                    )
+                    val messageBody = SQSMessage(objectMapper.writeValueAsString(domainEvent))
+                    SendMessageBatchRequestEntry.builder()
+                        .id("$index-$crn")
+                        .messageBody(objectMapper.writeValueAsString(messageBody))
+                        .messageAttributes(
+                            mapOf(
+                                "eventType" to MessageAttributeValue.builder().dataType("String").stringValue(eventType)
+                                    .build()
+                            )
+                        )
+                        .build()
+                })
+                .build()
+        ).whenComplete { _: Any?, _: Any? ->
+            crns.forEach { log.info("published event type {} for crn {}", eventType, it) }
+        }.join()
     }
 
     companion object {

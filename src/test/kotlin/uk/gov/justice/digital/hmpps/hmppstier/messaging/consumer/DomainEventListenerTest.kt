@@ -11,6 +11,7 @@ import org.mockito.kotlin.*
 import tools.jackson.databind.ObjectMapper
 import tools.jackson.module.kotlin.jacksonObjectMapper
 import uk.gov.justice.digital.hmpps.hmppstier.domain.RecalculationSource.EventSource.DomainEventRecalculation
+import uk.gov.justice.digital.hmpps.hmppstier.service.TelemetryService
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
 import java.util.concurrent.CompletionException
@@ -21,12 +22,15 @@ class DomainEventListenerTest {
     @Mock
     lateinit var calculator: TierCalculationService
 
+    @Mock
+    lateinit var telemetryService: TelemetryService
+
     private lateinit var listener: DomainEventListener
     private val objectMapper: ObjectMapper = jacksonObjectMapper()
 
     @BeforeEach
     fun setUp() {
-        listener = DomainEventListener(calculator, objectMapper)
+        listener = DomainEventListener(calculator, objectMapper, telemetryService)
     }
 
     @Test
