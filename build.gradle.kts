@@ -19,11 +19,11 @@ dependencies {
     implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:2.5.0")
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.4.0")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
-    implementation("io.hypersistence:hypersistence-utils-hibernate-71:3.15.3")
-    implementation(platform("io.sentry:sentry-bom:8.46.0"))
+    implementation("io.hypersistence:hypersistence-utils-hibernate-71:3.15.4")
+    implementation(platform("io.sentry:sentry-bom:8.47.0"))
     implementation("io.sentry:sentry-spring-boot-4")
     implementation("io.sentry:sentry-logback")
-    implementation("io.flipt:flipt-client-java:1.3.2")
+    implementation("io.flipt:flipt-client-java:1.3.3")
 
     runtimeOnly("org.postgresql:postgresql")
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
@@ -40,9 +40,9 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
-    testImplementation("io.cucumber:cucumber-spring:7.34.3")
-    testImplementation("io.cucumber:cucumber-java8:7.34.3")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.34.3")
+    testImplementation("io.cucumber:cucumber-spring:7.34.4")
+    testImplementation("io.cucumber:cucumber-java8:7.34.4")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.34.4")
 }
 
 java {
