@@ -26,7 +26,7 @@ class TierV2Reader(
         ?: tierCalculationService.calculateTierForCrn(crn, OnDemandRecalculation)?.dto()
 
     fun getLatestTierByCrns(crns: List<String>): Map<String, TierV2Dto?> {
-        require(crns.size <= 20)
+        require(crns.size <= 20) { "A maximum of 20 CRNs can be requested at once, got ${crns.size}" }
         val summaries = tierSummaryRepository.findByCrnIn(crns)
         val found = summaries.associate { it.crn to it.dto() }
         return crns.associateWith { crn ->
