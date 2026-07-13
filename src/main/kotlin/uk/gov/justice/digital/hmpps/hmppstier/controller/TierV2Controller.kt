@@ -33,7 +33,7 @@ class TierV2Controller(private val tierReader: TierV2Reader) {
 
     @Operation(summary = "Retrieve v2 tiering score by crns")
     @PostMapping("crns/tier")
-    fun getLatestTierCalculations(@RequestBody crns: List<String>): List<TierV2Dto?> =
+    fun getLatestTierCalculations(@RequestBody crns: List<String>): Map<String, TierV2Dto?> =
         tierReader.getLatestTierByCrns(crns)
 
     @Operation(summary = "Retrieve tier history by crn")

@@ -38,11 +38,11 @@ class TierV3Reader(
     private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
         tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
 
-    fun getLatestTierByCrns(crns: List<String>): List<TierV3Dto?> {
+    fun getLatestTierByCrns(crns: List<String>): Map<String, TierV3Dto?> {
         require(crns.size <= 20)
         val summaries = tierSummaryRepository.findByCrnIn(crns)
         val found = summaries.associate { it.crn to it.dto() }
-        return crns.map { crn ->
+        return crns.associateWith { crn ->
             found[crn]
                 ?: getLatestTierCalculation(crn)?.also { runCatching { tierUpdater.createSummary(it) } }?.dto()
                 ?: tierCalculationService.calculateTierForCrn(crn, OnDemandRecalculation)?.dto()

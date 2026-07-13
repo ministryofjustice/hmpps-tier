@@ -25,11 +25,11 @@ class TierV2Reader(
         ?: getLatestTierCalculation(crn)?.also { runCatching { tierUpdater.createSummary(it) } }?.dto()
         ?: tierCalculationService.calculateTierForCrn(crn, OnDemandRecalculation)?.dto()
 
-    fun getLatestTierByCrns(crns: List<String>): List<TierV2Dto?> {
+    fun getLatestTierByCrns(crns: List<String>): Map<String, TierV2Dto?> {
         require(crns.size <= 20)
         val summaries = tierSummaryRepository.findByCrnIn(crns)
         val found = summaries.associate { it.crn to it.dto() }
-        return crns.map { crn ->
+        return crns.associateWith { crn ->
             found[crn]
                 ?: getLatestTierCalculation(crn)?.also { runCatching { tierUpdater.createSummary(it) } }?.dto()
                 ?: tierCalculationService.calculateTierForCrn(crn, OnDemandRecalculation)?.dto()

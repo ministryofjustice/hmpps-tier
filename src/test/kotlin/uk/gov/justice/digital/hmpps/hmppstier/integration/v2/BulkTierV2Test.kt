@@ -40,9 +40,9 @@ class BulkTierV2Test : IntegrationTestBase() {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.length()", equalTo(1)))
-            .andExpect(jsonPath("$[0].tierScore", equalTo("B2")))
-            .andExpect(jsonPath("$[0].calculationId").isNotEmpty)
-            .andExpect(jsonPath("$[0].calculationDate").isNotEmpty)
+            .andExpect(jsonPath("$.$crn.tierScore", equalTo("B2")))
+            .andExpect(jsonPath("$.$crn.calculationId").isNotEmpty)
+            .andExpect(jsonPath("$.$crn.calculationDate").isNotEmpty)
     }
 
     @Test
@@ -71,8 +71,8 @@ class BulkTierV2Test : IntegrationTestBase() {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.length()", equalTo(2)))
-            .andExpect(jsonPath("$[0].tierScore", equalTo("B2")))
-            .andExpect(jsonPath("$[1].tierScore", equalTo("B2")))
+            .andExpect(jsonPath("$.$crn1.tierScore", equalTo("B2")))
+            .andExpect(jsonPath("$.$crn2.tierScore", equalTo("B2")))
     }
 
     @Test
@@ -95,7 +95,7 @@ class BulkTierV2Test : IntegrationTestBase() {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.length()", equalTo(1)))
-            .andExpect(jsonPath("$[0].tierScore", equalTo("B2")))
+            .andExpect(jsonPath("$.$crn.tierScore", equalTo("B2")))
     }
 
     @Test
@@ -111,7 +111,7 @@ class BulkTierV2Test : IntegrationTestBase() {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.length()", equalTo(1)))
-            .andExpect(jsonPath("$[0]", nullValue()))
+            .andExpect(jsonPath("$.$crn").value(nullValue()))
     }
 
     @Test
@@ -128,7 +128,7 @@ class BulkTierV2Test : IntegrationTestBase() {
     }
 
     @Test
-    fun `returns 200 with empty list when no crns provided`() {
+    fun `returns 200 with empty map when no crns provided`() {
         mockMvc.perform(
             post("/v2/crns/tier")
                 .contentType(MediaType.APPLICATION_JSON)
