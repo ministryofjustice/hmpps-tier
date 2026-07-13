@@ -48,6 +48,7 @@ class TierV3Reader(
                 ?: tierCalculationService.calculateTierForCrn(crn, OnDemandRecalculation)?.dto()
         }
     }
+
     companion object {
         fun TierCalculationEntity.details() = data.tier?.name?.let { tier ->
             TierV3DetailsDto(
