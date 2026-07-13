@@ -20,7 +20,7 @@ import java.util.*
 @Tag(name = "V2")
 @RequestMapping("v2", produces = [APPLICATION_JSON_VALUE])
 @PreAuthorize("hasAnyRole('HMPPS_TIER', 'PROBATION_INTEGRATION_ADMIN')")
-class TierV2Controller(private val tierReader: TierV2Reader) {
+open class TierV2Controller(private val tierReader: TierV2Reader) {
 
     @Operation(summary = "Retrieve number of cases for each tier")
     @GetMapping("tier-counts")
@@ -33,7 +33,7 @@ class TierV2Controller(private val tierReader: TierV2Reader) {
 
     @Operation(summary = "Retrieve v2 tiering score by crns")
     @PostMapping("crns/tier")
-    fun getLatestTierCalculations(@RequestBody crns: List<String>): Map<String, TierV2Dto?> =
+    open fun getLatestTierCalculations(@RequestBody crns: List<String>): Map<String, TierV2Dto?> =
         tierReader.getLatestTierByCrns(crns)
 
     @Operation(summary = "Retrieve tier history by crn")
