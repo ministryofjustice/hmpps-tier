@@ -6,6 +6,8 @@ import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.hmppstier.exception.EntityNotFoundException
@@ -26,6 +28,11 @@ class TierV3Controller(private val tierReader: TierV3Reader) {
     @GetMapping("crn/{crn}/tier")
     fun getLatestTierCalculation(@PathVariable(required = true) crn: String): TierV3Dto =
         tierReader.getLatestTierByCrn(crn) ?: throw EntityNotFoundException("Tier Result Not Found for $crn")
+
+    @Operation(summary = "Retrieve v3 tiering scores by crns")
+    @PostMapping("crns/tier")
+    fun getLatestTierCalculations(@RequestBody crns: List<String>): List<TierV3Dto?> =
+        tierReader.getLatestTierByCrns(crns)
 
     @Operation(summary = "Retrieve tier history by crn")
     @GetMapping("crn/{crn}/tier/history")

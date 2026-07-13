@@ -26,4 +26,6 @@ interface TierSummaryRepository : JpaRepository<TierSummaryEntity, String> {
         """
     )
     fun getTierV3Counts(): List<Pair<String, Long>>
+
+    fun findByIds(crns: List<String>): List<TierSummaryEntity>
 }
