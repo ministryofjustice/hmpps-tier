@@ -27,7 +27,7 @@ class TierV2Reader(
 
     fun getLatestTierByCrns(crns: List<String>): List<TierV2Dto?> {
         require(crns.size <= 20)
-        val summaries = tierSummaryRepository.findByIds(crns)
+        val summaries = tierSummaryRepository.findByCrnIn(crns)
         val found = summaries.associate { it.crn to it.dto() }
         return crns.map { crn ->
             found[crn]
