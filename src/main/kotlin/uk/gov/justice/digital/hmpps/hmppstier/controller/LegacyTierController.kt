@@ -1,8 +1,11 @@
 package uk.gov.justice.digital.hmpps.hmppstier.controller
 
+import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierV2Reader
@@ -12,4 +15,10 @@ import uk.gov.justice.digital.hmpps.hmppstier.service.TierV2Reader
 @Deprecated("Use 'v2' or 'v3' path")
 @RequestMapping(produces = [APPLICATION_JSON_VALUE])
 @PreAuthorize("hasAnyRole('HMPPS_TIER', 'PROBATION_INTEGRATION_ADMIN')")
-class LegacyTierController(tierReader: TierV2Reader) : TierV2Controller(tierReader)
+class LegacyTierController(tierReader: TierV2Reader) : TierV2Controller(tierReader) {
+
+    @Operation(hidden = true)
+    @PostMapping("crns/tier")
+    override fun getLatestTierCalculations(@RequestBody crns: List<String>) =
+        throw UnsupportedOperationException("Use /v2/crns/tier or /v3/crns/tier")
+}
