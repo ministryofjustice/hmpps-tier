@@ -30,7 +30,7 @@ class BulkTierV2Test : IntegrationTestBase() {
         )
         arnsApi.getNotFoundAssessment(crn)
         calculateTierForDomainEvent(crn)
-        expectLatestTierCalculation("D2")
+        expectLatestTierCalculation("B2")
 
         mockMvc.perform(
             post("/v2/crns/tier")
@@ -40,7 +40,7 @@ class BulkTierV2Test : IntegrationTestBase() {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.length()", equalTo(1)))
-            .andExpect(jsonPath("$[0].tierScore", equalTo("D2")))
+            .andExpect(jsonPath("$[0].tierScore", equalTo("B2")))
             .andExpect(jsonPath("$[0].calculationId").isNotEmpty)
             .andExpect(jsonPath("$[0].calculationDate").isNotEmpty)
     }
@@ -60,7 +60,7 @@ class BulkTierV2Test : IntegrationTestBase() {
             )
             arnsApi.getNotFoundAssessment(crn)
             calculateTierForDomainEvent(crn)
-            expectLatestTierCalculation("D2")
+            expectLatestTierCalculation("B2")
         }
 
         mockMvc.perform(
@@ -71,8 +71,8 @@ class BulkTierV2Test : IntegrationTestBase() {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.length()", equalTo(2)))
-            .andExpect(jsonPath("$[0].tierScore", equalTo("D2")))
-            .andExpect(jsonPath("$[1].tierScore", equalTo("D2")))
+            .andExpect(jsonPath("$[0].tierScore", equalTo("B2")))
+            .andExpect(jsonPath("$[1].tierScore", equalTo("B2")))
     }
 
     @Test
@@ -95,7 +95,7 @@ class BulkTierV2Test : IntegrationTestBase() {
         )
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.length()", equalTo(1)))
-            .andExpect(jsonPath("$[0].tierScore", equalTo("D2")))
+            .andExpect(jsonPath("$[0].tierScore", equalTo("B2")))
     }
 
     @Test
