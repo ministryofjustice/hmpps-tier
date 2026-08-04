@@ -31,7 +31,7 @@ open class TierV2Controller(private val tierReader: TierV2Reader) {
     fun getLatestTierCalculation(@PathVariable(required = true) crn: String): TierV2Dto =
         tierReader.getLatestTierByCrn(crn) ?: throw EntityNotFoundException("Tier Result Not Found for $crn")
 
-    @Operation(summary = "Retrieve v2 tiering score by crns")
+    @Operation(summary = "Retrieve v2 tiering score by crns (max 20 per request)")
     @PostMapping("crns/tier")
     open fun getLatestTierCalculations(@RequestBody crns: List<String>): Map<String, TierV2Dto?> =
         tierReader.getLatestTierByCrns(crns)
