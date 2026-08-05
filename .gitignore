@@ -8,6 +8,7 @@
 !.idea/codeStyles/**/*
 .gradle/
 build/
+.kotlin/sessions
 
 # CMake
 cmake-build-debug/
@@ -71,3 +72,6 @@ ecr.repo
 
 # Mac specific
 .DS_Store
+
+# HMPPS generated files
+.snyk
