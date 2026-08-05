@@ -6,6 +6,7 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import tools.jackson.module.kotlin.readValue
 import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusRegistration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Rosh
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.arnsApi.ArnsApiExtension.Companion.arnsApi
@@ -15,6 +16,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliu
 import uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi.TierToDeliusApiExtension.Companion.deliusApi
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.IntegrationTestBase
 import uk.gov.justice.digital.hmpps.hmppstier.integration.setup.TierApiVersion
+import uk.gov.justice.digital.hmpps.hmppstier.model.TierV3Dto
 import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
 
 class TierCalculationV3Test : IntegrationTestBase() {
@@ -81,6 +83,30 @@ class TierCalculationV3Test : IntegrationTestBase() {
 
         calculateTierForDomainEvent(crn)
         expectTierChangedById("C", TierApiVersion.V3)
+    }
+
+    @Test
+    fun `updates tier calculation uuid and date`() {
+        val crn = TestData.crn()
+        deliusApi.getFullDetails(crn, deliusDetails())
+        arnsApi.getRiskPredictors(crn, arp = 75.0, csrp = 1.0)
+        calculateTierForDomainEvent(crn)
+        val calculation1 = expectTierChangedById("C", TierApiVersion.V3)
+            .andReturn().response.contentAsString.let { objectMapper.readValue<TierV3Dto>(it) }
+        latestTierCalculationResult(crn, TierApiVersion.V3)
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.calculationId").value(calculation1.calculationId.toString()))
+            .andExpect(jsonPath("$.calculationDate").value(objectMapper.writeValueAsString(calculation1.calculationDate)))
+
+        deliusApi.getFullDetails(crn, deliusDetails())
+        arnsApi.getRiskPredictors(crn, arp = 99.0, csrp = 10.0)
+        calculateTierForDomainEvent(crn)
+        val calculation2 = expectTierChangedById("A", TierApiVersion.V3)
+            .andReturn().response.contentAsString.let { objectMapper.readValue<TierV3Dto>(it) }
+        latestTierCalculationResult(crn, TierApiVersion.V3)
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.calculationId").value(calculation2.calculationId.toString()))
+            .andExpect(jsonPath("$.calculationDate").value(objectMapper.writeValueAsString(calculation2.calculationDate)))
     }
 
     @Test

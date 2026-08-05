@@ -35,5 +35,5 @@ class TierSummaryEntity(
     val version: Long = 0,
 
     @LastModifiedDate
-    val lastModified: LocalDateTime = LocalDateTime.now(),
+    var lastModified: LocalDateTime = LocalDateTime.now(),
 )

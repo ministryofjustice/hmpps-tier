@@ -12,6 +12,7 @@ import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.ResultActions
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
@@ -129,7 +130,7 @@ abstract class IntegrationTestBase {
         crn,
     )
 
-    fun expectTierChangedById(tierScore: String, version: TierApiVersion = TierApiVersion.V2) {
+    fun expectTierChangedById(tierScore: String, version: TierApiVersion = TierApiVersion.V2): ResultActions {
         oneMessageCurrentlyOnQueue(calculationCompleteClient, calculationCompleteQueue.queueUrl)
         val calculationEvent = tierCalculationEvent()
         val crn = calculationEvent.crn()
@@ -138,7 +139,7 @@ abstract class IntegrationTestBase {
         assertThat(calculationEvent.detailUrl).isEqualTo(detailUrl)
         assertThat(calculationEvent.eventType).isEqualTo("tier.calculation.complete")
         assertThat(ZonedDateTime.parse(calculationEvent.occurredAt, ISO_OFFSET_DATE_TIME)).isNotNull
-        tierCalculationResult(crn, calculationId.toString(), version)
+        return tierCalculationResult(crn, calculationId.toString(), version)
             .andExpect(status().isOk)
             .andExpect(jsonPath("tierScore", equalTo(tierScore)))
     }

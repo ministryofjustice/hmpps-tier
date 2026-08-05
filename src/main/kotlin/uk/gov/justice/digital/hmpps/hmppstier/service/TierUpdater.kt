@@ -29,11 +29,13 @@ class TierUpdater(
         val isUpdated = isUpdated(tierCalculation, crn)
         tierCalculationRepository.save(tierCalculation)
         tierSummaryRepository.findByIdOrNull(tierCalculation.crn)?.apply {
+            uuid = tierCalculation.uuid
             tier = tierCalculation.data.tier?.name
             provisional = tierCalculation.data.provisional
             protectLevel = tierCalculation.protectLevel()
             changeLevel = tierCalculation.changeLevel()
             unsupervised = tierCalculation.data.deliusInputs?.registrations?.unsupervised == true
+            lastModified = tierCalculation.created
             tierSummaryRepository.save(this)
         } ?: createSummary(tierCalculation)
         return isUpdated
