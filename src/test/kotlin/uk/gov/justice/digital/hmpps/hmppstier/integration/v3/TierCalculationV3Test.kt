@@ -96,7 +96,10 @@ class TierCalculationV3Test : IntegrationTestBase() {
         latestTierCalculationResult(crn, TierApiVersion.V3)
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.calculationId").value(calculation1.calculationId.toString()))
-            .andExpect(jsonPath("$.calculationDate").value(objectMapper.writeValueAsString(calculation1.calculationDate)))
+            .andExpect(
+                jsonPath("$.calculationDate")
+                    .value(objectMapper.writeValueAsString(calculation1.calculationDate).replace("\"", ""))
+            )
 
         deliusApi.getFullDetails(crn, deliusDetails())
         arnsApi.getRiskPredictors(crn, arp = 99.0, csrp = 10.0)
@@ -106,7 +109,10 @@ class TierCalculationV3Test : IntegrationTestBase() {
         latestTierCalculationResult(crn, TierApiVersion.V3)
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.calculationId").value(calculation2.calculationId.toString()))
-            .andExpect(jsonPath("$.calculationDate").value(objectMapper.writeValueAsString(calculation2.calculationDate)))
+            .andExpect(
+                jsonPath("$.calculationDate")
+                    .value(objectMapper.writeValueAsString(calculation2.calculationDate).replace("\"", ""))
+            )
     }
 
     @Test
