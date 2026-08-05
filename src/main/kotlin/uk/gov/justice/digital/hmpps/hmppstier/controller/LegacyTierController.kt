@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
+import uk.gov.justice.digital.hmpps.hmppstier.model.TierV2Dto
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierV2Reader
 
 @RestController
@@ -19,6 +20,6 @@ class LegacyTierController(tierReader: TierV2Reader) : TierV2Controller(tierRead
 
     @Operation(hidden = true)
     @PostMapping("crns/tier")
-    override fun getLatestTierCalculations(@RequestBody crns: List<String>) =
+    override fun getLatestTierCalculations(@RequestBody crns: List<String>): Map<String, TierV2Dto?> =
         throw UnsupportedOperationException("Use /v2/crns/tier or /v3/crns/tier")
 }
