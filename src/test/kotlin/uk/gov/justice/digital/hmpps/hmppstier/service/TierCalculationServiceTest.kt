@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.hmppstier.service
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.junit.jupiter.api.extension.ExtendWith
@@ -18,6 +19,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.StaticOrDynamicP
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.ogrs4.VersionedStaticOrDynamicPredictorDto
 import uk.gov.justice.digital.hmpps.hmppstier.domain.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Tier
+import uk.gov.justice.digital.hmpps.hmppstier.exception.NoActiveEventException
 import uk.gov.justice.digital.hmpps.hmppstier.flags.FeatureFlags
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.publisher.DomainEventPublisher
 import uk.gov.justice.digital.hmpps.hmppstier.service.api.AssessmentApiService
@@ -112,6 +114,26 @@ internal class TierCalculationServiceTest {
         assertThat(result.data.provisional).isNull()
         assertThat(result.data.protect).isNotNull()
         assertThat(result.data.change).isNotNull()
+    }
+
+    @Test
+    fun `no active events results in no calculation`() {
+        val crn = TestData.crn()
+
+        whenever(deliusApiService.getTierToDelius(crn)).thenReturn(deliusInputs().copy(hasActiveEvent = false))
+
+        assertThatThrownBy { tierCalculationService.calculateTierForCrn(crn, RecalculationSource.FullRecalculation) }
+            .isInstanceOf(NoActiveEventException::class.java)
+            .hasMessage("$crn has no active events")
+        verify(telemetryService).trackEvent(
+            TelemetryEventType.TIER_CALCULATION_FAILED, mapOf(
+                "crn" to crn,
+                "exception" to "$crn has no active events",
+                "recalculationSource" to RecalculationSource.FullRecalculation::class.simpleName,
+                "recalculationReason" to "",
+                "duplicateAttempt" to "false"
+            )
+        )
     }
 
     private fun deliusInputs() = DeliusInputs(
