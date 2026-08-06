@@ -10,7 +10,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.domain.TelemetryEventType.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.Need
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.NeedSeverity
 import uk.gov.justice.digital.hmpps.hmppstier.exception.CrnNotFoundException
-import uk.gov.justice.digital.hmpps.hmppstier.exception.NoActiveEventException
 import uk.gov.justice.digital.hmpps.hmppstier.flags.FeatureFlags
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierCalculationResultEntity
@@ -83,12 +82,6 @@ class TierCalculationService(
 
     private fun calculateTier(crn: String, recalculationSource: RecalculationSource): TierCalculationEntity {
         val deliusInputs = deliusApiService.getTierToDelius(crn)
-
-        // Temporarily disable tier calculations for inactive cases. Disabling tier calculations prevents overloading
-        // the ETL process to NDMIS when lots of updates are made to inactive cases.
-        // TODO remove this after NDelius/MIS deregistration scripts have completed.
-        if (!deliusInputs.hasActiveEvent) throw NoActiveEventException(crn)
-
         val assessment = assessmentApiService.getTierAssessmentInformation(crn)
         val oasysInputs = assessmentApiService.getOASysTierInputs(crn)
 
