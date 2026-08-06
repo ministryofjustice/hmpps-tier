@@ -27,7 +27,7 @@ class ArnsApiClient(
 
     fun getRiskPredictors(crn: String): List<OGRS4Predictors>? = arnsClient
         .get()
-        .uri("/risks/predictors/unsafe/all/CRN/{crn}", crn)
+        .uri("/risks/predictors/unsafe/all/CRN/{crn}?includeStandaloneAssessments=true", crn)
         .retrieve()
         .bodyToMono<List<AllPredictorVersioned<Any>>>()
         .retryWhen(retryOnServerError)
