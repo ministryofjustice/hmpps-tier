@@ -20,6 +20,8 @@ on:
 permissions:
   contents: read
   packages: write
+  id-token: write
+  attestations: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.sha || github.ref }}
@@ -48,6 +50,7 @@ jobs:
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/gradle_verify.yml@b7e29ba10659e877df6b75f95fd3d18ae37212a8 # v2.19.1
     secrets: inherit
     with:
+      gradle-command: 'BUILD_NUMBER=${{ needs.app_version.outputs.version}} ./gradlew assemble check'
       upload-build-artifacts: ${{ github.ref == 'refs/heads/main' }}
       java-version: "25"
       localstack-tag: "4"
@@ -67,6 +70,9 @@ jobs:
       push: ${{ inputs.push || inputs.push == null }}
       docker_multiplatform: false
       download_build_artifacts: true
+      generate_sbom: true
+      attach_sbom_to_registry: true
+      sign_image: true
   deploy_dev:
     name: Deploy to the development environment
     needs:
