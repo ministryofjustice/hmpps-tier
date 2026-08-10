@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.2"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.4"
     kotlin("plugin.spring") version "2.4.10"
     kotlin("plugin.jpa") version "2.4.10"
     jacoco
@@ -18,9 +18,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.0")
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.4.0")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0")
     implementation("io.hypersistence:hypersistence-utils-hibernate-71:3.15.4")
-    implementation(platform("io.sentry:sentry-bom:8.51.0"))
+    implementation(platform("io.sentry:sentry-bom:8.52.0"))
     implementation("io.sentry:sentry-spring-boot-4")
     implementation("io.sentry:sentry-logback")
     implementation("io.flipt:flipt-client-java:1.3.3")
