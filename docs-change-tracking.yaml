@@ -1,0 +1,9 @@
+- id: tier-calculation-v3
+  description: "V3 tier calculation rules (A-G scale) based on eight factors"
+  doc: docs/tier-calculation.md
+  sources:
+    - src/main/kotlin/uk/gov/justice/digital/hmpps/hmppstier/service/calculation/TierCalculator.kt
+    - src/main/kotlin/uk/gov/justice/digital/hmpps/hmppstier/service/calculation/ReoffendingPredictorTable.kt
+    - src/main/kotlin/uk/gov/justice/digital/hmpps/hmppstier/service/calculation/ProvisionalStatusCalculator.kt
+    - src/main/kotlin/uk/gov/justice/digital/hmpps/hmppstier/service/calculation/CalculationStep.kt
+  hash: 9e72b6b9bc2e596d96f6a7eeb45f98f2

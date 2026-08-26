@@ -1,0 +1,123 @@
+@startuml entity-relationship
+!theme plain
+skinparam linetype ortho
+
+title HMPPS Tier - Entity Relationship Diagram
+
+entity "tier_calculation" as tc {
+  * id : SERIAL <<PK>>
+  --
+  * uuid : UUID
+  * crn : VARCHAR
+  * created : TIMESTAMP
+  * data : JSONB
+  change_reason : VARCHAR
+}
+
+entity "tier_summary" as ts {
+  * crn : VARCHAR <<PK>>
+  --
+  * uuid : UUID <<FK>>
+  tier : VARCHAR(2)
+  * protect_level : VARCHAR
+  * change_level : SMALLINT
+  * unsupervised : BOOLEAN
+  * version : INTEGER
+  last_modified : TIMESTAMP
+}
+
+entity "ogrs4_rescored_assessment" as ra {
+  * id : SERIAL <<PK>>
+  --
+  * crn : CHAR(7)
+  * completed_date : DATE
+  * arp_score : NUMERIC(5,2)
+  * arp_is_dynamic : BOOLEAN
+  * arp_band : TEXT
+  * csrp_score : NUMERIC(5,2)
+  * csrp_is_dynamic : BOOLEAN
+  * csrp_band : TEXT
+  * dc_srp_score : NUMERIC(5,2)
+  * dc_srp_band : TEXT
+  * iic_srp_score : NUMERIC(5,2)
+  * iic_srp_band : TEXT
+}
+
+note right of tc::data
+  JSONB contains:
+  TierCalculationResultEntity
+end note
+
+ts ||--o| tc : "uuid references\nlatest calculation"
+ra }o--|| ts : "crn"
+
+package "TierCalculationResultEntity (JSONB)" as jsonb {
+  entity "root" as root {
+    tier : Tier (A-G, NA)
+    calculationVersion : String
+  }
+
+  entity "protect" as protect {
+    tier : ProtectLevel (A-D)
+    points : Int
+    pointsBreakdown : Map
+  }
+
+  entity "change" as change {
+    tier : ChangeLevel (0-3)
+    points : Int
+    pointsBreakdown : Map
+  }
+
+  entity "deliusInputs" as di {
+    isFemale : Boolean
+    rsrScore : BigDecimal
+    ogrsScore : Int
+    hasNoMandate : Boolean
+    previousEnforcementActivity : Boolean
+    latestReleaseDate : LocalDate
+    hasActiveEvent : Boolean
+  }
+
+  entity "registrations" as reg {
+    hasIomNominal : Boolean
+    hasLiferIpp : Boolean
+    hasDomesticAbuse : Boolean
+    hasStalking : Boolean
+    hasChildProtection : Boolean
+    complexityFactors : List
+    rosh : Rosh
+    mappaLevel : MappaLevel
+    mappaCategory : MappaCategory
+    unsupervised : Boolean
+  }
+
+  entity "assessmentSummary" as asmt {
+    assessment : AssessmentSummary
+    accommodation : NeedSection
+    educationTrainingEmployability : NeedSection
+    relationships : NeedSection
+    lifestyleAndAssociates : NeedSection
+    drugMisuse : NeedSection
+    alcoholMisuse : NeedSection
+    thinkingAndBehaviour : NeedSection
+    attitudes : NeedSection
+  }
+
+  entity "riskPredictors" as rp {
+    completedDate : LocalDateTime
+    assessmentType : AssessmentType
+    output : AllPredictorDto
+  }
+
+  root ||--|| protect
+  root ||--|| change
+  root ||--o| di
+  root ||--o| asmt
+  root ||--o| rp
+  di ||--|| reg
+}
+
+tc::data ..> jsonb : "contains"
+
+@enduml
