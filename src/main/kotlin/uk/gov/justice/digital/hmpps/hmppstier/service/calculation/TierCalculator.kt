@@ -74,8 +74,9 @@ object TierCalculator {
         return when {
             latestReleaseDate == null || !registrations.hasLiferIpp -> null
             latestReleaseDate >= today.minusYears(1) -> B
+            latestReleaseDate >= today.minusYears(4) -> C
             latestReleaseDate >= today.minusYears(5) -> D
-            else -> E
+            else -> null
         }
     }
 
