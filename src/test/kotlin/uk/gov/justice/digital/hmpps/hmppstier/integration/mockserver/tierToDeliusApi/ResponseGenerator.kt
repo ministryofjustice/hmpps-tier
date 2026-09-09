@@ -1,9 +1,6 @@
 package uk.gov.justice.digital.hmpps.hmppstier.integration.mockserver.tierToDeliusApi
 
-import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusConviction
-import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusRegistration
-import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusRequirement
-import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusResponse
+import uk.gov.justice.digital.hmpps.hmppstier.client.delius.*
 import java.time.LocalDate
 
 object ResponseGenerator {
@@ -44,9 +41,14 @@ object ResponseGenerator {
         sentenceCode: String = "NC",
         terminationDate: LocalDate? = null,
     ) = DeliusConviction(
+        startDate = null,
         terminationDate = terminationDate,
+        latestReleaseDate = null,
+        isCustodial = false,
         sentenceTypeCode = sentenceCode,
         requirements = requirements,
+        mainOffence = DeliusOffence(code = "00100", description = "Test offence", sentencingAct2026Exclusion = false),
+        additionalOffences = emptyList(),
     )
 
     fun deliusRequirement(

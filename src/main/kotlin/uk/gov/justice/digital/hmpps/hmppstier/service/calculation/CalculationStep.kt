@@ -9,4 +9,5 @@ enum class CalculationStep {
     STALKING,
     CHILD_PROTECTION,
     SEXUAL_OFFENCES,
+    SENTENCING_ACT_2026_EXCLUSION,
 }

@@ -27,6 +27,7 @@ object TierCalculator {
             STALKING to deliusInputs.registrations.stalking(),
             CHILD_PROTECTION to deliusInputs.registrations.childProtection(),
             SEXUAL_OFFENCES to oasysInputs.sexualOffences(),
+            SENTENCING_ACT_2026_EXCLUSION to deliusInputs.sentencingAct2026Exclusions(),
         )
         return CalculationResult(
             tier = stepResults.maxOf { it.value ?: G },
@@ -77,6 +78,16 @@ object TierCalculator {
             latestReleaseDate >= today.minusYears(4) -> C
             latestReleaseDate >= today.minusYears(5) -> D
             else -> null
+        }
+    }
+
+    fun DeliusInputs.sentencingAct2026Exclusions(): Tier? {
+        val today = LocalDate.now()
+        return when {
+            latestSentencingAct2026ExclusionDate == null -> null
+            latestSentencingAct2026ExclusionDate >= today.minusYears(4) -> C
+            latestSentencingAct2026ExclusionDate >= today.minusYears(5) -> D
+            else -> E
         }
     }
 

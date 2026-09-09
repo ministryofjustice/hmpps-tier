@@ -16,6 +16,7 @@ data class DeliusRegistration @JsonCreator constructor(
         const val DOMESTIC_ABUSE_HISTORY = "REG30"
         const val STALKING = "SPO"
         const val CHILD_PROTECTION = "RCPR"
+        const val CHILD_SEXUAL_EXPLOITATION = "CSEP"
         const val TWO_THIRDS_CODE = "PRC"
     }
 }

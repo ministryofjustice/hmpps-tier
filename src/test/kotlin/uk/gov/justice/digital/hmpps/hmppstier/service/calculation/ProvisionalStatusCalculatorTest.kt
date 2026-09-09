@@ -285,6 +285,7 @@ class ProvisionalStatusCalculatorTest {
         previousEnforcementActivity = false,
         latestReleaseDate = null,
         hasActiveEvent = true,
+        latestSentencingAct2026ExclusionDate = null,
     )
 
     private fun predictors(

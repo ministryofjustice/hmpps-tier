@@ -13,4 +13,5 @@ data class DeliusInputs(
     val previousEnforcementActivity: Boolean,
     val latestReleaseDate: LocalDate?,
     val hasActiveEvent: Boolean,
+    val latestSentencingAct2026ExclusionDate: LocalDate?,
 ) : Serializable

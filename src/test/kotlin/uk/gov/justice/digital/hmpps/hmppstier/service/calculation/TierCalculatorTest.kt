@@ -155,6 +155,19 @@ class TierCalculatorTest {
         ).isEqualTo(CalculationResult(E))
     }
 
+    @ParameterizedTest(name = "latestSentencingAct2026ExclusionDate={0} maps to tier {1}")
+    @MethodSource("sentencingAct2026ExclusionDateCases")
+    fun `applies sentencing act 2026 exclusion date rules`(
+        latestSentencingAct2026ExclusionDate: LocalDate?,
+        expectedTier: Tier,
+    ) {
+        val tier = TierCalculator.calculate(
+            deliusInputs(latestSentencingAct2026ExclusionDate = latestSentencingAct2026ExclusionDate),
+            oasysInputs(),
+        ).tier
+        assertThat(tier).isEqualTo(expectedTier)
+    }
+
     @Test
     fun `higher tier from earlier rules is not downgraded by later registration logic`() {
         val tier = TierCalculator.calculate(
@@ -166,6 +179,7 @@ class TierCalculatorTest {
                 hasDomesticAbuse = true,
                 hasStalking = true,
                 hasChildProtection = true,
+                latestSentencingAct2026ExclusionDate = LocalDate.now(),
             ),
             oasysInputs(arp = 95.0, csrp = 6.9, directSrp = sexualPredictor(5.31, VERY_HIGH)),
         ).tier
@@ -243,6 +257,39 @@ class TierCalculatorTest {
     }
 
     @Test
+    fun `static ARP with dynamic CSRP is provisional unless sentencing act 2026 exclusion reaches the maximum ARP CSRP tier`() {
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(
+                    rosh = Rosh.MEDIUM,
+                    latestSentencingAct2026ExclusionDate = LocalDate.now().minusYears(4),
+                ),
+                oasysInputs(arp = 0.0, csrp = 0.5, arpType = ScoreType.STATIC),
+            )
+        ).isEqualTo(CalculationResult(C, provisional = false))
+
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(
+                    rosh = Rosh.MEDIUM,
+                    latestSentencingAct2026ExclusionDate = LocalDate.now().minusYears(4).minusDays(1),
+                ),
+                oasysInputs(arp = 0.0, csrp = 0.5, arpType = ScoreType.STATIC),
+            )
+        ).isEqualTo(CalculationResult(D, provisional = true))
+
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(
+                    rosh = Rosh.MEDIUM,
+                    latestSentencingAct2026ExclusionDate = LocalDate.now().minusYears(5),
+                ),
+                oasysInputs(arp = 0.0, csrp = 0.0, arpType = ScoreType.STATIC),
+            )
+        ).isEqualTo(CalculationResult(D, provisional = false))
+    }
+
+    @Test
     fun `missing ROSH with MAPPA is provisional unless dynamic ARP CSRP or DC-SRP generates tier A`() {
         assertThat(
             TierCalculator.calculate(
@@ -311,6 +358,33 @@ class TierCalculatorTest {
             .isEqualTo(CalculationResult(E, provisional = true))
     }
 
+    @Test
+    fun `missing ROSH is provisional unless sentencing act 2026 exclusion reaches tier C and MAPPA is absent`() {
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(rosh = null, latestSentencingAct2026ExclusionDate = LocalDate.now().minusYears(4)),
+                oasysInputs(),
+            )
+        ).isEqualTo(CalculationResult(C, provisional = false))
+
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(
+                    rosh = null,
+                    latestSentencingAct2026ExclusionDate = LocalDate.now().minusYears(4).minusDays(1),
+                ),
+                oasysInputs(),
+            )
+        ).isEqualTo(CalculationResult(D, provisional = true))
+
+        assertThat(
+            TierCalculator.calculate(
+                deliusInputs(hasMappa = true, rosh = null, latestSentencingAct2026ExclusionDate = LocalDate.now()),
+                oasysInputs(),
+            )
+        ).isEqualTo(CalculationResult(C, provisional = true))
+    }
+
     private fun deliusInputs(
         hasMappa: Boolean = false,
         rosh: Rosh? = null,
@@ -320,6 +394,7 @@ class TierCalculatorTest {
         hasStalking: Boolean = false,
         hasChildProtection: Boolean = false,
         hasActiveEvent: Boolean = true,
+        latestSentencingAct2026ExclusionDate: LocalDate? = null,
     ) = DeliusInputs(
         isFemale = false,
         rsrScore = BigDecimal.ZERO,
@@ -340,6 +415,7 @@ class TierCalculatorTest {
         previousEnforcementActivity = false,
         latestReleaseDate = latestReleaseDate,
         hasActiveEvent = hasActiveEvent,
+        latestSentencingAct2026ExclusionDate = latestSentencingAct2026ExclusionDate,
     )
 
     private fun oasysInputs(
@@ -489,5 +565,31 @@ class TierCalculatorTest {
             Arguments.of(false, true, true, F),
             Arguments.of(true, true, true, E),
         )
+
+        @JvmStatic
+        fun sentencingAct2026ExclusionDateCases(): List<Arguments> {
+            val today = LocalDate.now()
+            return listOf(
+                Arguments.of(null, G),
+                Arguments.of(today.plusDays(1), C),
+                Arguments.of(today, C),
+                Arguments.of(today.minusDays(1), C),
+                Arguments.of(today.minusYears(1).plusDays(1), C),
+                Arguments.of(today.minusYears(1), C),
+                Arguments.of(today.minusYears(1).minusDays(1), C),
+                Arguments.of(today.minusYears(2), C),
+                Arguments.of(today.minusYears(4).plusDays(1), C),
+                Arguments.of(today.minusYears(4), C),
+                Arguments.of(today.minusYears(4).minusDays(1), D),
+                Arguments.of(today.minusYears(5).plusDays(1), D),
+                Arguments.of(today.minusYears(5), D),
+                Arguments.of(today.minusYears(5).minusDays(1), E),
+                Arguments.of(today.minusYears(6).plusDays(1), E),
+                Arguments.of(today.minusYears(6), E),
+                Arguments.of(today.minusYears(6).minusDays(1), E),
+                Arguments.of(today.minusYears(7), E),
+                Arguments.of(today.minusYears(20), E),
+            )
+        }
     }
 }
