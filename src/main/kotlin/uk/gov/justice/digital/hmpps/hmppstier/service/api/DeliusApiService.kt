@@ -2,6 +2,7 @@ package uk.gov.justice.digital.hmpps.hmppstier.service.api
 
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusApiClient
+import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusConviction
 import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusRegistration
 import uk.gov.justice.digital.hmpps.hmppstier.domain.DeliusInputs
 import uk.gov.justice.digital.hmpps.hmppstier.domain.Registrations
@@ -23,6 +24,10 @@ class DeliusApiService(private val deliusApiClient: DeliusApiClient) {
             previousEnforcementActivity = tierToDeliusResponse.previousEnforcementActivity,
             latestReleaseDate = tierToDeliusResponse.latestReleaseDate,
             hasActiveEvent = tierToDeliusResponse.hasActiveEvent,
+            latestSentencingAct2026ExclusionDate = tierToDeliusResponse.convictions.filter { it.terminationDate == null }
+                .filter { hasChildSexualExploitation(tierToDeliusResponse.registrations) || it.offenceIsExcludedFromSentencingAct2026() }
+                .mapNotNull { if (it.isCustodial) it.latestReleaseDate else it.startDate }
+                .maxOrNull()
         )
     }
 
@@ -40,7 +45,7 @@ class DeliusApiService(private val deliusApiClient: DeliusApiClient) {
             rosh = getRosh(registrations),
             mappaLevel = getMappaLevel(registrations),
             mappaCategory = getMappaCategory(registrations),
-            unsupervised = isUnsupervised(registrations)
+            unsupervised = isUnsupervised(registrations),
         )
     }
 
@@ -71,6 +76,12 @@ class DeliusApiService(private val deliusApiClient: DeliusApiClient) {
     private fun hasChildProtection(registrations: Collection<DeliusRegistration>): Boolean =
         registrations.any { it.code == DeliusRegistration.CHILD_PROTECTION }
 
+    private fun hasChildSexualExploitation(registrations: Collection<DeliusRegistration>): Boolean =
+        registrations.any { it.code == DeliusRegistration.CHILD_SEXUAL_EXPLOITATION }
+
     private fun isUnsupervised(registrations: Collection<DeliusRegistration>): Boolean =
         registrations.any { it.code == DeliusRegistration.TWO_THIRDS_CODE }
+
+    private fun DeliusConviction.offenceIsExcludedFromSentencingAct2026(): Boolean =
+        mainOffence.sentencingAct2026Exclusion || additionalOffences.any { it.sentencingAct2026Exclusion }
 }

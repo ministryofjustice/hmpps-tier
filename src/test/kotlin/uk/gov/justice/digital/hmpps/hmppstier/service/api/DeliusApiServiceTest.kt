@@ -12,10 +12,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 import uk.gov.justice.digital.hmpps.hmppstier.client.DeliusApiClient
-import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusConviction
-import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusRegistration
-import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusRequirement
-import uk.gov.justice.digital.hmpps.hmppstier.client.delius.DeliusResponse
+import uk.gov.justice.digital.hmpps.hmppstier.client.delius.*
 import uk.gov.justice.digital.hmpps.hmppstier.domain.enums.*
 import uk.gov.justice.digital.hmpps.hmppstier.test.TestData
 import java.math.BigDecimal
@@ -79,6 +76,68 @@ class DeliusApiServiceTest {
         val result = deliusApiService.getTierToDelius(crn)
 
         assertThat(result.hasNoMandate).isEqualTo(expectedHasNoMandate)
+    }
+
+    @ParameterizedTest(name = "CSE={0}, mainOffenceExcluded={1}, additionalOffenceExcluded={2} map to excluded={3}")
+    @MethodSource("sentencingAct2026ExclusionCases")
+    fun `maps sentencing act 2026 exclusions from CSE registrations and offences`(
+        hasChildSexualExploitation: Boolean,
+        mainOffenceExcluded: Boolean,
+        additionalOffenceExcluded: Boolean,
+        expectedExcluded: Boolean,
+    ) {
+        val startDate = LocalDate.of(2025, 2, 20)
+        val registrations = listOfNotNull(
+            registration(DeliusRegistration.DOMESTIC_ABUSE),
+            registration(DeliusRegistration.CHILD_SEXUAL_EXPLOITATION).takeIf { hasChildSexualExploitation },
+        )
+        stubDeliusResponse(
+            deliusResponse(
+                registrations = registrations,
+                convictions = listOf(
+                    conviction(
+                        startDate = startDate,
+                        mainOffence = offence(sentencingAct2026Exclusion = mainOffenceExcluded),
+                        additionalOffences = listOf(
+                            offence(),
+                            offence(sentencingAct2026Exclusion = additionalOffenceExcluded),
+                        ),
+                    ),
+                ),
+            ),
+        )
+
+        val result = deliusApiService.getTierToDelius(crn)
+
+        assertThat(result.latestSentencingAct2026ExclusionDate)
+            .isEqualTo(if (expectedExcluded) startDate else null)
+    }
+
+    @ParameterizedTest(name = "isCustodial={0}, startDate={1}, latestReleaseDate={2} map to exclusion date {3}")
+    @MethodSource("sentencingAct2026ExclusionDateCases")
+    fun `uses release date for custodial exclusions and start date for non-custodial exclusions`(
+        isCustodial: Boolean,
+        startDate: LocalDate?,
+        latestReleaseDate: LocalDate?,
+        expectedExclusionDate: LocalDate?,
+    ) {
+        stubDeliusResponse(
+            deliusResponse(
+                latestReleaseDate = LocalDate.of(2026, 1, 1),
+                convictions = listOf(
+                    conviction(
+                        startDate = startDate,
+                        latestReleaseDate = latestReleaseDate,
+                        isCustodial = isCustodial,
+                        mainOffence = offence(sentencingAct2026Exclusion = true),
+                    ),
+                ),
+            ),
+        )
+
+        val result = deliusApiService.getTierToDelius(crn)
+
+        assertThat(result.latestSentencingAct2026ExclusionDate).isEqualTo(expectedExclusionDate)
     }
 
     @Test
@@ -202,14 +261,61 @@ class DeliusApiServiceTest {
             ),
         )
 
+        @JvmStatic
+        fun sentencingAct2026ExclusionCases() = listOf(
+            // CSE, Main Offence Excluded, Additional Offence Excluded
+            Arguments.of(false, false, false, false),
+            Arguments.of(true, false, false, true),
+            Arguments.of(false, true, false, true),
+            Arguments.of(false, false, true, true),
+            Arguments.of(true, true, false, true),
+            Arguments.of(true, false, true, true),
+            Arguments.of(false, true, true, true),
+            Arguments.of(true, true, true, true),
+        )
+
+        @JvmStatic
+        fun sentencingAct2026ExclusionDateCases(): List<Arguments> {
+            val startDate = LocalDate.of(2024, 1, 1)
+            val latestReleaseDate = LocalDate.of(2025, 2, 20)
+            return listOf(
+                Arguments.of(false, startDate, latestReleaseDate, startDate),
+                Arguments.of(false, startDate, null, startDate),
+                Arguments.of(false, null, latestReleaseDate, null),
+                Arguments.of(false, null, null, null),
+                Arguments.of(true, startDate, latestReleaseDate, latestReleaseDate),
+                Arguments.of(true, null, latestReleaseDate, latestReleaseDate),
+                Arguments.of(true, startDate, null, null),
+                Arguments.of(true, null, null, null),
+            )
+        }
+
         private fun conviction(
             terminationDate: LocalDate? = null,
             sentenceTypeCode: String = "OTHER",
             requirements: List<DeliusRequirement> = emptyList(),
+            startDate: LocalDate? = null,
+            latestReleaseDate: LocalDate? = null,
+            isCustodial: Boolean = false,
+            mainOffence: DeliusOffence = offence(),
+            additionalOffences: List<DeliusOffence> = emptyList(),
         ) = DeliusConviction(
+            startDate = startDate,
             terminationDate = terminationDate,
+            latestReleaseDate = latestReleaseDate,
+            isCustodial = isCustodial,
             sentenceTypeCode = sentenceTypeCode,
             requirements = requirements,
+            mainOffence = mainOffence,
+            additionalOffences = additionalOffences,
+        )
+
+        private fun offence(
+            sentencingAct2026Exclusion: Boolean = false,
+        ) = DeliusOffence(
+            code = "00100",
+            description = "Test offence",
+            sentencingAct2026Exclusion = sentencingAct2026Exclusion,
         )
 
         private fun requirement(
