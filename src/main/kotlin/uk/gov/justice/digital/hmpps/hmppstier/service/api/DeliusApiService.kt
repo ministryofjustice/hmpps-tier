@@ -24,12 +24,17 @@ class DeliusApiService(private val deliusApiClient: DeliusApiClient) {
             previousEnforcementActivity = tierToDeliusResponse.previousEnforcementActivity,
             latestReleaseDate = tierToDeliusResponse.latestReleaseDate,
             hasActiveEvent = tierToDeliusResponse.hasActiveEvent,
-            latestSentencingAct2026ExclusionDate = tierToDeliusResponse.convictions.filter { it.terminationDate == null }
-                .filter { hasChildSexualExploitation(tierToDeliusResponse.registrations) || it.offenceIsExcludedFromSentencingAct2026() }
-                .mapNotNull { if (it.isCustodial) it.latestReleaseDate else it.startDate }
-                .maxOrNull()
+            latestSentencingAct2026ExcludedOffenceDate = tierToDeliusResponse.activeConvictions
+                .filter { it.offenceIsExcludedFromSentencingAct2026() }
+                .latestSupervisionStartDate,
+            latestChildSexualExploitationSentenceDate = if (hasChildSexualExploitation(tierToDeliusResponse.registrations)) {
+                tierToDeliusResponse.activeConvictions.latestSupervisionStartDate
+            } else null
         )
     }
+
+    val List<DeliusConviction>.latestSupervisionStartDate
+        get() = mapNotNull { if (it.isCustodial) it.latestReleaseDate else it.startDate }.maxOrNull()
 
     private fun getRegistrations(deliusRegistrations: Collection<DeliusRegistration>): Registrations {
         val registrations = deliusRegistrations

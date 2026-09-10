@@ -26,8 +26,9 @@ object TierCalculator {
             DOMESTIC_ABUSE to deliusInputs.registrations.domesticAbuse(),
             STALKING to deliusInputs.registrations.stalking(),
             CHILD_PROTECTION to deliusInputs.registrations.childProtection(),
-            SEXUAL_OFFENCES to oasysInputs.sexualOffences(),
-            SENTENCING_ACT_2026_EXCLUSION to deliusInputs.sentencingAct2026Exclusions(),
+            SEXUAL_OFFENCES to oasysInputs.personConvictedOfSexualOffences(),
+            RAPE_INDECENT_ASSAULT_AND_OTHER_OFFENCES to deliusInputs.rapeIndecentAssaultAndOtherOffences(),
+            CHILD_SEXUAL_EXPLOITATION to deliusInputs.childSexualExploitation(),
         )
         return CalculationResult(
             tier = stepResults.maxOf { it.value ?: G },
@@ -81,18 +82,20 @@ object TierCalculator {
         }
     }
 
-    fun DeliusInputs.sentencingAct2026Exclusions(): Tier? {
-        val today = LocalDate.now()
-        return when {
-            latestSentencingAct2026ExclusionDate == null -> null
-            latestSentencingAct2026ExclusionDate >= today.minusYears(4) -> C
-            latestSentencingAct2026ExclusionDate >= today.minusYears(5) -> D
-            else -> E
-        }
+    fun DeliusInputs.rapeIndecentAssaultAndOtherOffences() =
+        latestSentencingAct2026ExcludedOffenceDate?.steppedModerator()
+
+    fun DeliusInputs.childSexualExploitation() =
+        latestChildSexualExploitationSentenceDate?.steppedModerator()
+
+    fun LocalDate.steppedModerator(today: LocalDate = LocalDate.now()) = when {
+        this >= today.minusYears(4) -> C
+        this >= today.minusYears(5) -> D
+        else -> E
     }
 
     fun Registrations.domesticAbuse() = E.takeIf { hasDomesticAbuse }
     fun Registrations.stalking() = F.takeIf { hasStalking }
     fun Registrations.childProtection() = F.takeIf { hasChildProtection }
-    fun OASysInputs.sexualOffences() = E.takeIf { everCommittedSexualOffence }
+    fun OASysInputs.personConvictedOfSexualOffences() = E.takeIf { everCommittedSexualOffence }
 }

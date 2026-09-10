@@ -78,13 +78,13 @@ class DeliusApiServiceTest {
         assertThat(result.hasNoMandate).isEqualTo(expectedHasNoMandate)
     }
 
-    @ParameterizedTest(name = "CSE={0}, mainOffenceExcluded={1}, additionalOffenceExcluded={2} map to excluded={3}")
-    @MethodSource("sentencingAct2026ExclusionCases")
-    fun `maps sentencing act 2026 exclusions from CSE registrations and offences`(
+    @ParameterizedTest(name = "CSE={0}, mainOffenceExcluded={1}, additionalOffenceExcluded={2} map to offenceExcluded={3}")
+    @MethodSource("steppedModeratorFlagCases")
+    fun `maps CSE and excluded offence dates independently`(
         hasChildSexualExploitation: Boolean,
         mainOffenceExcluded: Boolean,
         additionalOffenceExcluded: Boolean,
-        expectedExcluded: Boolean,
+        expectedOffenceExcluded: Boolean,
     ) {
         val startDate = LocalDate.of(2025, 2, 20)
         val registrations = listOfNotNull(
@@ -109,20 +109,23 @@ class DeliusApiServiceTest {
 
         val result = deliusApiService.getTierToDelius(crn)
 
-        assertThat(result.latestSentencingAct2026ExclusionDate)
-            .isEqualTo(if (expectedExcluded) startDate else null)
+        assertThat(result.latestSentencingAct2026ExcludedOffenceDate)
+            .isEqualTo(if (expectedOffenceExcluded) startDate else null)
+        assertThat(result.latestChildSexualExploitationSentenceDate)
+            .isEqualTo(if (hasChildSexualExploitation) startDate else null)
     }
 
-    @ParameterizedTest(name = "isCustodial={0}, startDate={1}, latestReleaseDate={2} map to exclusion date {3}")
-    @MethodSource("sentencingAct2026ExclusionDateCases")
-    fun `uses release date for custodial exclusions and start date for non-custodial exclusions`(
+    @ParameterizedTest(name = "isCustodial={0}, startDate={1}, latestReleaseDate={2} map to supervision start date {3}")
+    @MethodSource("supervisionStartDateCases")
+    fun `uses release date for custodial sentences and start date for non-custodial sentences in both moderators`(
         isCustodial: Boolean,
         startDate: LocalDate?,
         latestReleaseDate: LocalDate?,
-        expectedExclusionDate: LocalDate?,
+        expectedSupervisionStartDate: LocalDate?,
     ) {
         stubDeliusResponse(
             deliusResponse(
+                registrations = listOf(registration(DeliusRegistration.CHILD_SEXUAL_EXPLOITATION)),
                 latestReleaseDate = LocalDate.of(2026, 1, 1),
                 convictions = listOf(
                     conviction(
@@ -137,7 +140,8 @@ class DeliusApiServiceTest {
 
         val result = deliusApiService.getTierToDelius(crn)
 
-        assertThat(result.latestSentencingAct2026ExclusionDate).isEqualTo(expectedExclusionDate)
+        assertThat(result.latestSentencingAct2026ExcludedOffenceDate).isEqualTo(expectedSupervisionStartDate)
+        assertThat(result.latestChildSexualExploitationSentenceDate).isEqualTo(expectedSupervisionStartDate)
     }
 
     @Test
@@ -262,10 +266,10 @@ class DeliusApiServiceTest {
         )
 
         @JvmStatic
-        fun sentencingAct2026ExclusionCases() = listOf(
+        fun steppedModeratorFlagCases() = listOf(
             // CSE, Main Offence Excluded, Additional Offence Excluded
             Arguments.of(false, false, false, false),
-            Arguments.of(true, false, false, true),
+            Arguments.of(true, false, false, false),
             Arguments.of(false, true, false, true),
             Arguments.of(false, false, true, true),
             Arguments.of(true, true, false, true),
@@ -275,7 +279,7 @@ class DeliusApiServiceTest {
         )
 
         @JvmStatic
-        fun sentencingAct2026ExclusionDateCases(): List<Arguments> {
+        fun supervisionStartDateCases(): List<Arguments> {
             val startDate = LocalDate.of(2024, 1, 1)
             val latestReleaseDate = LocalDate.of(2025, 2, 20)
             return listOf(

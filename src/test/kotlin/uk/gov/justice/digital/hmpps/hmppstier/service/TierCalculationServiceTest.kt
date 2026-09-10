@@ -134,7 +134,8 @@ internal class TierCalculationServiceTest {
         previousEnforcementActivity = false,
         latestReleaseDate = null,
         hasActiveEvent = true,
-        latestSentencingAct2026ExclusionDate = null,
+        latestSentencingAct2026ExcludedOffenceDate = null,
+        latestChildSexualExploitationSentenceDate = null,
     )
 
     private fun oasysInputs() = OASysInputs(

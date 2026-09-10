@@ -155,14 +155,27 @@ class TierCalculatorTest {
         ).isEqualTo(CalculationResult(E))
     }
 
-    @ParameterizedTest(name = "latestSentencingAct2026ExclusionDate={0} maps to tier {1}")
-    @MethodSource("sentencingAct2026ExclusionDateCases")
-    fun `applies sentencing act 2026 exclusion date rules`(
-        latestSentencingAct2026ExclusionDate: LocalDate?,
+    @ParameterizedTest(name = "latestSentencingAct2026ExcludedOffenceDate={0} maps to tier {1}")
+    @MethodSource("steppedModeratorDateCases")
+    fun `applies rape, indecent assault and other excluded offence date rules`(
+        latestSentencingAct2026ExcludedOffenceDate: LocalDate?,
         expectedTier: Tier,
     ) {
         val tier = TierCalculator.calculate(
-            deliusInputs(latestSentencingAct2026ExclusionDate = latestSentencingAct2026ExclusionDate),
+            deliusInputs(latestSentencingAct2026ExcludedOffenceDate = latestSentencingAct2026ExcludedOffenceDate),
+            oasysInputs(),
+        ).tier
+        assertThat(tier).isEqualTo(expectedTier)
+    }
+
+    @ParameterizedTest(name = "latestChildSexualExploitationSentenceDate={0} maps to tier {1}")
+    @MethodSource("steppedModeratorDateCases")
+    fun `applies child sexual exploitation sentence date rules`(
+        latestChildSexualExploitationSentenceDate: LocalDate?,
+        expectedTier: Tier,
+    ) {
+        val tier = TierCalculator.calculate(
+            deliusInputs(latestChildSexualExploitationSentenceDate = latestChildSexualExploitationSentenceDate),
             oasysInputs(),
         ).tier
         assertThat(tier).isEqualTo(expectedTier)
@@ -179,7 +192,8 @@ class TierCalculatorTest {
                 hasDomesticAbuse = true,
                 hasStalking = true,
                 hasChildProtection = true,
-                latestSentencingAct2026ExclusionDate = LocalDate.now(),
+                latestSentencingAct2026ExcludedOffenceDate = LocalDate.now(),
+                latestChildSexualExploitationSentenceDate = LocalDate.now(),
             ),
             oasysInputs(arp = 95.0, csrp = 6.9, directSrp = sexualPredictor(5.31, VERY_HIGH)),
         ).tier
@@ -257,12 +271,12 @@ class TierCalculatorTest {
     }
 
     @Test
-    fun `static ARP with dynamic CSRP is provisional unless sentencing act 2026 exclusion reaches the maximum ARP CSRP tier`() {
+    fun `static ARP with dynamic CSRP is provisional unless CSE reaches the maximum ARP CSRP tier`() {
         assertThat(
             TierCalculator.calculate(
                 deliusInputs(
                     rosh = Rosh.MEDIUM,
-                    latestSentencingAct2026ExclusionDate = LocalDate.now().minusYears(4),
+                    latestChildSexualExploitationSentenceDate = LocalDate.now().minusYears(4),
                 ),
                 oasysInputs(arp = 0.0, csrp = 0.5, arpType = ScoreType.STATIC),
             )
@@ -272,7 +286,7 @@ class TierCalculatorTest {
             TierCalculator.calculate(
                 deliusInputs(
                     rosh = Rosh.MEDIUM,
-                    latestSentencingAct2026ExclusionDate = LocalDate.now().minusYears(4).minusDays(1),
+                    latestChildSexualExploitationSentenceDate = LocalDate.now().minusYears(4).minusDays(1),
                 ),
                 oasysInputs(arp = 0.0, csrp = 0.5, arpType = ScoreType.STATIC),
             )
@@ -282,7 +296,7 @@ class TierCalculatorTest {
             TierCalculator.calculate(
                 deliusInputs(
                     rosh = Rosh.MEDIUM,
-                    latestSentencingAct2026ExclusionDate = LocalDate.now().minusYears(5),
+                    latestChildSexualExploitationSentenceDate = LocalDate.now().minusYears(5),
                 ),
                 oasysInputs(arp = 0.0, csrp = 0.0, arpType = ScoreType.STATIC),
             )
@@ -359,10 +373,10 @@ class TierCalculatorTest {
     }
 
     @Test
-    fun `missing ROSH is provisional unless sentencing act 2026 exclusion reaches tier C and MAPPA is absent`() {
+    fun `missing ROSH is provisional unless CSE reaches tier C and MAPPA is absent`() {
         assertThat(
             TierCalculator.calculate(
-                deliusInputs(rosh = null, latestSentencingAct2026ExclusionDate = LocalDate.now().minusYears(4)),
+                deliusInputs(rosh = null, latestChildSexualExploitationSentenceDate = LocalDate.now().minusYears(4)),
                 oasysInputs(),
             )
         ).isEqualTo(CalculationResult(C, provisional = false))
@@ -371,7 +385,7 @@ class TierCalculatorTest {
             TierCalculator.calculate(
                 deliusInputs(
                     rosh = null,
-                    latestSentencingAct2026ExclusionDate = LocalDate.now().minusYears(4).minusDays(1),
+                    latestChildSexualExploitationSentenceDate = LocalDate.now().minusYears(4).minusDays(1),
                 ),
                 oasysInputs(),
             )
@@ -379,7 +393,7 @@ class TierCalculatorTest {
 
         assertThat(
             TierCalculator.calculate(
-                deliusInputs(hasMappa = true, rosh = null, latestSentencingAct2026ExclusionDate = LocalDate.now()),
+                deliusInputs(hasMappa = true, rosh = null, latestChildSexualExploitationSentenceDate = LocalDate.now()),
                 oasysInputs(),
             )
         ).isEqualTo(CalculationResult(C, provisional = true))
@@ -394,7 +408,8 @@ class TierCalculatorTest {
         hasStalking: Boolean = false,
         hasChildProtection: Boolean = false,
         hasActiveEvent: Boolean = true,
-        latestSentencingAct2026ExclusionDate: LocalDate? = null,
+        latestSentencingAct2026ExcludedOffenceDate: LocalDate? = null,
+        latestChildSexualExploitationSentenceDate: LocalDate? = null,
     ) = DeliusInputs(
         isFemale = false,
         rsrScore = BigDecimal.ZERO,
@@ -415,7 +430,8 @@ class TierCalculatorTest {
         previousEnforcementActivity = false,
         latestReleaseDate = latestReleaseDate,
         hasActiveEvent = hasActiveEvent,
-        latestSentencingAct2026ExclusionDate = latestSentencingAct2026ExclusionDate,
+        latestSentencingAct2026ExcludedOffenceDate = latestSentencingAct2026ExcludedOffenceDate,
+        latestChildSexualExploitationSentenceDate = latestChildSexualExploitationSentenceDate,
     )
 
     private fun oasysInputs(
@@ -567,7 +583,7 @@ class TierCalculatorTest {
         )
 
         @JvmStatic
-        fun sentencingAct2026ExclusionDateCases(): List<Arguments> {
+        fun steppedModeratorDateCases(): List<Arguments> {
             val today = LocalDate.now()
             return listOf(
                 Arguments.of(null, G),
