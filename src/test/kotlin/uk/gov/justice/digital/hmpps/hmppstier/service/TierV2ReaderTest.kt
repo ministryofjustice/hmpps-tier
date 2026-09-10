@@ -77,7 +77,8 @@ internal class TierV2ReaderTest {
                     previousEnforcementActivity = false,
                     latestReleaseDate = null,
                     hasActiveEvent = false,
-                    latestSentencingAct2026ExclusionDate = null,
+                    latestSentencingAct2026ExcludedOffenceDate = null,
+                    latestChildSexualExploitationSentenceDate = null,
                 )
             )
         )

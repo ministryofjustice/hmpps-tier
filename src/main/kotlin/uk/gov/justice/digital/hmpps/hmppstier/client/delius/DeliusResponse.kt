@@ -22,4 +22,6 @@ data class DeliusResponse @JsonCreator constructor(
     val previousEnforcementActivity: Boolean,
     val latestReleaseDate: LocalDate?,
     val hasActiveEvent: Boolean,
-)
+) {
+    val activeConvictions get() = convictions.filter { it.terminationDate == null }
+}
