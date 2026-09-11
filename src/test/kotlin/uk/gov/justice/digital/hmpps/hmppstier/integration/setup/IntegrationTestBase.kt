@@ -29,7 +29,6 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierSummaryReposito
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.DomainEvent
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.consumer.SQSMessage
 import uk.gov.justice.digital.hmpps.hmppstier.messaging.publisher.TierCalculationDomainEvent
-import uk.gov.justice.digital.hmpps.hmppstier.service.RescoredAssessmentService
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierCalculationService
 import uk.gov.justice.hmpps.sqs.HmppsQueueService
 import uk.gov.justice.hmpps.sqs.MissingQueueException
@@ -67,9 +66,6 @@ abstract class IntegrationTestBase {
 
     @MockitoSpyBean
     lateinit var tierCalculationService: TierCalculationService
-
-    @MockitoSpyBean
-    lateinit var rescoredAssessmentService: RescoredAssessmentService
 
     @MockitoSpyBean
     lateinit var telemetryClient: TelemetryClient

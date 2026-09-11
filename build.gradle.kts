@@ -54,7 +54,6 @@ java {
 kotlin {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_25)
-        freeCompilerArgs.set(listOf("-Xannotation-default-target=param-property"))
     }
 }
 

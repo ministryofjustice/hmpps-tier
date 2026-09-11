@@ -98,11 +98,6 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
             .respond(HttpResponse.notFoundResponse().withContentType(MediaType.APPLICATION_JSON))
     }
 
-    fun getNotFoundRiskPredictors(crn: String) {
-        arnsApi.`when`(request().withPath("/risks/predictors/unsafe/all/CRN/$crn"), exactly(1))
-            .respond(HttpResponse.notFoundResponse().withContentType(MediaType.APPLICATION_JSON))
-    }
-
     fun getRiskPredictors(
         crn: String,
         csrp: Double? = 0.0,
@@ -117,39 +112,37 @@ class ArnsApiMockServer : ClientAndServer(MOCKSERVER_PORT) {
         iicSrpBand: ScoreLevel? = null,
         completedDate: LocalDateTime = LocalDateTime.now().minusWeeks(1),
     ) {
-        arnsApi.`when`(request().withPath("/risks/predictors/unsafe/all/CRN/$crn"), exactly(1)).respond(
+        arnsApi.`when`(request().withPath("/risks/predictors/unsafe/tier/CRN/$crn"), exactly(1)).respond(
             response().withContentType(MediaType.APPLICATION_JSON).withBody(
                 jacksonObjectMapper().writeValueAsString(
-                    listOf(
-                        OGRS4Predictors(
-                            assessmentType = AssessmentType.LAYER3,
-                            completedDate = completedDate,
-                            outputVersion = "2",
-                            output = AllPredictorDto(
-                                allReoffendingPredictor = arp?.let {
-                                    StaticOrDynamicPredictorDto(
-                                        staticOrDynamic = arpType,
-                                        score = it.toBigDecimal(),
-                                        band = arpBand,
-                                    )
-                                },
-                                combinedSeriousReoffendingPredictor = csrp?.let {
-                                    VersionedStaticOrDynamicPredictorDto(
-                                        staticOrDynamic = csrpType,
-                                        score = it.toBigDecimal(),
-                                        band = csrpBand,
-                                    )
-                                },
-                                directContactSexualReoffendingPredictor = StaticOrDynamicPredictorDto(
-                                    score = dcSrp?.toBigDecimal(),
-                                    band = dcSrpBand,
-                                ),
-                                indirectImageContactSexualReoffendingPredictor = StaticOrDynamicPredictorDto(
-                                    score = iicSrp?.toBigDecimal(),
-                                    band = iicSrpBand,
+                    OGRS4Predictors(
+                        assessmentType = AssessmentType.LAYER3,
+                        completedDate = completedDate,
+                        outputVersion = "2",
+                        output = AllPredictorDto(
+                            allReoffendingPredictor = arp?.let {
+                                StaticOrDynamicPredictorDto(
+                                    staticOrDynamic = arpType,
+                                    score = it.toBigDecimal(),
+                                    band = arpBand,
                                 )
+                            },
+                            combinedSeriousReoffendingPredictor = csrp?.let {
+                                VersionedStaticOrDynamicPredictorDto(
+                                    staticOrDynamic = csrpType,
+                                    score = it.toBigDecimal(),
+                                    band = csrpBand,
+                                )
+                            },
+                            directContactSexualReoffendingPredictor = StaticOrDynamicPredictorDto(
+                                score = dcSrp?.toBigDecimal(),
+                                band = dcSrpBand,
                             ),
-                        )
+                            indirectImageContactSexualReoffendingPredictor = StaticOrDynamicPredictorDto(
+                                score = iicSrp?.toBigDecimal(),
+                                band = iicSrpBand,
+                            )
+                        ),
                     )
                 )
             )

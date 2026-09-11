@@ -114,7 +114,9 @@ class DomainEventListener(
         const val OASYS_DOMAIN_EVENT = "risk-assessment.scores.determined"
         const val OASYS_ASSESSMENT_SUMMARY_EVENT = "assessment.summary.produced"
         const val OASYS_STANDALONE_CSRP_EVENT = "risk-assessment.scores.rsr.determined"
-        val OASYS_TIER_TRIGGERS = arrayOf(OASYS_ASSESSMENT_SUMMARY_EVENT, OASYS_STANDALONE_CSRP_EVENT)
+        const val OASYS_PREDICTORS_CHANGE = "predictors.tier.change"
+        val OASYS_TIER_TRIGGERS =
+            arrayOf(OASYS_ASSESSMENT_SUMMARY_EVENT, OASYS_STANDALONE_CSRP_EVENT, OASYS_PREDICTORS_CHANGE)
 
         val RETRYABLE_EXCEPTIONS = listOf(
             RestClientException::class,

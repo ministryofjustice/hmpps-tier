@@ -4,23 +4,18 @@ import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.hmppstier.client.ArnsApiClient
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.AssessmentForTier
 import uk.gov.justice.digital.hmpps.hmppstier.domain.OASysInputs
-import uk.gov.justice.digital.hmpps.hmppstier.service.RescoredAssessmentService
 
 @Service
-class AssessmentApiService(
-    private val arnsApiClient: ArnsApiClient,
-    private val rescoredAssessmentService: RescoredAssessmentService,
-) {
+class AssessmentApiService(private val arnsApiClient: ArnsApiClient) {
     fun getTierAssessmentInformation(crn: String): AssessmentForTier? = arnsApiClient.getTierAssessmentInformation(crn)
 
-    fun getRiskPredictors(crn: String) = arnsApiClient.getRiskPredictors(crn)
-        ?.maxByOrNull { it.completedDate }
+    fun getRiskPredictors(crn: String) = arnsApiClient.getTierRiskPredictors(crn)
 
     fun getSexuallyMotivatedOffence(crn: String) = arnsApiClient.getSexuallyMotivatedOffence(crn)
         ?.everCommittedSexualOffence == true
 
     fun getOASysTierInputs(crn: String): OASysInputs? {
-        val predictors = (getRiskPredictors(crn) ?: rescoredAssessmentService.getByCrn(crn))
+        val predictors = getRiskPredictors(crn)
         return predictors?.output?.let {
             OASysInputs(
                 predictors = predictors,
