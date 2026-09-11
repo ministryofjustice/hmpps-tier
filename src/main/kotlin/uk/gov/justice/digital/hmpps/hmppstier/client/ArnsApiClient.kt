@@ -6,7 +6,6 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
 import org.springframework.web.reactive.function.client.bodyToMono
 import reactor.core.publisher.Mono
 import reactor.util.retry.Retry
-import uk.gov.justice.digital.hmpps.hmppstier.client.arns.AllPredictorVersioned
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.AssessmentForTier
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.OGRS4Predictors
 import uk.gov.justice.digital.hmpps.hmppstier.client.arns.SexualOffenceDto
@@ -25,16 +24,14 @@ class ArnsApiClient(
         .retryWhen(retryOnServerError)
         .block()
 
-    fun getRiskPredictors(crn: String): List<OGRS4Predictors>? = arnsClient
+    fun getTierRiskPredictors(crn: String): OGRS4Predictors? = arnsClient
         .get()
-        .uri("/risks/predictors/unsafe/all/CRN/{crn}?includeStandaloneAssessments=true", crn)
+        .uri("/risks/predictors/unsafe/tier/CRN/{crn}", crn)
         .retrieve()
-        .bodyToMono<List<AllPredictorVersioned<Any>>>()
+        .bodyToMono<OGRS4Predictors>()
         .retryWhen(retryOnServerError)
         .onErrorResume(WebClientResponseException.NotFound::class.java) { Mono.empty() }
         .block()
-        ?.filter { it.outputVersion == "2" && it is OGRS4Predictors }
-        ?.map { it as OGRS4Predictors }
 
     fun getSexuallyMotivatedOffence(crn: String): SexualOffenceDto? = arnsClient
         .get()

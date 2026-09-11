@@ -1,0 +1,1 @@
+drop table ogrs4_rescored_assessment;
