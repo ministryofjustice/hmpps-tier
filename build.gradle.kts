@@ -1,9 +1,9 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.7"
-    kotlin("plugin.spring") version "2.4.10"
-    kotlin("plugin.jpa") version "2.4.10"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.8"
+    kotlin("plugin.spring") version "2.4.20"
+    kotlin("plugin.jpa") version "2.4.20"
     jacoco
 }
 
@@ -20,9 +20,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-flyway")
     implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.1")
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.4.1")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.1")
     implementation("io.hypersistence:hypersistence-utils-hibernate-71:3.15.5")
-    implementation(platform("io.sentry:sentry-bom:8.55.0"))
+    implementation(platform("io.sentry:sentry-bom:8.56.0"))
     implementation("io.sentry:sentry-spring-boot-4")
     implementation("io.sentry:sentry-logback")
     implementation("io.flipt:flipt-client-java:1.3.4")
@@ -42,9 +42,9 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
-    testImplementation("io.cucumber:cucumber-spring:7.34.7")
-    testImplementation("io.cucumber:cucumber-java8:7.34.7")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.34.7")
+    testImplementation("io.cucumber:cucumber-spring:7.34.8")
+    testImplementation("io.cucumber:cucumber-java8:7.34.8")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine:7.34.8")
 }
 
 java {
