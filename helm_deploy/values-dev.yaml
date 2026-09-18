@@ -18,7 +18,7 @@ generic-service:
     delius-test-2: 35.178.162.73/32
     delius-test-3: 52.56.195.113/32
   scheduledDowntime:
-    enabled: true
+    enabled: false
 
 full-recalculation:
   schedule: 0 8 * * 1 # Every Monday at 08:00 UTC
