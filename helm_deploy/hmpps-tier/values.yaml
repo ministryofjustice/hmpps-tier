@@ -5,10 +5,10 @@ generic-service:
   resources:
     requests:
       cpu: 128m
-      memory: 512Mi
+      memory: 768Mi
     limits:
       cpu: 2048m
-      memory: 1Gi
+      memory: 1536Mi
 
   image:
     repository: ghcr.io/ministryofjustice/hmpps-tier
