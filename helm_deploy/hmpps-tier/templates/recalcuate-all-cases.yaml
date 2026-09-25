@@ -4,6 +4,7 @@ metadata:
   name: recalculate-tiers
 spec:
   schedule: {{ index .Values "full-recalculation" "schedule" }}
+  timeZone: "Europe/London"
   concurrencyPolicy: Forbid
   failedJobsHistoryLimit: 1
   successfulJobsHistoryLimit: 1
