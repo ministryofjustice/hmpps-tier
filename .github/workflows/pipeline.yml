@@ -51,7 +51,7 @@ jobs:
     secrets: inherit
     with:
       gradle-command: 'BUILD_NUMBER=${{ needs.app_version.outputs.version}} ./gradlew assemble check'
-      upload-build-artifacts: ${{ github.ref == 'refs/heads/main' }}
+      upload-build-artifacts: true #${{ github.ref == 'refs/heads/main' }}
       java-version: "25"
       localstack-tag: "4"
       postgres-tag: "16"
@@ -59,7 +59,7 @@ jobs:
       - app_version
   build:
     name: Build docker image from hmpps-github-actions
-    if: github.ref == 'refs/heads/main'
+    #    if: github.ref == 'refs/heads/main'
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/docker_build.yml@v2
     needs:
       - gradle_verify
