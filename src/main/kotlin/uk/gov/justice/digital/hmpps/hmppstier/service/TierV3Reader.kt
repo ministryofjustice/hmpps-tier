@@ -9,6 +9,7 @@ import uk.gov.justice.digital.hmpps.hmppstier.jpa.entity.TierSummaryEntity
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierCalculationRepository
 import uk.gov.justice.digital.hmpps.hmppstier.jpa.repository.TierSummaryRepository
 import uk.gov.justice.digital.hmpps.hmppstier.model.TierDto.Companion.getSuffix
+import uk.gov.justice.digital.hmpps.hmppstier.model.TierHistory
 import uk.gov.justice.digital.hmpps.hmppstier.model.TierV3DetailsDto
 import uk.gov.justice.digital.hmpps.hmppstier.model.TierV3Dto
 import java.util.*
@@ -33,7 +34,7 @@ class TierV3Reader(
         tierCalculationRepository.findByCrnAndUuid(crn, calculationId)?.dto()
 
     fun getTierHistory(crn: String): List<TierV3Dto> =
-        tierCalculationRepository.findByCrnOrderByCreatedDesc(crn).map { it.dto() ?: it.dtoV2() }
+        tierCalculationRepository.findHistoryByCrn(crn).map { it.dto() }
 
     private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
         tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
@@ -50,6 +51,14 @@ class TierV3Reader(
     }
 
     companion object {
+        fun TierHistory.dto() = TierV3Dto(
+            tierScore = tier?.name ?: (protectLevel.value + changeLevel.value + getSuffix(unsupervised)),
+            calculationId = calculationId,
+            calculationDate = calculationDate,
+            changeReason = changeReason,
+            provisional = if (tier != null) provisional else null,
+        )
+
         fun TierCalculationEntity.details() = data.tier?.name?.let { tier ->
             TierV3DetailsDto(
                 tierScore = tier,
