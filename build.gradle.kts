@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.9"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.10"
     kotlin("plugin.spring") version "2.4.20"
     kotlin("plugin.jpa") version "2.4.20"
     jacoco
@@ -18,11 +18,11 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security-oauth2-resource-server")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-starter-flyway")
-    implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.1")
+    implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.3")
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.4.1")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.1")
-    implementation("io.hypersistence:hypersistence-utils-hibernate-71:3.15.5")
-    implementation(platform("io.sentry:sentry-bom:8.57.0"))
+    implementation("io.hypersistence:hypersistence-utils-hibernate-71:3.16.0")
+    implementation(platform("io.sentry:sentry-bom:8.58.0"))
     implementation("io.sentry:sentry-spring-boot-4")
     implementation("io.sentry:sentry-logback")
     implementation("io.flipt:flipt-client-java:1.3.4")
@@ -35,7 +35,7 @@ dependencies {
     }
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
     testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
-    testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:3.0.1")
+    testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:3.0.3")
     testImplementation("org.mock-server:mockserver-netty:7.6.0")
     testImplementation("com.ninja-squad:springmockk:5.0.1")
     testImplementation("org.assertj:assertj-core:3.27.7")
