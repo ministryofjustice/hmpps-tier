@@ -8,15 +8,14 @@
 # ]
 # ///
 import argparse
+import boto3
 import csv
+import psycopg
 import sys
 import tempfile
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import LiteralString
-
-import boto3
-import psycopg
 
 EXPORT_SQL: LiteralString = """
                             with latest_calculation as (select distinct on (crn) id,
@@ -141,12 +140,17 @@ def find_starting_id(
     )
 
     sql: LiteralString = """
-                         select min(id)
+                         select min(id),
+                                (select created < localtimestamp - (%(lookback_days)s * interval '1 day')
+                                 from tier_calculation
+                                 where id between %(lower)s and %(upper)s
+                                 order by id
+                                 limit 1) as first_row_before_cutoff
                          from tier_calculation
                          where data ->> 'calculationVersion' = '3'
-                           and created >= localtimestamp - (%s * interval '1 day')
-                           and id between %s
-                             and %s \
+                           and created >= localtimestamp - (%(lookback_days)s * interval '1 day')
+                           and id between %(lower)s
+                             and %(upper)s \
                          """
 
     earliest_seen: int | None = None
@@ -155,17 +159,19 @@ def find_starting_id(
     with conn.cursor() as cur:
         while upper >= 1:
             lower = max(1, upper - search_window_size + 1)
-            cur.execute(sql, (lookback_days, lower, upper))
+            cur.execute(sql, {"lookback_days": lookback_days, "lower": lower, "upper": upper})
             row = cur.fetchone()
             min_id_in_window = int(row[0]) if row and row[0] else None
+            first_row_before_cutoff = row[1] if row else None
 
-            log(f"Back-search window [{lower}, {upper}] -> min_id_in_window={min_id_in_window}")
+            log(
+                f"Back-search window [{lower}, {upper}] -> min_id_in_window={min_id_in_window}, "
+                f"first_row_before_cutoff={first_row_before_cutoff}"
+            )
 
             if min_id_in_window is not None:
                 earliest_seen = min_id_in_window
-                if min_id_in_window > lower:
-                    return min_id_in_window
-            elif earliest_seen is not None:
+            if first_row_before_cutoff:
                 return earliest_seen
 
             upper = lower - 1
