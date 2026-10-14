@@ -17,7 +17,7 @@ data class TierV2DetailsDto @JsonCreator constructor(
     @JsonProperty("calculationId")
     val calculationId: UUID,
 
-    @Schema(description = "Calculation Date Time", example = "2021-04-23T18:25:43.511Z")
+    @Schema(description = "Calculation Date Time", example = "2021-04-23T18:25:43.511")
     @JsonProperty("calculationDate")
     val calculationDate: LocalDateTime,
 
