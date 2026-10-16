@@ -16,6 +16,10 @@ generic-service:
     delius-prod-1: 52.56.115.146/32
     delius-prod-2: 35.178.104.253/32
     delius-prod-3: 35.177.47.45/32
+    groups:
+      - internal
+      - unilink_staff
+      - mod-platform-live
 
 full-recalculation:
   schedule: 0 18 * * 5 # Every Friday at 18:00 UTC

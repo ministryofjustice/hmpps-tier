@@ -66,11 +66,6 @@ generic-service:
     sqs-domain-events-dl-secret:
       HMPPS_SQS_QUEUES_HMPPSDOMAINEVENTSQUEUE_DLQ_NAME: "sqs_queue_name"
 
-  allowlist:
-    groups:
-      - internal
-      - unilink_staff
-
   serviceAccountName: hmpps-tier
 
 generic-prometheus-alerts:
