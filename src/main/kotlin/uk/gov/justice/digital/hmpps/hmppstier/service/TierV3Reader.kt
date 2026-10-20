@@ -32,11 +32,9 @@ class TierV3Reader(
     fun getTierByCalculationId(crn: String, calculationId: UUID): TierV3Dto? =
         tierCalculationRepository.findByCrnAndUuid(crn, calculationId)?.dto()
 
-    fun getTierHistory(crn: String): List<TierV3Dto> =
+    fun getTierHistory(crn: String, changesOnly: Boolean): List<TierV3Dto> =
         tierCalculationRepository.findByCrnOrderByCreatedDesc(crn).map { it.dto() ?: it.dtoV2() }
-
-    private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
-        tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
+            .apply { if (changesOnly) distinctConsecutiveBy { Pair(it.tierScore, it.provisional) } }
 
     fun getLatestTierByCrns(crns: List<String>): Map<String, TierV3Dto?> {
         require(crns.size <= 20) { "A maximum of 20 CRNs can be requested at once, got ${crns.size}" }
@@ -47,6 +45,13 @@ class TierV3Reader(
                 ?: getLatestTierCalculation(crn)?.also { runCatching { tierUpdater.createSummary(it) } }?.dto()
                 ?: tierCalculationService.calculateTierForCrn(crn, OnDemandRecalculation)?.dto()
         }
+    }
+
+    private fun getLatestTierCalculation(crn: String): TierCalculationEntity? =
+        tierCalculationRepository.findFirstByCrnOrderByCreatedDesc(crn)
+
+    private fun <T, K> List<T>.distinctConsecutiveBy(selector: (T) -> K): List<T> = filterIndexed { index, tier ->
+        index == 0 || this[index - 1].let { prev -> selector(tier) != selector(prev) }
     }
 
     companion object {

@@ -4,12 +4,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 import uk.gov.justice.digital.hmpps.hmppstier.exception.EntityNotFoundException
 import uk.gov.justice.digital.hmpps.hmppstier.model.TierV3Dto
 import uk.gov.justice.digital.hmpps.hmppstier.service.TierV3Reader
@@ -36,8 +31,10 @@ class TierV3Controller(private val tierReader: TierV3Reader) {
 
     @Operation(summary = "Retrieve tier history by crn")
     @GetMapping("crn/{crn}/tier/history")
-    fun getTierHistory(@PathVariable(required = true) crn: String): List<TierV3Dto> =
-        tierReader.getTierHistory(crn)
+    fun getTierHistory(
+        @PathVariable(required = true) crn: String,
+        @RequestParam(defaultValue = "false") changesOnly: Boolean = false
+    ): List<TierV3Dto> = tierReader.getTierHistory(crn, changesOnly)
 
     @Operation(summary = "Retrieve latest tiering calculation details including inputs and scores")
     @GetMapping("crn/{crn}/tier/details")
