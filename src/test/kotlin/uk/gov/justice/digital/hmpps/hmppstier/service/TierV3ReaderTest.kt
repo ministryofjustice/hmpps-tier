@@ -83,7 +83,7 @@ internal class TierV3ReaderTest {
     }
 
     @Test
-    fun `changesOnly removes consecutive history entries with the same tier and provisional status`() {
+    fun `changesOnly keeps the earliest calculation for each consecutive tier and provisional status`() {
         val crn = TestData.crn()
         val calculations = listOf(
             Tier.C to false,
@@ -92,8 +92,11 @@ internal class TierV3ReaderTest {
             Tier.C to true,
             Tier.B to true,
             Tier.C to false,
-        ).map { (tier, provisional) -> tierCalculation(crn, tier, provisional) }
-        whenever(tierCalculationRepository.findByCrnOrderByCreatedDesc(crn)).thenReturn(calculations)
+        ).mapIndexed { index, (tier, provisional) ->
+            tierCalculation(crn, tier, provisional)
+                .copy(created = LocalDateTime.of(2026, 1, 1, 12, 0).minusDays(index.toLong()))
+        }
+        whenever(tierCalculationRepository.findByCrnOrderByCreatedAsc(crn)).thenReturn(calculations.reversed())
 
         assertThat(
             tierReader.getTierHistory(crn, changesOnly = false).map { it.calculationId },
@@ -101,7 +104,7 @@ internal class TierV3ReaderTest {
         )
         assertThat(
             tierReader.getTierHistory(crn, changesOnly = true).map { it.calculationId },
-            equalTo(listOf(calculations[0], calculations[2], calculations[4], calculations[5]).map { it.uuid })
+            equalTo(listOf(calculations[1], calculations[3], calculations[4], calculations[5]).map { it.uuid })
         )
     }
 

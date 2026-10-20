@@ -29,7 +29,7 @@ class TierV3Controller(private val tierReader: TierV3Reader) {
     fun getLatestTierCalculations(@RequestBody crns: List<String>): Map<String, TierV3Dto?> =
         tierReader.getLatestTierByCrns(crns)
 
-    @Operation(summary = "Retrieve tier history by crn")
+    @Operation(summary = "Retrieve tier history by crn. Pass `changesOnly` to return only the earliest calculation record for each distinct consecutive result")
     @GetMapping("crn/{crn}/tier/history")
     fun getTierHistory(
         @PathVariable(required = true) crn: String,
