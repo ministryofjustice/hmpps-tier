@@ -7,7 +7,7 @@ plugins {
     jacoco
 }
 
-ext["postgresql.version"] = "42.7.12" // Resolves SNYK-JAVA-ORGPOSTGRESQL-17874248
+ext["postgresql.version"] = "42.7.14" // Resolves SNYK-JAVA-ORGPOSTGRESQL-20571163
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
