@@ -34,7 +34,7 @@ class TierV3Reader(
 
     fun getTierHistory(crn: String, changesOnly: Boolean): List<TierV3Dto> =
         tierCalculationRepository.findByCrnOrderByCreatedDesc(crn).map { it.dto() ?: it.dtoV2() }
-            .apply { if (changesOnly) distinctConsecutiveBy { Pair(it.tierScore, it.provisional) } }
+            .let { if (changesOnly) it.distinctConsecutiveBy { Pair(it.tierScore, it.provisional) } else it }
 
     fun getLatestTierByCrns(crns: List<String>): Map<String, TierV3Dto?> {
         require(crns.size <= 20) { "A maximum of 20 CRNs can be requested at once, got ${crns.size}" }

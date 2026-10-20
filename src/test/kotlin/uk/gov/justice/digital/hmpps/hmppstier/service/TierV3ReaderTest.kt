@@ -82,14 +82,37 @@ internal class TierV3ReaderTest {
         assertThat(result, equalTo(mapOf(Tier.A to 12L, Tier.C to 3L)))
     }
 
-    private fun tierCalculation(crn: String, tier: Tier) = TierCalculationEntity(
+    @Test
+    fun `changesOnly removes consecutive history entries with the same tier and provisional status`() {
+        val crn = TestData.crn()
+        val calculations = listOf(
+            Tier.C to false,
+            Tier.C to false,
+            Tier.C to true,
+            Tier.C to true,
+            Tier.B to true,
+            Tier.C to false,
+        ).map { (tier, provisional) -> tierCalculation(crn, tier, provisional) }
+        whenever(tierCalculationRepository.findByCrnOrderByCreatedDesc(crn)).thenReturn(calculations)
+
+        assertThat(
+            tierReader.getTierHistory(crn, changesOnly = false).map { it.calculationId },
+            equalTo(calculations.map { it.uuid })
+        )
+        assertThat(
+            tierReader.getTierHistory(crn, changesOnly = true).map { it.calculationId },
+            equalTo(listOf(calculations[0], calculations[2], calculations[4], calculations[5]).map { it.uuid })
+        )
+    }
+
+    private fun tierCalculation(crn: String, tier: Tier, provisional: Boolean = false) = TierCalculationEntity(
         id = 1L,
         uuid = UUID.randomUUID(),
         crn = crn,
         created = LocalDateTime.of(2026, 1, 1, 12, 0),
         data = TierCalculationResultEntity(
             tier = tier,
-            provisional = false,
+            provisional = provisional,
             protect = TierLevel(ProtectLevel.C, 0, mapOf()),
             change = TierLevel(ChangeLevel.THREE, 0, mapOf()),
             calculationVersion = "3"
