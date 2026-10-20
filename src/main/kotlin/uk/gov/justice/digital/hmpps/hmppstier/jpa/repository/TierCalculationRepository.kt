@@ -8,6 +8,7 @@ import java.util.*
 @Repository
 interface TierCalculationRepository : JpaRepository<TierCalculationEntity, Long> {
     fun findByCrnOrderByCreatedDesc(crn: String): List<TierCalculationEntity>
+    fun findByCrnOrderByCreatedAsc(crn: String): List<TierCalculationEntity>
     fun findFirstByCrnOrderByCreatedDesc(crn: String): TierCalculationEntity?
     fun findByCrnAndUuid(crn: String, calculationId: UUID): TierCalculationEntity?
     fun deleteAllByCrn(crn: String)
