@@ -1,13 +1,11 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.13"
+    id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.14"
     kotlin("plugin.spring") version "2.4.21"
     kotlin("plugin.jpa") version "2.4.21"
     jacoco
 }
-
-ext["postgresql.version"] = "42.7.14" // Resolves SNYK-JAVA-ORGPOSTGRESQL-20571163
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
