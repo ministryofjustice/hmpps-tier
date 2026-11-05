@@ -22,7 +22,7 @@ generic-service:
       - unilink_staff
       - mod-platform-non-live
   scheduledDowntime:
-    enabled: false
+    enabled: true
 
 full-recalculation:
   schedule: 0 8 * * 1 # Every Monday at 08:00 UTC
