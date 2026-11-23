@@ -42,6 +42,7 @@ spring:
 
   threads.virtual.enabled: true
 
+info.productId: HMPPS518 # https://developer-portal.hmpps.service.justice.gov.uk/products/probation-integrations
 server:
   port: 8080
   servlet:
