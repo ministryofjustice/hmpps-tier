@@ -1,5 +1,6 @@
 generic-service:
   nameOverride: hmpps-tier
+  productId: HMPPS525 # https://developer-portal.hmpps.service.justice.gov.uk/products/tiering-unified-tiering-model
 
   replicaCount: 2
   resources:
