@@ -40,7 +40,7 @@ dependencies {
     testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
     testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
     testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
-    testImplementation("io.cucumber:cucumber-spring:7.34.8")
+    testImplementation("io.cucumber:cucumber-spring:8.1.0")
     testImplementation("io.cucumber:cucumber-java8:7.34.8")
     testImplementation("io.cucumber:cucumber-junit-platform-engine:7.34.8")
 }
