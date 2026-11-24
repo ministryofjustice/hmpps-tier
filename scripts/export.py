@@ -17,91 +17,97 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import LiteralString
 
-EXPORT_SQL: LiteralString = """
-                            with latest_calculation as (select distinct on (crn) id,
-                                                                                 crn,
-                                                                                 created,
-                                                                                 data
-                                                        from tier_calculation
-                                                        where data -> 'oasysInputs' is not null
-                                                          and data ->> 'calculationVersion' = '3'
-                                                          and created >= localtimestamp - (%(lookback_days)s * interval '1 day')
-                                                          and id >= %(start_id)s
-                                                        order by crn, created desc, id desc)
-                            select crn,
-                                   data ->> 'tier'                                                                       as tier,
-                                   nullif(data ->> 'provisional', '')::boolean                                           as provisional,
+EXPORT_SQL: LiteralString = \
+    """
+    with latest_calculation as (select distinct on (crn) id,
+                                                         crn,
+                                                         created,
+                                                         data
+                                from tier_calculation
+                                where data -> 'oasysInputs' is not null
+                                  and data ->> 'calculationVersion' = '3'
+                                  and created >= localtimestamp - (%(lookback_days)s * interval '1 day')
+                                  and id >= %(start_id)s
+                                order by crn, created desc, id desc)
+    select crn,
+           -- tier v3
+           data ->> 'tier'                                                                       as tier,
+           nullif(data ->> 'provisional', '')::boolean                                           as provisional,
+           -- tier v2
+           (data #>> '{protect,tier}')
+               || case data #>> '{change,tier}'
+                      when 'ZERO' then '0'
+                      when 'ONE' then '1'
+                      when 'TWO' then '2'
+                      when 'THREE' then '3' end
+               || case
+                      when data #>> '{deliusInputs,registrations,unsupervised}' = 'true' then 'S'
+                      else '' end                                                                as tier_v2,
 
-                                   -- tier metadata
-                                   id                                                                                    as tier_calculation_id,
-                                   created                                                                               as tier_calculated_at,
+           -- tier metadata
+           id                                                                                    as tier_calculation_id,
+           created                                                                               as tier_calculated_at,
 
-                                   -- riskPredictors metadata
-                                   make_timestamp(
-                                           nullif(data #>> '{oasysInputs,predictors,completedDate,0}', '')::int,
-                                           nullif(data #>> '{oasysInputs,predictors,completedDate,1}', '')::int,
-                                           nullif(data #>> '{oasysInputs,predictors,completedDate,2}', '')::int,
-                                           coalesce(
-                                                   nullif(data #>> '{oasysInputs,predictors,completedDate,3}', '')::int,
-                                                   0),
-                                           coalesce(
-                                                   nullif(data #>> '{oasysInputs,predictors,completedDate,4}', '')::int,
-                                                   0),
-                                           coalesce(
-                                                   nullif(data #>> '{oasysInputs,predictors,completedDate,5}', '')::double precision,
-                                                   0)
-                                   )                                                                                     as assessment_completed_at,
+           -- riskPredictors metadata
+           make_timestamp(
+                   nullif(data #>> '{oasysInputs,predictors,completedDate,0}', '')::int,
+                   nullif(data #>> '{oasysInputs,predictors,completedDate,1}', '')::int,
+                   nullif(data #>> '{oasysInputs,predictors,completedDate,2}', '')::int,
+                   coalesce(nullif(data #>> '{oasysInputs,predictors,completedDate,3}', '')::int, 0),
+                   coalesce(nullif(data #>> '{oasysInputs,predictors,completedDate,4}', '')::int, 0),
+                   coalesce(nullif(data #>> '{oasysInputs,predictors,completedDate,5}', '')::double precision, 0)
+           )                                                                                     as assessment_completed_at,
 
-                                   -- allReoffendingPredictor
-                                   nullif(data #>> '{oasysInputs,predictors,output,allReoffendingPredictor,score}',
-                                          '')::numeric                                                                   as arp_score,
-                                   data #>> '{oasysInputs,predictors,output,allReoffendingPredictor,band}'               as arp_band,
-                                   data #>>
-                                   '{oasysInputs,predictors,output,allReoffendingPredictor,staticOrDynamic}'             as arp_static_or_dynamic,
+           -- allReoffendingPredictor
+           nullif(data #>> '{oasysInputs,predictors,output,allReoffendingPredictor,score}',
+                  '')::numeric                                                                   as arp_score,
+           data #>> '{oasysInputs,predictors,output,allReoffendingPredictor,band}'               as arp_band,
+           data #>>
+           '{oasysInputs,predictors,output,allReoffendingPredictor,staticOrDynamic}'             as arp_static_or_dynamic,
 
-                                   -- combinedSeriousReoffendingPredictor
-                                   nullif(data #>>
-                                          '{oasysInputs,predictors,output,combinedSeriousReoffendingPredictor,score}',
-                                          '')::numeric                                                                   as csrp_score,
-                                   data #>>
-                                   '{oasysInputs,predictors,output,combinedSeriousReoffendingPredictor,band}'            as csrp_band,
-                                   data #>>
-                                   '{oasysInputs,predictors,output,combinedSeriousReoffendingPredictor,staticOrDynamic}' as csrp_static_or_dynamic,
+           -- combinedSeriousReoffendingPredictor
+           nullif(data #>> '{oasysInputs,predictors,output,combinedSeriousReoffendingPredictor,score}',
+                  '')::numeric                                                                   as csrp_score,
+           data #>>
+           '{oasysInputs,predictors,output,combinedSeriousReoffendingPredictor,band}'            as csrp_band,
+           data #>>
+           '{oasysInputs,predictors,output,combinedSeriousReoffendingPredictor,staticOrDynamic}' as csrp_static_or_dynamic,
 
-                                   -- directContactSexualReoffendingPredictor
-                                   nullif(data #>>
-                                          '{oasysInputs,predictors,output,directContactSexualReoffendingPredictor,score}',
-                                          '')::numeric                                                                   as dcsrp_score,
-                                   data #>>
-                                   '{oasysInputs,predictors,output,directContactSexualReoffendingPredictor,band}'        as dcsrp_band,
+           -- directContactSexualReoffendingPredictor
+           nullif(data #>> '{oasysInputs,predictors,output,directContactSexualReoffendingPredictor,score}',
+                  '')::numeric                                                                   as dcsrp_score,
+           data #>>
+           '{oasysInputs,predictors,output,directContactSexualReoffendingPredictor,band}'        as dcsrp_band,
 
-                                   -- indirectImageContactSexualReoffendingPredictor
-                                   nullif(data #>>
-                                          '{oasysInputs,predictors,output,indirectImageContactSexualReoffendingPredictor,score}',
-                                          '')::numeric
-                                                                                                                         as iicsrp_score,
-                                   data #>>
-                                   '{oasysInputs,predictors,output,indirectImageContactSexualReoffendingPredictor,band}' as iicsrp_band,
+           -- indirectImageContactSexualReoffendingPredictor
+           nullif(data #>> '{oasysInputs,predictors,output,indirectImageContactSexualReoffendingPredictor,score}', '')::numeric
+                                                                                                 as iicsrp_score,
+           data #>>
+           '{oasysInputs,predictors,output,indirectImageContactSexualReoffendingPredictor,band}' as iicsrp_band,
 
-                                   -- everCommittedSexualOffence
-                                   nullif(data #>> '{oasysInputs,everCommittedSexualOffence}', '')::boolean              as ever_committed_sexual_offence,
+           -- everCommittedSexualOffence
+           nullif(data #>> '{oasysInputs,everCommittedSexualOffence}', '')::boolean              as ever_committed_sexual_offence,
 
-                                   -- deliusInputs
-                                   nullif(data #>> '{deliusInputs,hasActiveEvent}', '')::boolean                         as has_active_event,
+           -- deliusInputs
+           nullif(data #>> '{deliusInputs,hasActiveEvent}', '')::boolean                         as has_active_event,
 
-                                   -- deliusInputs.registrations
-                                   data #>> '{deliusInputs,registrations,rosh}'                                          as rosh,
-                                   data #>> '{deliusInputs,registrations,mappaLevel}'                                    as mappa_level,
-                                   data #>> '{deliusInputs,registrations,mappaCategory}'                                 as mappa_category,
-                                   nullif(data #>> '{deliusInputs,registrations,hasLiferIpp}', '')::boolean              as lifer_ipp,
-                                   nullif(data #>> '{deliusInputs,latestReleaseDate}', '')::timestamp                    as latest_release_date,
-                                   nullif(data #>> '{deliusInputs,registrations,hasStalking}', '')::boolean              as stalking,
-                                   nullif(data #>> '{deliusInputs,registrations,hasDomesticAbuse}', '')::boolean         as domestic_abuse,
-                                   nullif(data #>> '{deliusInputs,registrations,hasChildProtection}', '')::boolean       as child_protection
+           -- deliusInputs.registrations
+           data #>> '{deliusInputs,registrations,rosh}'                                          as rosh,
+           data #>> '{deliusInputs,registrations,mappaLevel}'                                    as mappa_level,
+           data #>> '{deliusInputs,registrations,mappaCategory}'                                 as mappa_category,
+           nullif(data #>> '{deliusInputs,registrations,hasLiferIpp}', '')::boolean              as lifer_ipp,
+           nullif(data #>> '{deliusInputs,latestReleaseDate}', '')::timestamp                    as latest_release_date,
+           nullif(data #>> '{deliusInputs,registrations,hasStalking}', '')::boolean              as stalking,
+           nullif(data #>> '{deliusInputs,registrations,hasDomesticAbuse}', '')::boolean         as domestic_abuse,
+           nullif(data #>> '{deliusInputs,registrations,hasChildProtection}', '')::boolean       as child_protection,
+           nullif(data #>> '{deliusInputs,registrations,latestSentencingAct2026ExcludedOffenceDate}',
+                  '')::boolean                                                                   as latest_sentencing_act_2026_excluded_offence_date,
+           nullif(data #>> '{deliusInputs,registrations,latestChildSexualExploitationSentenceDate}',
+                  '')::boolean                                                                   as latest_child_sexual_exploitation_sentence_date
 
-                            from latest_calculation
-                            order by crn \
-                            """
+    from latest_calculation
+    order by crn \
+    """
 
 
 def parse_args() -> argparse.Namespace:
