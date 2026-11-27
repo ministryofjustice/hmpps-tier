@@ -25,7 +25,7 @@ dependencies {
     implementation("io.sentry:sentry-logback")
     implementation("io.flipt:flipt-client-java:1.4.0")
 
-    runtimeOnly("org.postgresql:postgresql")
+    runtimeOnly("org.postgresql:postgresql:42.7.15")
     runtimeOnly("org.flywaydb:flyway-database-postgresql")
 
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
