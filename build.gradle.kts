@@ -20,7 +20,7 @@ dependencies {
     implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.6.0")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.2.1")
     implementation("io.hypersistence:hypersistence-utils-hibernate-71:3.16.0")
-    implementation(platform("io.sentry:sentry-bom:8.65.0"))
+    implementation(platform("io.sentry:sentry-bom:8.65.1"))
     implementation("io.sentry:sentry-spring-boot-4")
     implementation("io.sentry:sentry-logback")
     implementation("io.flipt:flipt-client-java:1.4.0")
